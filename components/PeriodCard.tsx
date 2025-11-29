@@ -65,6 +65,7 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, onDragStart, onDragEnd,
   };
 
   const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', period.id); // Required for Firefox and some other browsers
     e.dataTransfer.effectAllowed = 'move';
     const ghost = e.currentTarget.cloneNode(true) as HTMLElement;
     ghost.style.position = 'absolute';

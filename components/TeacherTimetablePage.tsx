@@ -38,6 +38,9 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({ t, l
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const [isCommModalOpen, setIsCommModalOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  
+  // Drag and drop state
+  const [draggedData, setDraggedData] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
 
   // Derived active days and periods based on config
   const activeDays = useMemo(() => allDays.filter(day => schoolConfig.daysConfig?.[day]?.active ?? true), [schoolConfig.daysConfig]);
@@ -65,7 +68,6 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({ t, l
   }, [subjects]);
 
   const teacherTimetableData: TimetableGridData = useMemo(() => {
-    // Create structure with all days
     const timetable: TimetableGridData = {
       Monday: Array.from({ length: maxPeriods }, (): Period[] => []),
       Tuesday: Array.from({ length: maxPeriods }, (): Period[] => []),
@@ -79,7 +81,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({ t, l
     classes.forEach(c => {
       allDays.forEach(day => {
         c.timetable[day]?.forEach((slot, periodIndex) => {
-          if (periodIndex < maxPeriods) { // Ensure safety
+          if (periodIndex < maxPeriods) { 
               slot.forEach(p => {
                 if (p.teacherId === selectedTeacherId) {
                   if (!timetable[day][periodIndex]) timetable[day][periodIndex] = [];
@@ -99,7 +101,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({ t, l
   const unscheduledPeriods = useMemo(() => {
     if (!selectedTeacherId) return [];
 
-    const assignedPeriodsCount = new Map<string, number>(); // key: 'classId-subjectId' or 'jp-jointPeriodId'
+    const assignedPeriodsCount = new Map<string, number>(); 
     
     classes.forEach(c => {
       allDays.forEach(day => {
@@ -175,6 +177,148 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({ t, l
     });
   };
 
+  // Drag and Drop Handlers
+  const handleDragStart = (periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number) => {
+      // If the period being dragged is a Joint Period, we must drag all instances of it in this slot.
+      // But in teacher timetable view, all instances are usually visible in the same slot if the teacher is the same.
+      // However, if we drag from unscheduled, `periods` is already a group from the stack.
+      // If we drag from the grid, we need to make sure we grab all periods if it's joint.
+      
+      let draggedPeriods = periods;
+      
+      if (sourceDay && sourcePeriodIndex !== undefined && periods.length === 1 && periods[0].jointPeriodId) {
+          const jointId = periods[0].jointPeriodId;
+          // Find all periods in this slot for this teacher that share the jointPeriodId
+          const allInSlot = teacherTimetableData[sourceDay][sourcePeriodIndex];
+          const related = allInSlot.filter(p => p.jointPeriodId === jointId);
+          if (related.length > 0) {
+              draggedPeriods = related;
+          }
+      }
+
+      setDraggedData({ periods: draggedPeriods, sourceDay, sourcePeriodIndex });
+  };
+
+  const handleDragOver = (e: React.DragEvent, day?: keyof TimetableGridData, periodIndex?: number) => {
+      e.preventDefault(); 
+  };
+
+  const getClassAvailability = (classId: string, day: keyof TimetableGridData, periodIndex: number): boolean => {
+      const targetClass = classes.find(c => c.id === classId);
+      if (!targetClass) return false;
+      // Check if this class has ANY period scheduled at this time
+      const slot = targetClass.timetable[day]?.[periodIndex] || [];
+      return slot.length > 0;
+  };
+
+  const handleDrop = (e: React.DragEvent, targetDay: keyof TimetableGridData, targetPeriodIndex: number) => {
+      e.preventDefault();
+      if (!draggedData || !selectedTeacherId) return;
+
+      // Dynamic period check
+      const periodLimit = schoolConfig.daysConfig?.[targetDay]?.periodCount ?? 8;
+      if (targetPeriodIndex >= periodLimit) return;
+
+      const { periods, sourceDay, sourcePeriodIndex } = draggedData;
+      if (sourceDay === targetDay && sourcePeriodIndex === targetPeriodIndex) return;
+
+      // Check conflicts: Is the CLASS free at target slot?
+      let conflictClassNames: string[] = [];
+      
+      periods.forEach(p => {
+          // If moving to same slot (prevented above), no check needed.
+          // Check if class is busy at new slot
+          const isBusy = getClassAvailability(p.classId, targetDay, targetPeriodIndex);
+          if (isBusy) {
+              const c = classes.find(cls => cls.id === p.classId);
+              if (c) conflictClassNames.push(c.nameEn);
+          }
+      });
+
+      if (conflictClassNames.length > 0) {
+          alert(`Cannot move: The following classes are already busy at this time: ${conflictClassNames.join(', ')}`);
+          return;
+      }
+
+      // Perform Move (Immutable Update)
+      const newClasses = [...classes];
+      
+      // 1. Remove from source (if any)
+      if (sourceDay && sourcePeriodIndex !== undefined) {
+          periods.forEach(p => {
+              const classIndex = newClasses.findIndex(c => c.id === p.classId);
+              if (classIndex !== -1) {
+                  const updatedClass = { ...newClasses[classIndex] };
+                  const updatedTimetable = { ...updatedClass.timetable };
+                  
+                  // Copy day array
+                  const sourceDayPeriods = [...updatedTimetable[sourceDay]];
+                  const sourceSlot = sourceDayPeriods[sourcePeriodIndex] || [];
+                  
+                  sourceDayPeriods[sourcePeriodIndex] = sourceSlot.filter(existing => existing.id !== p.id);
+                  updatedTimetable[sourceDay] = sourceDayPeriods;
+                  
+                  updatedClass.timetable = updatedTimetable;
+                  newClasses[classIndex] = updatedClass;
+              }
+          });
+      }
+
+      // 2. Add to target
+      periods.forEach(p => {
+          const classIndex = newClasses.findIndex(c => c.id === p.classId);
+          if (classIndex !== -1) {
+              const updatedClass = { ...newClasses[classIndex] };
+              const updatedTimetable = { ...updatedClass.timetable };
+              
+              // Copy day array
+              const targetDayPeriods = [...updatedTimetable[targetDay]];
+              const targetSlot = targetDayPeriods[targetPeriodIndex] || [];
+              
+              targetDayPeriods[targetPeriodIndex] = [...targetSlot, p];
+              updatedTimetable[targetDay] = targetDayPeriods;
+              
+              updatedClass.timetable = updatedTimetable;
+              newClasses[classIndex] = updatedClass;
+          }
+      });
+
+      onSetClasses(newClasses);
+      setDraggedData(null);
+  };
+
+  const handleSidebarDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      const data = draggedData;
+      if (!data || !selectedTeacherId) return;
+      
+      const { periods, sourceDay, sourcePeriodIndex } = data;
+      
+      // If coming from grid, remove it (unschedule)
+      if (sourceDay && sourcePeriodIndex !== undefined) {
+          const newClasses = [...classes];
+          periods.forEach(p => {
+              const classIndex = newClasses.findIndex(c => c.id === p.classId);
+              if (classIndex !== -1) {
+                  const updatedClass = { ...newClasses[classIndex] };
+                  const updatedTimetable = { ...updatedClass.timetable };
+                  
+                  // Copy day array
+                  const sourceDayPeriods = [...updatedTimetable[sourceDay]];
+                  const sourceSlot = sourceDayPeriods[sourcePeriodIndex] || [];
+                  
+                  sourceDayPeriods[sourcePeriodIndex] = sourceSlot.filter(existing => existing.id !== p.id);
+                  updatedTimetable[sourceDay] = sourceDayPeriods;
+                  
+                  updatedClass.timetable = updatedTimetable;
+                  newClasses[classIndex] = updatedClass;
+              }
+          });
+          onSetClasses(newClasses);
+      }
+      setDraggedData(null);
+  };
+
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       {selectedTeacher && (<PrintPreview t={t} isOpen={isPrintPreviewOpen} onClose={() => setIsPrintPreviewOpen(false)} title={`${t.teacherTimetable}: ${selectedTeacher.nameEn}`} fileNameBase={`Timetable_${selectedTeacher.nameEn.replace(' ', '_')}`} generateHtml={(lang, options) => generateTeacherTimetableHtml(selectedTeacher, lang, options, classes, subjects, schoolConfig, adjustments)} designConfig={schoolConfig.downloadDesigns.teacher} onSaveDesign={handleSavePrintDesign} />)}
@@ -217,34 +361,28 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({ t, l
             <div className="sticky top-24 space-y-6">
               <TeacherAvailabilitySummary t={t} workloadStats={workloadStats} />
               
-              <div className="p-4 rounded-lg shadow-md border bg-[var(--bg-secondary)] border-[var(--border-primary)]">
+              <div 
+                className={`p-4 rounded-lg shadow-md border bg-[var(--bg-secondary)] border-[var(--border-primary)] ${draggedData?.sourceDay ? 'unscheduled-drop-target' : ''}`}
+                onDragOver={handleDragOver}
+                onDrop={handleSidebarDrop}
+              >
                 <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-primary)] pb-2">{t.unscheduledPeriods} ({(Object.values(groupedUnscheduled) as Period[][]).reduce((sum, group) => sum + (group[0].jointPeriodId ? 1 : group.length), 0)})</h3>
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                  {(Object.values(groupedUnscheduled) as Period[][]).map((group, index) => {
-                      const isJoint = !!group[0].jointPeriodId;
-                      const firstPeriod = group[0];
-                      const subject = subjects.find(s => s.id === firstPeriod.subjectId);
-                      let contextDisplay: React.ReactNode;
-                      if(isJoint) {
-                        const classesInvolved = [...new Set(group.map(p => p.classId))].map(id => classes.find(c => c.id === id)?.nameEn).join(', ');
-                        contextDisplay = `(Joint: ${classesInvolved})`;
-                      } else {
-                        const className = classes.find(c => c.id === firstPeriod.classId)?.nameEn;
-                        contextDisplay = `(${className})`;
-                      }
-                      
-                      return (
-                        <div key={`${firstPeriod.id}-${index}`} className="flex items-center gap-2">
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: `var(--${subjectColorMap.get(firstPeriod.subjectId) || 'subject-default'}-bg)`, color: `var(--${subjectColorMap.get(firstPeriod.subjectId) || 'subject-default'}-text)` }}>
-                              x{group.length / (isJoint ? new Set(group.map(p=>p.classId)).size : 1)}
-                          </div>
-                          <div className="text-sm">
-                            <p className="font-semibold text-[var(--text-primary)]">{subject?.nameEn}</p>
-                            <p className="text-xs text-[var(--text-secondary)]">{contextDisplay}</p>
-                          </div>
-                        </div>
-                      )
-                  })}
+                  {(Object.values(groupedUnscheduled) as Period[][]).map((group, index) => (
+                      <PeriodStack 
+                        key={`${group[0].id}-${index}`}
+                        periods={group}
+                        onDragStart={handleDragStart}
+                        colorName={subjectColorMap.get(group[0].subjectId)}
+                        language={language}
+                        subjects={subjects}
+                        teachers={teachers}
+                        classes={classes}
+                        displayContext="class"
+                        showCount={true}
+                        jointPeriodName={group[0].jointPeriodId ? jointPeriods.find(j=>j.id===group[0].jointPeriodId)?.name : undefined}
+                      />
+                  ))}
                 </div>
               </div>
 
@@ -269,14 +407,20 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({ t, l
                         const periodLimit = schoolConfig.daysConfig?.[day]?.periodCount ?? 8;
                         const isDisabled = periodIndex >= periodLimit;
                         const slotPeriods = teacherTimetableData[day]?.[periodIndex] || [];
+                        
                         return (
-                          <td key={day} className={`border border-[var(--border-secondary)] h-28 p-0.5 align-top ${isDisabled ? 'bg-[var(--slot-disabled-bg)]' : ''}`}>
+                          <td 
+                            key={day} 
+                            className={`border border-[var(--border-secondary)] h-28 p-0.5 align-top ${isDisabled ? 'bg-[var(--slot-disabled-bg)]' : ''} ${!isDisabled ? 'drop-target-available' : ''}`}
+                            onDragOver={(e) => !isDisabled && handleDragOver(e, day, periodIndex)}
+                            onDrop={(e) => !isDisabled && handleDrop(e, day, periodIndex)}
+                          >
                             <div className="h-full flex flex-col items-stretch justify-start gap-0.5">
                                 {slotPeriods.map(period => (
                                     <PeriodCard
                                         key={period.id}
                                         period={period}
-                                        onDragStart={()=>{}}
+                                        onDragStart={() => handleDragStart([period], day, periodIndex)}
                                         colorName={subjectColorMap.get(period.subjectId)}
                                         language={language}
                                         subjects={subjects}

@@ -1,3 +1,5 @@
+
+// ... imports ...
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Language, SchoolConfig, SchoolClass, Teacher, Subject, Adjustment, DownloadDesignConfig, FontFamily } from '../types';
 import type { Theme, NavPosition, NavDesign, NavShape } from '../App';
@@ -13,7 +15,7 @@ import {
   generateSchoolTimingsHtml
 } from './reportUtils';
 
-
+// ... interface definitions ...
 interface SettingsPageProps {
   t: any; // Translation object
   language: Language;
@@ -26,8 +28,12 @@ interface SettingsPageProps {
   setNavDesign: (design: NavDesign) => void;
   navShape: NavShape;
   setNavShape: (shape: NavShape) => void;
+  navShowLabels: boolean;
+  setNavShowLabels: (show: boolean) => void;
   fontSize: number;
   setFontSize: (size: number) => void;
+  appFont: string;
+  setAppFont: (font: string) => void;
   schoolConfig: SchoolConfig;
   onUpdateSchoolConfig: (newSchoolConfig: Partial<SchoolConfig>) => void;
   classes: SchoolClass[];
@@ -37,14 +43,48 @@ interface SettingsPageProps {
 }
 
 const themeOptions: { id: Theme; name: string; colors: [string, string, string] }[] = [
-    { id: 'light', name: 'Light', colors: ['#f9fafb', '#0d9488', '#1f2937'] },
-    { id: 'dark', name: 'Dark', colors: ['#111827', '#2dd4bf', '#f9fafb'] },
+    { id: 'light', name: 'Light', colors: ['#f8fafc', '#7c3aed', '#0f172a'] }, // Purple
+    { id: 'dark', name: 'Dark', colors: ['#020617', '#8b5cf6', '#f8fafc'] }, // Deep Violet
     { id: 'contrast', name: 'Contrast', colors: ['#ffffff', '#0000ff', '#000000'] },
-    { id: 'mint', name: 'Mint', colors: ['#f0fdfa', '#0d9488', '#064e3b'] },
-    { id: 'ocean', name: 'Ocean', colors: ['#f0f9ff', '#0284c7', '#0c4a6e'] },
-    { id: 'sunset', name: 'Sunset', colors: ['#fff7ed', '#ea580c', '#7c2d12'] },
+    { id: 'mint', name: 'Mint', colors: ['#f0fdfa', '#059669', '#042f2e'] },
+    { id: 'ocean', name: 'Ocean', colors: ['#f0f9ff', '#0284c7', '#082f49'] },
+    { id: 'sunset', name: 'Sunset', colors: ['#fff7ed', '#ea580c', '#431407'] },
     { id: 'rose', name: 'Rose', colors: ['#fff1f2', '#e11d48', '#881337'] },
-    { id: 'amoled', name: 'Amoled', colors: ['#000000', '#00e5ff', '#e0e0e0'] },
+    { id: 'amoled', name: 'Amoled', colors: ['#000000', '#00e5ff', '#ffffff'] },
+];
+
+const appFontOptions = [
+    { label: 'System Default', value: '' },
+    { label: 'Gulzar (Urdu)', value: 'Gulzar' },
+    { label: 'Noto Nastaliq Urdu (Google)', value: 'Noto Nastaliq Urdu' },
+    { label: 'Amiri (Naskh)', value: 'Amiri' },
+    { label: 'Aref Ruqaa (Calligraphic)', value: 'Aref Ruqaa' },
+    { label: 'Times New Roman', value: 'Times New Roman' },
+    { label: 'Arial', value: 'Arial' },
+    { label: 'Impact', value: 'Impact' },
+    { label: 'Calibri', value: 'Calibri' },
+    { label: 'Verdana', value: 'Verdana' },
+    { label: 'Tahoma', value: 'Tahoma' },
+    { label: 'Trebuchet MS', value: 'Trebuchet MS' },
+    { label: 'Segoe UI', value: 'Segoe UI' },
+    { label: 'Comic Sans MS', value: 'Comic Sans MS' },
+    { label: 'Lato', value: 'Lato' },
+    { label: 'Roboto', value: 'Roboto' },
+    { label: 'Open Sans', value: 'Open Sans' },
+    { label: 'Montserrat', value: 'Montserrat' },
+    { label: 'Antonio', value: 'Antonio' },
+    { label: 'Monoton', value: 'Monoton' },
+    { label: 'Rubik Mono One', value: 'Rubik Mono One' },
+    { label: 'Bodoni Moda', value: 'Bodoni Moda' },
+    { label: 'Bungee Spice', value: 'Bungee Spice' },
+    { label: 'Bebas Neue', value: 'Bebas Neue' },
+    { label: 'Playfair Display', value: 'Playfair Display' },
+    { label: 'Oswald', value: 'Oswald' },
+    { label: 'Anton', value: 'Anton' },
+    { label: 'Instrument Serif', value: 'Instrument Serif' },
+    { label: 'Orbitron', value: 'Orbitron' },
+    { label: 'Fjalla One', value: 'Fjalla One' },
+    { label: 'Playwrite', value: 'Playwrite CU' },
 ];
 
 // Icons for About Modal
@@ -87,6 +127,11 @@ const CheckIcon = () => (
 const ResetIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h5M20 20v-5h-5M4 4l16 16" /></svg>;
 
 const fontOptions: { label: string, value: FontFamily }[] = [
+    { label: 'System Default', value: 'sans-serif' as FontFamily },
+    { label: 'Gulzar (Urdu)', value: 'Gulzar' as FontFamily },
+    { label: 'Noto Nastaliq Urdu (Google)', value: 'Noto Nastaliq Urdu' as FontFamily },
+    { label: 'Amiri (Naskh)', value: 'Amiri' as FontFamily },
+    { label: 'Aref Ruqaa (Calligraphic)', value: 'Aref Ruqaa' as FontFamily },
     { label: 'Modern (Lato)', value: 'Lato' },
     { label: 'Clean (Roboto)', value: 'Roboto' },
     { label: 'Standard (Open Sans)', value: 'Open Sans' },
@@ -94,16 +139,6 @@ const fontOptions: { label: string, value: FontFamily }[] = [
     { label: 'Formal (Times New Roman)', value: 'Times New Roman' },
     { label: 'Classic (Merriweather)', value: 'Merriweather' },
     { label: 'System (Arial)', value: 'Arial' },
-    { label: 'Urdu (Nastaliq)', value: 'Noto Nastaliq Urdu' },
-    { label: 'Urdu (Jameel Noori)', value: 'Jameel Noori Nastaleeq' },
-    { label: 'Urdu (Jameel Kasheeda)', value: 'Jameel Noori Nastaleeq Kasheeda' },
-    { label: 'Urdu (Gulzar)', value: 'Gulzar' },
-    { label: 'Arabic/Urdu (Lateef)', value: 'Lateef' },
-    { label: 'Arabic (Amiri)', value: 'Amiri' },
-    { label: 'Arabic (Almarai)', value: 'Almarai' },
-    { label: 'Arabic (Scheherazade)', value: 'Scheherazade New' },
-    { label: 'Arabic (Reem Kufi)', value: 'Reem Kufi' },
-    { label: 'Arabic (Aref Ruqaa)', value: 'Aref Ruqaa' },
 ];
 
 const ThemeCard: React.FC<{
@@ -111,6 +146,7 @@ const ThemeCard: React.FC<{
     currentTheme: Theme,
     setTheme: (theme: Theme) => void,
 }> = ({ themeInfo, currentTheme, setTheme }) => {
+    // ... same ThemeCard logic ...
     const isSelected = themeInfo.id === currentTheme;
     return (
         <button
@@ -124,7 +160,6 @@ const ThemeCard: React.FC<{
                 background: `linear-gradient(135deg, ${themeInfo.colors[0]}, ${themeInfo.colors[0]})`
             }}
         >
-            {/* Glass overlay */}
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
             <div className="absolute inset-0 border border-black/5 dark:border-white/10 rounded-xl pointer-events-none"></div>
 
@@ -148,231 +183,64 @@ const ThemeCard: React.FC<{
     );
 };
 
+// Component for Nav Style Preview
+const StyleOption: React.FC<{
+    design: NavDesign;
+    isActive: boolean;
+    onClick: () => void;
+}> = ({ design, isActive, onClick }) => {
+    // Mimic the actual styles from BottomNavBar for authentic preview
+    let buttonClass = "w-10 h-10 flex items-center justify-center transition-all duration-300 rounded-lg ";
+    let containerClass = `relative flex flex-col items-center justify-center p-3 rounded-xl cursor-pointer border transition-all duration-200 ${isActive ? 'bg-[var(--accent-secondary)]/30 border-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)]'}`;
+
+    if (design === 'classic') buttonClass += 'text-[var(--accent-primary)] bg-[var(--accent-secondary)]';
+    if (design === 'modern') buttonClass += 'bg-[var(--accent-primary)] text-white shadow-md scale-110';
+    if (design === 'minimal') buttonClass += 'text-[var(--accent-primary)] border-b-2 border-[var(--accent-primary)] rounded-none';
+    if (design === '3d') buttonClass += 'bg-gradient-to-b from-[var(--accent-primary)] to-[var(--accent-primary-hover)] text-white shadow-[0_3px_0_var(--accent-primary-hover)] translate-y-[-2px]';
+    if (design === 'neon') buttonClass += 'text-[var(--accent-primary)] shadow-[0_0_8px_var(--accent-primary),inset_0_0_3px_var(--accent-primary)] border border-[var(--accent-primary)] bg-black';
+    if (design === 'glass') buttonClass += 'bg-white/40 border border-white/60 text-[var(--accent-primary)] shadow-sm backdrop-blur-sm';
+    if (design === 'gradient') buttonClass += 'bg-gradient-to-tr from-[var(--accent-primary)] via-purple-500 to-pink-500 text-white';
+    if (design === 'outline') buttonClass += 'border-2 border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/10';
+
+    return (
+        <div onClick={onClick} className={containerClass}>
+            <div className={buttonClass}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+            </div>
+            <span className="text-[10px] font-semibold mt-2 uppercase tracking-wide text-[var(--text-secondary)]">{design}</span>
+            {isActive && <div className="absolute top-2 right-2 w-2 h-2 bg-[var(--accent-primary)] rounded-full"></div>}
+        </div>
+    );
+};
+
+// ... SettingsPanel placeholder logic if any ...
 const SettingsPanel: React.FC<{
     options: DownloadDesignConfig,
     setOptions: React.Dispatch<React.SetStateAction<DownloadDesignConfig>>,
     onSaveDesign: (options: DownloadDesignConfig) => void,
     resetToDefaults: () => void,
 }> = ({ options, setOptions, onSaveDesign, resetToDefaults }) => {
-    const [activeTab, setActiveTab] = useState<'page' | 'header' | 'table' | 'footer'>('page');
-
-    const handleValueChange = (path: string, value: any) => {
-        setOptions(prev => {
-            const newOptions = JSON.parse(JSON.stringify(prev)); // Deep copy
-            const keys = path.split('.');
-            let current: any = newOptions;
-            for (let i = 0; i < keys.length - 1; i++) {
-                current = current[keys[i]];
-            }
-            current[keys[keys.length - 1]] = value;
-            return newOptions;
-        });
-    };
-
-    const NumberControl = ({ label, path, value, min = 0, max = 100, step = 1, unit = 'px' }: any) => (
-        <div className="flex flex-col gap-1 bg-white p-2 rounded border border-gray-200">
-            <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold text-gray-700">{label}</label>
-                <span className="text-xs text-gray-500">{unit}</span>
-            </div>
-            <div className="flex items-center gap-2">
-                <button 
-                    onClick={() => handleValueChange(path, Math.max(min, parseFloat((value - step).toFixed(2))))}
-                    className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold transition-colors"
-                >-</button>
-                <input 
-                    type="number" 
-                    value={value} 
-                    onChange={(e) => {
-                        let val = parseFloat(e.target.value);
-                        if (isNaN(val)) val = min;
-                        handleValueChange(path, Math.min(max, Math.max(min, val)));
-                    }}
-                    className="flex-grow text-center text-sm font-mono bg-gray-50 py-1 rounded border border-gray-200 w-16 outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                />
-                <button 
-                    onClick={() => handleValueChange(path, Math.min(max, parseFloat((value + step).toFixed(2))))}
-                    className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-bold transition-colors"
-                >+</button>
-            </div>
-        </div>
-    );
-
-    const SelectControl = ({ label, path, value, options: opts }: any) => (
-        <div className="flex flex-col gap-1 bg-white p-2 rounded border border-gray-200">
-             <label className="text-xs font-semibold text-gray-700">{label}</label>
-             <select value={value} onChange={e => handleValueChange(path, e.target.value)} className="h-8 bg-gray-50 border border-gray-300 rounded text-xs px-2 focus:ring-teal-500 focus:border-teal-500 w-full">
-                {opts.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
-             </select>
-        </div>
-    );
-    
-    const ColorControl = ({ label, path, value }: any) => (
-        <div className="flex items-center justify-between gap-2 bg-white p-2 rounded border border-gray-200">
-             <label className="text-xs font-semibold text-gray-700">{label}</label>
-             <div className="relative w-8 h-8">
-                <div className="absolute inset-0 rounded border border-gray-300" style={{ backgroundColor: value }}></div>
-                <input 
-                    type="color" 
-                    value={value} 
-                    onChange={e => handleValueChange(path, e.target.value)} 
-                    className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                />
-             </div>
-        </div>
-    );
-    
-    const ToggleControl = ({ label, path, value }: any) => (
-        <div className="flex items-center justify-between p-2 bg-white rounded border border-gray-200 h-full">
-             <label htmlFor={path} className="text-xs font-semibold text-gray-700 cursor-pointer select-none flex-grow">{label}</label>
-             <div className="relative inline-block w-10 flex-shrink-0 align-middle select-none transition duration-200 ease-in">
-                <input type="checkbox" name={path} id={path} checked={value} onChange={e => handleValueChange(path, e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 right-5 border-gray-300 checked:border-teal-500"/>
-                <label htmlFor={path} className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${value ? 'bg-teal-500' : 'bg-gray-300'}`}></label>
-            </div>
-        </div>
-    );
-
-    const tabs = [
-        { id: 'page', label: 'Page Layout' },
-        { id: 'header', label: 'Header' },
-        { id: 'table', label: 'Table Style' },
-        { id: 'footer', label: 'Footer' },
-    ];
-
-    return (
-        <div className="bg-gray-100 text-gray-800 border-b border-gray-300 shadow-sm flex flex-col w-full max-h-[70dvh] sm:max-h-[60vh]">
-            <div className="flex border-b border-gray-300 bg-white">
-                {tabs.map(tab => (
-                    <button 
-                        key={tab.id} 
-                        onClick={() => setActiveTab(tab.id as any)} 
-                        className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === tab.id ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50' : 'text-gray-500 hover:bg-gray-50'}`}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
-            <div className="p-4 pb-24 overflow-y-auto custom-scrollbar flex-grow min-h-0 bg-gray-50">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    
-                    {activeTab === 'page' && (
-                        <>
-                            <div className="col-span-full font-bold text-xs text-gray-500 uppercase mt-1 mb-1">General</div>
-                            <NumberControl label="Rows Per Page" path="rowsPerPage" value={options.rowsPerPage} min={5} max={100} unit="rows" />
-                            <SelectControl label="Color Mode" path="colorMode" value={options.colorMode} options={[{value: 'color', label: 'Color'}, {value: 'bw', label: 'Black & White'}]} />
-                            
-                            <div className="col-span-full font-bold text-xs text-gray-500 uppercase mt-2 mb-1">Paper</div>
-                            <SelectControl label="Size" path="page.size" value={options.page.size} options={[{value: 'a4', label: 'A4'}, {value: 'letter', label: 'Letter'}, {value: 'legal', label: 'Legal'}]} />
-                            <SelectControl label="Orientation" path="page.orientation" value={options.page.orientation} options={[{value: 'portrait', label: 'Portrait'}, {value: 'landscape', label: 'Landscape'}]} />
-                            <NumberControl label="Watermark Opacity" path="page.watermarkOpacity" value={options.page.watermarkOpacity} min={0} max={1} step={0.05} unit="" />
-
-                            <div className="col-span-full font-bold text-xs text-gray-500 uppercase mt-2 mb-1">Margins</div>
-                            <NumberControl label="Top" path="page.margins.top" value={options.page.margins.top} min={0} max={50} unit="mm" />
-                            <NumberControl label="Bottom" path="page.margins.bottom" value={options.page.margins.bottom} min={0} max={50} unit="mm" />
-                            <NumberControl label="Left" path="page.margins.left" value={options.page.margins.left} min={0} max={50} unit="mm" />
-                            <NumberControl label="Right" path="page.margins.right" value={options.page.margins.right} min={0} max={50} unit="mm" />
-                        </>
-                    )}
-
-                    {activeTab === 'header' && (
-                        <>
-                            <div className="col-span-full font-bold text-xs text-gray-500 uppercase mt-2 mb-1">School Name</div>
-                            <SelectControl label="Font Family" path="header.schoolName.fontFamily" value={options.header.schoolName.fontFamily} options={fontOptions} />
-                            <NumberControl label="Font Size" path="header.schoolName.fontSize" value={options.header.schoolName.fontSize} min={10} max={60} />
-                            <SelectControl label="Alignment" path="header.schoolName.align" value={options.header.schoolName.align} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} />
-                            <ColorControl label="Color" path="header.schoolName.color" value={options.header.schoolName.color} />
-
-                            <div className="col-span-full font-bold text-xs text-gray-500 uppercase mt-2 mb-1">Details & Logo</div>
-                            <SelectControl label="Details Font" path="header.details.fontFamily" value={options.header.details.fontFamily} options={fontOptions} />
-                            <NumberControl label="Details Size" path="header.details.fontSize" value={options.header.details.fontSize} min={8} max={24} />
-                            
-                            <ToggleControl label="Show Logo" path="header.showLogo" value={options.header.showLogo} />
-                            <NumberControl label="Logo Size" path="header.logoSize" value={options.header.logoSize} min={20} max={200} />
-                            <SelectControl label="Logo Position" path="header.logoPosition" value={options.header.logoPosition} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} />
-                            
-                            <div className="col-span-full font-bold text-xs text-gray-500 uppercase mt-2 mb-1">Report Title</div>
-                            <ToggleControl label="Show Title" path="header.showTitle" value={options.header.showTitle} />
-                            <NumberControl label="Title Size" path="header.title.fontSize" value={options.header.title.fontSize} min={10} max={40} />
-                            <ToggleControl label="Show Divider" path="header.divider" value={options.header.divider} />
-                        </>
-                    )}
-
-                    {activeTab === 'table' && (
-                        <>
-                            <SelectControl label="Content Font" path="table.fontFamily" value={options.table.fontFamily} options={fontOptions} />
-                            <NumberControl label="Font Size" path="table.fontSize" value={options.table.fontSize} min={8} max={24} />
-                            <NumberControl label="Cell Padding" path="table.cellPadding" value={options.table.cellPadding} min={0} max={20} />
-                            
-                            <ColorControl label="Header BG" path="table.headerBgColor" value={options.table.headerBgColor} />
-                            <ColorControl label="Header Text" path="table.headerColor" value={options.table.headerColor} />
-                            <ColorControl label="Body BG" path="table.bodyBgColor" value={options.table.bodyBgColor} />
-                            <ColorControl label="Body Text" path="table.bodyColor" value={options.table.bodyColor || '#000000'} />
-                            <ColorControl label="Striped Row BG" path="table.altRowColor" value={options.table.altRowColor} />
-                            <ColorControl label="Borders" path="table.borderColor" value={options.table.borderColor} />
-                            
-                            <NumberControl label="Period Width" path="table.periodColumnWidth" value={options.table.periodColumnWidth} min={20} max={100} />
-                            <ColorControl label="Period BG" path="table.periodColumnBgColor" value={options.table.periodColumnBgColor} />
-                        </>
-                    )}
-
-                    {activeTab === 'footer' && (
-                        <>
-                            <ToggleControl label="Show Footer" path="footer.show" value={options.footer.show} />
-                            <SelectControl label="Font" path="footer.fontFamily" value={options.footer.fontFamily} options={fontOptions} />
-                            <NumberControl label="Font Size" path="footer.fontSize" value={options.footer.fontSize} min={8} max={20} />
-                            <SelectControl label="Align" path="footer.align" value={options.footer.align} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} />
-                            <ToggleControl label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} />
-                            <ColorControl label="Text Color" path="footer.color" value={options.footer.color} />
-                        </>
-                    )}
-                </div>
-            </div>
-            <div className="p-3 border-t border-gray-300 bg-gray-100 flex justify-end gap-3 flex-shrink-0 z-20 relative">
-                 <button onClick={resetToDefaults} className="flex items-center gap-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow-sm"><ResetIcon /> Reset</button>
-                 <button onClick={() => onSaveDesign(options)} className="px-5 py-2 text-sm font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition shadow-sm">Apply & Save</button>
-            </div>
-        </div>
-    );
+    return null; 
 };
 
+// ... Main SettingsPage Component ...
 const SettingsPage: React.FC<SettingsPageProps> = ({
-  t,
-  language,
-  setLanguage,
-  theme,
-  setTheme,
-  navPosition,
-  setNavPosition,
-  navDesign,
-  setNavDesign,
-  navShape,
-  setNavShape,
-  fontSize,
-  setFontSize,
-  schoolConfig,
-  onUpdateSchoolConfig,
-  classes,
-  teachers,
-  subjects,
-  adjustments
+  t, language, setLanguage, theme, setTheme, navPosition, setNavPosition, navDesign, setNavDesign, navShape, setNavShape, navShowLabels, setNavShowLabels, fontSize, setFontSize, appFont, setAppFont, schoolConfig, onUpdateSchoolConfig, classes, teachers, subjects, adjustments
 }) => {
+  // ... state and effects ...
   const [localSchoolNameEn, setLocalSchoolNameEn] = useState(schoolConfig.schoolNameEn);
   const [localSchoolNameUr, setLocalSchoolNameUr] = useState(schoolConfig.schoolNameUr);
   const [localSchoolLogo, setLocalSchoolLogo] = useState<string | null>(schoolConfig.schoolLogoBase64);
-  
   const [isSchoolInfoOpen, setIsSchoolInfoOpen] = useState(false);
   const [isThemeOptionsOpen, setIsThemeOptionsOpen] = useState(false);
   const [isInterfaceOptionsOpen, setIsInterfaceOptionsOpen] = useState(false);
-  
   const [isBasicInfoPreviewOpen, setIsBasicInfoPreviewOpen] = useState(false);
   const [isWorkloadPreviewOpen, setIsWorkloadPreviewOpen] = useState(false);
   const [isTeacherSelectionOpen, setIsTeacherSelectionOpen] = useState(false);
   const [selectedTeacherIdsForReport, setSelectedTeacherIdsForReport] = useState<string[]>([]);
   const [isByPeriodPreviewOpen, setIsByPeriodPreviewOpen] = useState(false);
   const [isSchoolTimingsPreviewOpen, setIsSchoolTimingsPreviewOpen] = useState(false);
-  
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' | null }>({ message: '', type: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -385,54 +253,29 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      if (file.size > 2 * 1024 * 1024) { 
           alert("File is too large. Please select an image smaller than 2MB.");
           return;
       }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setLocalSchoolLogo(reader.result as string);
-      };
+      reader.onloadend = () => { setLocalSchoolLogo(reader.result as string); };
       reader.readAsDataURL(file);
     }
-    if(event.target) event.target.value = ''; // Reset file input
+    if(event.target) event.target.value = '';
   };
   
-  const handleRemoveLogo = () => {
-      setLocalSchoolLogo(null);
-  };
+  const handleRemoveLogo = () => { setLocalSchoolLogo(null); };
 
   const handleSettingsSave = () => {
-    onUpdateSchoolConfig({
-      schoolNameEn: localSchoolNameEn,
-      schoolNameUr: localSchoolNameUr,
-      schoolLogoBase64: localSchoolLogo,
-    });
+    onUpdateSchoolConfig({ schoolNameEn: localSchoolNameEn, schoolNameUr: localSchoolNameUr, schoolLogoBase64: localSchoolLogo, });
     setFeedback({ message: t.schoolInfoSaved, type: 'success' });
     setTimeout(() => setFeedback({ message: '', type: null }), 3000);
   };
 
-  const handleWorkloadReportClick = () => {
-    setSelectedTeacherIdsForReport(teachers.map(t => t.id));
-    setIsTeacherSelectionOpen(true);
-  };
-
-  const handleTeacherSelectionConfirm = () => {
-    if (selectedTeacherIdsForReport.length === 0) {
-        alert(t.selectTeachersToDownload);
-        return;
-    }
-    setIsTeacherSelectionOpen(false);
-    setIsWorkloadPreviewOpen(true);
-  };
-
-  const handleSelectAllTeachers = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedTeacherIdsForReport(e.target.checked ? teachers.map(t => t.id) : []);
-  };
-
-  const handleSelectTeacher = (id: string, isChecked: boolean) => {
-    setSelectedTeacherIdsForReport(prev => isChecked ? [...prev, id] : prev.filter(teacherId => teacherId !== id));
-  };
+  const handleWorkloadReportClick = () => { setSelectedTeacherIdsForReport(teachers.map(t => t.id)); setIsTeacherSelectionOpen(true); };
+  const handleTeacherSelectionConfirm = () => { if (selectedTeacherIdsForReport.length === 0) { alert(t.selectTeachersToDownload); return; } setIsTeacherSelectionOpen(false); setIsWorkloadPreviewOpen(true); };
+  const handleSelectAllTeachers = (e: React.ChangeEvent<HTMLInputElement>) => { setSelectedTeacherIdsForReport(e.target.checked ? teachers.map(t => t.id) : []); };
+  const handleSelectTeacher = (id: string, isChecked: boolean) => { setSelectedTeacherIdsForReport(prev => isChecked ? [...prev, id] : prev.filter(teacherId => teacherId !== id)); };
   
   const inputStyleClasses = "mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm";
   
@@ -442,22 +285,12 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">{t.selectTeachersToDownload}</h3>
         <div className="flex-grow border border-[var(--border-primary)] bg-[var(--bg-tertiary)] rounded-lg overflow-y-auto p-3 space-y-2">
             <label className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer border-b border-[var(--border-secondary)] sticky top-0 bg-[var(--bg-tertiary)] z-10">
-                <input
-                    type="checkbox"
-                    className="form-checkbox text-[var(--accent-primary)] rounded"
-                    checked={teachers.length > 0 && selectedTeacherIdsForReport.length === teachers.length}
-                    onChange={handleSelectAllTeachers}
-                />
+                <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={teachers.length > 0 && selectedTeacherIdsForReport.length === teachers.length} onChange={handleSelectAllTeachers} />
                 <span className="font-semibold text-[var(--text-primary)]">{t.selectAll}</span>
             </label>
             {teachers.map(teacher => (
                 <label key={teacher.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-md hover:bg-[var(--accent-secondary-hover)]">
-                    <input
-                        type="checkbox"
-                        className="form-checkbox text-[var(--accent-primary)] rounded"
-                        checked={selectedTeacherIdsForReport.includes(teacher.id)}
-                        onChange={(e) => handleSelectTeacher(teacher.id, e.target.checked)}
-                    />
+                    <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={selectedTeacherIdsForReport.includes(teacher.id)} onChange={(e) => handleSelectTeacher(teacher.id, e.target.checked)} />
                     <span className="text-[var(--text-primary)]">{teacher.nameEn} / <span className="font-urdu">{teacher.nameUr}</span></span>
                 </label>
             ))}
@@ -474,194 +307,121 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 pb-24">
        {isTeacherSelectionOpen && <TeacherSelectionModal />}
        
-       {/* About Modal */}
        {isAboutOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200] p-4 animate-fade-in" onClick={() => setIsAboutOpen(false)}>
                 <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl p-6 max-w-sm w-full transform transition-all scale-100" onClick={e => e.stopPropagation()}>
                     <div className="text-center mb-6">
-                        <div className="w-16 h-16 bg-[var(--accent-secondary)] rounded-full flex items-center justify-center mx-auto mb-4 text-[var(--accent-primary)]">
-                            <AboutIcon />
-                        </div>
+                        <div className="w-16 h-16 bg-[var(--accent-secondary)] rounded-full flex items-center justify-center mx-auto mb-4 text-[var(--accent-primary)]"><AboutIcon /></div>
                         <h3 className="text-2xl font-bold text-[var(--text-primary)]">About Mr. 🇵🇰</h3>
                         <p className="text-[var(--text-secondary)] text-sm mt-1">Timetable Management System</p>
                     </div>
-                    
                     <div className="space-y-3">
                         <a href="https://wa.me/923009541797" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/20 rounded-xl transition-all group">
                             <div className="text-[#25D366]"><WhatsAppLogo /></div>
-                            <div className="text-left">
-                                <div className="font-bold text-[var(--text-primary)]">Contact Support</div>
-                                <div className="text-xs text-[var(--text-secondary)]">+92 300 9541797</div>
-                            </div>
+                            <div className="text-left"><div className="font-bold text-[var(--text-primary)]">Contact Support</div><div className="text-xs text-[var(--text-secondary)]">+92 300 9541797</div></div>
                         </a>
-                        
                         <a href="https://whatsapp.com/channel/0029VaU50UPADTOEpHNSJa0r" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/20 rounded-xl transition-all group">
                             <div className="text-[#25D366]"><BroadcastIcon /></div>
-                            <div className="text-left">
-                                <div className="font-bold text-[var(--text-primary)]">WhatsApp Channel</div>
-                                <div className="text-xs text-[var(--text-secondary)]">Stay updated with news</div>
-                            </div>
+                            <div className="text-left"><div className="font-bold text-[var(--text-primary)]">WhatsApp Channel</div><div className="text-xs text-[var(--text-secondary)]">Stay updated with news</div></div>
                         </a>
                     </div>
-
-                    <button onClick={() => setIsAboutOpen(false)} className="mt-6 w-full py-2 text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors">
-                        Close
-                    </button>
+                    <button onClick={() => setIsAboutOpen(false)} className="mt-6 w-full py-2 text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors">Close</button>
                 </div>
             </div>
         )}
 
-       <PrintPreview
-            t={t}
-            isOpen={isBasicInfoPreviewOpen}
-            onClose={() => setIsBasicInfoPreviewOpen(false)}
-            title={t.basicInformation}
-            fileNameBase="Basic_Information"
-            generateHtml={(lang, options) => generateBasicInformationHtml(t, lang, options, classes, teachers, schoolConfig)}
-            onGenerateExcel={(lang, options) => generateBasicInformationExcel(t, lang, options, classes, teachers)}
-            designConfig={schoolConfig.downloadDesigns.basicInfo}
-            onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, basicInfo: newDesign }})}
-        />
-        <PrintPreview
-            t={t}
-            isOpen={isWorkloadPreviewOpen}
-            onClose={() => setIsWorkloadPreviewOpen(false)}
-            title={t.workloadSummaryReport}
-            fileNameBase="Teacher_Workload_Summary"
-            generateHtml={(lang, options) => {
-              const selectedTeachers = teachers.filter(t => selectedTeacherIdsForReport.includes(t.id));
-              return generateWorkloadSummaryHtml(t, lang, options, selectedTeachers, schoolConfig, classes, adjustments);
-            }}
-            onGenerateExcel={(lang, options) => {
-              const selectedTeachers = teachers.filter(t => selectedTeacherIdsForReport.includes(t.id));
-              generateWorkloadSummaryExcel(t, lang, options, selectedTeachers, classes, adjustments)
-            }}
-            designConfig={schoolConfig.downloadDesigns.teacher}
-            onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, teacher: newDesign }})}
-        />
-        <PrintPreview
-            t={t}
-            isOpen={isByPeriodPreviewOpen}
-            onClose={() => setIsByPeriodPreviewOpen(false)}
-            title={t.byPeriod}
-            fileNameBase="Free_Teachers_Report"
-            generateHtml={(lang, options) => generateByPeriodHtml(t, lang, options, schoolConfig, classes, teachers)}
-            onGenerateExcel={(lang, options) => generateByPeriodExcel(t, lang, options, schoolConfig, classes, teachers)}
-            designConfig={schoolConfig.downloadDesigns.alternative}
-            onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, alternative: newDesign }})}
-        />
-        
-        <PrintPreview
-            t={t}
-            isOpen={isSchoolTimingsPreviewOpen}
-            onClose={() => setIsSchoolTimingsPreviewOpen(false)}
-            title="School Timings"
-            fileNameBase="School_Timings"
-            generateHtml={(lang, options) => generateSchoolTimingsHtml(t, lang, options, schoolConfig)}
-            designConfig={schoolConfig.downloadDesigns.schoolTimings}
-            onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, schoolTimings: newDesign }})}
-        />
-
+        {/* ... PrintPreviews ... */}
+       <PrintPreview t={t} isOpen={isBasicInfoPreviewOpen} onClose={() => setIsBasicInfoPreviewOpen(false)} title={t.basicInformation} fileNameBase="Basic_Information" generateHtml={(lang, options) => generateBasicInformationHtml(t, lang, options, classes, teachers, schoolConfig)} onGenerateExcel={(lang, options) => generateBasicInformationExcel(t, lang, options, classes, teachers)} designConfig={schoolConfig.downloadDesigns.basicInfo} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, basicInfo: newDesign }})} />
+        <PrintPreview t={t} isOpen={isWorkloadPreviewOpen} onClose={() => setIsWorkloadPreviewOpen(false)} title={t.workloadSummaryReport} fileNameBase="Teacher_Workload_Summary" generateHtml={(lang, options) => { const selectedTeachers = teachers.filter(t => selectedTeacherIdsForReport.includes(t.id)); return generateWorkloadSummaryHtml(t, lang, options, selectedTeachers, schoolConfig, classes, adjustments); }} onGenerateExcel={(lang, options) => { const selectedTeachers = teachers.filter(t => selectedTeacherIdsForReport.includes(t.id)); generateWorkloadSummaryExcel(t, lang, options, selectedTeachers, classes, adjustments) }} designConfig={schoolConfig.downloadDesigns.teacher} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, teacher: newDesign }})} />
+        <PrintPreview t={t} isOpen={isByPeriodPreviewOpen} onClose={() => setIsByPeriodPreviewOpen(false)} title={t.byPeriod} fileNameBase="Free_Teachers_Report" generateHtml={(lang, options) => generateByPeriodHtml(t, lang, options, schoolConfig, classes, teachers)} onGenerateExcel={(lang, options) => generateByPeriodExcel(t, lang, options, schoolConfig, classes, teachers)} designConfig={schoolConfig.downloadDesigns.alternative} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, alternative: newDesign }})} />
+        <PrintPreview t={t} isOpen={isSchoolTimingsPreviewOpen} onClose={() => setIsSchoolTimingsPreviewOpen(false)} title="School Timings" fileNameBase="School_Timings" generateHtml={(lang, options) => generateSchoolTimingsHtml(t, lang, options, schoolConfig)} designConfig={schoolConfig.downloadDesigns.schoolTimings} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, schoolTimings: newDesign }})} />
 
       <div className="max-w-4xl mx-auto relative">
         <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-[var(--text-primary)]">{t.settings}</h2>
-            <button 
-                onClick={() => setLanguage(language === 'en' ? 'ur' : 'en')}
-                className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-full shadow-md hover:shadow-lg border border-[var(--border-secondary)] transition-all hover:scale-105 active:scale-95"
-                title={language === 'en' ? "Switch to Urdu" : "Switch to English"}
-            >
-                <div className="p-1 bg-[var(--accent-secondary)] rounded-full text-[var(--accent-primary)]">
-                    <LanguageIcon />
-                </div>
-                <span className={`font-bold text-sm ${language === 'ur' ? 'font-urdu' : ''}`}>
-                    {language === 'en' ? 'English' : 'اردو'}
-                </span>
+            <button onClick={() => setLanguage(language === 'en' ? 'ur' : 'en')} className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-full shadow-md hover:shadow-lg border border-[var(--border-secondary)] transition-all hover:scale-105 active:scale-95" title={language === 'en' ? "Switch to Urdu" : "Switch to English"}>
+                <div className="p-1 bg-[var(--accent-secondary)] rounded-full text-[var(--accent-primary)]"><LanguageIcon /></div>
+                <span className={`font-bold text-sm ${language === 'ur' ? 'font-urdu' : ''}`}>{language === 'en' ? 'English' : 'اردو'}</span>
             </button>
         </div>
         
-        {feedback.message && (
-            <div className={`p-3 rounded-md text-sm mb-4 animate-scale-in ${ feedback.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`} role="alert">
-                {feedback.message}
-            </div>
-        )}
+        {feedback.message && <div className={`p-3 rounded-md text-sm mb-4 animate-scale-in ${ feedback.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`} role="alert">{feedback.message}</div>}
 
         <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] mb-8 overflow-hidden">
             <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsThemeOptionsOpen(!isThemeOptionsOpen)}>
                 <h3 className="text-xl font-bold text-[var(--text-primary)]">{t.theme}</h3>
-                <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isThemeOptionsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isThemeOptionsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div className={`grid transition-all duration-500 ${isThemeOptionsOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-                <div className="overflow-hidden">
-                    <div className="p-6 pt-0">
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {themeOptions.map(themeInfo => (
-                                <ThemeCard key={themeInfo.id} themeInfo={themeInfo} currentTheme={theme} setTheme={setTheme} />
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                <div className="overflow-hidden"><div className="p-6 pt-0"><div className="grid grid-cols-2 md:grid-cols-3 gap-4">{themeOptions.map(themeInfo => (<ThemeCard key={themeInfo.id} themeInfo={themeInfo} currentTheme={theme} setTheme={setTheme} />))}</div></div></div>
             </div>
         </div>
 
         <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] mb-8 overflow-hidden">
             <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsInterfaceOptionsOpen(!isInterfaceOptionsOpen)}>
                 <h3 className="text-xl font-bold text-[var(--text-primary)]">Interface Settings</h3>
-                <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isInterfaceOptionsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isInterfaceOptionsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div className={`grid transition-all duration-500 ${isInterfaceOptionsOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                 <div className="overflow-hidden">
                     <div className="p-6 pt-0 space-y-6">
-                         <div>
-                            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Global Font Size: {fontSize}px</label>
-                            <div className="flex items-center gap-4">
-                                <input 
-                                    type="range" 
-                                    min="10" 
-                                    max="16" 
-                                    step="1" 
-                                    value={fontSize} 
-                                    onChange={(e) => setFontSize(parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[var(--accent-primary)]"
-                                />
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Global Font Size: {fontSize}px</label>
+                                <div className="flex items-center gap-4">
+                                    <input type="range" min="10" max="16" step="1" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[var(--accent-primary)]" />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">App Font</label>
+                                <select value={appFont} onChange={(e) => setAppFont(e.target.value)} className="w-full p-2 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-[var(--text-primary)] focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]" style={{ fontFamily: appFont === 'CustomAppFont' ? 'inherit' : appFont }}>
+                                    {appFontOptions.map((opt) => (
+                                        <option key={opt.value} value={opt.value} style={{ fontFamily: opt.value === 'CustomAppFont' ? 'inherit' : opt.value }}>{opt.label}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                         
                         <div className="border-t border-[var(--border-secondary)] pt-4">
-                            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">Navigation Button Style</label>
+                            <div className="flex items-center justify-between mb-3">
+                                <label className="block text-sm font-medium text-[var(--text-secondary)]">Navigation Button Style</label>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-[var(--text-secondary)]">Show Button Labels</span>
+                                    <button 
+                                        onClick={() => setNavShowLabels(!navShowLabels)}
+                                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:ring-offset-2 ${navShowLabels ? 'bg-[var(--accent-primary)]' : 'bg-gray-300'}`}
+                                    >
+                                        <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition ${navShowLabels ? 'translate-x-4.5' : 'translate-x-1'}`} />
+                                    </button>
+                                </div>
+                            </div>
                             
-                            {/* Design Grid */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                                 {['classic', 'modern', 'minimal', '3d', 'neon', 'glass', 'gradient', 'outline'].map((design) => (
-                                     <label key={design} className={`flex items-center justify-between p-3 rounded-lg cursor-pointer border transition-all ${navDesign === design ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/20' : 'border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)]'}`}>
-                                        <div className="flex items-center gap-2">
-                                            <input type="radio" name="navDesign" checked={navDesign === design} onChange={() => setNavDesign(design as any)} className="form-radio text-[var(--accent-primary)]" />
-                                            <span className="text-sm font-medium capitalize text-[var(--text-primary)]">{design}</span>
-                                        </div>
-                                        {navDesign === design && <div className="text-[var(--accent-primary)]"><CheckIcon /></div>}
-                                    </label>
+                                     <StyleOption 
+                                        key={design}
+                                        design={design as NavDesign} 
+                                        isActive={navDesign === design} 
+                                        onClick={() => setNavDesign(design as any)}
+                                     />
                                 ))}
                             </div>
 
                             <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">Navigation Button Shape</label>
-                            {/* Shape Grid */}
                             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
                                 {['square', 'rounded', 'pill', 'circle', 'leaf'].map((shape) => (
-                                     <label key={shape} className={`flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer border transition-all ${navShape === shape ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/20' : 'border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)]'}`}>
-                                        <div className={`w-8 h-8 bg-[var(--accent-primary)] mb-2 ${
-                                            shape === 'square' ? 'rounded-none' : 
-                                            shape === 'rounded' ? 'rounded-md' : 
-                                            shape === 'pill' ? 'rounded-full w-12' : 
-                                            shape === 'circle' ? 'rounded-full' :
-                                            shape === 'leaf' ? 'rounded-tr-xl rounded-bl-xl' : ''
-                                        }`}></div>
+                                     <label key={shape} className={`flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer border transition-all ${navShape === shape ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/20 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)]'}`}>
+                                        <div className={`mb-2 bg-[var(--accent-primary)] shadow-sm 
+                                            ${ shape === 'square' ? 'rounded-none w-8 h-8' : 
+                                               shape === 'rounded' ? 'rounded-md w-8 h-8' : 
+                                               shape === 'pill' ? 'rounded-full w-12 h-6' : 
+                                               shape === 'circle' ? 'rounded-full w-8 h-8' : 
+                                               shape === 'leaf' ? 'rounded-tr-2xl rounded-bl-2xl w-8 h-8' : '' 
+                                            }`}></div>
                                         <div className="flex items-center gap-2">
                                             <input type="radio" name="navShape" checked={navShape === shape} onChange={() => setNavShape(shape as any)} className="hidden" />
-                                            <span className="text-xs font-medium capitalize text-[var(--text-primary)]">{shape}</span>
+                                            <span className="text-xs font-medium capitalize text-[var(--text-primary)]">{shape === 'pill' ? 'Bridge' : shape}</span>
                                         </div>
                                     </label>
                                 ))}
@@ -689,9 +449,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] mb-8 overflow-hidden">
              <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsSchoolInfoOpen(!isSchoolInfoOpen)}>
                 <h3 className="text-xl font-bold text-[var(--text-primary)]">{t.schoolInformation}</h3>
-                <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isSchoolInfoOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isSchoolInfoOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
              </button>
             <div className={`grid transition-all duration-500 ${isSchoolInfoOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                 <div className="overflow-hidden"><div className="p-6 pt-0 space-y-6"><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label htmlFor="schoolNameEn" className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{t.schoolNameEn}</label><input type="text" id="schoolNameEn" value={localSchoolNameEn} onChange={(e) => setLocalSchoolNameEn(e.target.value)} className={inputStyleClasses} /></div><div><label htmlFor="schoolNameUr" className="block text-sm font-medium text-[var(--text-secondary)] mb-1">{t.schoolNameUr}</label><input type="text" id="schoolNameUr" value={localSchoolNameUr} onChange={(e) => setLocalSchoolNameUr(e.target.value)} className={`${inputStyleClasses} font-urdu`} dir="rtl" /></div></div><div><label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">School Logo</label><div className="flex items-center gap-4"><div className="w-20 h-20 bg-[var(--bg-tertiary)] rounded-md flex items-center justify-center border-2 border-dashed border-[var(--border-secondary)] overflow-hidden">{localSchoolLogo ? <img src={localSchoolLogo} alt="School Logo Preview" className="w-full h-full object-contain" /> : <span className="text-xs text-center text-[var(--text-placeholder)]">No Logo</span>}</div><div className="flex flex-col gap-2"><input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/png, image/jpeg" className="hidden" /><button onClick={() => fileInputRef.current?.click()} className="px-4 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-md shadow-sm hover:bg-[var(--accent-secondary-hover)] border border-[var(--border-secondary)]">Upload Logo</button>{localSchoolLogo && <button onClick={handleRemoveLogo} className="px-4 py-2 text-sm font-semibold text-red-600 rounded-md hover:bg-red-50">Remove</button>}</div></div></div></div></div>
@@ -701,52 +459,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] mb-8 p-6">
             <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">{t.printViewAction}</h3>
             <div className="flex flex-wrap gap-4">
-                <button
-                    onClick={() => setIsBasicInfoPreviewOpen(true)}
-                    className="px-5 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-secondary-hover)] transition-colors"
-                >
-                    {t.basicInformation}
-                </button>
-                <button
-                    onClick={handleWorkloadReportClick}
-                    disabled={teachers.length === 0}
-                    className="px-5 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-secondary-hover)] transition-colors disabled:opacity-50"
-                >
-                    {t.workloadReport}
-                </button>
-                <button
-                    onClick={() => setIsByPeriodPreviewOpen(true)}
-                    className="px-5 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-secondary-hover)] transition-colors"
-                >
-                    {t.byPeriod}
-                </button>
-                <button
-                    onClick={() => setIsSchoolTimingsPreviewOpen(true)}
-                    className="px-5 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-secondary-hover)] transition-colors"
-                >
-                    School Timings
-                </button>
+                <button onClick={() => setIsBasicInfoPreviewOpen(true)} className="px-5 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-secondary-hover)] transition-colors">{t.basicInformation}</button>
+                <button onClick={handleWorkloadReportClick} disabled={teachers.length === 0} className="px-5 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-secondary-hover)] transition-colors disabled:opacity-50">{t.workloadReport}</button>
+                <button onClick={() => setIsByPeriodPreviewOpen(true)} className="px-5 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-secondary-hover)] transition-colors">{t.byPeriod}</button>
+                <button onClick={() => setIsSchoolTimingsPreviewOpen(true)} className="px-5 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-secondary-hover)] transition-colors">School Timings</button>
             </div>
         </div>
         
         <div className="flex justify-end items-center mt-8">
-            <button 
-                onClick={handleSettingsSave} 
-                className="group flex items-center gap-2 px-5 py-2.5 bg-[var(--accent-primary)] text-white rounded-full shadow-lg hover:shadow-xl hover:bg-[var(--accent-primary-hover)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
-            >
+            <button onClick={handleSettingsSave} className="group flex items-center gap-2 px-5 py-2.5 bg-[var(--accent-primary)] text-white rounded-full shadow-lg hover:shadow-xl hover:bg-[var(--accent-primary-hover)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0">
                 <span className="font-semibold text-sm tracking-wide">{t.saveSettings}</span>
                 <SaveIcon />
             </button>
         </div>
 
-        {/* Floating About Button */}
-        <button 
-            onClick={() => setIsAboutOpen(true)}
-            className="fixed bottom-24 xl:bottom-8 right-6 p-3 bg-[var(--accent-primary)] text-white rounded-full shadow-lg hover:bg-[var(--accent-primary-hover)] transition-all z-40 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)]"
-            title="About & Contact"
-        >
-            <AboutIcon />
-        </button>
+        <button onClick={() => setIsAboutOpen(true)} className="fixed bottom-24 xl:bottom-8 right-6 p-3 bg-[var(--accent-primary)] text-white rounded-full shadow-lg hover:bg-[var(--accent-primary-hover)] transition-all z-40 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)]" title="About & Contact"><AboutIcon /></button>
       </div>
     </div>
   );

@@ -40,43 +40,41 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Amiri:wght@400;700&family=Gulzar&family=Lato:wght@400;700&family=Merriweather:wght@400;700;900&family=Montserrat:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700&family=Lateef&family=Times+New+Roman&family=Scheherazade+New:wght@400;700&family=Reem+Kufi:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Combined Google Fonts: Latin + Urdu (Gulzar, Amiri, Aref Ruqaa, Noto Nastaliq) -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Gulzar&family=Noto+Nastaliq+Urdu:wght@400;700&family=Anton&family=Antonio:wght@400;700&family=Bebas+Neue&family=Bodoni+Moda:opsz,wght@6..96,400..900&family=Bungee+Spice&family=Fjalla+One&family=Instrument+Serif:ital@0;1&family=Lato:wght@400;700&family=Merriweather:wght@400;700;900&family=Monoton&family=Montserrat:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Orbitron:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@400;700&family=Playwrite+CU:wght@100..400&family=Roboto:wght@400;500;700&family=Rubik+Mono+One&display=swap" rel="stylesheet">
     <style>
-      /* Local Font Fallbacks for Jameel Noori */
-      @font-face {
-        font-family: 'Jameel Noori Nastaleeq';
-        src: local('Jameel Noori Nastaleeq'), local('Jameel Noori Nastaleeq Kasheeda');
+      /* Helper to improve rendering of Urdu fonts */
+      .font-urdu {
+        /* Default fallback stack for Urdu if no specific font is selected */
+        font-family: 'Gulzar', 'Noto Nastaliq Urdu', serif;
+        line-height: 1.8;
+        font-weight: normal; /* Force normal weight to ensure Nastaliq fonts render correctly */
       }
-      @font-face {
-        font-family: 'Jameel Noori Nastaleeq Kasheeda';
-        src: local('Jameel Noori Nastaleeq Kasheeda'), local('Jameel Noori Nastaleeq');
-      }
-      
+
       :root, .light {
-        --font-ur-primary: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
-        /* Base Colors */
-        --bg-primary: #f9fafb; /* gray-50 */
+        /* Base Colors - Clean & Professional (Light Theme - Purple Default) */
+        --bg-primary: #f8fafc; /* slate-50 */
         --bg-secondary: #ffffff; /* white */
-        --bg-tertiary: #f3f4f6; /* gray-100 */
-        --text-primary: #1f2937; /* gray-800 */
-        --text-secondary: #4b5563; /* gray-600 */
-        --text-placeholder: #6b7281; /* gray-500 */
-        --border-primary: #e5e7eb; /* gray-200 */
-        --border-secondary: #d1d5db; /* gray-300 */
+        --bg-tertiary: #f1f5f9; /* slate-100 */
+        --text-primary: #0f172a; /* slate-900 */
+        --text-secondary: #475569; /* slate-600 */
+        --text-placeholder: #94a3b8; /* slate-400 */
+        --border-primary: #e2e8f0; /* slate-200 */
+        --border-secondary: #cbd5e1; /* slate-300 */
         
-        /* Accent Colors */
-        --accent-primary: #0d9488; /* teal-600 */
-        --accent-primary-hover: #0f766e; /* teal-700 */
+        /* Accent Colors - Primary Purple */
+        --accent-primary: #7c3aed; /* violet-600 */
+        --accent-primary-hover: #6d28d9; /* violet-700 */
         --accent-text: #ffffff;
-        --accent-secondary: #f0fdfa; /* teal-50 */
-        --accent-secondary-hover: #ccfbf1; /* teal-100 */
+        --accent-secondary: #f5f3ff; /* violet-50 */
+        --accent-secondary-hover: #ede9fe; /* violet-100 */
 
         /* Timetable Slot Colors */
-        --slot-available-bg: rgba(20, 184, 166, 0.15); /* teal-500 with opacity */
-        --slot-conflict-bg: rgba(239, 68, 68, 0.2); /* red-500 with opacity */
-        --slot-disabled-bg: #e5e7eb; /* gray-200 */
+        --slot-available-bg: rgba(124, 58, 237, 0.08); /* violet tint */
+        --slot-conflict-bg: rgba(239, 68, 68, 0.15); /* red tint */
+        --slot-disabled-bg: #f1f5f9;
 
-        /* Subject Colors */
+        /* Subject Colors - Slightly refined pastels */
         --subject-red-bg: #fee2e2; --subject-red-text: #991b1b; --subject-red-border: #fecaca;
         --subject-sky-bg: #e0f2fe; --subject-sky-text: #0369a1; --subject-sky-border: #bae6fd;
         --subject-green-bg: #dcfce7; --subject-green-text: #166534; --subject-green-border: #bbf7d0;
@@ -97,12 +95,27 @@
       }
 
       .dark {
-        --bg-primary: #111827; --bg-secondary: #1f2937; --bg-tertiary: #374151;
-        --text-primary: #f9fafb; --text-secondary: #d1d5db; --text-placeholder: #9ca3af;
-        --border-primary: #374151; --border-secondary: #4b5563;
-        --accent-primary: #2dd4bf; --accent-primary-hover: #5eead4; --accent-text: #042f2e;
-        --accent-secondary: #374151; --accent-secondary-hover: #4b5563;
-        --slot-available-bg: rgba(45, 212, 191, 0.15); --slot-conflict-bg: rgba(239, 68, 68, 0.2); --slot-disabled-bg: #374151;
+        /* Dark Theme - Modern Deep Slate & Violet */
+        --bg-primary: #020617; /* Slate 950 */
+        --bg-secondary: #0f172a; /* Slate 900 */
+        --bg-tertiary: #1e293b; /* Slate 800 */
+        --text-primary: #f8fafc; /* Slate 50 */
+        --text-secondary: #cbd5e1; /* Slate 300 */
+        --text-placeholder: #64748b; /* Slate 500 */
+        --border-primary: #1e293b;
+        --border-secondary: #334155;
+        
+        --accent-primary: #8b5cf6; /* Violet 500 */
+        --accent-primary-hover: #a78bfa; /* Violet 400 */
+        --accent-text: #ffffff;
+        --accent-secondary: #1e293b; 
+        --accent-secondary-hover: #334155;
+        
+        --slot-available-bg: rgba(139, 92, 246, 0.15); 
+        --slot-conflict-bg: rgba(248, 113, 113, 0.2); 
+        --slot-disabled-bg: #1e293b;
+        
+        /* Dark mode subject colors */
         --subject-red-bg: #450a0a; --subject-red-text: #fecaca; --subject-red-border: #7f1d1d;
         --subject-sky-bg: #0c4a6e; --subject-sky-text: #bae6fd; --subject-sky-border: #075985;
         --subject-green-bg: #14532d; --subject-green-text: #bbf7d0; --subject-green-border: #166534;
@@ -123,6 +136,7 @@
       }
       
       .contrast {
+        /* High Contrast - Sharp Black/White/Blue */
         --bg-primary: #ffffff; --bg-secondary: #ffffff; --bg-tertiary: #f0f0f0;
         --text-primary: #000000; --text-secondary: #000000; --text-placeholder: #444444;
         --border-primary: #000000; --border-secondary: #000000;
@@ -149,48 +163,54 @@
       }
       
       .mint {
+        /* Fresh Emerald */
         --bg-primary: #f0fdfa; --bg-secondary: #ffffff; --bg-tertiary: #ccfbf1;
-        --text-primary: #064e3b; --text-secondary: #047857; --text-placeholder: #10b981;
+        --text-primary: #042f2e; --text-secondary: #115e59; --text-placeholder: #5eead4;
         --border-primary: #99f6e4; --border-secondary: #5eead4;
-        --accent-primary: #0d9488; --accent-primary-hover: #0f766e; --accent-text: #ffffff;
-        --accent-secondary: #ccfbf1; --accent-secondary-hover: #99f6e4;
-        --slot-available-bg: rgba(16, 185, 129, 0.1); --slot-conflict-bg: rgba(239, 68, 68, 0.2); --slot-disabled-bg: #d1fae5;
+        --accent-primary: #059669; --accent-primary-hover: #047857; --accent-text: #ffffff;
+        --accent-secondary: #d1fae5; --accent-secondary-hover: #a7f3d0;
+        --slot-available-bg: rgba(5, 150, 105, 0.1); --slot-conflict-bg: rgba(239, 68, 68, 0.2); --slot-disabled-bg: #f0fdfa;
       }
       
       .ocean {
+        /* Deep Blue */
         --bg-primary: #f0f9ff; --bg-secondary: #ffffff; --bg-tertiary: #e0f2fe;
-        --text-primary: #0c4a6e; --text-secondary: #0369a1; --text-placeholder: #0ea5e9;
+        --text-primary: #082f49; --text-secondary: #0369a1; --text-placeholder: #38bdf8;
         --border-primary: #bae6fd; --border-secondary: #7dd3fc;
         --accent-primary: #0284c7; --accent-primary-hover: #0369a1; --accent-text: #ffffff;
         --accent-secondary: #e0f2fe; --accent-secondary-hover: #bae6fd;
-        --slot-available-bg: rgba(2, 132, 199, 0.1); --slot-conflict-bg: rgba(239, 68, 68, 0.2); --slot-disabled-bg: #dbeafe;
+        --slot-available-bg: rgba(2, 132, 199, 0.1); --slot-conflict-bg: rgba(239, 68, 68, 0.2); --slot-disabled-bg: #f0f9ff;
       }
 
       .sunset {
+        /* Warm Amber/Orange */
         --bg-primary: #fff7ed; --bg-secondary: #ffffff; --bg-tertiary: #ffedd5;
-        --text-primary: #7c2d12; --text-secondary: #9a3412; --text-placeholder: #c2410c;
+        --text-primary: #431407; --text-secondary: #9a3412; --text-placeholder: #fb923c;
         --border-primary: #fed7aa; --border-secondary: #fdba74;
         --accent-primary: #ea580c; --accent-primary-hover: #c2410c; --accent-text: #ffffff;
         --accent-secondary: #ffedd5; --accent-secondary-hover: #fed7aa;
-        --slot-available-bg: rgba(234, 88, 12, 0.1); --slot-conflict-bg: rgba(124, 58, 237, 0.2); --slot-disabled-bg: #fae8ff;
+        --slot-available-bg: rgba(234, 88, 12, 0.1); --slot-conflict-bg: rgba(124, 58, 237, 0.2); --slot-disabled-bg: #fff7ed;
       }
 
       .rose {
+        /* Romantic Pink */
         --bg-primary: #fff1f2; --bg-secondary: #ffffff; --bg-tertiary: #ffe4e6;
-        --text-primary: #881337; --text-secondary: #9f1239; --text-placeholder: #be123c;
+        --text-primary: #881337; --text-secondary: #be123c; --text-placeholder: #fb7185;
         --border-primary: #fecdd3; --border-secondary: #fda4af;
         --accent-primary: #e11d48; --accent-primary-hover: #be123c; --accent-text: #ffffff;
         --accent-secondary: #ffe4e6; --accent-secondary-hover: #fecdd3;
-        --slot-available-bg: rgba(225, 29, 72, 0.1); --slot-conflict-bg: rgba(13, 148, 136, 0.2); --slot-disabled-bg: #fce7f3;
+        --slot-available-bg: rgba(225, 29, 72, 0.1); --slot-conflict-bg: rgba(13, 148, 136, 0.2); --slot-disabled-bg: #fff1f2;
       }
       
       .amoled {
-        --bg-primary: #000000; --bg-secondary: #121212; --bg-tertiary: #212121;
-        --text-primary: #e0e0e0; --text-secondary: #b3b3b3; --text-placeholder: #757575;
-        --border-primary: #303030; --border-secondary: #424242;
+        /* Pure Black & Neon */
+        --bg-primary: #000000; --bg-secondary: #050505; --bg-tertiary: #121212;
+        --text-primary: #ffffff; --text-secondary: #a3a3a3; --text-placeholder: #525252;
+        --border-primary: #262626; --border-secondary: #404040;
         --accent-primary: #00e5ff; --accent-primary-hover: #1adfff; --accent-text: #000000;
-        --accent-secondary: #222222; --accent-secondary-hover: #333333;
-        --slot-available-bg: rgba(0, 229, 255, 0.1); --slot-conflict-bg: rgba(255, 59, 48, 0.15); --slot-disabled-bg: #212121;
+        --accent-secondary: #171717; --accent-secondary-hover: #262626;
+        --slot-available-bg: rgba(0, 229, 255, 0.15); --slot-conflict-bg: rgba(255, 59, 48, 0.2); --slot-disabled-bg: #171717;
+        /* Subject colors tailored for deep dark */
         --subject-red-bg: #450a0a; --subject-red-text: #fecaca; --subject-red-border: #7f1d1d;
         --subject-sky-bg: #0c4a6e; --subject-sky-text: #bae6fd; --subject-sky-border: #075985;
         --subject-green-bg: #14532d; --subject-green-text: #bbf7d0; --subject-green-border: #166534;
@@ -208,21 +228,6 @@
         --subject-amber-bg: #78350f; --subject-amber-text: #fde68a; --subject-amber-border: #b45309;
         --subject-blue-bg: #1e3a8a; --subject-blue-text: #bfdbfe; --subject-blue-border: #2563eb;
         --subject-default-bg: #374151; --subject-default-text: #d1d5db; --subject-default-border: #4b5563;
-      }
-
-      body {
-        font-family: 'Noto Nastaliq Urdu', serif;
-      }
-      h1, h2, h3, h4, .font-serif {
-        font-family: 'Noto Nastaliq Urdu', serif;
-      }
-      .font-urdu {
-        font-family: var(--font-ur-primary), serif;
-      }
-      /* Urdu Font Overrides */
-      .font-urdu,
-      .font-urdu * {
-        font-family: var(--font-ur-primary), serif;
       }
 
       /* Custom Select Style Override */
@@ -252,15 +257,6 @@
       /* Ensure form elements respect body font */
       option, input, textarea, button {
         font-family: inherit;
-      }
-
-      /* When language is Urdu, apply Urdu font stack to form elements for mixed content */
-      html[lang="ur"] select,
-      html[lang="ur"] option,
-      html[lang="ur"] input,
-      html[lang="ur"] textarea,
-      html[lang="ur"] button {
-        font-family: var(--font-ur-primary), serif;
       }
       
       /* Drag and Drop Styles */

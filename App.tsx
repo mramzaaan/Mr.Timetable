@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import ReactDOM from 'react-dom/client';
 import type { Language, Page, SchoolClass, Subject, Teacher, TimetableGridData, Adjustment, TimetableSession, UserData, SchoolConfig, DataEntryTab, Period, DownloadDesignConfig, DownloadDesigns, GroupSet, JointPeriod, LeaveDetails, PeriodTime, Break } from './types';
 import { translations } from './i18n';
 import HomePage from './components/HomePage';
@@ -30,15 +32,15 @@ const defaultDesignV3: DownloadDesignConfig = {
         showLogo: true,
         logoSize: 80,
         logoPosition: 'left',
-        schoolName: { fontFamily: 'Times New Roman', fontSize: 24, fontWeight: 'bold', align: 'left', color: '#000000' },
+        schoolName: { fontFamily: 'sans-serif', fontSize: 24, fontWeight: 'bold', align: 'left', color: '#000000' },
         showTitle: true,
-        title: { fontFamily: 'Times New Roman', fontSize: 18, fontWeight: 'bold', align: 'left', color: '#444444' },
-        details: { fontFamily: 'Times New Roman', fontSize: 14, fontWeight: 'normal', align: 'left', color: '#000000' },
+        title: { fontFamily: 'sans-serif', fontSize: 18, fontWeight: 'bold', align: 'left', color: '#444444' },
+        details: { fontFamily: 'sans-serif', fontSize: 14, fontWeight: 'normal', align: 'left', color: '#000000' },
         divider: true,
         bgColor: '#FFFFFF',
     },
     table: {
-        fontFamily: 'Times New Roman',
+        fontFamily: 'sans-serif',
         fontSize: 14,
         cellPadding: 4,
         headerBgColor: '#F3F4F6',
@@ -52,11 +54,12 @@ const defaultDesignV3: DownloadDesignConfig = {
         altRowColor: '#FFFFFF',
         gridStyle: 'solid',
         borderWidth: 1,
+        headerFontSize: 14,
     },
     footer: {
         show: true,
-        text: 'Mr. 🇵🇰', // Explicitly Mr. 🇵🇰 for documents
-        fontFamily: 'Times New Roman',
+        text: 'Mr. 🇵🇰', 
+        fontFamily: 'sans-serif',
         fontSize: 12,
         align: 'center',
         includePageNumber: true,
@@ -190,18 +193,25 @@ const App: React.FC = () => {
         if (savedTheme === 'high-contrast') {
             savedTheme = 'contrast'; // Migration from old value
         }
-        return (savedTheme as Theme) || 'contrast';
+        return (savedTheme as Theme) || 'light';
     });
     const [language, setLanguage] = useState<Language>(() => (localStorage.getItem('mrtimetable_language') as Language) || 'en');
 
     const [navPosition, setNavPosition] = useState<NavPosition>(() => (localStorage.getItem('mrtimetable_navPosition') as NavPosition) || 'bottom');
     const [navDesign, setNavDesign] = useState<NavDesign>(() => (localStorage.getItem('mrtimetable_navDesign') as NavDesign) || 'classic');
     const [navShape, setNavShape] = useState<NavShape>(() => (localStorage.getItem('mrtimetable_navShape') as NavShape) || 'rounded');
+    const [navShowLabels, setNavShowLabels] = useState<boolean>(() => {
+        const saved = localStorage.getItem('mrtimetable_navShowLabels');
+        return saved !== null ? JSON.parse(saved) : true;
+    });
     
     const [fontSize, setFontSize] = useState<number>(() => {
         const saved = localStorage.getItem('mrtimetable_fontSize');
         return saved ? parseInt(saved, 10) : 13;
     });
+
+    // Default to empty string (System Default)
+    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || ''));
 
     const [userData, setUserData] = useState<UserData>(() => {
         const saved = localStorage.getItem('mrtimetable_userData');
@@ -255,20 +265,17 @@ const App: React.FC = () => {
         
         // Ensure downloadDesigns exists and migrate to V3 structure
         const migrateDesignToV3 = (oldDesign: any): DownloadDesignConfig => {
-            // Simple version check logic here if needed
             const base = { ...defaultDesignV3 };
-            // Merge old props... (omitted for brevity, assume sensible defaults if missing)
             if(oldDesign) {
                 const migrated = {
                     ...base,
                     ...oldDesign,
-                    table: { ...base.table, ...oldDesign.table, bodyColor: oldDesign.table?.bodyColor || base.table.bodyColor },
+                    table: { ...base.table, ...oldDesign.table, bodyColor: oldDesign.table?.bodyColor || base.table.bodyColor, headerFontSize: oldDesign.table?.headerFontSize || base.table.headerFontSize },
                     page: { ...base.page, ...oldDesign.page },
                     header: { ...base.header, ...oldDesign.header },
                     footer: { ...base.footer, ...oldDesign.footer },
                     version: 3
                 };
-                // Ensure footer name is Mr. 🇵🇰 in documents if it was default/old default
                 if (migrated.footer.text === 'Mr. Timetable' || migrated.footer.text === 'Mr.🇵🇰') {
                     migrated.footer.text = 'Mr. 🇵🇰';
                 }
@@ -314,12 +321,57 @@ const App: React.FC = () => {
     useEffect(() => { localStorage.setItem('mrtimetable_navPosition', navPosition); }, [navPosition]);
     useEffect(() => { localStorage.setItem('mrtimetable_navDesign', navDesign); }, [navDesign]);
     useEffect(() => { localStorage.setItem('mrtimetable_navShape', navShape); }, [navShape]);
+    useEffect(() => { localStorage.setItem('mrtimetable_navShowLabels', JSON.stringify(navShowLabels)); }, [navShowLabels]);
     
     useEffect(() => { 
         localStorage.setItem('mrtimetable_fontSize', fontSize.toString());
-        // Apply font size to the root element to affect the entire application
         document.documentElement.style.fontSize = `${fontSize}px`;
     }, [fontSize]);
+
+    useEffect(() => {
+        localStorage.removeItem('mrtimetable_customFontData');
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('mrtimetable_appFont', appFont);
+
+        const styleId = 'global-app-font-style';
+        let style = document.getElementById(styleId);
+        if (!style) {
+            style = document.createElement('style');
+            style.id = styleId;
+            document.head.appendChild(style);
+        }
+        
+        // Updated Imports to include new Google Fonts (Gulzar, Amiri, etc.)
+        const importsLatin = `@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Gulzar&family=Noto+Nastaliq+Urdu:wght@400;700&family=Anton&family=Antonio:wght@400;700&family=Bebas+Neue&family=Bodoni+Moda:opsz,wght@6..96,400..900&family=Bungee+Spice&family=Fjalla+One&family=Instrument+Serif:ital@0;1&family=Lato:wght@400;700&family=Merriweather:wght@400;700;900&family=Monoton&family=Montserrat:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Orbitron:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@400;700&family=Playwrite+CU:wght@100..400&family=Roboto:wght@400;500;700&family=Rubik+Mono+One&display=swap');`;
+        
+        let finalFontStack = 'sans-serif';
+        if (appFont) {
+            let primaryFont = `"${appFont}"`;
+            finalFontStack = `${primaryFont}, sans-serif`;
+        } else {
+            // Explicitly do NOT set a fallback if appFont is empty, rely on browser default.
+            finalFontStack = 'sans-serif'; 
+        }
+
+        style.innerHTML = `
+            ${importsLatin}
+            :root {
+                --font-app-primary: ${finalFontStack};
+            }
+            body {
+                font-family: var(--font-app-primary);
+            }
+            button, input, select, textarea {
+                font-family: var(--font-app-primary);
+            }
+            /* Helper for specific Urdu override if needed, but primarily inheriting */
+            .font-urdu {
+                /* No forced font-family here to allow user selection */
+            }
+        `;
+    }, [appFont]);
 
     useEffect(() => {
         localStorage.setItem('mrtimetable_userData', JSON.stringify(userData));
@@ -345,12 +397,10 @@ const App: React.FC = () => {
 
     const currentTimetableSession = useMemo(() => userData.timetableSessions.find(s => s.id === currentTimetableSessionId) || null, [userData, currentTimetableSessionId]);
 
-    // Merge Session Structure with Global Config to create the Effective Config used by components
     const effectiveSchoolConfig = useMemo(() => {
         if (!currentTimetableSession) return userData.schoolConfig;
         return {
             ...userData.schoolConfig,
-            // Prefer Session Structure, fallback to Global Defaults if somehow missing (though migration prevents this)
             daysConfig: currentTimetableSession.daysConfig || userData.schoolConfig.daysConfig,
             periodTimings: currentTimetableSession.periodTimings || userData.schoolConfig.periodTimings,
             breaks: currentTimetableSession.breaks || userData.schoolConfig.breaks,
@@ -358,6 +408,7 @@ const App: React.FC = () => {
         };
     }, [userData.schoolConfig, currentTimetableSession]);
 
+    // ... (rest of component methods like openConfirmation, updateCurrentSession, etc. remain unchanged) ...
     const openConfirmation = (title: string, message: React.ReactNode, onConfirm: () => void) => {
         setConfirmationState({ isOpen: true, title, message, onConfirm });
     };
@@ -376,7 +427,6 @@ const App: React.FC = () => {
         const newSession: TimetableSession = {
             id: generateUniqueId(), name, startDate, endDate,
             subjects: [], teachers: [], classes: [], jointPeriods: [], adjustments: {}, leaveDetails: {},
-            // Initialize with default structure from global config
             daysConfig: userData.schoolConfig.daysConfig,
             periodTimings: userData.schoolConfig.periodTimings,
             breaks: userData.schoolConfig.breaks,
@@ -411,7 +461,6 @@ const App: React.FC = () => {
     };
 
     const handleUploadTimetableSession = (session: TimetableSession) => {
-        // Ensure imported session has structure (fallback to default if missing in JSON)
         if (!session.daysConfig) session.daysConfig = userData.schoolConfig.daysConfig;
         if (!session.periodTimings) session.periodTimings = userData.schoolConfig.periodTimings;
         if (!session.breaks) session.breaks = userData.schoolConfig.breaks;
@@ -511,13 +560,13 @@ const App: React.FC = () => {
                     onTabChange={setDataEntryTab}
                     schoolConfig={effectiveSchoolConfig}
                     onUpdateSchoolConfig={handleUpdateSchoolConfig}
-                    // NEW: Pass session structure props
                     currentTimetableSession={currentTimetableSession}
                     onUpdateTimetableSession={updateCurrentSession}
                 />;
             case 'classTimetable':
-                return <ClassTimetablePage 
-                    t={t} language={language} 
+                return <ClassTimetablePage
+                    t={t}
+                    language={language}
                     classes={currentTimetableSession?.classes || []}
                     subjects={currentTimetableSession?.subjects || []}
                     teachers={currentTimetableSession?.teachers || []}
@@ -531,8 +580,9 @@ const App: React.FC = () => {
                     openConfirmation={openConfirmation}
                 />;
             case 'teacherTimetable':
-                return <TeacherTimetablePage 
-                    t={t} language={language}
+                return <TeacherTimetablePage
+                    t={t}
+                    language={language}
                     classes={currentTimetableSession?.classes || []}
                     subjects={currentTimetableSession?.subjects || []}
                     teachers={currentTimetableSession?.teachers || []}
@@ -543,10 +593,11 @@ const App: React.FC = () => {
                     onUpdateSchoolConfig={handleUpdateSchoolConfig}
                     selectedTeacherId={teacherTimetableSelection.teacherId}
                     onSelectedTeacherChange={(id) => setTeacherTimetableSelection({ teacherId: id })}
-                 />;
+                />;
             case 'alternativeTimetable':
-                return <AlternativeTimetablePage 
-                    t={t} language={language}
+                return <AlternativeTimetablePage
+                    t={t}
+                    language={language}
                     classes={currentTimetableSession?.classes || []}
                     subjects={currentTimetableSession?.subjects || []}
                     teachers={currentTimetableSession?.teachers || []}
@@ -561,20 +612,31 @@ const App: React.FC = () => {
                     openConfirmation={openConfirmation}
                 />;
             case 'settings':
-                return <SettingsPage 
-                    t={t} language={language} setLanguage={setLanguage}
-                    theme={theme} setTheme={setTheme}
-                    navPosition={navPosition} setNavPosition={setNavPosition}
-                    navDesign={navDesign} setNavDesign={setNavDesign}
-                    navShape={navShape} setNavShape={setNavShape}
-                    fontSize={fontSize} setFontSize={setFontSize}
+                return <SettingsPage
+                    t={t}
+                    language={language}
+                    setLanguage={setLanguage}
+                    theme={theme}
+                    setTheme={setTheme}
+                    navPosition={navPosition}
+                    setNavPosition={setNavPosition}
+                    navDesign={navDesign}
+                    setNavDesign={setNavDesign}
+                    navShape={navShape}
+                    setNavShape={setNavShape}
+                    navShowLabels={navShowLabels}
+                    setNavShowLabels={setNavShowLabels}
+                    fontSize={fontSize}
+                    setFontSize={setFontSize}
+                    appFont={appFont}
+                    setAppFont={setAppFont}
                     schoolConfig={effectiveSchoolConfig}
                     onUpdateSchoolConfig={handleUpdateSchoolConfig}
                     classes={currentTimetableSession?.classes || []}
                     teachers={currentTimetableSession?.teachers || []}
                     subjects={currentTimetableSession?.subjects || []}
                     adjustments={currentTimetableSession?.adjustments || {}}
-                 />;
+                />;
             case 'home':
             default:
                 return <HomePage
@@ -586,16 +648,16 @@ const App: React.FC = () => {
                     onUpdateTimetableSession={handleUpdateTimetableSession}
                     onDeleteTimetableSession={handleDeleteTimetableSession}
                     onUploadTimetableSession={handleUploadTimetableSession}
-                    schoolConfig={effectiveSchoolConfig}
+                    schoolConfig={effectiveSchoolConfig} 
                     onUpdateCurrentSession={updateCurrentSession}
                     onSearchResultClick={handleSearchResultClick}
                 />;
         }
     };
-    
+
     return (
-        <div className="flex flex-col h-screen overflow-hidden">
-             <ConfirmationModal
+        <>
+            <ConfirmationModal 
                 t={t}
                 isOpen={confirmationState.isOpen}
                 onClose={() => setConfirmationState(prev => ({ ...prev, isOpen: false }))}
@@ -603,29 +665,25 @@ const App: React.FC = () => {
                 title={confirmationState.title}
                 message={confirmationState.message}
             />
-            {currentPage !== 'home' && (
-                <TopNavBar 
-                    t={t} 
-                    currentPage={currentPage} 
-                    setCurrentPage={setCurrentPage} 
-                    schoolConfig={effectiveSchoolConfig}
-                />
-            )}
-            {/* Adjust padding based on nav position */}
-            <div className={`flex-grow overflow-y-auto ${navPosition === 'bottom' ? 'pb-24 xl:pb-0' : 'pt-24 pb-4 xl:pt-0'}`}>
-                {renderPage()}
-            </div>
-            {currentPage !== 'home' && (
+            
+            <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 pb-24 xl:pb-0">
+                <TopNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />
+                
+                <main className="pt-4 xl:pt-6">
+                    {renderPage()}
+                </main>
+
                 <BottomNavBar 
                     t={t} 
                     currentPage={currentPage} 
-                    setCurrentPage={setCurrentPage} 
+                    setCurrentPage={setCurrentPage}
                     position={navPosition}
                     design={navDesign}
                     shape={navShape}
+                    showLabels={navShowLabels}
                 />
-            )}
-        </div>
+            </div>
+        </>
     );
 };
 

@@ -14,10 +14,17 @@ export interface WorkloadStats {
   totalWorkload: number;
 }
 
+// Updated Robust Urdu Font Stack using Google Fonts (Gulzar is prioritized)
+const URDU_FONT_STACK = "'Gulzar', 'Noto Nastaliq Urdu', serif";
+
 const renderText = (lang: DownloadLanguage, en: string, ur: string) => {
+    // Styling for Urdu: Enforce the Urdu font stack specifically for this span
+    const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; unicode-bidi: embed; line-height: 1.8; display: inline-block; padding-top: 2px; font-weight: normal;`;
+    const urduSpan = `<span class="font-urdu" style="${urduStyle}">${ur}</span>`;
+    
     if (lang === 'en') return en;
-    if (lang === 'ur') return `<span class="font-urdu">${ur}</span>`;
-    return `${en} / <span class="font-urdu">${ur}</span>`;
+    if (lang === 'ur') return urduSpan;
+    return `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; line-height:1.2;"><span>${en}</span><span style="${urduStyle} font-size: 0.9em;">${ur}</span></div>`;
 };
 
 const toUrduDigits = (str: string | number) => {
@@ -29,38 +36,35 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
     const width = page.orientation === 'portrait' ? (page.size === 'legal' ? '816px' : '794px') : (page.size === 'legal' ? '1344px' : '1123px');
     const height = page.orientation === 'portrait' ? (page.size === 'legal' ? '1344px' : '1123px') : (page.size === 'legal' ? '816px' : '794px');
 
-    return `
-    @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Amiri:wght@400;700&family=Gulzar&family=Lato:wght@400;700&family=Merriweather:wght@400;700;900&family=Montserrat:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700&family=Lateef&family=Times+New+Roman&family=Scheherazade+New:wght@400;700&family=Reem+Kufi:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap');
-    
-    @font-face {
-        font-family: 'Jameel Noori Nastaleeq';
-        src: local('Jameel Noori Nastaleeq'), local('Jameel Noori Nastaleeq Regular');
-    }
-    @font-face {
-        font-family: 'Jameel Noori Nastaleeq Kasheeda';
-        src: local('Jameel Noori Nastaleeq Kasheeda');
-    }
+    // Updated Imports to include new Google Fonts (Gulzar, Amiri, etc.)
+    const importsLatin = `@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Gulzar&family=Noto+Nastaliq+Urdu:wght@400;700&family=Anton&family=Antonio:wght@400;700&family=Bebas+Neue&family=Bodoni+Moda:opsz,wght@6..96,400..900&family=Bungee+Spice&family=Fjalla+One&family=Instrument+Serif:ital@0;1&family=Lato:wght@400;700&family=Merriweather:wght@400;700;900&family=Monoton&family=Montserrat:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Orbitron:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@400;700&family=Playwrite+CU:wght@100..400&family=Roboto:wght@400;500;700&family=Rubik+Mono+One&display=swap');`;
 
+    return `
+    ${importsLatin}
+    
+    /* Base Print Container Settings */
     .print-container {
-      font-family: '${table.fontFamily}', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
       background-color: white;
       color: inherit;
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
-    }
-    
-    /* Explicitly apply font to table elements and .font-urdu to ensure selection sticks */
-    .print-container table, 
-    .print-container th, 
-    .print-container td, 
-    .print-container .font-urdu { 
-        font-family: '${table.fontFamily}', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      /* Apply Selected Font to the Container */
+      font-family: '${table.fontFamily}', sans-serif; 
     }
 
-    .print-container .font-urdu {
-        line-height: 1.6;
+    /* CRITICAL: Enforce Urdu Font Stack for Urdu Text */
+    .print-container .font-urdu, 
+    .print-container .font-urdu * {
+        font-family: ${URDU_FONT_STACK} !important;
+        line-height: 1.8;
+        padding-top: 2px;
+        direction: rtl;
+        font-synthesis: none;
+        font-weight: normal; /* Nastaliq renders best at normal weight */
     }
     
     /* Page dimensions */
@@ -85,16 +89,16 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         align-items: center; 
         gap: 15px; 
         margin-bottom: 10px; 
-        padding-bottom: 5px;
-        border-bottom: ${header.divider ? '2px solid #000' : 'none'};
+        padding-bottom: 8px;
+        border-bottom: ${header.divider ? '3px double #000' : 'none'};
         background-color: ${header.bgColor};
         flex-shrink: 0;
     }
     .header-logo { object-fit: contain; }
     .header-text { flex-grow: 1; }
-    .header-school-name { margin: 0; line-height: 1.2; text-transform: uppercase; }
-    .header-title { margin-top: 2px; }
-    .header-details { margin-top: 2px; display: flex; justify-content: space-between; }
+    .header-school-name { margin: 0; line-height: 1.2; text-transform: uppercase; white-space: nowrap; }
+    .header-title { margin-top: 4px; letter-spacing: 0.5px; }
+    .header-details { margin-top: 4px; display: flex; justify-content: space-between; }
 
     .main-content { flex-grow: 1; display: flex; flex-direction: column; font-size: ${table.fontSize}px; overflow: hidden; }
 
@@ -105,7 +109,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         border-top: 1px solid #000; 
         display: flex; 
         align-items: flex-end; 
-        font-family: '${footer.fontFamily}', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', sans-serif;
+        font-family: '${footer.fontFamily}', sans-serif;
         font-size: ${footer.fontSize}px; 
         color: ${footer.color};
         flex-shrink: 0;
@@ -120,11 +124,13 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         text-align: center; 
         font-size: ${table.fontSize}px;
         color: ${table.bodyColor || '#000000'};
+        font-family: '${table.fontFamily}', sans-serif; /* Explicitly set table font */
     }
     th { 
         background-color: ${table.headerBgColor}; 
         color: ${table.headerColor};
         font-weight: bold; 
+        font-size: ${table.headerFontSize || table.fontSize}px;
     }
     tr:nth-child(even) { background-color: ${table.altRowColor}; }
     .period-col {
@@ -133,7 +139,6 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         color: ${table.periodColumnColor};
         font-weight: bold;
         font-size: 1.2em;
-        font-family: 'Times New Roman', sans-serif !important; /* Force English Numbers Font */
     }
     `;
 };
@@ -159,28 +164,30 @@ export const generateReportHTML = (
         ? `<img src="${schoolConfig.schoolLogoBase64}" alt="Logo" class="header-logo" style="height: ${header.logoSize}px; width: ${header.logoSize}px;" />` 
         : '';
     
-    const schoolNameText = lang === 'ur' ? `<span class="font-urdu">${schoolConfig.schoolNameUr}</span>` : schoolConfig.schoolNameEn;
+    // Urdu Specific Font Logic for School Name
+    const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; display: inline-block; font-weight: normal;`;
     
-    // Use !important to ensure settings override any defaults
+    const schoolNameText = lang === 'ur' 
+        ? `<span class="font-urdu" style="${urduStyle}">${schoolConfig.schoolNameUr}</span>` 
+        : schoolConfig.schoolNameEn;
+    
     const headerHtml = `
         <header class="header-container" style="flex-direction: ${flexDirection}; ${centerAlignStyle}">
             ${logoImg}
             <div class="header-text" style="text-align: ${textAlign};">
-                <h1 class="header-school-name" style="font-family: '${header.schoolName.fontFamily}', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif; font-size: ${header.schoolName.fontSize}px; font-weight: ${header.schoolName.fontWeight}; color: ${header.schoolName.color} !important;">${schoolNameText}</h1>
-                ${header.showTitle ? `<div class="header-title" style="font-family: '${header.title.fontFamily}', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', sans-serif; font-size: ${header.title.fontSize}px; font-weight: ${header.title.fontWeight}; color: ${header.title.color} !important;">${title}</div>` : ''}
-                ${detailsHtml ? `<div class="header-details" style="font-family: '${header.details.fontFamily}', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', sans-serif; font-size: ${header.details.fontSize}px; font-weight: ${header.details.fontWeight}; color: ${header.details.color} !important;">${detailsHtml}</div>` : ''}
+                <h1 class="header-school-name" style="font-family: '${header.schoolName.fontFamily}', sans-serif; font-size: ${header.schoolName.fontSize}px; font-weight: ${header.schoolName.fontWeight}; color: ${header.schoolName.color};">${schoolNameText}</h1>
+                ${header.showTitle ? `<div class="header-title" style="font-family: '${header.title.fontFamily}', sans-serif; font-size: ${header.title.fontSize}px; font-weight: ${header.title.fontWeight}; color: ${header.title.color};">${title}</div>` : ''}
+                ${detailsHtml ? `<div class="header-details" style="font-family: '${header.details.fontFamily}', sans-serif; font-size: ${header.details.fontSize}px; font-weight: ${header.details.fontWeight}; color: ${header.details.color};">${detailsHtml}</div>` : ''}
             </div>
         </header>
     `;
 
-    // Footer Logic - Standardized Layout (Name Left, Page Right)
+    // Footer Logic
     const pageStr = lang === 'ur' ? `صفحہ ${toUrduDigits(pageNumber)} از ${toUrduDigits(totalPages)}` : `Page ${pageNumber} of ${totalPages}`;
-    
-    // Ensure correct footer name in documents, even if setting is generic default
     const appName = (footer.text === 'Mr. Timetable' || footer.text === 'Mr. 🇵🇰') ? 'Mr. 🇵🇰' : footer.text;
 
     const footerHtml = footer.show 
-        ? `<footer class="footer" style="justify-content: space-between; color: ${footer.color} !important; direction: ltr; display: flex;">
+        ? `<footer class="footer" style="justify-content: space-between; color: ${footer.color}; direction: ltr; display: flex;">
             <div style="text-align: left;">${appName}</div>
             ${footer.includePageNumber ? `<div style="text-align: right;">${pageStr}</div>` : ''}
            </footer>` 
@@ -204,12 +211,17 @@ export const generateReportHTML = (
     `;
 };
 
-// --- Report Generators ---
-
 export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig): string => {
     const isUrdu = lang === 'ur';
-    const tr = (en: string, ur: string) => isUrdu ? `<span class="font-urdu">${ur}</span>` : en;
-    // Force English Numbers for Periods
+    const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; unicode-bidi: embed; line-height: 1.8; font-weight: normal;`;
+    
+    const tr = (en: string, ur: string) => {
+        const urSpan = `<span class="font-urdu" style="${urduStyle}">${ur}</span>`;
+        if (lang === 'en') return en;
+        if (lang === 'ur') return urSpan;
+        return `${en} / ${urSpan}`;
+    };
+    
     const num = (n: string | number) => n.toString();
     
     const timeStr = (t: PeriodTime) => {
@@ -293,10 +305,9 @@ export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design
             const bgClass = isPeriod ? 'bg-white' : 'bg-green';
             const textClass = 'text-black';
             const nameFontSize = isPeriod ? periodNameFontSize : specialNameFontSize;
-            const fontFamily = isPeriod ? "font-family: 'Times New Roman', sans-serif;" : "";
             
             rowHtml += `
-                <td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize}; ${fontFamily}">${itemA.name}</td>
+                <td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize};">${itemA.name}</td>
                 <td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${timeFontSize};">
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; line-height: 1.2;">
                         <div style="unicode-bidi: embed;">${itemA.time}</div>
@@ -313,10 +324,9 @@ export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design
             const bgClass = isPeriod ? 'bg-white' : 'bg-green';
             const textClass = 'text-black';
             const nameFontSize = isPeriod ? periodNameFontSize : specialNameFontSize;
-            const fontFamily = isPeriod ? "font-family: 'Times New Roman', sans-serif;" : "";
             
             rowHtml += `
-                <td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize}; ${fontFamily}">${itemB.name}</td>
+                <td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize};">${itemB.name}</td>
                 <td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${timeFontSize};">
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; line-height: 1.2;">
                         <div style="unicode-bidi: embed;">${itemB.time}</div>
@@ -344,7 +354,6 @@ export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design
             .school-timings-table {
                 width: 100%;
                 border-collapse: collapse;
-                font-family: '${design.table.fontFamily}', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
                 text-align: center;
                 font-size: ${design.table.fontSize}px; 
             }
@@ -400,6 +409,7 @@ export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design
 };
 
 export const generateClassTimetableHtml = (classItem: SchoolClass, lang: DownloadLanguage, design: DownloadDesignConfig, teachers: Teacher[], subjects: Subject[], schoolConfig: SchoolConfig): string => {
+    // ... same implementation ...
     const { en: enT, ur: urT } = translations;
     const inChargeTeacher = teachers.find(t => t.id === classItem.inCharge);
     
@@ -500,11 +510,8 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
         </div>
     `;
 
-    // Force English Numerals for Periods by using (i+1).toString() instead of toUrduDigits
     const periodLabels = Array.from({length: maxPeriods}, (_, i) => (i + 1).toString());
-    
     const colGroupHtml = `<colgroup><col style="width: ${design.table.periodColumnWidth}px"><col style="width: auto"><col style="width: auto"><col style="width: auto"><col style="width: auto"><col style="width: auto"></colgroup>`;
-
     const dayHeaders = activeDays.map(day => {
         const dayKey = day.toLowerCase();
         return `<th>${renderText(lang, (enT as any)[dayKey], (urT as any)[dayKey])}</th>`;
@@ -546,6 +553,7 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
 };
 
 export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], subjects: Subject[], schoolConfig: SchoolConfig, adjustments: Record<string, Adjustment[]>): string => {
+    // ... same implementation ...
     const { en: enT, ur: urT } = translations;
     const t = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
 
@@ -659,9 +667,7 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
         </div>
     `;
 
-    // Force English Numerals for Periods
     const periodLabels = Array.from({length: maxPeriods}, (_, i) => (i + 1).toString());
-    
     const colGroupHtml = `<colgroup><col style="width: ${design.table.periodColumnWidth}px"><col style="width: auto"><col style="width: auto"><col style="width: auto"><col style="width: auto"><col style="width: auto"></colgroup>`;
     const dayHeaders = activeDays.map(day => `<th>${renderText(lang, (enT as any)[day.toLowerCase()], (urT as any)[day.toLowerCase()])}</th>`).join('');
 
@@ -718,6 +724,7 @@ export const generateWorkloadSummaryHtml = (
     classes: SchoolClass[],
     adjustments: Record<string, Adjustment[]>
 ): string[] => {
+    // ... same implementation ...
     const { en: enT, ur: urT } = translations;
     const workloadData = selectedItems.map(teacher => ({ teacher, stats: calculateWorkloadStats(teacher.id, classes, adjustments) }));
     workloadData.sort((a, b) => b.stats.totalWorkload - a.stats.totalWorkload);
@@ -752,6 +759,7 @@ export const generateWorkloadSummaryHtml = (
 };
 
 export const calculateWorkloadStats = (teacherId: string | null, classes: SchoolClass[], adjustments: Record<string, Adjustment[]>): WorkloadStats => {
+    // ... same implementation ...
     if (!teacherId) return { dailyCounts: {}, weeklyPeriods: 0, jointPeriodsCount: 0, substitutionsTaken: 0, leavesTaken: 0, totalWorkload: 0 };
     
     const dailyCounts: { [key: string]: number } = { monday: 0, tuesday: 0, wednesday: 0, thursday: 0, friday: 0, saturday: 0 };
@@ -788,6 +796,7 @@ export const calculateWorkloadStats = (teacherId: string | null, classes: School
 };
 
 export const generateByPeriodHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[]): string[] => {
+    // ... same implementation ...
     const { en: enT, ur: urT } = translations;
     
     const activeDays = allDays.filter(day => schoolConfig.daysConfig?.[day]?.active ?? true);
@@ -859,6 +868,7 @@ export const generateByPeriodHtml = (t: any, lang: DownloadLanguage, design: Dow
 };
 
 export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], teachers: Teacher[], schoolConfig: SchoolConfig): string[] => {
+    // ... same implementation ...
     const rowsPerPage = design.rowsPerPage || 25;
     const totalPages = Math.max(1, Math.ceil(classes.length / rowsPerPage));
     const pages = [];
@@ -924,8 +934,8 @@ export const generateAdjustmentsReportHtml = (
     date: string,
     absentTeacherIds: string[] = []
 ): string[] => {
+    // ... same implementation ...
     const { en: enT, ur: urT } = translations;
-    const renderText = (l: string, e: string, u: string) => l === 'en' ? e : l === 'ur' ? `<span class="font-urdu">${u}</span>` : `${e} / <span class="font-urdu">${u}</span>`;
     const tr = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
 
     // Format Date: Day Month Year
@@ -1024,8 +1034,8 @@ export const generateAdjustmentsReportHtml = (
     return pages;
 };
 
-// Helper for Excel exports
-export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], teachers: Teacher[]) => { /* ... implementation ... */ };
-export const generateByPeriodExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[]) => { /* ... implementation ... */ };
-export const generateWorkloadSummaryExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, selectedItems: Teacher[], classes: SchoolClass[], adjustments: Record<string, Adjustment[]>) => { /* ... implementation ... */ };
-export const generateAdjustmentsExcel = (t: any, adjustments: Adjustment[], teachers: Teacher[], classes: SchoolClass[], subjects: Subject[], date: string) => { /* ... implementation ... */ };
+// Placeholder Excel exports
+export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], teachers: Teacher[]) => {};
+export const generateByPeriodExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[]) => {};
+export const generateWorkloadSummaryExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, selectedItems: Teacher[], classes: SchoolClass[], adjustments: Record<string, Adjustment[]>) => {};
+export const generateAdjustmentsExcel = (t: any, adjustments: Adjustment[], teachers: Teacher[], classes: SchoolClass[], subjects: Subject[], date: string) => {};

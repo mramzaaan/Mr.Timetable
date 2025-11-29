@@ -208,13 +208,21 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         const updatedClass = { ...selectedClass };
         const newTimetable = { ...updatedClass.timetable };
 
+        // 1. Remove from source (Immutable update)
         if (sourceDay && sourcePeriodIndex !== undefined) {
-             const sourceSlot = newTimetable[sourceDay][sourcePeriodIndex];
+             const sourceDayPeriods = [...newTimetable[sourceDay]]; // Copy the day array
+             const sourceSlot = sourceDayPeriods[sourcePeriodIndex] || [];
              const idsToRemove = new Set(periods.map(p => p.id));
-             newTimetable[sourceDay][sourcePeriodIndex] = sourceSlot.filter(p => !idsToRemove.has(p.id));
+             sourceDayPeriods[sourcePeriodIndex] = sourceSlot.filter(p => !idsToRemove.has(p.id));
+             newTimetable[sourceDay] = sourceDayPeriods;
         }
 
-        newTimetable[targetDay][targetPeriodIndex] = [...(newTimetable[targetDay][targetPeriodIndex] || []), ...periods];
+        // 2. Add to target (Immutable update)
+        const targetDayPeriods = [...newTimetable[targetDay]]; // Copy the day array
+        const targetSlot = targetDayPeriods[targetPeriodIndex] || [];
+        targetDayPeriods[targetPeriodIndex] = [...targetSlot, ...periods];
+        newTimetable[targetDay] = targetDayPeriods;
+
         updatedClass.timetable = newTimetable;
         const newClasses = classes.map(c => c.id === updatedClass.id ? updatedClass : c);
         onSetClasses(newClasses);
@@ -232,7 +240,32 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
     }
   };
 
-  const handleDragOver = (e: React.DragEvent, day: keyof TimetableGridData, periodIndex: number) => {
+  const handleSidebarDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      const data = draggedData;
+      if (!data || !selectedClass) return;
+      
+      const { periods, sourceDay, sourcePeriodIndex } = data;
+      
+      // If it's coming from the grid (sourceDay is defined), "remove" it by not placing it anywhere else.
+      if (sourceDay && sourcePeriodIndex !== undefined) {
+          const updatedClass = { ...selectedClass };
+          const newTimetable = { ...updatedClass.timetable };
+          
+          // Immutable removal
+          const sourceDayPeriods = [...newTimetable[sourceDay]];
+          const sourceSlot = sourceDayPeriods[sourcePeriodIndex];
+          const idsToRemove = new Set(periods.map(p => p.id));
+          sourceDayPeriods[sourcePeriodIndex] = sourceSlot.filter(p => !idsToRemove.has(p.id));
+          newTimetable[sourceDay] = sourceDayPeriods;
+          
+          updatedClass.timetable = newTimetable;
+          const newClasses = classes.map(c => c.id === updatedClass.id ? updatedClass : c);
+          onSetClasses(newClasses);
+      }
+  };
+
+  const handleDragOver = (e: React.DragEvent, day?: keyof TimetableGridData, periodIndex?: number) => {
       e.preventDefault(); 
   };
   
@@ -243,12 +276,16 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
      const newTimetable = { ...updatedClass.timetable };
      
      activeDays.forEach(day => {
-         updatedClass.timetable[day]?.forEach((slot, idx) => {
+         const dayPeriods = [...newTimetable[day]];
+         let changed = false;
+         dayPeriods.forEach((slot, idx) => {
              const idsToRemove = new Set(periods.map(p => p.id));
              if (slot.some(p => idsToRemove.has(p.id))) {
-                 newTimetable[day][idx] = slot.filter(p => !idsToRemove.has(p.id));
+                 dayPeriods[idx] = slot.filter(p => !idsToRemove.has(p.id));
+                 changed = true;
              }
          });
+         if(changed) newTimetable[day] = dayPeriods;
      });
      
      updatedClass.timetable = newTimetable;
@@ -260,10 +297,6 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
       if (!selectedClass) return [];
       const scheduledCounts = new Map<string, number>();
       
-      // Count based on active days only? Or all days? Usually all valid timetable slots.
-      // Let's iterate allDays to be safe against config changes, or just activeDays?
-      // If I only count activeDays, and user hides a day with data, it might duplicate.
-      // For safety, iterate all existing data in timetable.
       Object.keys(selectedClass.timetable).forEach(dayKey => {
           const day = dayKey as keyof TimetableGridData;
           selectedClass.timetable[day]?.forEach(slot => {
@@ -384,7 +417,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Unscheduled Periods Sidebar */}
           <div className="lg:w-1/4">
-            <div className="bg-[var(--bg-secondary)] p-4 rounded-lg shadow-md border border-[var(--border-primary)] sticky top-24">
+            <div 
+                className={`bg-[var(--bg-secondary)] p-4 rounded-lg shadow-md border border-[var(--border-primary)] sticky top-24 ${draggedData?.sourceDay ? 'unscheduled-drop-target' : ''}`}
+                onDragOver={handleDragOver}
+                onDrop={handleSidebarDrop}
+            >
               <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-primary)] pb-2">{t.unscheduledPeriods}</h3>
               {Object.keys(groupedUnscheduled).length === 0 ? (
                 <p className="text-sm text-[var(--text-secondary)] italic">{t.dragAndDropInstruction}</p>

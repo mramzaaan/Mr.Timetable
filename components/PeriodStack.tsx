@@ -109,6 +109,7 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
   const dimClasses = 'opacity-50 grayscale-[50%]';
   
   const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', periods[0].id); // Required for Firefox and some other browsers
     e.dataTransfer.effectAllowed = 'move';
     const clone = e.currentTarget.cloneNode(true) as HTMLElement;
     clone.style.position = 'absolute';

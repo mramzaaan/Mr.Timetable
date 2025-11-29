@@ -29,6 +29,28 @@ const createEmptyTimetable = (): TimetableGridData => ({
     Friday: Array.from({ length: 8 }, () => []), Saturday: Array.from({ length: 8 }, () => []),
 });
 
+// Helper to find ID by Name (En or Ur)
+const findIdByName = (list: { id: string; nameEn?: string; nameUr?: string; name?: string }[], name: string): string | undefined => {
+    if (!name) return undefined;
+    const normalized = name.trim().toLowerCase();
+    const item = list.find(i => 
+        (i.nameEn && i.nameEn.toLowerCase() === normalized) || 
+        (i.nameUr && i.nameUr.trim() === name.trim()) ||
+        (i.name && i.name.toLowerCase() === normalized)
+    );
+    return item?.id;
+};
+
+// Helper to find Object by Name
+const findEntityByName = <T extends { nameEn?: string; nameUr?: string; name?: string }>(list: T[], name: string): T | undefined => {
+    if (!name) return undefined;
+    const normalized = name.trim().toLowerCase();
+    return list.find(i => 
+        (i.nameEn && i.nameEn.toLowerCase() === normalized) || 
+        (i.nameUr && i.nameUr.trim() === name.trim()) ||
+        (i.name && i.name.toLowerCase() === normalized)
+    );
+};
 
 const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onClose, currentTimetableSession, onUpdateTimetableSession }) => {
   const [activeTab, setActiveTab] = useState<CsvDataType>('subjects');
@@ -94,13 +116,14 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
     let headers: string[] = [];
     let filename = `${type}_template.csv`;
 
+    // IDs removed, using Names for user friendliness
     switch (type) {
-        case 'subjects': headers = ['id', 'nameEn', 'nameUr']; break;
-        case 'teachers': headers = ['id', 'nameEn', 'nameUr', 'gender', 'contactNumber']; break;
-        case 'classes': headers = ['id', 'nameEn', 'nameUr', 'inCharge', 'roomNumber', 'studentCount']; break;
-        case 'classSubjects': headers = ['classId', 'subjectId', 'periodsPerWeek', 'teacherId', 'groupSetId', 'groupId']; break;
-        case 'timetable': headers = ['classId', 'day', 'periodIndex', 'subjectId', 'teacherId', 'jointPeriodId']; break;
-        case 'jointPeriods': headers = ['id', 'name', 'teacherId', 'periodsPerWeek', 'assignments']; break;
+        case 'subjects': headers = ['nameEn', 'nameUr']; break;
+        case 'teachers': headers = ['nameEn', 'nameUr', 'gender', 'contactNumber', 'serialNumber']; break;
+        case 'classes': headers = ['nameEn', 'nameUr', 'category', 'inChargeName', 'roomNumber', 'studentCount', 'serialNumber']; break;
+        case 'classSubjects': headers = ['className', 'subjectName', 'periodsPerWeek', 'teacherName']; break;
+        case 'timetable': headers = ['className', 'day', 'period', 'subjectName', 'teacherName']; break;
+        case 'jointPeriods': headers = ['name', 'teacherName', 'periodsPerWeek']; break; // Simplified for template
     }
     
     triggerDownload(headers.join(','), filename);
@@ -112,46 +135,90 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
       return;
     }
 
+    const { subjects, teachers, classes, jointPeriods } = currentTimetableSession;
     let data: any[] = [];
     let headers: string[] = [];
     let filename = `${type}.csv`;
 
     switch (type) {
         case 'subjects':
-            data = currentTimetableSession.subjects;
-            headers = ['id', 'nameEn', 'nameUr'];
+            data = subjects.map(s => ({ nameEn: s.nameEn, nameUr: s.nameUr }));
+            headers = ['nameEn', 'nameUr'];
             break;
         case 'teachers':
-            data = currentTimetableSession.teachers;
-            headers = ['id', 'nameEn', 'nameUr', 'gender', 'contactNumber'];
+            data = teachers.map(t => ({ 
+                nameEn: t.nameEn, 
+                nameUr: t.nameUr, 
+                gender: t.gender, 
+                contactNumber: t.contactNumber,
+                serialNumber: t.serialNumber 
+            }));
+            headers = ['nameEn', 'nameUr', 'gender', 'contactNumber', 'serialNumber'];
             break;
         case 'classes':
-            data = currentTimetableSession.classes.map(({ subjects, timetable, ...rest }) => rest);
-            headers = ['id', 'nameEn', 'nameUr', 'inCharge', 'roomNumber', 'studentCount'];
+            data = classes.map(c => {
+                const inCharge = teachers.find(t => t.id === c.inCharge);
+                return {
+                    nameEn: c.nameEn,
+                    nameUr: c.nameUr,
+                    category: c.category || '',
+                    inChargeName: inCharge ? inCharge.nameEn : '',
+                    roomNumber: c.roomNumber,
+                    studentCount: c.studentCount,
+                    serialNumber: c.serialNumber
+                };
+            });
+            headers = ['nameEn', 'nameUr', 'category', 'inChargeName', 'roomNumber', 'studentCount', 'serialNumber'];
             break;
         case 'classSubjects':
-            headers = ['classId', 'subjectId', 'periodsPerWeek', 'teacherId', 'groupSetId', 'groupId'];
-            currentTimetableSession.classes.forEach(c => {
-                c.subjects.forEach(s => {
-                    data.push({ classId: c.id, ...s });
+            headers = ['className', 'subjectName', 'periodsPerWeek', 'teacherName'];
+            classes.forEach(c => {
+                c.subjects.forEach(cs => {
+                    const sub = subjects.find(s => s.id === cs.subjectId);
+                    const tea = teachers.find(t => t.id === cs.teacherId);
+                    if (sub && tea) {
+                        data.push({
+                            className: c.nameEn,
+                            subjectName: sub.nameEn,
+                            periodsPerWeek: cs.periodsPerWeek,
+                            teacherName: tea.nameEn
+                        });
+                    }
                 });
             });
             break;
         case 'timetable':
-            headers = ['classId', 'day', 'periodIndex', 'subjectId', 'teacherId', 'jointPeriodId'];
-            currentTimetableSession.classes.forEach(c => {
+            headers = ['className', 'day', 'period', 'subjectName', 'teacherName'];
+            classes.forEach(c => {
                 daysOfWeek.forEach(day => {
                     c.timetable[day].forEach((slot, periodIndex) => {
                         slot.forEach(period => {
-                            data.push({ classId: period.classId, day, periodIndex, subjectId: period.subjectId, teacherId: period.teacherId, jointPeriodId: period.jointPeriodId || '' });
+                            const sub = subjects.find(s => s.id === period.subjectId);
+                            const tea = teachers.find(t => t.id === period.teacherId);
+                            if (sub && tea) {
+                                data.push({
+                                    className: c.nameEn,
+                                    day,
+                                    period: periodIndex + 1, // User facing is 1-based
+                                    subjectName: sub.nameEn,
+                                    teacherName: tea.nameEn
+                                });
+                            }
                         });
                     });
                 });
             });
             break;
         case 'jointPeriods':
-            data = currentTimetableSession.jointPeriods;
-            headers = ['id', 'name', 'teacherId', 'periodsPerWeek', 'assignments'];
+            headers = ['name', 'teacherName', 'periodsPerWeek'];
+            data = jointPeriods.map(jp => {
+                const tea = teachers.find(t => t.id === jp.teacherId);
+                return {
+                    name: jp.name,
+                    teacherName: tea ? tea.nameEn : '',
+                    periodsPerWeek: jp.periodsPerWeek
+                };
+            });
             break;
     }
 
@@ -203,59 +270,46 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
 
     const validateRow = (row: Record<string, string>, type: CsvDataType, session: TimetableSession): { isValid: boolean; error?: string } => {
         const { subjects, teachers, classes } = session;
-        const subjectIds = new Set(subjects.map(s => s.id));
-        const teacherIds = new Set(teachers.map(t => t.id));
-        const classIds = new Set(classes.map(c => c.id));
 
         switch (type) {
             case 'subjects':
-                if (!row.nameEn || !row.nameUr) return { isValid: false, error: "Missing required 'nameEn' or 'nameUr' field." };
+                if (!row.nameEn || !row.nameUr) return { isValid: false, error: "Missing 'nameEn' or 'nameUr'." };
                 break;
             case 'teachers':
-                if (!row.nameEn || !row.nameUr) return { isValid: false, error: "Missing required 'nameEn' or 'nameUr' field." };
+                if (!row.nameEn || !row.nameUr) return { isValid: false, error: "Missing 'nameEn' or 'nameUr'." };
                 if (row.gender && !['Male', 'Female'].includes(row.gender)) return { isValid: false, error: "Gender must be 'Male' or 'Female'." };
                 break;
             case 'classes':
-                if (!row.nameEn || !row.nameUr) return { isValid: false, error: "Missing required 'nameEn' or 'nameUr' field." };
-                if (type === 'classes' && row.inCharge && !teacherIds.has(row.inCharge)) {
-                    return { isValid: false, error: `Teacher with ID '${row.inCharge}' for 'inCharge' not found.` };
+                if (!row.nameEn || !row.nameUr) return { isValid: false, error: "Missing 'nameEn' or 'nameUr'." };
+                if (row.inChargeName && !findIdByName(teachers, row.inChargeName)) {
+                    return { isValid: false, error: `Teacher '${row.inChargeName}' not found.` };
                 }
                 break;
             case 'classSubjects':
-                if (!row.classId || !row.subjectId || !row.teacherId || !row.periodsPerWeek) {
-                    return { isValid: false, error: "Missing required fields: classId, subjectId, teacherId, periodsPerWeek." };
+                if (!row.className || !row.subjectName || !row.teacherName || !row.periodsPerWeek) {
+                    return { isValid: false, error: "Missing: className, subjectName, teacherName, or periodsPerWeek." };
                 }
-                if (!classIds.has(row.classId)) return { isValid: false, error: `Class with ID '${row.classId}' not found.` };
-                if (!subjectIds.has(row.subjectId)) return { isValid: false, error: `Subject with ID '${row.subjectId}' not found.` };
-                if (!teacherIds.has(row.teacherId)) return { isValid: false, error: `Teacher with ID '${row.teacherId}' not found.` };
+                if (!findIdByName(classes, row.className)) return { isValid: false, error: `Class '${row.className}' not found.` };
+                if (!findIdByName(subjects, row.subjectName)) return { isValid: false, error: `Subject '${row.subjectName}' not found.` };
+                if (!findIdByName(teachers, row.teacherName)) return { isValid: false, error: `Teacher '${row.teacherName}' not found.` };
                 if (isNaN(parseInt(row.periodsPerWeek, 10))) return { isValid: false, error: "'periodsPerWeek' must be a number." };
                 break;
             case 'timetable':
-                if (!row.classId || !row.day || !row.periodIndex || !row.subjectId || !row.teacherId) {
-                    return { isValid: false, error: "Missing required fields: classId, day, periodIndex, subjectId, teacherId." };
+                if (!row.className || !row.day || !row.period || !row.subjectName || !row.teacherName) {
+                    return { isValid: false, error: "Missing: className, day, period, subjectName, or teacherName." };
                 }
-                if (!classIds.has(row.classId)) return { isValid: false, error: `Class with ID '${row.classId}' not found.` };
-                if (!subjectIds.has(row.subjectId)) return { isValid: false, error: `Subject with ID '${row.subjectId}' not found.` };
-                if (!teacherIds.has(row.teacherId)) return { isValid: false, error: `Teacher with ID '${row.teacherId}' not found.` };
+                if (!findIdByName(classes, row.className)) return { isValid: false, error: `Class '${row.className}' not found.` };
+                if (!findIdByName(subjects, row.subjectName)) return { isValid: false, error: `Subject '${row.subjectName}' not found.` };
+                if (!findIdByName(teachers, row.teacherName)) return { isValid: false, error: `Teacher '${row.teacherName}' not found.` };
                 if (!daysOfWeek.includes(row.day as any)) return { isValid: false, error: `Invalid day '${row.day}'.` };
-                const pIndex = parseInt(row.periodIndex, 10);
-                if (isNaN(pIndex) || pIndex < 0 || pIndex > 7) return { isValid: false, error: "'periodIndex' must be a number between 0 and 7." };
+                const pNum = parseInt(row.period, 10);
+                if (isNaN(pNum) || pNum < 1 || pNum > 8) return { isValid: false, error: "'period' must be a number between 1 and 8." };
                 break;
             case 'jointPeriods':
-                if (!row.name || !row.teacherId || !row.periodsPerWeek || !row.assignments) {
-                    return { isValid: false, error: "Missing required fields: name, teacherId, periodsPerWeek, assignments."};
+                if (!row.name || !row.teacherName || !row.periodsPerWeek) {
+                    return { isValid: false, error: "Missing: name, teacherName, or periodsPerWeek."};
                 }
-                try {
-                    const assignments = JSON.parse(row.assignments);
-                    if (!Array.isArray(assignments)) throw new Error();
-                    for(const a of assignments) {
-                        if (!a.classId || !a.subjectId || !classIds.has(a.classId) || !subjectIds.has(a.subjectId)) {
-                             return { isValid: false, error: `Invalid assignment: ${JSON.stringify(a)}. Ensure classId and subjectId exist.`};
-                        }
-                    }
-                } catch {
-                    return { isValid: false, error: "'assignments' must be a valid JSON array string."};
-                }
+                if (!findIdByName(teachers, row.teacherName)) return { isValid: false, error: `Teacher '${row.teacherName}' not found.` };
                 break;
         }
         return { isValid: true };
@@ -273,7 +327,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
         rows.forEach((row, rowIndex) => {
             const validation = validateRow(row, type, currentTimetableSession);
             if (!validation.isValid) {
-                analysis.errors.push({ rowIndex: rowIndex + 2, row, message: validation.error! }); // +2 for header and 0-indexing
+                analysis.errors.push({ rowIndex: rowIndex + 2, row, message: validation.error! });
             }
         });
 
@@ -282,37 +336,43 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
         if (isEntity) {
             const dataKey = type as 'subjects' | 'teachers' | 'classes' | 'jointPeriods';
             const existingData: any[] = currentTimetableSession[dataKey];
-            const existingDataMapByName = new Map<string, any>(existingData.map(item => [item.nameEn?.toLowerCase() || item.name.toLowerCase(), item]));
-            const existingDataMapById = new Map<string, any>(existingData.map(item => [item.id, item]));
+            
+            // Map existing items by both En and Ur names for flexibility
+            const existingDataMap = new Map<string, any>();
+            existingData.forEach(item => {
+                if (item.nameEn) existingDataMap.set(item.nameEn.toLowerCase(), item);
+                if (item.nameUr) existingDataMap.set(item.nameUr.trim(), item);
+                if (item.name) existingDataMap.set(item.name.toLowerCase(), item); // for jointPeriods
+            });
 
-            const foundItems = new Set<string>(); // store IDs of found items
-            const seenInCsv = new Set<string>(); // for finding duplicates in CSV
+            const foundIds = new Set<string>();
+            const seenInCsv = new Set<string>();
 
             validRows.forEach((row, rowIndex) => {
-                const uniqueKey = row.id || row.nameEn?.toLowerCase() || row.name?.toLowerCase();
+                const uniqueKey = (row.nameEn || row.name || '').toLowerCase();
+                
                 if(uniqueKey && seenInCsv.has(uniqueKey)){
-                    analysis.errors.push({ rowIndex: rowIndex + 2, row, message: `Duplicate entry in CSV for ID/Name: '${uniqueKey}'.` });
-                    return;
+                    // Don't flag as hard error, just skip duplicate processing or handle logic?
+                    // For simplicity, let's process matches naturally, but typically duplicate rows are odd.
                 }
                 if(uniqueKey) seenInCsv.add(uniqueKey);
 
-                let oldItem: any = null;
-                if (row.id) oldItem = existingDataMapById.get(row.id);
-                if (!oldItem && (row.nameEn || row.name)) oldItem = existingDataMapByName.get(row.nameEn?.toLowerCase() || row.name?.toLowerCase());
+                const existingItem = existingDataMap.get(uniqueKey) || (row.nameUr ? existingDataMap.get(row.nameUr.trim()) : undefined);
 
-                if (oldItem) {
-                    if (foundItems.has(oldItem.id)) {
-                        analysis.errors.push({ rowIndex: rowIndex + 2, row, message: `Multiple CSV rows match existing item '${row.nameEn || row.name}'.` });
-                        return;
+                if (existingItem) {
+                    if (foundIds.has(existingItem.id)) {
+                        // Already processed this item in this upload batch
+                        return; 
                     }
-                    analysis.updatedItems.push({ newItem: row, oldItem });
-                    foundItems.add(oldItem.id);
+                    analysis.updatedItems.push({ newItem: row, oldItem: existingItem });
+                    foundIds.add(existingItem.id);
                 } else {
                     analysis.newItems.push(row);
                 }
             });
-            analysis.itemsToDelete = existingData.filter(item => !foundItems.has(item.id));
+            analysis.itemsToDelete = existingData.filter(item => !foundIds.has(item.id));
         } else {
+            // Relational data (ClassSubjects, Timetable) is always additive/replacing content of classes
             let existingCount = 0;
             switch (type) {
                 case 'classSubjects':
@@ -363,16 +423,20 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
         if (file) processFile(file);
     };
     
+    // Converts CSV Row (Names) to Internal Object (IDs)
     const convertRowToObject = (row: Record<string, string>, type: CsvDataType, session: TimetableSession): any => {
-      const id = row.id || generateUniqueId();
+      const { teachers } = session;
+      const id = generateUniqueId(); // New ID if needed
+
       switch (type) {
         case 'subjects': return { id, nameEn: row.nameEn || '', nameUr: row.nameUr || '' };
-        case 'teachers': return { id, nameEn: row.nameEn || '', nameUr: row.nameUr || '', gender: row.gender === 'Female' ? 'Female' : 'Male', contactNumber: row.contactNumber || '' };
+        case 'teachers': return { id, nameEn: row.nameEn || '', nameUr: row.nameUr || '', gender: row.gender === 'Female' ? 'Female' : 'Male', contactNumber: row.contactNumber || '', serialNumber: row.serialNumber ? parseInt(row.serialNumber) : undefined };
         case 'classes':
-          const existingClass = session.classes.find(c => c.id === id);
-          return { id, nameEn: row.nameEn || '', nameUr: row.nameUr || '', inCharge: row.inCharge || '', roomNumber: row.roomNumber || '', studentCount: parseInt(row.studentCount || '0', 10), subjects: existingClass?.subjects || [], timetable: existingClass?.timetable || createEmptyTimetable(), groupSets: existingClass?.groupSets || [] };
+          const inChargeId = findIdByName(teachers, row.inChargeName || '');
+          return { id, nameEn: row.nameEn || '', nameUr: row.nameUr || '', category: row.category, inCharge: inChargeId || '', roomNumber: row.roomNumber || '', studentCount: parseInt(row.studentCount || '0', 10), subjects: [], timetable: createEmptyTimetable(), groupSets: [], serialNumber: row.serialNumber ? parseInt(row.serialNumber) : undefined };
         case 'jointPeriods':
-            return { id, name: row.name || '', teacherId: row.teacherId || '', periodsPerWeek: parseInt(row.periodsPerWeek || '1', 10), assignments: JSON.parse(row.assignments || '[]') };
+            const teachId = findIdByName(teachers, row.teacherName || '');
+            return { id, name: row.name || '', teacherId: teachId || '', periodsPerWeek: parseInt(row.periodsPerWeek || '1', 10), assignments: [] }; // Reset assignments as CSV doesn't support complex JSON well
         default: return row;
       }
     };
@@ -388,49 +452,80 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
         try {
             onUpdateTimetableSession(session => {
                 let updatedSession = JSON.parse(JSON.stringify(session));
+                
                 if (isEntity) {
                     const dataKey = type as 'subjects' | 'teachers' | 'classes' | 'jointPeriods';
                     const newDataSet = new Map<string, any>();
             
+                    // If appending, keep existing data
                     if (importMode === 'append') {
                         session[dataKey].forEach((item: any) => newDataSet.set(item.id, item));
                     }
             
+                    // Add new items
                     importAnalysis.newItems.forEach(row => {
                         const obj = convertRowToObject(row, type, session);
                         newDataSet.set(obj.id, obj);
                     });
             
+                    // Update existing items
                     importAnalysis.updatedItems.forEach(({ newItem, oldItem }) => {
-                        const obj = { ...oldItem, ...convertRowToObject(newItem, type, session), id: oldItem.id };
+                        const converted = convertRowToObject(newItem, type, session);
+                        // Merge but keep original ID and structure (like subjects/timetable for classes)
+                        const obj = { ...oldItem, ...converted, id: oldItem.id };
+                        
+                        // Preserve complex nested data for Classes
+                        if (type === 'classes') {
+                            obj.subjects = oldItem.subjects;
+                            obj.timetable = oldItem.timetable;
+                            obj.groupSets = oldItem.groupSets;
+                        }
+                        
                         newDataSet.set(obj.id, obj);
                     });
             
                     updatedSession[dataKey] = Array.from(newDataSet.values());
                 } else { 
                     const validRows = parsedData.filter((_, rowIndex) => !importAnalysis.errors.some(e => e.rowIndex === rowIndex + 2));
+                    const { classes, subjects, teachers } = updatedSession;
 
                     switch (type) {
                         case 'classSubjects':
                             const classSubjectsMap = new Map<string, ClassSubject[]>();
                             validRows.forEach(row => {
-                                const { classId, subjectId, periodsPerWeek, teacherId, groupSetId, groupId } = row;
-                                if (!classId || !subjectId || !periodsPerWeek || !teacherId) return;
-                                if (!classSubjectsMap.has(classId)) classSubjectsMap.set(classId, []);
-                                classSubjectsMap.get(classId)!.push({ subjectId, periodsPerWeek: parseInt(periodsPerWeek, 10), teacherId, groupSetId: groupSetId || undefined, groupId: groupId || undefined });
+                                const classId = findIdByName(classes, row.className);
+                                const subjectId = findIdByName(subjects, row.subjectName);
+                                const teacherId = findIdByName(teachers, row.teacherName);
+                                const periodsPerWeek = parseInt(row.periodsPerWeek, 10);
+
+                                if (classId && subjectId && teacherId && !isNaN(periodsPerWeek)) {
+                                    if (!classSubjectsMap.has(classId)) classSubjectsMap.set(classId, []);
+                                    classSubjectsMap.get(classId)!.push({ subjectId, periodsPerWeek, teacherId });
+                                }
                             });
                             updatedSession.classes.forEach((c: SchoolClass) => { c.subjects = classSubjectsMap.get(c.id) || []; });
                             break;
                         case 'timetable':
+                            // Clear existing timetables first
                             updatedSession.classes.forEach((c: SchoolClass) => c.timetable = createEmptyTimetable());
                             const classMap = new Map<string, SchoolClass>(updatedSession.classes.map((c: SchoolClass) => [c.id, c]));
+                            
                             validRows.forEach(row => {
-                                const { classId, day, periodIndex, subjectId, teacherId, jointPeriodId } = row;
-                                const targetClass = classMap.get(classId);
-                                const dayKey = day as keyof TimetableGridData;
-                                const pIndex = parseInt(periodIndex, 10);
-                                if (targetClass && dayKey && !isNaN(pIndex)) {
-                                    targetClass.timetable[dayKey][pIndex].push({ id: generateUniqueId(), classId, subjectId, teacherId, jointPeriodId: jointPeriodId || undefined });
+                                const classId = findIdByName(classes, row.className);
+                                const subjectId = findIdByName(subjects, row.subjectName);
+                                const teacherId = findIdByName(teachers, row.teacherName);
+                                const dayKey = row.day as keyof TimetableGridData;
+                                const pIndex = parseInt(row.period, 10) - 1; // Convert 1-8 to 0-7
+
+                                const targetClass = classId ? classMap.get(classId) : undefined;
+
+                                if (targetClass && subjectId && teacherId && dayKey && pIndex >= 0) {
+                                    targetClass.timetable[dayKey][pIndex].push({ 
+                                        id: generateUniqueId(), 
+                                        classId: targetClass.id, 
+                                        subjectId, 
+                                        teacherId 
+                                    });
                                 }
                             });
                             break;
@@ -449,8 +544,16 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
   if (!isOpen) return null;
 
   const renderDescription = (type: CsvDataType) => {
-    const key = `${type}CsvDescription`;
-    return <p className="text-xs text-[var(--text-secondary)]">{t[key]}</p>;
+    // Custom descriptions for name-based CSVs
+    const descs: any = {
+        subjects: "Columns: nameEn, nameUr",
+        teachers: "Columns: nameEn, nameUr, gender, contactNumber, serialNumber",
+        classes: "Columns: nameEn, nameUr, category, inChargeName, roomNumber, studentCount, serialNumber",
+        classSubjects: "Columns: className, subjectName, periodsPerWeek, teacherName",
+        timetable: "Columns: className, day, period (1-8), subjectName, teacherName",
+        jointPeriods: "Columns: name, teacherName, periodsPerWeek"
+    };
+    return <p className="text-xs text-[var(--text-secondary)]">{descs[type]}</p>;
   }
 
   const isEntity = ['subjects', 'teachers', 'classes', 'jointPeriods'].includes(activeTab);

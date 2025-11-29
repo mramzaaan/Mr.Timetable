@@ -163,7 +163,7 @@ export interface SchoolClass {
 
 export type DownloadFormat = 'pdf-full' | 'pdf-summary' | 'excel';
 export type DownloadLanguage = 'en' | 'ur' | 'both';
-export type FontFamily = 'Lato' | 'Roboto' | 'Open Sans' | 'Montserrat' | 'Times New Roman' | 'Merriweather' | 'Arial' | 'Noto Nastaliq Urdu' | 'Jameel Noori Nastaleeq' | 'Jameel Noori Nastaleeq Kasheeda' | 'Gulzar' | 'Lateef' | 'Amiri' | 'Almarai' | 'Scheherazade New' | 'Reem Kufi' | 'Aref Ruqaa';
+export type FontFamily = 'sans-serif' | 'Lato' | 'Roboto' | 'Open Sans' | 'Montserrat' | 'Times New Roman' | 'Merriweather' | 'Arial' | 'Impact' | 'Calibri' | 'Verdana' | 'Tahoma' | 'Antonio' | 'Monoton' | 'Rubik Mono One' | 'Bodoni Moda' | 'Bungee Spice' | 'Bebas Neue' | 'Playfair Display' | 'Oswald' | 'Anton' | 'Instrument Serif' | 'Orbitron' | 'Fjalla One' | 'Playwrite CU' | 'Trebuchet MS' | 'Segoe UI' | 'Comic Sans MS' | 'Noto Nastaliq Urdu' | 'Gulzar' | 'Amiri' | 'Aref Ruqaa';
 
 export interface DownloadDesignConfig {
     version: 3;
@@ -217,6 +217,7 @@ export interface DownloadDesignConfig {
         altRowColor: string;
         gridStyle?: 'solid' | 'dashed' | 'dotted';
         borderWidth?: number;
+        headerFontSize?: number; // Added property for table header font size
     };
     footer: {
         show: boolean;
