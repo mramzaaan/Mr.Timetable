@@ -136,15 +136,15 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
       const height = size;
 
       let triangleStyles = '';
-      const triangleSize = 20; 
+      const triangleSize = 24; 
       if (triangleCorner === 'top-left') {
-          triangleStyles = `top: 0; left: 0; border-width: ${triangleSize}px ${triangleSize}px 0 0; border-color: currentColor transparent transparent transparent;`;
+          triangleStyles = `top: 0; left: 0; border-top: ${triangleSize}px solid currentColor; border-right: ${triangleSize}px solid transparent;`;
       } else if (triangleCorner === 'top-right') {
-          triangleStyles = `top: 0; right: 0; border-width: 0 ${triangleSize}px ${triangleSize}px 0; border-color: transparent currentColor transparent transparent;`;
+          triangleStyles = `top: 0; right: 0; border-top: ${triangleSize}px solid currentColor; border-left: ${triangleSize}px solid transparent;`;
       } else if (triangleCorner === 'bottom-right') {
-          triangleStyles = `bottom: 0; right: 0; border-width: 0 0 ${triangleSize}px ${triangleSize}px; border-color: transparent transparent currentColor transparent;`;
+          triangleStyles = `bottom: 0; right: 0; border-bottom: ${triangleSize}px solid currentColor; border-left: ${triangleSize}px solid transparent;`;
       } else { 
-          triangleStyles = `bottom: 0; left: 0; border-width: ${triangleSize}px 0 0 ${triangleSize}px; border-color: transparent transparent transparent currentColor;`;
+          triangleStyles = `bottom: 0; left: 0; border-bottom: ${triangleSize}px solid currentColor; border-right: ${triangleSize}px solid transparent;`;
       }
 
       let cardStyleCss = '';
@@ -161,15 +161,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
       } else if (cardStyle === 'gradient') {
           cardStyleCss = 'background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.1) 100%) !important;';
       } else if (cardStyle === 'minimal-left') {
-          cardStyleCss = 'background-color: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 6px !important; position: relative !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;';
-          // Updated Minimal Design: Centered line with dots
-          separatorHtml = `
-            <div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.5; transform: translateY(-50%);">
-                <div style="width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div>
-                <div style="height: 2px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 8px;"></div>
-                <div style="width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div>
-            </div>
-          `;
+          cardStyleCss = 'background-color: #f8fafc !important; border-left: 5px solid currentColor !important; border-top: none !important; border-right: none !important; border-bottom: none !important; box-shadow: none !important; border-radius: 2px !important;';
       } else if (cardStyle === 'badge') {
           cardStyleCss = 'background-color: transparent !important; border: none !important; box-shadow: none !important;';
       }

@@ -66,10 +66,10 @@ const hexToRgba = (hex: string, alpha: number) => {
 
 const defaultDesignV3: DownloadDesignConfig = {
     version: 3,
-    page: { size: 'a4', orientation: 'portrait', margins: { top: 10, right: 10, bottom: 10, left: 10 }, watermarkOpacity: 0.07 },
+    page: { size: 'a4', orientation: 'portrait', margins: { top: 4, right: 4, bottom: 4, left: 4 }, watermarkOpacity: 0.07 },
     header: { showLogo: true, logoSize: 80, logoPosition: 'left', schoolName: { fontFamily: 'Roboto', fontSize: 24, fontWeight: 'bold', align: 'left', color: '#000000' }, showTitle: true, title: { fontFamily: 'Roboto', fontSize: 18, fontWeight: 'bold', align: 'left', color: '#444444' }, details: { fontFamily: 'Roboto', fontSize: 14, fontWeight: 'normal', align: 'left', color: '#000000' }, divider: true, bgColor: '#FFFFFF' },
     table: { fontFamily: 'Roboto', fontSize: 14, cellPadding: 8, headerBgColor: '#1e293b', headerColor: '#FFFFFF', bodyBgColor: '#FFFFFF', bodyColor: '#000000', borderColor: '#000000', periodColumnWidth: 40, periodColumnBgColor: '#f1f5f9', periodColumnColor: '#000000', altRowColor: '#FFFFFF', gridStyle: 'solid', borderWidth: 1, headerFontSize: 14, cardStyle: 'minimal-left', triangleCorner: 'bottom-left', outlineWidth: 2 },
-    footer: { show: true, text: 'Mr.🇵🇰', fontFamily: 'Roboto', fontSize: 12, align: 'center', includePageNumber: true, color: '#4b5563', includeTimestamp: false },
+    footer: { show: false, text: 'Mr.🇵🇰', fontFamily: 'Roboto', fontSize: 12, align: 'center', includePageNumber: false, color: '#4b5563', includeTimestamp: false },
     colorMode: 'color', rowsPerPage: 50, rowsPerFirstPage: 50, daysPerPage: 7, watermarkText: '', compactMode: false,
 };
 const defaultDownloadDesigns: DownloadDesigns = { 

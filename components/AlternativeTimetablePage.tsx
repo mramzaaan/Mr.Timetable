@@ -52,6 +52,11 @@ const TrashIcon = () => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
     </svg>
 );
+const ShareIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+    </svg>
+);
 
 const SignatureModal: React.FC<{
     t: any;
@@ -525,6 +530,13 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
   const [activeDropdownCardId, setActiveDropdownCardId] = useState<string | null>(null);
   const [slipData, setSlipData] = useState<Adjustment | null>(null);
   const slipRef = useRef<HTMLDivElement>(null);
+  const [teacherShareData, setTeacherShareData] = useState<{
+      teacherId: string;
+      teacherName: string;
+      date: string;
+      substitutions: SubstitutionGroup[];
+  } | null>(null);
+  const teacherShareRef = useRef<HTMLDivElement>(null);
 
   const [modalState, setModalState] = useState<{
       isOpen: boolean;
@@ -617,17 +629,30 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       const groups: SubstitutionGroup[] = [];
 
       absentTeachers.forEach(absentTeacher => {
+          const leave = absenteeDetails[absentTeacher.id];
           const teacherPeriods: { classId: string; period: Period; periodIndex: number }[] = [];
           
           classes.forEach(c => {
               const daySlots = c.timetable[dayOfWeek];
               if (daySlots) {
                   daySlots.forEach((slot, pIndex) => {
-                      slot.forEach(p => {
-                          if (p.teacherId === absentTeacher.id) {
-                              teacherPeriods.push({ classId: c.id, period: p, periodIndex: pIndex });
+                      let isMissed = true;
+                      if (leave && leave.leaveType === 'half') {
+                          const pNum = pIndex + 1;
+                          if (leave.periods && leave.periods.length > 0) {
+                              if (!leave.periods.includes(pNum)) isMissed = false;
+                          } else if (leave.startPeriod && pNum < leave.startPeriod) {
+                              isMissed = false;
                           }
-                      });
+                      }
+
+                      if (isMissed) {
+                          slot.forEach(p => {
+                              if (p.teacherId === absentTeacher.id) {
+                                  teacherPeriods.push({ classId: c.id, period: p, periodIndex: pIndex });
+                              }
+                          });
+                      }
                   });
               }
           });
@@ -1073,6 +1098,59 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
   };
 
   const handleSavePrintDesign = (newDesign: DownloadDesignConfig) => { onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, adjustments: newDesign } }); };
+  
+  const handleShareTeacher = async (teacherId: string) => {
+      const teacher = teachers.find(t => t.id === teacherId);
+      if (!teacher) return;
+      
+      const groups = substitutionGroups.filter(g => g.absentEntity.id === teacherId);
+      
+      setTeacherShareData({
+          teacherId,
+          teacherName: language === 'ur' ? teacher.nameUr : teacher.nameEn,
+          date: selectedDate,
+          substitutions: groups
+      });
+      
+      // Wait for render
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      if (teacherShareRef.current) {
+          try {
+              const canvas = await html2canvas(teacherShareRef.current, { 
+                  scale: 2, 
+                  backgroundColor: '#ffffff',
+                  onclone: (clonedDoc: Document) => {
+                      const style = clonedDoc.createElement('style');
+                      style.innerHTML = `
+                          * {
+                              text-rendering: geometricPrecision !important;
+                              -webkit-font-smoothing: antialiased !important;
+                              -moz-osx-font-smoothing: grayscale !important;
+                              line-height: 1.2 !important;
+                          }
+                      `;
+                      clonedDoc.head.appendChild(style);
+                  }
+              });
+              const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+              if (blob) {
+                  try {
+                      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                      alert("Teacher report copied to clipboard!");
+                  } catch (err) {
+                      console.error("Clipboard write failed", err);
+                      alert("Could not auto-copy image. Please use screenshot.");
+                  }
+              }
+          } catch (err) {
+              console.error("Image generation failed", err);
+          }
+      }
+      
+      setTimeout(() => setTeacherShareData(null), 1000);
+  };
+
   const handleSignAndShare = async (signature: string) => { };
   const formattedDateForTitle = new Date(selectedDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -1218,6 +1296,58 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                 </div>
             </div>
         )}
+        {teacherShareData && (
+            <div ref={teacherShareRef} className="w-[800px] bg-white font-sans text-slate-800 relative overflow-hidden flex flex-col p-8 border border-slate-200">
+                {/* Header */}
+                <div className="text-center mb-8 border-b-2 border-slate-100 pb-6">
+                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">
+                        {teacherShareData.teacherName}
+                    </h2>
+                    <p className="text-xl text-slate-500 font-medium">
+                        {new Date(teacherShareData.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                    <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-2">Substitution Report</p>
+                </div>
+
+                {/* List */}
+                <div className="flex flex-col gap-4">
+                    {teacherShareData.substitutions.length > 0 ? (
+                        teacherShareData.substitutions.map((group, idx) => {
+                             const assignedAdj = dailyAdjustments.find(a => a.periodIndex === group.periodIndex && a.originalTeacherId === group.absentEntity.id);
+                             const subTeacher = teachers.find(t => t.id === assignedAdj?.substituteTeacherId);
+                             const subName = subTeacher ? (language === 'ur' ? subTeacher.nameUr : subTeacher.nameEn) : 'Unassigned';
+
+                            return (
+                                <div key={idx} className="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div className="flex flex-col items-center justify-center bg-white rounded-xl w-12 h-12 border border-slate-200 mr-4 shadow-sm flex-shrink-0">
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase">PD</span>
+                                        <span className="text-xl font-black text-slate-700">{group.periodIndex + 1}</span>
+                                    </div>
+                                    <div className="flex-grow min-w-0">
+                                        <h4 className="text-lg font-bold text-slate-800 truncate">{group.combinedClassNames.en}</h4>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">{group.subjectInfo.en}</p>
+                                    </div>
+                                    <div className="text-right ml-4 flex-shrink-0">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Substitute</p>
+                                        <p className={`text-lg font-black ${subTeacher ? 'text-emerald-600' : 'text-red-400'}`}>
+                                            {subName}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="text-center py-8 text-slate-400 italic">No periods scheduled for today.</div>
+                    )}
+                </div>
+                
+                {/* Footer */}
+                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+                    <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">{schoolConfig.schoolNameEn}</span>
+                    <span className="text-slate-300 text-[10px] font-bold uppercase tracking-widest">Generated by MR. TMS</span>
+                </div>
+            </div>
+        )}
       </div>
 
       <PrintPreview 
@@ -1279,6 +1409,15 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-1 opacity-100 transition-opacity">
+                                        {!isClass && (
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleShareTeacher(entity.id); }} 
+                                                className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                title="Share Teacher Report"
+                                            >
+                                                <ShareIcon />
+                                            </button>
+                                        )}
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); openModal(entity.type, entity.id); }} 
                                             className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"

@@ -200,6 +200,18 @@ const SettingsSidebar: React.FC<{
         </div>
     );
 
+    const TextInput = ({ label, path, value }: any) => (
+        <div className="space-y-1">
+            <label className="text-xs text-gray-300 font-medium">{label}</label>
+            <input 
+                type="text" 
+                value={value || ''} 
+                onChange={(e) => handleValueChange(path, e.target.value)} 
+                className="w-full bg-gray-900 border border-gray-700 text-white text-xs rounded px-2 py-1.5 outline-none focus:border-teal-500"
+            />
+        </div>
+    );
+
     // Edit Section Handlers
     const ManualColorInput = ({ label, value, onChange }: any) => (
         <div className="flex items-center justify-between">
@@ -239,6 +251,7 @@ const SettingsSidebar: React.FC<{
                             <SelectInput label="Size" path="page.size" value={options.page.size} options={[{value: 'a4', label: 'A4'}, {value: 'letter', label: 'Letter'}, {value: 'legal', label: 'Legal'}]} />
                             <SelectInput label="Orientation" path="page.orientation" value={options.page.orientation} options={[{value: 'portrait', label: 'Portrait'}, {value: 'landscape', label: 'Landscape'}]} />
                             <NumberInput label="Watermark Opacity" path="page.watermarkOpacity" value={options.page.watermarkOpacity} min={0} max={1} step={0.05} />
+                            <TextInput label="Watermark Text" path="watermarkText" value={options.watermarkText} />
                         </ControlGroup>
                         <ControlGroup label="Margins (mm)">
                             <NumberInput label="Top" path="page.margins.top" value={options.page.margins.top} min={0} max={50} />
@@ -261,6 +274,9 @@ const SettingsSidebar: React.FC<{
                             <ToggleInput label="Show Logo" path="header.showLogo" value={options.header.showLogo} />
                             <NumberInput label="Logo Size" path="header.logoSize" value={options.header.logoSize} min={20} max={200} />
                             <ToggleInput label="Show Title" path="header.showTitle" value={options.header.showTitle} />
+                            {options.header.showTitle && (
+                                <NumberInput label="Title Size" path="header.title.fontSize" value={options.header.title?.fontSize || 18} min={10} max={80} />
+                            )}
                             <ToggleInput label="Show Divider" path="header.divider" value={options.header.divider} />
                             <ColorInput label="Background" path="header.bgColor" value={options.header.bgColor} />
                         </ControlGroup>
@@ -312,6 +328,9 @@ const SettingsSidebar: React.FC<{
                     <>
                         <ControlGroup label="Footer Settings">
                             <ToggleInput label="Show Footer" path="footer.show" value={options.footer.show} />
+                            {options.footer.show && (
+                                <TextInput label="Footer Text" path="footer.text" value={options.footer.text} />
+                            )}
                             <ToggleInput label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} />
                             <SelectInput label="Alignment" path="footer.align" value={options.footer.align} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} />
                             <NumberInput label="Font Size" path="footer.fontSize" value={options.footer.fontSize} min={6} max={20} />

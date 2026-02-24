@@ -568,11 +568,15 @@ const generateReportHTML = (
     const showPageNum = design.footer.includePageNumber && pageNumber !== undefined && totalPages !== undefined;
     const pageNumHtml = showPageNum ? `<span>Page ${pageNumber} of ${totalPages}</span>` : '';
 
+    const watermarkHtml = design.watermarkText 
+        ? `<div class="watermark-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; font-weight: bold; color: rgba(0,0,0,${design.page.watermarkOpacity}); pointer-events: none; white-space: nowrap; z-index: 0;">${design.watermarkText}</div>`
+        : (schoolConfig.schoolLogoBase64 && design.page.watermarkOpacity > 0 ? `<img src="${schoolConfig.schoolLogoBase64}" class="watermark" />` : '');
+
     return `
         <div class="print-container">
             <style>${styles}</style>
             <div class="page">
-                ${schoolConfig.schoolLogoBase64 && design.page.watermarkOpacity > 0 ? `<img src="${schoolConfig.schoolLogoBase64}" class="watermark" />` : ''}
+                ${watermarkHtml}
                 <div class="content-wrapper">
                     <header class="header-container" style="justify-content: ${design.header.logoPosition === 'center' ? 'center' : design.header.logoPosition === 'right' ? 'flex-end' : 'flex-start'}">
                         ${design.header.logoPosition === 'left' ? logoHtml : ''}
@@ -721,12 +725,12 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
         } else if (cardStyle === 'gradient') {
             cardStyleCss = `background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.05) 100%) !important; border: none !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;`;
         } else if (cardStyle === 'minimal-left') {
-            cardStyleCss = `background-color: #f8fafc !important; border-left: 5px solid currentColor !important; border-top: none !important; border-right: none !important; border-bottom: none !important; box-shadow: none !important; border-radius: 2px !important;`;
+            cardStyleCss = `background-color: #f8fafc !important; border-left: 5px solid currentColor !important; border-top: none !important; border-right: none !important; border-bottom: none !important; box-shadow: none !important; border-radius: 2px !important; position: relative;`;
         } else if (cardStyle === 'badge') {
             cardStyleCss = `background-color: transparent !important; border: none !important; box-shadow: none !important;`;
         }
 
-        const customStyles = `<style>:root { ${cssColors} } .cell-wrapper { display: flex; flex-direction: column; gap: 2px; width: 100%; height: 100%; box-sizing: border-box; } .glossy-box { flex: 1; min-width: 0; border-radius: 4px; padding: 2px 4px; align-self: stretch; height: 100%; display: flex; flex-direction: column; justify-content: ${flexAlign}; ${cardStyleCss} position: relative; overflow: hidden; box-sizing: border-box; } .subject-text { text-align: left; font-weight: 900; font-size: 1.2em; line-height: 1.1; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; } .teacher-text { text-align: right; font-size: 1em; font-weight: 700; opacity: 1; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; line-height: 1.1; } .card-triangle { position: absolute; width: 0; height: 0; border-style: solid; ${triangleStyles} z-index: 5; } ${teacherColorNames.map(name => `.${name} { background-color: var(--${name}-bg); color: var(--${name}-text); border-color: var(--${name}-text) !important; } .${name} .subject-text, .${name} .teacher-text, .${name} .subject-name, .${name} .class-list { color: var(--${name}-text) !important; } .${name} .card-triangle { color: var(--${name}-text) !important; }`).join('')} td { padding: ${design.table.cellPadding}px !important; height: auto !important; min-height: 62px; border-color: ${design.table.borderColor} !important; vertical-align: top !important; } table { table-layout: fixed; width: 100%; border-color: ${design.table.borderColor} !important; } .disabled-cell { background-color: #e5e7eb; }</style>`;
+        const customStyles = `<style>:root { ${cssColors} } .cell-wrapper { display: flex; flex-direction: column; gap: 2px; width: 100%; height: 100%; box-sizing: border-box; } .period-card-img { flex: 1; min-width: 0; border-radius: 4px; align-self: stretch; height: 100%; display: flex; flex-direction: column; ${cardStyleCss} position: relative; overflow: hidden; box-sizing: border-box; } .period-content-spread { display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%; padding: 4px 6px; box-sizing: border-box; position: relative; z-index: 10; } .period-subject { text-align: left; font-weight: 900; font-size: 1.1em; line-height: 1.1; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .period-teacher { text-align: right; font-size: 0.85em; font-weight: 700; opacity: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; } .card-triangle { position: absolute; width: 0; height: 0; border-style: solid; ${triangleStyles} z-index: 5; } ${teacherColorNames.map(name => `.${name} { background-color: var(--${name}-bg); color: var(--${name}-text); border-color: var(--${name}-text) !important; } .${name} .period-subject, .${name} .period-teacher { color: var(--${name}-text) !important; } .${name} .card-triangle { color: var(--${name}-text) !important; }`).join('')} td { padding: ${design.table.cellPadding}px !important; height: auto !important; min-height: 62px; border-color: ${design.table.borderColor} !important; vertical-align: top !important; } table { table-layout: fixed; width: 100%; border-color: ${design.table.borderColor} !important; } .disabled-cell { background-color: #e5e7eb; }</style>`;
         const align1 = lang === 'ur' ? 'right' : 'left'; const align2 = 'center'; const align3 = lang === 'ur' ? 'left' : 'right';
         const detailsHtml = `<div style="width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em;"><div style="text-align: ${align1}; flex: 1;">${renderText(lang, classItem.nameEn, classItem.nameUr)}</div><div style="text-align: ${align2}; flex: 1;">${inChargeTeacher ? renderText(lang, inChargeTeacher.nameEn, inChargeTeacher.nameUr) : '-'}</div><div style="text-align: ${align3}; flex: 1;">${classItem.roomNumber}</div></div>`;
         const dayHeaders = chunkDays.map(day => { const dayKey = day.toLowerCase(); return `<th>${renderText(lang, (enT as any)[dayKey], (urT as any)[dayKey])}</th>`; }).join('');
@@ -742,21 +746,31 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
                 const sortedPeriods = [...periods].sort((a, b) => a.subjectId.localeCompare(b.subjectId));
                 const key = sortedPeriods.map(p => `${p.subjectId}-${p.teacherId}`).join('|');
                 
-                const content = sortedPeriods.map(p => {
+                const subjectsList = sortedPeriods.map(p => {
                     const sub = subjects.find(s => s.id === p.subjectId);
+                    return sub ? renderText(lang, sub.nameEn, sub.nameUr) : '';
+                }).filter(Boolean).join(' / ');
+
+                const teachersList = sortedPeriods.map(p => {
                     const tea = teachers.find(t => t.id === p.teacherId);
-                    const subName = sub ? renderText(lang, sub.nameEn, sub.nameUr) : '';
-                    const teaName = tea ? renderText(lang, tea.nameEn, tea.nameUr) : '';
-                    const colorClass = colorMap.get(p.teacherId) || 'subject-default';
-                    const triangleHtml = (cardStyle === 'triangle' || cardStyle === 'full') ? `<div class="card-triangle"></div>` : '';
-                    
-                    let subjectBadgeStyle = '';
-                    if (cardStyle === 'badge') {
-                        subjectBadgeStyle = `background-color: var(--${colorClass}-text); color: #fff !important; padding: 1px 6px; border-radius: 10px; display: inline-block; width: fit-content; margin-bottom: 2px;`;
-                    }
-                    
-                    return `<div class="glossy-box ${colorClass}">${triangleHtml}<span class="subject-text" style="${subjectBadgeStyle}" title="${subName.replace(/<[^>]*>/g, '')}">${subName}</span><span class="teacher-text" title="${teaName.replace(/<[^>]*>/g, '')}">${teaName}</span></div>`;
-                }).join('');
+                    return tea ? renderText(lang, tea.nameEn, tea.nameUr) : '';
+                }).filter(Boolean).join(' / ');
+
+                const firstPeriod = sortedPeriods[0];
+                const colorClass = colorMap.get(firstPeriod.teacherId) || 'subject-default';
+                const triangleHtml = (cardStyle === 'triangle' || cardStyle === 'full') ? `<div class="card-triangle"></div>` : '';
+                
+                let separatorHtml = '';
+                if (cardStyle === 'minimal-left') {
+                    separatorHtml = `<div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.4; transform: translateY(-50%); pointer-events: none;"><div style="width: 4px; height: 4px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div><div style="height: 1px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 4px;"></div><div style="width: 4px; height: 4px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div></div>`;
+                }
+
+                let subjectBadgeStyle = '';
+                if (cardStyle === 'badge') {
+                    subjectBadgeStyle = `background-color: var(--${colorClass}-text); color: #fff !important; padding: 1px 6px; border-radius: 10px; display: inline-block; width: fit-content; margin-bottom: 2px;`;
+                }
+                
+                const content = `<div class="period-card-img ${colorClass}">${triangleHtml}${separatorHtml}<div class="period-content-spread"><div class="period-subject" style="${subjectBadgeStyle}" title="${subjectsList.replace(/<[^>]*>/g, '')}">${subjectsList}</div><div class="period-teacher" title="${teachersList.replace(/<[^>]*>/g, '')}">${teachersList}</div></div></div>`;
                 grid[pIdx][dIdx] = { html: `<div class="cell-wrapper">${content}</div>`, key };
             });
         }
@@ -855,12 +869,12 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
         } else if (cardStyle === 'gradient') {
             cardStyleCss = `background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.05) 100%) !important; border: none !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;`;
         } else if (cardStyle === 'minimal-left') {
-            cardStyleCss = `background-color: #f8fafc !important; border-left: 5px solid currentColor !important; border-radius: 2px !important; box-shadow: none !important; border-top: none !important; border-right: none !important; border-bottom: none !important;`;
+            cardStyleCss = `background-color: #f8fafc !important; border-left: 5px solid currentColor !important; border-radius: 2px !important; box-shadow: none !important; border-top: none !important; border-right: none !important; border-bottom: none !important; position: relative;`;
         } else if (cardStyle === 'badge') {
             cardStyleCss = `background-color: transparent !important; border: none !important; box-shadow: none !important;`;
         }
 
-        const customStyles = `<style>:root { ${cssColors} } .cell-content { display: flex; flex-direction: column; height: 100%; width: 100%; justify-content: center; gap: 2px; box-sizing: border-box; } .teacher-card { flex: 1; width: 100%; border-radius: 8px; display: flex; flex-direction: column; justify-content: ${flexAlign}; gap: 2px; box-sizing: border-box; overflow: hidden; ${cardStyleCss} padding: 4px 6px; position: relative; height: 100%; } .teacher-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 45%; background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0)); pointer-events: none; z-index: 0; } .subject-name { font-weight: 900; font-size: 1.2em; text-align: left; line-height: 1.1; margin-top: 2px; text-transform: uppercase; color: #000000; text-shadow: 0 1px 0 rgba(255,255,255,0.5); z-index: 1; position: relative; } .class-list { font-size: 1.0em; text-align: right; line-height: 1.1; font-weight: 700; margin-bottom: 2px; color: #000000; text-shadow: 0 1px 0 rgba(255,255,255,0.5); z-index: 1; position: relative; } .card-triangle { position: absolute; width: 0; height: 0; border-style: solid; ${triangleStyles} z-index: 5; } ${teacherColorNames.map(name => `.${name} { background-color: var(--${name}-bg); color: var(--${name}-text); border-color: var(--${name}-text) !important; } .${name} .subject-text, .${name} .teacher-text, .${name} .subject-name, .${name} .class-list { color: var(--${name}-text) !important; } .${name} .card-triangle { color: var(--${name}-text) !important; }`).join('')} td { padding: ${design.table.cellPadding}px !important; height: auto !important; min-height: 60px; border-color: ${design.table.borderColor} !important; vertical-align: top !important; } table { table-layout: fixed; width: 100%; border-spacing: 0; border-color: ${design.table.borderColor} !important; } .disabled-cell { background-color: #e5e7eb; }</style>`;
+        const customStyles = `<style>:root { ${cssColors} } .cell-content { display: flex; flex-direction: column; height: 100%; width: 100%; justify-content: center; gap: 2px; box-sizing: border-box; } .period-card-img { flex: 1; width: 100%; border-radius: 8px; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; ${cardStyleCss} position: relative; height: 100%; } .period-content-spread { display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%; padding: 4px 6px; box-sizing: border-box; position: relative; z-index: 10; } .period-card-img::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 45%; background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0)); pointer-events: none; z-index: 0; } .period-subject { font-weight: 900; font-size: 1.1em; text-align: left; line-height: 1.1; margin-top: 2px; text-transform: uppercase; text-shadow: 0 1px 0 rgba(255,255,255,0.5); z-index: 1; position: relative; } .period-class { font-size: 0.9em; text-align: right; line-height: 1.1; font-weight: 700; margin-bottom: 2px; text-shadow: 0 1px 0 rgba(255,255,255,0.5); z-index: 1; position: relative; } .card-triangle { position: absolute; width: 0; height: 0; border-style: solid; ${triangleStyles} z-index: 5; } ${teacherColorNames.map(name => `.${name} { background-color: var(--${name}-bg); color: var(--${name}-text); border-color: var(--${name}-text) !important; } .${name} .period-subject, .${name} .period-class { color: var(--${name}-text) !important; } .${name} .card-triangle { color: var(--${name}-text) !important; }`).join('')} td { padding: ${design.table.cellPadding}px !important; height: auto !important; min-height: 60px; border-color: ${design.table.borderColor} !important; vertical-align: top !important; } table { table-layout: fixed; width: 100%; border-spacing: 0; border-color: ${design.table.borderColor} !important; } .disabled-cell { background-color: #e5e7eb; }</style>`;
         const align1 = lang === 'ur' ? 'right' : 'left'; const align2 = 'center'; const align3 = lang === 'ur' ? 'left' : 'right';
         const detailsHtml = `<div style="width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em;"><div style="text-align: ${align1}; flex: 1;"># ${teacher.serialNumber ?? '-'}</div><div style="text-align: ${align2}; flex: 1;">${renderText(lang, teacher.nameEn, teacher.nameUr)}</div><div style="text-align: ${align3}; flex: 1;">${workloadLabel}</div></div>`;
         const dayHeaders = chunkDays.map(day => `<th>${renderText(lang, (enT as any)[day.toLowerCase()], (urT as any)[day.toLowerCase()])}</th>`).join('');
@@ -887,21 +901,34 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
                 const sortedGroupKeys = Array.from(grouped.keys()).sort();
                 const key = sortedGroupKeys.map(k => { const g = grouped.get(k)!; return `${k}-${Array.from(g.classNames).sort().join(',')}`; }).join('|');
 
-                const cards = sortedGroupKeys.map(gk => {
-                    const group = grouped.get(gk)!;
-                    const sub = subjects.find(s => s.id === group.subjectId);
-                    const subjectName = sub ? renderText(lang, sub.nameEn, sub.nameUr) : '';
-                    const classList = Array.from(group.classNames).join(', ');
-                    const colorClass = getCombinationColor(group.firstPeriod);
-                    const triangleHtml = (cardStyle === 'triangle' || cardStyle === 'full') ? `<div class="card-triangle"></div>` : '';
-                    
-                    let subjectBadgeStyle = '';
-                    if (cardStyle === 'badge') {
-                        subjectBadgeStyle = `background-color: var(--${colorClass}-text); color: #fff !important; padding: 1px 6px; border-radius: 10px; display: inline-block; width: fit-content; margin-bottom: 2px;`;
-                    }
+                const allClassNames = new Set<string>();
+                const allSubjectNames = new Set<string>();
+                let firstPeriod: Period | null = null;
 
-                    return `<div class="teacher-card ${colorClass}">${triangleHtml}<div class="subject-name" style="${subjectBadgeStyle}">${subjectName}</div><div class="class-list">${classList}</div></div>`;
-                }).join('');
+                sortedGroupKeys.forEach(gk => {
+                    const group = grouped.get(gk)!;
+                    if (!firstPeriod) firstPeriod = group.firstPeriod;
+                    group.classNames.forEach(n => allClassNames.add(n));
+                    const sub = subjects.find(s => s.id === group.subjectId);
+                    if (sub) allSubjectNames.add(renderText(lang, sub.nameEn, sub.nameUr));
+                });
+
+                const classList = Array.from(allClassNames).join(' / ');
+                const subjectName = Array.from(allSubjectNames).join(' / ');
+                const colorClass = firstPeriod ? getCombinationColor(firstPeriod) : 'subject-default';
+                const triangleHtml = (cardStyle === 'triangle' || cardStyle === 'full') ? `<div class="card-triangle"></div>` : '';
+                
+                let separatorHtml = '';
+                if (cardStyle === 'minimal-left') {
+                    separatorHtml = `<div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.4; transform: translateY(-50%); pointer-events: none;"><div style="width: 4px; height: 4px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div><div style="height: 1px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 4px;"></div><div style="width: 4px; height: 4px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div></div>`;
+                }
+                
+                let subjectBadgeStyle = '';
+                if (cardStyle === 'badge') {
+                    subjectBadgeStyle = `background-color: var(--${colorClass}-text); color: #fff !important; padding: 1px 6px; border-radius: 10px; display: inline-block; width: fit-content; margin-bottom: 2px;`;
+                }
+
+                const cards = `<div class="period-card-img ${colorClass}">${triangleHtml}${separatorHtml}<div class="period-content-spread"><div class="period-subject" style="${subjectBadgeStyle}">${classList}</div><div class="period-class">${subjectName}</div></div></div>`;
                 grid[pIdx][dIdx] = { html: `<div class="cell-content">${cards}</div>`, key };
             });
         }
