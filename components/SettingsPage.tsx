@@ -428,39 +428,135 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             <h2 className="text-3xl font-bold text-[var(--text-primary)]">{t.settings}</h2>
         </div>
         
-        <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] mb-8 overflow-hidden">
+        <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-sm border border-[var(--border-primary)] mb-8 overflow-hidden">
             <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsThemeOptionsOpen(!isThemeOptionsOpen)}>
-                <h3 className="text-xl font-bold text-[var(--text-primary)]">{t.theme}</h3>
+                <div>
+                    <h3 className="text-xl font-bold text-[var(--text-primary)]">Appearance</h3>
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">Customize your visual experience</p>
+                </div>
                 <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isThemeOptionsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             <div className={`grid transition-all duration-500 ${isThemeOptionsOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                 <div className="overflow-hidden">
-                    <div className="p-6 pt-0">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {themeOptions.map(themeInfo => (
-                                <ThemeCard 
-                                    key={themeInfo.id} 
-                                    id={themeInfo.id}
-                                    name={themeInfo.name}
-                                    colors={themeInfo.colors}
-                                    currentTheme={theme} 
-                                    setTheme={setTheme} 
-                                />
-                            ))}
-                        </div>
+                    <div className="p-6 pt-0 space-y-8">
                         
-                        <div className="mt-8 pt-6 border-t border-[var(--border-secondary)]">
-                            <div className="flex justify-between items-end mb-4">
-                                <h4 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">Customize {themeOptions.find(t => t.id === theme)?.name} Theme</h4>
-                                <button onClick={onResetTheme} className="text-xs text-red-500 hover:text-red-700 font-semibold hover:underline">Reset to Default</button>
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-[var(--bg-tertiary)]/50 p-4 rounded-xl border border-[var(--border-secondary)]">
-                                <ColorPickerInput label="Background" value={themeColors.bgPrimary} onChange={(val) => onColorChange('bgPrimary', val)} />
-                                <ColorPickerInput label="Surface (Cards)" value={themeColors.bgSecondary} onChange={(val) => onColorChange('bgSecondary', val)} />
-                                <ColorPickerInput label="Text Color" value={themeColors.textPrimary} onChange={(val) => onColorChange('textPrimary', val)} />
-                                <ColorPickerInput label="Accent Color" value={themeColors.accentPrimary} onChange={(val) => onColorChange('accentPrimary', val)} />
+                        {/* THEME MODE */}
+                        <div>
+                            <h4 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">THEME MODE</h4>
+                            <div className="grid grid-cols-3 gap-4">
+                                <button 
+                                    onClick={() => {
+                                        const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                                        setTheme(isSystemDark ? 'dark' : 'light');
+                                    }}
+                                    className="group flex flex-col items-center gap-3 p-4 rounded-xl border border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
+                                >
+                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-gray-300 to-gray-800 shadow-sm flex items-center justify-center">
+                                        <div className="w-6 h-6 bg-white/20 backdrop-blur-sm rounded-full border border-white/30"></div>
+                                    </div>
+                                    <span className="text-sm font-semibold text-[var(--text-primary)]">System</span>
+                                </button>
+
+                                <button 
+                                    onClick={() => setTheme('light')}
+                                    className={`group flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${theme === 'light' || theme === 'mint' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
+                                >
+                                    <div className="w-12 h-12 rounded-lg bg-[#f8fafc] shadow-sm flex items-center justify-center border border-gray-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                    </div>
+                                    <span className={`text-sm font-semibold ${theme === 'light' || theme === 'mint' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Light</span>
+                                </button>
+
+                                <button 
+                                    onClick={() => setTheme('dark')}
+                                    className={`group flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${theme === 'dark' || theme === 'amoled' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
+                                >
+                                    <div className="w-12 h-12 rounded-lg bg-[#0f172a] shadow-sm flex items-center justify-center border border-gray-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                                    </div>
+                                    <span className={`text-sm font-semibold ${theme === 'dark' || theme === 'amoled' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Dark</span>
+                                </button>
                             </div>
                         </div>
+
+                        {/* COLOR PALETTE */}
+                        <div>
+                            <h4 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">COLOR PALETTE</h4>
+                            <div className="flex flex-wrap gap-4">
+                                {[
+                                    '#6366f1', // Indigo
+                                    '#ef4444', // Red
+                                    '#f59e0b', // Amber
+                                    '#10b981', // Emerald
+                                    '#06b6d4', // Cyan
+                                    '#8b5cf6', // Violet
+                                    '#ec4899', // Pink
+                                ].map((color) => (
+                                    <button
+                                        key={color}
+                                        onClick={() => onColorChange('accentPrimary', color)}
+                                        className={`w-10 h-10 rounded-full transition-all flex items-center justify-center ${themeColors.accentPrimary === color ? 'ring-2 ring-offset-2 ring-[var(--accent-primary)] ring-offset-[var(--bg-secondary)] scale-110' : 'hover:scale-110'}`}
+                                        style={{ backgroundColor: color }}
+                                    >
+                                        {themeColors.accentPrimary === color && (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                        )}
+                                    </button>
+                                ))}
+                                <div className="relative w-10 h-10 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-transform ring-1 ring-[var(--border-secondary)]">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-red-500 via-green-500 to-blue-500"></div>
+                                    <input 
+                                        type="color" 
+                                        value={themeColors.accentPrimary} 
+                                        onChange={(e) => onColorChange('accentPrimary', e.target.value)} 
+                                        className="opacity-0 absolute inset-0 cursor-pointer" 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CUSTOMIZE DETAILS */}
+                        <div className="border-t border-[var(--border-secondary)] pt-6">
+                            <details className="group">
+                                <summary className="flex justify-between items-center cursor-pointer list-none">
+                                    <h4 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">CUSTOMIZE DETAILS</h4>
+                                    <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-primary)]">
+                                        Show Inputs
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                </summary>
+                                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 animate-fade-in">
+                                    <ColorPickerInput label="Background" value={themeColors.bgPrimary} onChange={(val) => onColorChange('bgPrimary', val)} />
+                                    <ColorPickerInput label="Surface (Cards)" value={themeColors.bgSecondary} onChange={(val) => onColorChange('bgSecondary', val)} />
+                                    <ColorPickerInput label="Text Color" value={themeColors.textPrimary} onChange={(val) => onColorChange('textPrimary', val)} />
+                                    <ColorPickerInput label="Accent Color" value={themeColors.accentPrimary} onChange={(val) => onColorChange('accentPrimary', val)} />
+                                    
+                                    <div className="col-span-1 sm:col-span-2 flex justify-end mt-2">
+                                        <button onClick={onResetTheme} className="text-xs text-red-500 hover:text-red-700 font-semibold hover:underline flex items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                            Reset to Default
+                                        </button>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+
+                        {/* ACTION BUTTONS */}
+                        <div className="flex gap-4 pt-4">
+                            <button 
+                                onClick={() => setIsThemeOptionsOpen(false)}
+                                className="flex-1 py-3 rounded-xl border border-[var(--border-secondary)] text-[var(--text-primary)] font-semibold hover:bg-[var(--bg-tertiary)] transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={() => setIsThemeOptionsOpen(false)}
+                                className="flex-1 py-3 rounded-xl bg-[var(--accent-primary)] text-white font-semibold hover:bg-[var(--accent-primary-hover)] shadow-lg shadow-[var(--accent-primary)]/20 transition-all hover:-translate-y-0.5"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>

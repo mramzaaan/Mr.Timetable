@@ -11,6 +11,8 @@ import { generateTeacherTimetableHtml, calculateWorkloadStats } from './reportUt
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import AddLessonForm from './AddLessonForm';
 
+import { OnlineTeachersShareModal } from './OnlineTeachersShareModal';
+
 // Helper to create a log entry
 const createLog = (
     type: TimetableChangeLog['type'], 
@@ -100,6 +102,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
 
   // Custom Dropdown State
   const [isTeacherDropdownOpen, setIsTeacherDropdownOpen] = useState(false);
+  const [isOnlineShareModalOpen, setIsOnlineShareModalOpen] = useState(false);
   const [teacherSortBy, setTeacherSortBy] = useState<'serial' | 'name' | 'periods'>('serial');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [teacherSearchQuery, setTeacherSearchQuery] = useState('');
@@ -1044,12 +1047,16 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
         designConfig={schoolConfig.downloadDesigns.teacher}
       />
 
-import { OnlineTeachersShareModal } from './OnlineTeachersShareModal';
-
-// ... inside component ...
-  const [isOnlineShareModalOpen, setIsOnlineShareModalOpen] = useState(false);
-
-// ... inside return ...
+      <OnlineTeachersShareModal
+        isOpen={isOnlineShareModalOpen}
+        onClose={() => setIsOnlineShareModalOpen(false)}
+        teachers={teachers}
+        classes={classes}
+        subjects={subjects}
+        schoolConfig={schoolConfig}
+        t={t}
+        language={language === 'ur' ? 'ur' : 'en'}
+      />
       {/* Header Section: Centered Dropdown and Action Buttons */}
       <div className="mb-8 flex flex-col items-center gap-6">
         
@@ -1197,6 +1204,7 @@ import { OnlineTeachersShareModal } from './OnlineTeachersShareModal';
             )}
             <div className="w-px h-6 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
             <button onClick={() => setIsDownloadModalOpen(true)} disabled={teachers.length === 0} title={t.download} className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></button>
+            <button onClick={() => setIsOnlineShareModalOpen(true)} disabled={teachers.length === 0} title="Share Online Schedule" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></button>
             <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedTeacher} title={t.sendViaWhatsApp} className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><WhatsAppIcon /></button>
             <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedTeacher} title={t.printViewAction} className="p-2 text-sm font-medium bg-[var(--accent-primary)] text-[var(--accent-text)] border border-[var(--accent-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><PrintIcon /></button>
         </div>
