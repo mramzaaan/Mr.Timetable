@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import type { Language, SchoolClass, Subject, Teacher, Period, TimetableGridData, SchoolConfig, Adjustment, JointPeriod, DownloadDesignConfig, JointPeriodAssignment, LeaveDetails, TimetableSession, TimetableChangeLog } from '../types';
-import { allDays, generateUniqueId } from '../types';
+import { allDays, generateUniqueId, getColorForId } from '../types';
 import PeriodStack from './PeriodStack';
 import TeacherAvailabilitySummary from './TeacherAvailabilitySummary';
 import PrintPreview from './PrintPreview';
@@ -71,13 +71,6 @@ interface TeacherTimetablePageProps {
   onUpdateTimetableSession: (updater: (session: TimetableSession) => TimetableSession) => void;
   changeLogs?: TimetableChangeLog[];
 }
-
-const cmykPalette = [
-  'subject-cyan', 'subject-fuchsia', 'subject-yellow', 'subject-sky',
-  'subject-pink', 'subject-lime', 'subject-red', 'subject-green',
-  'subject-blue', 'subject-purple', 'subject-orange', 'subject-teal',
-  'subject-emerald', 'subject-rose', 'subject-amber', 'subject-indigo'
-];
 
 type SortField = 'date' | 'period' | 'type' | 'class' | 'subject' | 'teacher';
 
@@ -186,42 +179,11 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
     }
   };
 
-  const teacherSpecificColorMap = useMemo(() => {
-      if (!selectedTeacherId) return new Map<string, string>();
-      const combinations = new Set<string>();
-      
-      // Gather all (Class, Subject) pairs
-      classes.forEach(c => {
-          // Check subjects list
-          c.subjects.forEach(s => {
-              if (s.teacherId === selectedTeacherId) {
-                  combinations.add(`${c.id}-${s.subjectId}`);
-              }
-          });
-      });
-      
-      // Also ensure Joint Periods are covered
-      jointPeriods.forEach(jp => {
-          if (jp.teacherId === selectedTeacherId) {
-              jp.assignments.forEach(a => combinations.add(`${a.classId}-${a.subjectId}`));
-          }
-      });
-
-      const sorted = Array.from(combinations).sort();
-      const map = new Map<string, string>();
-      
-      sorted.forEach((key, index) => {
-          map.set(key, cmykPalette[index % cmykPalette.length]);
-      });
-      return map;
-  }, [selectedTeacherId, classes, jointPeriods]);
-
   const getCombinationColor = useCallback((periods: Period[]) => {
       if (!periods.length) return 'subject-default';
       const p = periods[0];
-      const key = `${p.classId}-${p.subjectId}`;
-      return teacherSpecificColorMap.get(key) || 'subject-default';
-  }, [teacherSpecificColorMap]);
+      return getColorForId(p.classId + p.subjectId).name;
+  }, []);
 
   // Construct Teacher's Timetable View from Class Data
   const teacherTimetableData = useMemo(() => {
@@ -998,6 +960,23 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
       return Object.values(groupedUnscheduled);
   }, [groupedUnscheduled]);
 
+  const teacherSpecificColorMap = useMemo(() => {
+      const map = new Map<string, string>();
+      if (!teacherTimetableData) return map;
+
+      Object.values(teacherTimetableData).forEach(daySlots => {
+          daySlots.forEach(slot => {
+              slot.forEach(p => {
+                  const key = `${p.classId}-${p.subjectId}`;
+                  if (!map.has(key)) {
+                      map.set(key, getColorForId(key).name);
+                  }
+              });
+          });
+      });
+      return map;
+  }, [teacherTimetableData]);
+
   const handleSavePrintDesign = (newDesign: DownloadDesignConfig) => {
     onUpdateSchoolConfig({
       downloadDesigns: { ...schoolConfig.downloadDesigns, teacher: newDesign }
@@ -1435,26 +1414,35 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                     </div>
 
                     {historyTab === 'timeline' && (
-                        <div className="max-h-96 overflow-y-auto custom-scrollbar">
+                        <div className="max-h-96 overflow-y-auto custom-scrollbar p-2">
                             {teacherLogs.length === 0 ? (
-                                <p className="text-sm text-[var(--text-secondary)] italic text-center py-4">No recent changes.</p>
+                                <div className="text-center py-8 opacity-50">
+                                     <div className="mb-2 mx-auto w-12 h-12 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center">
+                                        <HistoryIcon />
+                                    </div>
+                                    <p className="text-sm text-[var(--text-secondary)] font-medium">No recent changes.</p>
+                                </div>
                             ) : (
-                                <ul className="space-y-3">
+                                <ul className="space-y-2">
                                     {teacherLogs.map((log) => (
-                                        <li key={log.id} className="text-sm border-b border-[var(--border-secondary)] last:border-0 pb-2">
-                                            <div className="flex justify-between items-center mb-1">
-                                                <span className={`text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
-                                                    log.type === 'delete' ? 'bg-red-100 text-red-700' : 
-                                                    log.type === 'add' ? 'bg-green-100 text-green-700' : 
-                                                    'bg-blue-100 text-blue-700'
+                                        <li key={log.id} className={`p-3 rounded-xl border shadow-sm hover:shadow-md transition-all ${
+                                            log.type === 'delete' ? 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50' :
+                                            log.type === 'add' ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50' :
+                                            'bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/50'
+                                        }`}>
+                                            <div className="flex justify-between items-center mb-1.5">
+                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                                    log.type === 'delete' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 
+                                                    log.type === 'add' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 
+                                                    'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                                                 }`}>
                                                     {log.type}
                                                 </span>
-                                                <span className="text-[10px] text-[var(--text-secondary)]">
-                                                    {new Date(log.timestamp).toLocaleString()}
+                                                <span className="text-[10px] font-bold opacity-50 text-[var(--text-secondary)]">
+                                                    {new Date(log.timestamp).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
-                                            <p className="text-[var(--text-primary)] pl-1">{log.details}</p>
+                                            <p className="text-xs font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>
                                         </li>
                                     ))}
                                 </ul>

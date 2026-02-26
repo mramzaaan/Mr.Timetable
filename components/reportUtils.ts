@@ -573,7 +573,7 @@ const generateReportHTML = (
         : (schoolConfig.schoolLogoBase64 && design.page.watermarkOpacity > 0 ? `<img src="${schoolConfig.schoolLogoBase64}" class="watermark" />` : '');
 
     return `
-        <div class="print-container">
+        <div class="print-container" dir="${lang === 'ur' ? 'rtl' : 'ltr'}">
             <style>${styles}</style>
             <div class="page">
                 ${watermarkHtml}
@@ -678,11 +678,21 @@ export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design
 
 export const generateClassTimetableHtml = (classItem: SchoolClass, lang: DownloadLanguage, design: DownloadDesignConfig, teachers: Teacher[], subjects: Subject[], schoolConfig: SchoolConfig): string | string[] => {
     const { en: enT, ur: urT } = translations;
+    
+    // Clone design to avoid mutating the original object and to apply language-specific overrides
+    const customDesign = JSON.parse(JSON.stringify(design));
+    if (lang === 'ur') {
+        if (customDesign.header?.schoolName) customDesign.header.schoolName.align = 'right';
+        if (customDesign.header?.title) customDesign.header.title.align = 'right';
+        if (customDesign.header?.details) customDesign.header.details.align = 'right';
+        if (customDesign.footer) customDesign.footer.align = 'right';
+    }
+
     const inChargeTeacher = teachers.find(t => t.id === classItem.inCharge);
     const tLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key]; 
     const alignMap: Record<string, string> = { 'top': 'flex-start', 'middle': 'center', 'bottom': 'flex-end', 'center': 'center' };
-    const flexAlign = alignMap[design.table.verticalAlign || 'top'] || 'flex-start';
-    const daysPerPage = design.daysPerPage || 7;
+    const flexAlign = alignMap[customDesign.table.verticalAlign || 'top'] || 'flex-start';
+    const daysPerPage = customDesign.daysPerPage || 7;
     const activeDays = allDays.filter(day => schoolConfig.daysConfig?.[day]?.active ?? true);
     const pages: string[] = [];
     const totalDays = activeDays.length;
@@ -692,10 +702,10 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
     const colorMap = new Map<string, string>();
     teachers.forEach((teacher, index) => { colorMap.set(teacher.id, teacherColorNames[index % teacherColorNames.length]); });
 
-    const cardStyle = design.table.cardStyle || 'full';
-    const triangleCorner = design.table.triangleCorner || 'bottom-left';
-    const outlineWidth = design.table.outlineWidth || 2;
-    const mergePatterns = design.table.mergeIdenticalPeriods ?? true;
+    const cardStyle = customDesign.table.cardStyle || 'full';
+    const triangleCorner = customDesign.table.triangleCorner || 'bottom-left';
+    const outlineWidth = customDesign.table.outlineWidth || 2;
+    const mergePatterns = customDesign.table.mergeIdenticalPeriods ?? true;
 
     let triangleStyles = '';
     const triangleSize = 24; 
@@ -730,7 +740,7 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
             cardStyleCss = `background-color: transparent !important; border: none !important; box-shadow: none !important;`;
         }
 
-        const customStyles = `<style>:root { ${cssColors} } .cell-wrapper { display: flex; flex-direction: column; gap: 2px; width: 100%; height: 100%; box-sizing: border-box; } .period-card-img { flex: 1; min-width: 0; border-radius: 4px; align-self: stretch; height: 100%; display: flex; flex-direction: column; ${cardStyleCss} position: relative; overflow: hidden; box-sizing: border-box; } .period-content-spread { display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%; padding: 4px 6px; box-sizing: border-box; position: relative; z-index: 10; } .period-subject { text-align: left; font-weight: 900; font-size: 1.1em; line-height: 1.1; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .period-teacher { text-align: right; font-size: 0.85em; font-weight: 700; opacity: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; } .card-triangle { position: absolute; width: 0; height: 0; border-style: solid; ${triangleStyles} z-index: 5; } ${teacherColorNames.map(name => `.${name} { background-color: var(--${name}-bg); color: var(--${name}-text); border-color: var(--${name}-text) !important; } .${name} .period-subject, .${name} .period-teacher { color: var(--${name}-text) !important; } .${name} .card-triangle { color: var(--${name}-text) !important; }`).join('')} td { padding: ${design.table.cellPadding}px !important; height: auto !important; min-height: 62px; border-color: ${design.table.borderColor} !important; vertical-align: top !important; } table { table-layout: fixed; width: 100%; border-color: ${design.table.borderColor} !important; } .disabled-cell { background-color: #e5e7eb; }</style>`;
+        const customStyles = `<style>:root { ${cssColors} } .cell-wrapper { display: flex; flex-direction: column; gap: 2px; width: 100%; height: 100%; box-sizing: border-box; } .period-card-img { flex: 1; min-width: 0; border-radius: 4px; align-self: stretch; height: 100%; display: flex; flex-direction: column; ${cardStyleCss} position: relative; overflow: hidden; box-sizing: border-box; } .period-content-spread { display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%; padding: 4px 6px; box-sizing: border-box; position: relative; z-index: 10; } .period-subject { text-align: left; font-weight: 900; font-size: 1.1em; line-height: 1.1; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .period-teacher { text-align: right; font-size: 0.85em; font-weight: 700; opacity: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; } .card-triangle { position: absolute; width: 0; height: 0; border-style: solid; ${triangleStyles} z-index: 5; } ${teacherColorNames.map(name => `.${name} { background-color: var(--${name}-bg); color: var(--${name}-text); border-color: var(--${name}-text) !important; } .${name} .period-subject, .${name} .period-teacher { color: var(--${name}-text) !important; } .${name} .card-triangle { color: var(--${name}-text) !important; }`).join('')} td { padding: ${customDesign.table.cellPadding}px !important; height: auto !important; min-height: 62px; border-color: ${customDesign.table.borderColor} !important; vertical-align: top !important; } table { table-layout: fixed; width: 100%; border-color: ${customDesign.table.borderColor} !important; } .disabled-cell { background-color: #e5e7eb; }</style>`;
         const align1 = lang === 'ur' ? 'right' : 'left'; const align2 = 'center'; const align3 = lang === 'ur' ? 'left' : 'right';
         const detailsHtml = `<div style="width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em;"><div style="text-align: ${align1}; flex: 1;">${renderText(lang, classItem.nameEn, classItem.nameUr)}</div><div style="text-align: ${align2}; flex: 1;">${inChargeTeacher ? renderText(lang, inChargeTeacher.nameEn, inChargeTeacher.nameUr) : '-'}</div><div style="text-align: ${align3}; flex: 1;">${classItem.roomNumber}</div></div>`;
         const dayHeaders = chunkDays.map(day => { const dayKey = day.toLowerCase(); return `<th>${renderText(lang, (enT as any)[dayKey], (urT as any)[dayKey])}</th>`; }).join('');
@@ -813,29 +823,39 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
             tableRows += `<tr>${rowHtml}</tr>`;
         }
 
-        const colGroupHtml = `<colgroup><col style="width: ${design.table.periodColumnWidth}px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
+        const colGroupHtml = `<colgroup><col style="width: ${customDesign.table.periodColumnWidth}px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
         const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
-        pages.push(generateReportHTML(schoolConfig, design, `${tLocal('classTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
+        pages.push(generateReportHTML(schoolConfig, customDesign, `${tLocal('classTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
     }
     return pages.length === 1 ? pages[0] : pages; 
 };
 
 export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], subjects: Subject[], schoolConfig: SchoolConfig, adjustments: Record<string, Adjustment[]>, teachers: Teacher[]): string | string[] => {
     const { en: enT, ur: urT } = translations;
+
+    // Clone design to avoid mutating the original object and to apply language-specific overrides
+    const customDesign = JSON.parse(JSON.stringify(design));
+    if (lang === 'ur') {
+        if (customDesign.header?.schoolName) customDesign.header.schoolName.align = 'right';
+        if (customDesign.header?.title) customDesign.header.title.align = 'right';
+        if (customDesign.header?.details) customDesign.header.details.align = 'right';
+        if (customDesign.footer) customDesign.footer.align = 'right';
+    }
+
     const tLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
     const alignMap: Record<string, string> = { 'top': 'flex-start', 'middle': 'center', 'bottom': 'flex-end', 'center': 'center' };
-    const flexAlign = alignMap[design.table.verticalAlign || 'top'] || 'flex-start';
-    const daysPerPage = design.daysPerPage || 7;
+    const flexAlign = alignMap[customDesign.table.verticalAlign || 'top'] || 'flex-start';
+    const daysPerPage = customDesign.daysPerPage || 7;
     const activeDays = allDays.filter(day => schoolConfig.daysConfig?.[day]?.active ?? true);
     const pages: string[] = [];
     const totalDays = activeDays.length;
     let currentDayIndex = 0;
     const totalPages = Math.ceil(totalDays / daysPerPage);
 
-    const cardStyle = design.table.cardStyle || 'full';
-    const triangleCorner = design.table.triangleCorner || 'bottom-left';
-    const outlineWidth = design.table.outlineWidth || 2;
-    const mergePatterns = design.table.mergeIdenticalPeriods ?? true;
+    const cardStyle = customDesign.table.cardStyle || 'full';
+    const triangleCorner = customDesign.table.triangleCorner || 'bottom-left';
+    const outlineWidth = customDesign.table.outlineWidth || 2;
+    const mergePatterns = customDesign.table.mergeIdenticalPeriods ?? true;
 
     let triangleStyles = '';
     const triangleSize = 24;
@@ -874,7 +894,7 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
             cardStyleCss = `background-color: transparent !important; border: none !important; box-shadow: none !important;`;
         }
 
-        const customStyles = `<style>:root { ${cssColors} } .cell-content { display: flex; flex-direction: column; height: 100%; width: 100%; justify-content: center; gap: 2px; box-sizing: border-box; } .period-card-img { flex: 1; width: 100%; border-radius: 8px; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; ${cardStyleCss} position: relative; height: 100%; } .period-content-spread { display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%; padding: 4px 6px; box-sizing: border-box; position: relative; z-index: 10; } .period-card-img::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 45%; background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0)); pointer-events: none; z-index: 0; } .period-subject { font-weight: 900; font-size: 1.1em; text-align: left; line-height: 1.1; margin-top: 2px; text-transform: uppercase; text-shadow: 0 1px 0 rgba(255,255,255,0.5); z-index: 1; position: relative; } .period-class { font-size: 0.9em; text-align: right; line-height: 1.1; font-weight: 700; margin-bottom: 2px; text-shadow: 0 1px 0 rgba(255,255,255,0.5); z-index: 1; position: relative; } .card-triangle { position: absolute; width: 0; height: 0; border-style: solid; ${triangleStyles} z-index: 5; } ${teacherColorNames.map(name => `.${name} { background-color: var(--${name}-bg); color: var(--${name}-text); border-color: var(--${name}-text) !important; } .${name} .period-subject, .${name} .period-class { color: var(--${name}-text) !important; } .${name} .card-triangle { color: var(--${name}-text) !important; }`).join('')} td { padding: ${design.table.cellPadding}px !important; height: auto !important; min-height: 60px; border-color: ${design.table.borderColor} !important; vertical-align: top !important; } table { table-layout: fixed; width: 100%; border-spacing: 0; border-color: ${design.table.borderColor} !important; } .disabled-cell { background-color: #e5e7eb; }</style>`;
+        const customStyles = `<style>:root { ${cssColors} } .cell-content { display: flex; flex-direction: column; height: 100%; width: 100%; justify-content: center; gap: 2px; box-sizing: border-box; } .period-card-img { flex: 1; width: 100%; border-radius: 8px; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; ${cardStyleCss} position: relative; height: 100%; } .period-content-spread { display: flex; flex-direction: column; justify-content: space-between; height: 100%; width: 100%; padding: 4px 6px; box-sizing: border-box; position: relative; z-index: 10; } .period-card-img::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 45%; background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0)); pointer-events: none; z-index: 0; } .period-subject { font-weight: 900; font-size: 1.1em; text-align: left; line-height: 1.1; margin-top: 2px; text-transform: uppercase; text-shadow: 0 1px 0 rgba(255,255,255,0.5); z-index: 1; position: relative; } .period-class { font-size: 0.9em; text-align: right; line-height: 1.1; font-weight: 700; margin-bottom: 2px; text-shadow: 0 1px 0 rgba(255,255,255,0.5); z-index: 1; position: relative; } .card-triangle { position: absolute; width: 0; height: 0; border-style: solid; ${triangleStyles} z-index: 5; } ${teacherColorNames.map(name => `.${name} { background-color: var(--${name}-bg); color: var(--${name}-text); border-color: var(--${name}-text) !important; } .${name} .period-subject, .${name} .period-class { color: var(--${name}-text) !important; } .${name} .card-triangle { color: var(--${name}-text) !important; }`).join('')} td { padding: ${customDesign.table.cellPadding}px !important; height: auto !important; min-height: 60px; border-color: ${customDesign.table.borderColor} !important; vertical-align: top !important; } table { table-layout: fixed; width: 100%; border-spacing: 0; border-color: ${customDesign.table.borderColor} !important; } .disabled-cell { background-color: #e5e7eb; }</style>`;
         const align1 = lang === 'ur' ? 'right' : 'left'; const align2 = 'center'; const align3 = lang === 'ur' ? 'left' : 'right';
         const detailsHtml = `<div style="width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1em;"><div style="text-align: ${align1}; flex: 1;"># ${teacher.serialNumber ?? '-'}</div><div style="text-align: ${align2}; flex: 1;">${renderText(lang, teacher.nameEn, teacher.nameUr)}</div><div style="text-align: ${align3}; flex: 1;">${workloadLabel}</div></div>`;
         const dayHeaders = chunkDays.map(day => `<th>${renderText(lang, (enT as any)[day.toLowerCase()], (urT as any)[day.toLowerCase()])}</th>`).join('');
@@ -971,9 +991,9 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
             tableRows += `<tr>${rowHtml}</tr>`;
         }
 
-        const colGroupHtml = `<colgroup><col style="width: ${design.table.periodColumnWidth}px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
+        const colGroupHtml = `<colgroup><col style="width: ${customDesign.table.periodColumnWidth}px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
         const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
-        pages.push(generateReportHTML(schoolConfig, design, `${tLocal('teacherTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
+        pages.push(generateReportHTML(schoolConfig, customDesign, `${tLocal('teacherTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
     }
     return pages.length === 1 ? pages[0] : pages;
 };
@@ -1008,10 +1028,18 @@ export const generateAdjustmentsReportHtml = (
     const mergedRows: { originalTeacherId: string, teacher: Teacher | undefined, periodIndex: number, classIds: string[], subjectId: string, substituteTeacherId: string, conflictDetails?: Adjustment['conflictDetails'] }[] = [];
     for (const [teacherId, teacherAdjustments] of adjustmentsByTeacher) { const teacher = teachers.find(t => t.id === teacherId); const groupMap = new Map<string, { classIds: string[], conflictDetails?: Adjustment['conflictDetails'], firstAdj: Adjustment }>(); teacherAdjustments.forEach(adj => { const key = `${adj.periodIndex}_${adj.subjectId}_${adj.substituteTeacherId}`; if (!groupMap.has(key)) groupMap.set(key, { classIds: [adj.classId], conflictDetails: adj.conflictDetails, firstAdj: adj }); else { const entry = groupMap.get(key)!; if (!entry.classIds.includes(adj.classId)) entry.classIds.push(adj.classId); if (adj.conflictDetails && !entry.conflictDetails) entry.conflictDetails = adj.conflictDetails; } }); const sortedGroups = Array.from(groupMap.values()).sort((a, b) => a.firstAdj.periodIndex - b.firstAdj.periodIndex); sortedGroups.forEach(g => { mergedRows.push({ originalTeacherId: teacherId, teacher: teacher, periodIndex: g.firstAdj.periodIndex, classIds: g.classIds, subjectId: g.firstAdj.subjectId, substituteTeacherId: g.firstAdj.substituteTeacherId, conflictDetails: g.conflictDetails }); }); }
     const rowsPerPage = design.rowsPerPage || 25; const rowsPerFirstPage = design.rowsPerFirstPage || rowsPerPage; const totalItems = mergedRows.length; let totalPages = 1; if (totalItems > rowsPerFirstPage) totalPages = 1 + Math.ceil((totalItems - rowsPerFirstPage) / rowsPerPage);
-    const pages: string[] = []; let currentIndex = 0; const customDesign = JSON.parse(JSON.stringify(design));
+    const pages: string[] = []; let currentIndex = 0; 
+    const customDesign = JSON.parse(JSON.stringify(design));
+    if (lang === 'ur') {
+        if (customDesign.header?.schoolName) customDesign.header.schoolName.align = 'right';
+        if (customDesign.header?.title) customDesign.header.title.align = 'right';
+        if (customDesign.header?.details) customDesign.header.details.align = 'right';
+        if (customDesign.footer) customDesign.footer.align = 'right';
+    }
+
     const alignMap: Record<string, string> = { 'top': 'flex-start', 'middle': 'center', 'bottom': 'flex-end', 'center': 'center' };
-    const flexAlign = alignMap[design.table.verticalAlign || 'middle'] || 'center';
-    const customStyles = `<style> table td { padding: ${design.table.cellPadding}px !important; } .adj-cell-wrapper { display: flex; flex-direction: column; justify-content: ${flexAlign}; align-items: center; width: 100%; height: 100%; min-height: 1.2em; box-sizing: border-box; line-height: 1.1; } .rowspan-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; line-height: 1.1; } </style>`;
+    const flexAlign = alignMap[customDesign.table.verticalAlign || 'middle'] || 'center';
+    const customStyles = `<style> table td { padding: ${customDesign.table.cellPadding}px !important; } .adj-cell-wrapper { display: flex; flex-direction: column; justify-content: ${flexAlign}; align-items: center; width: 100%; height: 100%; min-height: 1.2em; box-sizing: border-box; line-height: 1.1; } .rowspan-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; line-height: 1.1; } </style>`;
     const wrap = (content: string) => `<div class="adj-cell-wrapper">${content}</div>`;
     for (let i = 0; i < totalPages; i++) {
       const limit = i === 0 ? rowsPerFirstPage : rowsPerPage; const pageRows = mergedRows.slice(currentIndex, currentIndex + limit); currentIndex += limit;
@@ -1025,7 +1053,7 @@ export const generateAdjustmentsReportHtml = (
           tableRowsHtml += '<tr>';
           if (isFirst) {
               const span = teacherCountsOnPage.get(tid)!; const teacherName = row.teacher ? renderText(lang, row.teacher.nameEn, row.teacher.nameUr) : '';
-              tableRowsHtml += `<td rowspan="${span}" style="background-color: ${design.table.bodyBgColor || '#ffffff'}; position: relative; z-index: 10;"><div class="rowspan-wrapper">${teacherName}</div></td>`;
+              tableRowsHtml += `<td rowspan="${span}" style="background-color: ${customDesign.table.bodyBgColor || '#ffffff'}; position: relative; z-index: 10;"><div class="rowspan-wrapper">${teacherName}</div></td>`;
               renderedTeacherIdsOnPage.add(tid);
           }
           const conflictClassName = row.conflictDetails ? (lang === 'ur' ? row.conflictDetails.classNameUr : row.conflictDetails.classNameEn) : '';
@@ -1045,17 +1073,25 @@ export const generateAdjustmentsReportHtml = (
       // Signature Block injection
       const signatureHtml = `<div style="margin-top: 20px; display: flex; justify-content: flex-end;"><div style="text-align: center; border-top: 1px solid #000; padding-top: 5px; width: 200px; position: relative;">${signature ? `<img src="${signature}" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); max-height: 60px; pointer-events: none; filter: grayscale(1) contrast(150%);" />` : ''}<strong>${trLocal('signature')}</strong></div></div>`;
       const tableHtml = `${customStyles} ${teachersOnLeaveHtml}<table><thead><tr><th style="width: 10%;">${trLocal('absent')}</th><th style="width: 35px;">${trLocal('period')}</th><th>${trLocal('class')}</th><th>${trLocal('subject')}</th><th>${trLocal('substituteTeacher')}</th><th style="width: 15%;">${trLocal('signature')}</th></tr></thead><tbody>${tableRowsHtml}</tbody></table>${signatureHtml}`;
-      pages.push(generateReportHTML(schoolConfig, design, title, lang, tableHtml, subtitle, i + 1, totalPages));
+      pages.push(generateReportHTML(schoolConfig, customDesign, title, lang, tableHtml, subtitle, i + 1, totalPages));
     }
     return pages;
 };
 
 export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], teachers: Teacher[], schoolConfig: SchoolConfig): string | string[] => {
+    const customDesign = JSON.parse(JSON.stringify(design));
+    if (lang === 'ur') {
+        if (customDesign.header?.schoolName) customDesign.header.schoolName.align = 'right';
+        if (customDesign.header?.title) customDesign.header.title.align = 'right';
+        if (customDesign.header?.details) customDesign.header.details.align = 'right';
+        if (customDesign.footer) customDesign.footer.align = 'right';
+    }
+
     const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; unicode-bidi: embed; line-height: 1.8; font-weight: normal;`;
     const trLocal = (en: string, ur: string) => { const urSpan = `<span class="font-urdu" style="${urduStyle}">${ur}</span>`; if (lang === 'en') return en; if (lang === 'ur') return urSpan; return `${en} / ${urSpan}`; };
     
-    const rowsPerPage = design.rowsPerPage || 50;
-    const rowsPerFirstPage = design.rowsPerFirstPage || rowsPerPage;
+    const rowsPerPage = customDesign.rowsPerPage || 50;
+    const rowsPerFirstPage = customDesign.rowsPerFirstPage || rowsPerPage;
     const totalItems = classes.length;
     let totalPagesCount = 1;
     if (totalItems > rowsPerFirstPage) {
@@ -1096,9 +1132,9 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
             summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th style="width: 25%;">${h}</th>`).join('')}</tr></thead><tbody><tr>${summaryValues.map(v => `<td style="font-weight: bold; font-size: 1.2em;">${v}</td>`).join('')}</tr></tbody></table></div>`;
         }
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${design?.table?.borderColor || '#000000'}; padding: ${design?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${design?.table?.headerBgColor || '#f3f4f6'}; color: ${design?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${design?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        const customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
-        pages.push(generateReportHTML(schoolConfig, design, trLocal('Basic Information', 'بنیادی معلومات'), lang, tableHtml, '', i + 1, totalPagesCount));
+        pages.push(generateReportHTML(schoolConfig, customDesign, trLocal('Basic Information', 'بنیادی معلومات'), lang, tableHtml, '', i + 1, totalPagesCount));
     }
 
     return pages.length === 1 ? pages[0] : pages;
@@ -1217,6 +1253,14 @@ export const generateAdjustmentsExcel = (t: any, adjustments: Adjustment[], teac
 };
 
 export const generateByPeriodHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[]): string => {
+    const customDesign = JSON.parse(JSON.stringify(design));
+    if (lang === 'ur') {
+        if (customDesign.header?.schoolName) customDesign.header.schoolName.align = 'right';
+        if (customDesign.header?.title) customDesign.header.title.align = 'right';
+        if (customDesign.header?.details) customDesign.header.details.align = 'right';
+        if (customDesign.footer) customDesign.footer.align = 'right';
+    }
+
     const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; unicode-bidi: embed; line-height: 1.8; font-weight: normal;`;
     const trLocal = (en: string, ur: string) => { const urSpan = `<span class="font-urdu" style="${urduStyle}">${ur}</span>`; if (lang === 'en') return en; if (lang === 'ur') return urSpan; return `${en} / ${urSpan}`; };
     const activeDays = allDays.filter(day => schoolConfig.daysConfig?.[day]?.active ?? true);
@@ -1238,9 +1282,9 @@ export const generateByPeriodHtml = (t: any, lang: DownloadLanguage, design: Dow
         });
         tableRows += `</tr>`;
     }
-    const customStyles = `<style> table { width: 100%; border-collapse: collapse; table-layout: fixed; } th, td { border: 1px solid ${design?.table?.borderColor || '#000000'}; padding: ${design?.table?.cellPadding || 8}px; text-align: center; word-wrap: break-word; line-height: 1.1; } th { background-color: ${design?.table?.headerBgColor || '#f3f4f6'}; color: ${design?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${design?.table?.altRowColor || '#f9fafb'}; } </style>`;
+    const customStyles = `<style> table { width: 100%; border-collapse: collapse; table-layout: fixed; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; word-wrap: break-word; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } </style>`;
     const tableHtml = `${customStyles}<table><thead><tr>${headers.map((h, idx) => `<th ${idx === 0 ? 'style="width: 35px;"' : ''}>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>`;
-    return generateReportHTML(schoolConfig, design, trLocal('Available Teachers', 'دستیاب اساتذہ'), lang, tableHtml);
+    return generateReportHTML(schoolConfig, customDesign, trLocal('Available Teachers', 'دستیاب اساتذہ'), lang, tableHtml);
 };
 
 export const generateWorkloadSummaryHtml = (
@@ -1256,11 +1300,19 @@ export const generateWorkloadSummaryHtml = (
     endDate?: string,
     mode: 'weekly' | 'range' = 'weekly'
 ): string | string[] => {
+    const customDesign = JSON.parse(JSON.stringify(design));
+    if (lang === 'ur') {
+        if (customDesign.header?.schoolName) customDesign.header.schoolName.align = 'right';
+        if (customDesign.header?.title) customDesign.header.title.align = 'right';
+        if (customDesign.header?.details) customDesign.header.details.align = 'right';
+        if (customDesign.footer) customDesign.footer.align = 'right';
+    }
+
     const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; unicode-bidi: embed; line-height: 1.8; font-weight: normal;`;
     const trLocal = (en: string, ur: string) => { const urSpan = `<span class="font-urdu" style="${urduStyle}">${ur}</span>`; if (lang === 'en') return en; if (lang === 'ur') return urSpan; return `${en} / ${urSpan}`; };
     
-    const rowsPerPage = design.rowsPerPage || 50;
-    const rowsPerFirstPage = design.rowsPerFirstPage || rowsPerPage;
+    const rowsPerPage = customDesign.rowsPerPage || 50;
+    const rowsPerFirstPage = customDesign.rowsPerFirstPage || rowsPerPage;
     const totalItems = selectedTeachers.length;
     let totalPagesCount = 1;
     if (totalItems > rowsPerFirstPage) {
@@ -1313,11 +1365,11 @@ export const generateWorkloadSummaryHtml = (
             tableRows += `<tr><td style="text-align: left; font-weight: bold;">${name}</td>${rowCells}</tr>`;
         });
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${design?.table?.fontSize || 14}px; } th, td { border: 1px solid ${design?.table?.borderColor || '#000000'}; padding: ${design?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${design?.table?.headerBgColor || '#f3f4f6'}; color: ${design?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${design?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${baseHeaders.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>`;
         const titlePrefix = startDate && endDate ? (lang === 'ur' ? `${formattedStartDate} تا ${formattedEndDate}` : `${formattedStartDate} to ${formattedEndDate}`) : '';
         const reportTitle = `${trLocal('Workload Summary', 'ورک لوڈ کا خلاصہ')} ${titlePrefix ? `(${titlePrefix})` : ''}`;
-        pages.push(generateReportHTML(schoolConfig, design, reportTitle, lang, tableHtml, '', i + 1, totalPagesCount));
+        pages.push(generateReportHTML(schoolConfig, customDesign, reportTitle, lang, tableHtml, '', i + 1, totalPagesCount));
     }
 
     return pages.length === 1 ? pages[0] : pages;
@@ -1335,12 +1387,20 @@ export const generateAttendanceReportHtml = (
     leaveDetails: Record<string, Record<string, LeaveDetails>>,
     attendance: Record<string, Record<string, AttendanceData>> = {}
 ): string | string[] => {
+    const customDesign = JSON.parse(JSON.stringify(design));
+    if (lang === 'ur') {
+        if (customDesign.header?.schoolName) customDesign.header.schoolName.align = 'right';
+        if (customDesign.header?.title) customDesign.header.title.align = 'right';
+        if (customDesign.header?.details) customDesign.header.details.align = 'right';
+        if (customDesign.footer) customDesign.footer.align = 'right';
+    }
+
     const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; unicode-bidi: embed; line-height: 1.8; font-weight: normal;`;
     const trLocal = (en: string, ur: string) => { const urSpan = `<span class="font-urdu" style="${urduStyle}">${ur}</span>`; if (lang === 'en') return en; if (lang === 'ur') return urSpan; return `${en} / ${urSpan}`; };
     
     const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties');
-    const rowsPerPage = design.rowsPerPage || 50;
-    const rowsPerFirstPage = design.rowsPerFirstPage || rowsPerPage;
+    const rowsPerPage = customDesign.rowsPerPage || 50;
+    const rowsPerFirstPage = customDesign.rowsPerFirstPage || rowsPerPage;
     const totalItems = visibleClasses.length;
     let totalPagesCount = 1;
     if (totalItems > rowsPerFirstPage) {
@@ -1473,10 +1533,10 @@ export const generateAttendanceReportHtml = (
             summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><h3 style="font-size: 1.1em; font-weight: bold; margin-bottom: 5px;">${trLocal('Summary', 'خلاصہ')}</h3><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${summaryRows}${grandTotalRow}</tbody></table></div>`;
         }
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${design?.table?.fontSize || 14}px; } th, td { border: 1px solid ${design?.table?.borderColor || '#000000'}; padding: ${design?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${design?.table?.headerBgColor || '#f3f4f6'}; color: ${design?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${design?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
         const reportTitle = `${trLocal('Attendance Report', 'رپورٹ حاضری')} - ${dateObj.toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-        pages.push(generateReportHTML(schoolConfig, design, reportTitle, lang, tableHtml, '', i + 1, totalPagesCount));
+        pages.push(generateReportHTML(schoolConfig, customDesign, reportTitle, lang, tableHtml, '', i + 1, totalPagesCount));
     }
 
     return pages.length === 1 ? pages[0] : pages;

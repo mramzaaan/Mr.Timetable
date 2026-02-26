@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { Teacher, SchoolClass, Subject, JointPeriod, TimetableSession, GroupSet, TimetableChangeLog, TimetableGridData, Period } from '../types';
-import { generateUniqueId, allDays } from '../types';
+import { generateUniqueId, allDays, getColorForId } from '../types';
 
 interface AddLessonFormProps {
   t: any;
@@ -513,17 +513,6 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
 
   const inputStyleClasses = "mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm";
 
-  const colorPalette = [
-    'border-l-emerald-500',
-    'border-l-amber-500',
-    'border-l-purple-500',
-    'border-l-blue-500',
-    'border-l-rose-500',
-    'border-l-cyan-500',
-    'border-l-indigo-500',
-    'border-l-teal-500'
-  ];
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -569,7 +558,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                               <div className="space-y-3">
                                   {entity.items.map((item: any, index: number) => {
                                       const periodsCount = item.type === 'single' ? item.subject.periodsPerWeek : item.jointPeriod.periodsPerWeek;
-                                      const borderColorClass = colorPalette[index % colorPalette.length];
+                                      const borderColorClass = getColorForId(item.displaySubject?.id || item.key).border;
                                       
                                       return (
                                           <div key={item.key} className={`relative bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex justify-between items-start border-l-[6px] ${borderColorClass} hover:shadow-md transition-shadow`}>

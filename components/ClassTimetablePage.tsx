@@ -5,7 +5,7 @@ import { allDays } from '../types';
 import PeriodStack from './PeriodStack';
 import CopyTimetableModal from './CopyTimetableModal';
 import PrintPreview from './PrintPreview';
-import { generateUniqueId } from '../types';
+import { generateUniqueId, getColorForId } from '../types';
 import { translations } from '../i18n';
 import { ClassCommunicationModal } from './ClassCommunicationModal';
 import DownloadModal from './DownloadModal';
@@ -39,13 +39,6 @@ interface ClassTimetablePageProps {
   onUpdateTimetableSession: (updater: (session: TimetableSession) => TimetableSession) => void;
   changeLogs?: TimetableChangeLog[];
 }
-
-const teacherColorNames = [
-  'subject-sky', 'subject-green', 'subject-yellow', 'subject-red',
-  'subject-purple', 'subject-pink', 'subject-orange', 'subject-teal',
-  'subject-lime', 'subject-cyan', 'subject-emerald', 'subject-fuchsia',
-  'subject-rose', 'subject-amber', 'subject-blue', 'subject-indigo'
-];
 
 // Helper to create log
 const createLog = (
@@ -184,14 +177,6 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
     }
   };
 
-  const teacherColorMap = useMemo(() => {
-    const map = new Map<string, string>();
-    teachers.forEach((teacher, index) => {
-      map.set(teacher.id, teacherColorNames[index % teacherColorNames.length]);
-    });
-    return map;
-  }, [teachers]);
-
   // Calculate teacher availability across the grid if a teacher is selected
   const teacherAvailabilityMap = useMemo(() => {
     if (!highlightedTeacherId) return null;
@@ -221,6 +206,14 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
     });
     return map;
   }, [highlightedTeacherId, classes, activeDays, maxPeriods, selectedClassId, language]);
+
+  const teacherColorMap = useMemo(() => {
+      const map = new Map<string, string>();
+      teachers.forEach(t => {
+          map.set(t.id, getColorForId(t.id).name);
+      });
+      return map;
+  }, [teachers]);
 
   // --- LOGIC FOR MOVES ---
   
@@ -764,7 +757,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                         displayContext="teacher"
                                         jointPeriodName={jp?.name}
                                         isSelected={!!isSelected}
-                                        className="w-full shadow-sm hover:shadow-md"
+                                        className="w-full max-w-[180px] mx-auto shadow-sm hover:shadow-md"
                                     />
                                 </div>
                             );
@@ -881,7 +874,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                 onDragEnd={handleDragEnd}
                                                 onClick={(p) => handleStackClick(p, day, periodIndex)}
                                                 onDeleteStack={() => handlePeriodDelete(group[0].id, group[0].classId, day, periodIndex, group[0].jointPeriodId)}
-                                                colorName={teacherColorMap.get(group[0].teacherId)}
+                                                colorName={getColorForId(group[0].classId + group[0].subjectId).name}
                                                 language={language}
                                                 subjects={subjects}
                                                 teachers={teachers}
@@ -968,7 +961,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                         {log.type}
                                     </span>
                                     <span className="text-[10px] font-bold opacity-50">
-                                        {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                        {new Date(log.timestamp).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
                                 <p className="text-xs font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>

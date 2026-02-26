@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import type { Language, SchoolConfig, SchoolClass, Teacher, Subject, Adjustment, DownloadDesignConfig, FontFamily, LeaveDetails, AttendanceData, CardStyle, TriangleCorner } from '../types';
+import type { Language, SchoolConfig, SchoolClass, Teacher, Subject, Adjustment, DownloadDesignConfig, FontFamily, LeaveDetails, AttendanceData } from '../types';
 import type { Theme, ThemeColors } from '../App';
 import type { NavPosition, NavDesign, NavShape } from '../types';
 import { allDays } from '../types';
@@ -67,23 +67,7 @@ const themeOptions: { id: Theme; name: string; colors: [string, string, string] 
     { id: 'amoled', name: 'Amoled', colors: ['#000000', '#22d3ee', '#ffffff'] },
 ];
 
-const cardStyleOptions: { label: string, value: CardStyle }[] = [
-    { label: 'Full Color', value: 'full' },
-    { label: 'Outline', value: 'outline' },
-    { label: 'Text Only', value: 'text' },
-    { label: 'Triangle Accent', value: 'triangle' },
-    { label: 'Glassmorphism', value: 'glass' },
-    { label: 'Gradient', value: 'gradient' },
-    { label: 'Minimal Left', value: 'minimal-left' },
-    { label: 'Tag Badge', value: 'badge' },
-];
 
-const triangleCornerOptions: { label: string, value: TriangleCorner }[] = [
-    { label: 'Top Left', value: 'top-left' },
-    { label: 'Top Right', value: 'top-right' },
-    { label: 'Bottom Left', value: 'bottom-left' },
-    { label: 'Bottom Right', value: 'bottom-right' },
-];
 
 const appFontOptions = [
     { label: 'System Default', value: '' },
@@ -237,7 +221,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const [isThemeOptionsOpen, setIsThemeOptionsOpen] = useState(false); 
   const [isInterfaceOptionsOpen, setIsInterfaceOptionsOpen] = useState(false);
   const [isPrintSectionOpen, setIsPrintSectionOpen] = useState(false);
-  const [isDesignDefaultsOpen, setIsDesignDefaultsOpen] = useState(false);
   
   const [workloadReportMode, setWorkloadReportMode] = useState<'weekly' | 'range'>('weekly');
   const [workloadStartDate, setWorkloadStartDate] = useState(new Date().toISOString().split('T')[0]);
@@ -285,80 +268,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const teacherItems = useMemo(() => teachers.map(t => ({ id: t.id, label: <span>{t.nameEn} / <span className="font-urdu">{t.nameUr}</span></span> })), [teachers]);
   const classItems = useMemo(() => visibleClasses.map(c => ({ id: c.id, label: <span>{c.nameEn} / <span className="font-urdu">{c.nameUr}</span></span> })), [visibleClasses]);
 
-  const handleCardStyleChange = (type: 'class' | 'teacher', style: CardStyle) => {
-    onUpdateSchoolConfig({
-        downloadDesigns: {
-            ...schoolConfig.downloadDesigns,
-            [type]: {
-                ...schoolConfig.downloadDesigns[type],
-                table: {
-                    ...schoolConfig.downloadDesigns[type].table,
-                    cardStyle: style
-                }
-            }
-        }
-    });
-  };
 
-  const handleTriangleCornerChange = (type: 'class' | 'teacher', corner: TriangleCorner) => {
-    onUpdateSchoolConfig({
-        downloadDesigns: {
-            ...schoolConfig.downloadDesigns,
-            [type]: {
-                ...schoolConfig.downloadDesigns[type],
-                table: {
-                    ...schoolConfig.downloadDesigns[type].table,
-                    triangleCorner: corner
-                }
-            }
-        }
-    });
-  };
-
-  const handleOutlineWidthChange = (type: 'class' | 'teacher', width: number) => {
-    onUpdateSchoolConfig({
-        downloadDesigns: {
-            ...schoolConfig.downloadDesigns,
-            [type]: {
-                ...schoolConfig.downloadDesigns[type],
-                table: {
-                    ...schoolConfig.downloadDesigns[type].table,
-                    outlineWidth: width
-                }
-            }
-        }
-    });
-  };
-
-  const handleMergeToggle = (type: 'class' | 'teacher', merge: boolean) => {
-    onUpdateSchoolConfig({
-        downloadDesigns: {
-            ...schoolConfig.downloadDesigns,
-            [type]: {
-                ...schoolConfig.downloadDesigns[type],
-                table: {
-                    ...schoolConfig.downloadDesigns[type].table,
-                    mergeIdenticalPeriods: merge
-                }
-            }
-        }
-    });
-  };
-
-  const handleBadgeTargetChange = (type: 'class' | 'teacher', target: 'subject' | 'teacher' | 'class') => {
-    onUpdateSchoolConfig({
-        downloadDesigns: {
-            ...schoolConfig.downloadDesigns,
-            [type]: {
-                ...schoolConfig.downloadDesigns[type],
-                table: {
-                    ...schoolConfig.downloadDesigns[type].table,
-                    badgeTarget: target
-                }
-            }
-        }
-    });
-  };
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 pb-24">
@@ -562,162 +472,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             </div>
         </div>
 
-        <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] mb-8 overflow-hidden">
-            <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsDesignDefaultsOpen(!isDesignDefaultsOpen)}>
-                <h3 className="text-xl font-bold text-[var(--text-primary)]">Design Defaults</h3>
-                <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isDesignDefaultsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-            </button>
-            <div className={`grid transition-all duration-500 ${isDesignDefaultsOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-                <div className="overflow-hidden">
-                    <div className="p-6 pt-0 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
-                            {/* Class Timetable Design Column */}
-                            <div className="space-y-6">
-                                <h4 className="font-black text-xs uppercase tracking-widest text-[var(--accent-primary)] border-b border-[var(--border-primary)] pb-2 mb-4">Class Timetable Defaults</h4>
-                                <div className="flex items-center justify-between bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-secondary)]">
-                                    <div>
-                                        <span className="block text-sm font-semibold text-[var(--text-primary)]">Merge Patterns</span>
-                                        <span className="text-[10px] text-[var(--text-secondary)]">Combine identical consecutive periods</span>
-                                    </div>
-                                    <button 
-                                        onClick={() => handleMergeToggle('class', !(schoolConfig.downloadDesigns.class.table.mergeIdenticalPeriods ?? true))}
-                                        className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${ (schoolConfig.downloadDesigns.class.table.mergeIdenticalPeriods ?? true) ? 'bg-[var(--accent-primary)]' : 'bg-gray-300'}`}
-                                    >
-                                        <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${ (schoolConfig.downloadDesigns.class.table.mergeIdenticalPeriods ?? true) ? 'translate-x-4' : 'translate-x-0'}`} />
-                                    </button>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">Card Style</label>
-                                    <select 
-                                        value={schoolConfig.downloadDesigns.class.table.cardStyle || 'full'}
-                                        onChange={(e) => handleCardStyleChange('class', e.target.value as CardStyle)}
-                                        className="w-full p-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent-primary)] outline-none"
-                                    >
-                                        {cardStyleOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                                    </select>
-                                </div>
-                                {schoolConfig.downloadDesigns.class.table.cardStyle === 'badge' && (
-                                    <div className="animate-scale-in">
-                                        <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">Badge Target</label>
-                                        <select 
-                                            value={schoolConfig.downloadDesigns.class.table.badgeTarget || 'subject'}
-                                            onChange={(e) => handleBadgeTargetChange('class', e.target.value as any)}
-                                            className="w-full p-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent-primary)] outline-none"
-                                        >
-                                            <option value="subject">Subject</option>
-                                            <option value="teacher">Teacher</option>
-                                        </select>
-                                    </div>
-                                )}
-                                {/* ... (Rest of Class Options) */}
-                                {schoolConfig.downloadDesigns.class.table.cardStyle === 'outline' && (
-                                    <div className="animate-scale-in">
-                                        <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">Outline Thickness (px)</label>
-                                        <div className="flex items-center gap-3">
-                                            <input 
-                                                type="range" 
-                                                min="0.5" 
-                                                max="10" 
-                                                step="0.5"
-                                                value={schoolConfig.downloadDesigns.class.table.outlineWidth || 2}
-                                                onChange={(e) => handleOutlineWidthChange('class', parseFloat(e.target.value))}
-                                                className="flex-grow h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[var(--accent-primary)]"
-                                            />
-                                            <span className="text-sm font-bold w-10 text-center">{schoolConfig.downloadDesigns.class.table.outlineWidth || 2}</span>
-                                        </div>
-                                    </div>
-                                )}
-                                {schoolConfig.downloadDesigns.class.table.cardStyle === 'triangle' && (
-                                    <div className="animate-scale-in">
-                                        <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">Triangle Corner</label>
-                                        <select 
-                                            value={schoolConfig.downloadDesigns.class.table.triangleCorner || 'bottom-left'}
-                                            onChange={(e) => handleTriangleCornerChange('class', e.target.value as TriangleCorner)}
-                                            className="w-full p-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent-primary)] outline-none"
-                                        >
-                                            {triangleCornerOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                                        </select>
-                                    </div>
-                                )}
-                            </div>
 
-                            {/* Teacher Timetable Design Column */}
-                            <div className="space-y-6">
-                                <h4 className="font-black text-xs uppercase tracking-widest text-[var(--accent-primary)] border-b border-[var(--border-primary)] pb-2 mb-4">Teacher Timetable Defaults</h4>
-                                {/* ... (Teacher Config same as before) ... */}
-                                <div className="flex items-center justify-between bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-secondary)]">
-                                    <div>
-                                        <span className="block text-sm font-semibold text-[var(--text-primary)]">Merge Patterns</span>
-                                        <span className="text-[10px] text-[var(--text-secondary)]">Combine identical consecutive periods</span>
-                                    </div>
-                                    <button 
-                                        onClick={() => handleMergeToggle('teacher', !(schoolConfig.downloadDesigns.teacher.table.mergeIdenticalPeriods ?? true))}
-                                        className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${ (schoolConfig.downloadDesigns.teacher.table.mergeIdenticalPeriods ?? true) ? 'bg-[var(--accent-primary)]' : 'bg-gray-300'}`}
-                                    >
-                                        <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${ (schoolConfig.downloadDesigns.teacher.table.mergeIdenticalPeriods ?? true) ? 'translate-x-4' : 'translate-x-0'}`} />
-                                    </button>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">Card Style</label>
-                                    <select 
-                                        value={schoolConfig.downloadDesigns.teacher.table.cardStyle || 'full'}
-                                        onChange={(e) => handleCardStyleChange('teacher', e.target.value as CardStyle)}
-                                        className="w-full p-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent-primary)] outline-none"
-                                    >
-                                        {cardStyleOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                                    </select>
-                                </div>
-                                {schoolConfig.downloadDesigns.teacher.table.cardStyle === 'badge' && (
-                                    <div className="animate-scale-in">
-                                        <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">Badge Target</label>
-                                        <select 
-                                            value={schoolConfig.downloadDesigns.teacher.table.badgeTarget || 'subject'}
-                                            onChange={(e) => handleBadgeTargetChange('teacher', e.target.value as any)}
-                                            className="w-full p-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent-primary)] outline-none"
-                                        >
-                                            <option value="subject">Subject</option>
-                                            <option value="class">Class</option>
-                                        </select>
-                                    </div>
-                                )}
-                                {schoolConfig.downloadDesigns.teacher.table.cardStyle === 'outline' && (
-                                    <div className="animate-scale-in">
-                                        <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">Outline Thickness (px)</label>
-                                        <div className="flex items-center gap-3">
-                                            <input 
-                                                type="range" 
-                                                min="0.5" 
-                                                max="10" 
-                                                step="0.5"
-                                                value={schoolConfig.downloadDesigns.teacher.table.outlineWidth || 2}
-                                                onChange={(e) => handleOutlineWidthChange('teacher', parseFloat(e.target.value))}
-                                                className="flex-grow h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[var(--accent-primary)]"
-                                            />
-                                            <span className="text-sm font-bold w-10 text-center">{schoolConfig.downloadDesigns.teacher.table.outlineWidth || 2}</span>
-                                        </div>
-                                    </div>
-                                )}
-                                {schoolConfig.downloadDesigns.teacher.table.cardStyle === 'triangle' && (
-                                    <div className="animate-scale-in">
-                                        <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">Triangle Corner</label>
-                                        <select 
-                                            value={schoolConfig.downloadDesigns.teacher.table.triangleCorner || 'bottom-left'}
-                                            onChange={(e) => handleTriangleCornerChange('teacher', e.target.value as TriangleCorner)}
-                                            className="w-full p-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent-primary)] outline-none"
-                                        >
-                                            {triangleCornerOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                                        </select>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        <p className="text-xs text-[var(--text-secondary)] italic bg-[var(--bg-tertiary)]/50 p-3 rounded-lg border border-[var(--border-secondary)]">
-                            Tip: These styles apply to both the PDF reports and the images generated for WhatsApp. You can also override them temporarily within the Print Preview settings.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] mb-8 overflow-hidden">
             <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsInterfaceOptionsOpen(!isInterfaceOptionsOpen)}>

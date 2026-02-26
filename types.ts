@@ -332,3 +332,31 @@ export interface UserData {
 export const generateUniqueId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
+
+export const colorSchemes = [
+    { name: 'subject-sky', border: 'border-l-sky-500' },
+    { name: 'subject-green', border: 'border-l-green-500' },
+    { name: 'subject-yellow', border: 'border-l-yellow-500' },
+    { name: 'subject-red', border: 'border-l-red-500' },
+    { name: 'subject-purple', border: 'border-l-purple-500' },
+    { name: 'subject-pink', border: 'border-l-pink-500' },
+    { name: 'subject-orange', border: 'border-l-orange-500' },
+    { name: 'subject-teal', border: 'border-l-teal-500' },
+    { name: 'subject-lime', border: 'border-l-lime-500' },
+    { name: 'subject-cyan', border: 'border-l-cyan-500' },
+    { name: 'subject-emerald', border: 'border-l-emerald-500' },
+    { name: 'subject-fuchsia', border: 'border-l-fuchsia-500' },
+    { name: 'subject-rose', border: 'border-l-rose-500' },
+    { name: 'subject-amber', border: 'border-l-amber-500' },
+    { name: 'subject-blue', border: 'border-l-blue-500' },
+    { name: 'subject-indigo', border: 'border-l-indigo-500' },
+];
+
+export const getColorForId = (id: string): { name: string, border: string } => {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % colorSchemes.length;
+    return colorSchemes[index];
+};

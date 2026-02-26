@@ -83,9 +83,25 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, onDragStart, onDragEnd,
   }, [schoolClass, period, jointPeriods, classes]);
 
 
+  const cmykPalette = [
+    'subject-cyan', 'subject-fuchsia', 'subject-yellow', 'subject-sky',
+    'subject-pink', 'subject-lime', 'subject-red', 'subject-green',
+    'subject-blue', 'subject-purple', 'subject-orange', 'subject-teal',
+    'subject-emerald', 'subject-rose', 'subject-amber', 'subject-indigo'
+  ];
+
   if (!subject || !contextEntity) return null;
 
-  const finalColorName = colorName || 'subject-default';
+  // Determine color index based on subject index within the class
+  let colorIndex = 0;
+  if (schoolClass) {
+      const subjectIndex = schoolClass.subjects.findIndex(s => s.subjectId === period.subjectId);
+      if (subjectIndex !== -1) {
+          colorIndex = subjectIndex % cmykPalette.length;
+      }
+  }
+
+  const finalColorName = colorName || cmykPalette[colorIndex];
   const highlightClasses = 'ring-2 ring-offset-2 ring-[var(--accent-primary)] ring-offset-[var(--bg-secondary)] shadow-lg scale-105 z-10';
   const dimClasses = 'opacity-50 grayscale-[50%]';
   
