@@ -447,7 +447,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
       height: 100%;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
-      font-family: '${table.fontFamily}', sans-serif; 
+      font-family: sans-serif; 
     }
 
     .print-container .font-urdu, 
@@ -499,7 +499,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         border-top: 1px solid #000; 
         display: flex; 
         align-items: flex-end; 
-        font-family: '${footer.fontFamily}', sans-serif;
+        font-family: sans-serif;
         font-size: ${footer.fontSize}px; 
         color: ${footer.color};
         flex-shrink: 0;
@@ -513,7 +513,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         text-align: center; 
         font-size: ${table.fontSize}px;
         color: ${table.bodyColor || '#000000'};
-        font-family: '${table.fontFamily}', sans-serif;
+        font-family: sans-serif;
         line-height: 1.1; /* Tighter line height for better canvas centering */
         box-sizing: border-box;
         overflow: visible !important;
@@ -581,11 +581,11 @@ const generateReportHTML = (
                     <header class="header-container" style="justify-content: ${design.header.logoPosition === 'center' ? 'center' : design.header.logoPosition === 'right' ? 'flex-end' : 'flex-start'}">
                         ${design.header.logoPosition === 'left' ? logoHtml : ''}
                         <div class="header-text" style="text-align: ${design.header.schoolName.align}">
-                            <h1 class="header-school-name" style="font-family: '${design.header.schoolName.fontFamily}'; font-size: ${design.header.schoolName.fontSize}px; font-weight: ${design.header.schoolName.fontWeight}; color: ${design.header.schoolName.color}">
+                            <h1 class="header-school-name" style="font-family: sans-serif; font-size: ${design.header.schoolName.fontSize}px; font-weight: ${design.header.schoolName.fontWeight}; color: ${design.header.schoolName.color}">
                                 ${lang === 'ur' ? schoolConfig.schoolNameUr : schoolConfig.schoolNameEn}
                             </h1>
-                            ${design.header.showTitle ? `<h2 class="header-title" style="font-family: '${design.header.title.fontFamily}'; font-size: ${design.header.title.fontSize}px; font-weight: ${design.header.title.fontWeight}; color: ${design.header.title.color}; text-align: ${design.header.title.align}">${title}</h2>` : ''}
-                            ${details ? `<div class="header-details" style="font-family: '${design.header.details.fontFamily}'; font-size: ${design.header.details.fontSize}px; font-weight: ${design.header.details.fontWeight}; color: ${design.header.details.color}; text-align: ${design.header.details.align}">${details}</div>` : ''}
+                            ${design.header.showTitle ? `<h2 class="header-title" style="font-family: sans-serif; font-size: ${design.header.title.fontSize}px; font-weight: ${design.header.title.fontWeight}; color: ${design.header.title.color}; text-align: ${design.header.title.align}">${title}</h2>` : ''}
+                            ${details ? `<div class="header-details" style="font-family: sans-serif; font-size: ${design.header.details.fontSize}px; font-weight: ${design.header.details.fontWeight}; color: ${design.header.details.color}; text-align: ${design.header.details.align}">${details}</div>` : ''}
                         </div>
                         ${design.header.logoPosition === 'right' ? logoHtml : ''}
                     </header>

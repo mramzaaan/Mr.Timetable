@@ -337,14 +337,12 @@ const App: React.FC = () => {
     useEffect(() => { localStorage.setItem('mrtimetable_fontSize', fontSize.toString()); document.documentElement.style.fontSize = `${fontSize}px`; }, [fontSize]);
     useEffect(() => { localStorage.removeItem('mrtimetable_customFontData'); }, []);
     useEffect(() => {
-        localStorage.setItem('mrtimetable_appFont', appFont);
+        localStorage.setItem('mrtimetable_appFont', 'sans-serif');
         const styleId = 'global-app-font-style';
         let style = document.getElementById(styleId);
         if (!style) { style = document.createElement('style'); style.id = styleId; document.head.appendChild(style); }
-        const importsLatin = ``;
-        let finalFontStack = 'sans-serif';
-        if (appFont) { let primaryFont = `"${appFont}"`; finalFontStack = `${primaryFont}, sans-serif`; } else { finalFontStack = 'sans-serif'; }
-        style.innerHTML = `${importsLatin} :root { --font-app-primary: ${finalFontStack}; } body { font-family: var(--font-app-primary); } button, input, select, textarea { font-family: var(--font-app-primary); }`;
+        
+        style.innerHTML = `:root { --font-app-primary: sans-serif; } body { font-family: var(--font-app-primary); } button, input, select, textarea { font-family: var(--font-app-primary); }`;
     }, [appFont]);
     
     useEffect(() => { localStorage.setItem('mrtimetable_userData', JSON.stringify(userData)); }, [userData]);

@@ -54,15 +54,35 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, navAnimation]);
 
-  const navItems: { page: Page; labelKey: string; icon: React.ReactNode }[] = [
-    { page: 'home', labelKey: 'home', icon: <HomeIcon /> },
-    { page: 'dataEntry', labelKey: 'dataEntry', icon: <DataEntryIcon /> },
-    { page: 'classTimetable', labelKey: 'classTimetable', icon: <ClassTimetableIcon /> },
-    { page: 'teacherTimetable', labelKey: 'teacherTimetable', icon: <TeacherTimetableIcon /> },
-    { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon /> },
-    { page: 'attendance', labelKey: 'attendance', icon: <AttendanceIcon /> },
-    { page: 'settings', labelKey: 'settings', icon: <SettingsIcon /> },
+  const navItems: { page: Page; labelKey: string; icon: React.ReactNode; theme: string }[] = [
+    { page: 'home', labelKey: 'home', icon: <HomeIcon />, theme: 'blue' },
+    { page: 'dataEntry', labelKey: 'dataEntry', icon: <DataEntryIcon />, theme: 'emerald' },
+    { page: 'classTimetable', labelKey: 'classTimetable', icon: <ClassTimetableIcon />, theme: 'indigo' },
+    { page: 'teacherTimetable', labelKey: 'teacherTimetable', icon: <TeacherTimetableIcon />, theme: 'violet' },
+    { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon />, theme: 'orange' },
+    { page: 'attendance', labelKey: 'attendance', icon: <AttendanceIcon />, theme: 'teal' },
+    { page: 'settings', labelKey: 'settings', icon: <SettingsIcon />, theme: 'slate' },
   ];
+
+  const themeColors: Record<string, string> = {
+      blue: 'bg-blue-500',
+      emerald: 'bg-emerald-500',
+      indigo: 'bg-indigo-500',
+      violet: 'bg-violet-500',
+      orange: 'bg-orange-500',
+      teal: 'bg-teal-500',
+      slate: 'bg-slate-500',
+  };
+  
+  const textColors: Record<string, string> = {
+      blue: 'text-blue-500',
+      emerald: 'text-emerald-500',
+      indigo: 'text-indigo-500',
+      violet: 'text-violet-500',
+      orange: 'text-orange-500',
+      teal: 'text-teal-500',
+      slate: 'text-slate-500',
+  };
 
   return (
     <div className={`xl:hidden fixed bottom-6 left-4 right-4 z-50 transition-transform duration-300 ${isCollapsed ? 'translate-y-[200%]' : 'translate-y-0'}`}>
@@ -70,6 +90,9 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
         
         {navItems.map((item) => {
             const isActive = item.page === currentPage;
+            const activeBg = themeColors[item.theme] || 'bg-[var(--accent-primary)]';
+            const inactiveText = textColors[item.theme] || 'text-[var(--text-secondary)]';
+
             return (
                 <button 
                     key={item.page}
@@ -79,14 +102,14 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
                     {isActive && (
                         <motion.div
                             layoutId="active-indicator"
-                            className="absolute inset-1 bg-[var(--accent-primary)] rounded-full -z-10"
+                            className={`absolute inset-1 ${activeBg} rounded-full -z-10`}
                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                         />
                     )}
                     
                     <div className={`transition-all duration-300 flex flex-col items-center z-10 ${isActive ? 'scale-110' : ''}`}>
                         <span 
-                            className={`transition-colors duration-300 ${isActive ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`}
+                            className={`transition-colors duration-300 ${isActive ? 'text-white' : `${inactiveText} group-hover:opacity-80`}`}
                         >
                             {React.cloneElement(item.icon as React.ReactElement, { className: "h-5 w-5" })}
                         </span>

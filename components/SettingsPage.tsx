@@ -530,26 +530,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                         <span className="text-lg font-bold text-[var(--text-primary)]">A</span>
                                     </div>
                                 </div>
-
-                                {/* App Font */}
-                                <div>
-                                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-3 ml-1">{t.appFont}</label>
-                                    <div className="relative group">
-                                        <select 
-                                            value={appFont} 
-                                            onChange={(e) => setAppFont(e.target.value)} 
-                                            className="w-full bg-[var(--bg-tertiary)] text-[var(--text-primary)] text-sm font-medium rounded-2xl p-4 border border-[var(--border-secondary)] appearance-none outline-none focus:border-[var(--accent-primary)] transition-colors shadow-sm cursor-pointer"
-                                            style={{ fontFamily: appFont === 'CustomAppFont' ? 'inherit' : appFont }}
-                                        >
-                                            {appFontOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value} style={{ fontFamily: opt.value === 'CustomAppFont' ? 'inherit' : opt.value }}>{opt.label}</option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] transition-colors">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         
@@ -578,38 +558,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                     >
                                         <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${navAnimation ? 'translate-x-5' : 'translate-x-0'}`} />
                                     </button>
-                                </div>
-                            </div>
-
-                            {/* Opacity & Surface Card */}
-                            <div className="bg-[var(--bg-tertiary)] rounded-2xl p-6 border border-[var(--border-secondary)] space-y-8 shadow-sm">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                    <OpacityControl label={t.selectedOpacity} value={navBtnAlphaSelected} onChange={setNavBtnAlphaSelected} />
-                                    <OpacityControl label={t.unselectedOpacity} value={navBtnAlphaUnselected} onChange={setNavBtnAlphaUnselected} />
-                                </div>
-                                
-                                <div className="h-px bg-[var(--border-secondary)] w-full"></div>
-
-                                <div className="flex flex-wrap items-center justify-between gap-4">
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">BAR SURFACE</span>
-                                        {navBarColor && (
-                                            <button onClick={() => setNavBarColor('')} className="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-wider transition-colors">RESET</button>
-                                        )}
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-4">
-                                         <div className="relative w-10 h-10 rounded-full shadow-sm border border-[var(--border-secondary)] overflow-hidden cursor-pointer hover:scale-110 transition-transform ring-2 ring-transparent hover:ring-[var(--accent-primary)]">
-                                             <div className="absolute inset-0" style={{ backgroundColor: navBarColor || 'transparent', backgroundImage: navBarColor ? 'none' : 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', backgroundSize: '8px 8px' }}></div>
-                                             <input type="color" value={navBarColor || '#ffffff'} onChange={(e) => setNavBarColor(e.target.value)} className="opacity-0 absolute inset-0 cursor-pointer" />
-                                        </div>
-                                        
-                                        <div className="flex items-center bg-[var(--bg-primary)] rounded-xl border border-[var(--border-secondary)] h-10 px-1 shadow-inner">
-                                            <button onClick={() => setNavBarAlpha(Math.max(0, parseFloat((navBarAlpha - 0.1).toFixed(1))))} className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold">—</button>
-                                            <span className="w-12 text-center text-sm font-bold text-[var(--text-primary)] tabular-nums">{Math.round(navBarAlpha * 100)}%</span>
-                                            <button onClick={() => setNavBarAlpha(Math.min(1, parseFloat((navBarAlpha + 0.1).toFixed(1))))} className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold">+</button>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -22,10 +22,8 @@ const NavButton: React.FC<{
   icon: React.ReactNode;
   isActive: boolean;
   onClick: () => void;
-  isCollapsed: boolean;
-  isHidden: boolean;
   theme: string;
-}> = ({ label, icon, isActive, onClick, isCollapsed, isHidden, theme }) => {
+}> = ({ label, icon, isActive, onClick, theme }) => {
   
   const colors: Record<string, { bg: string, text: string }> = {
       blue: { bg: 'bg-blue-500', text: 'text-blue-500' },
@@ -37,19 +35,6 @@ const NavButton: React.FC<{
       slate: { bg: 'bg-slate-500', text: 'text-slate-500' },
   };
   const color = colors[theme] || colors.blue;
-
-  if (isCollapsed) {
-     const hiddenClasses = isHidden ? 'w-0 opacity-0 overflow-hidden m-0 p-0 border-0' : 'w-10 h-10 opacity-100 mx-1';
-     return (
-        <button
-          onClick={onClick}
-          className={`flex items-center justify-center rounded-full transition-all duration-300 ${hiddenClasses} ${isActive ? color.bg + ' text-white shadow-lg' : 'bg-white ' + color.text + ' hover:bg-gray-50 border border-gray-100'}`}
-          title={label}
-        >
-           {React.cloneElement(icon as React.ReactElement, { className: "h-5 w-5" })}
-        </button>
-     );
-  }
 
   return (
     <button
@@ -115,8 +100,6 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ t, currentPage, setCurrentPage, s
                     icon={item.icon}
                     isActive={isActive}
                     onClick={() => setCurrentPage(item.page)}
-                    isCollapsed={false}
-                    isHidden={false}
                     theme={item.theme}
                 />
                 );
