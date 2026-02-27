@@ -164,10 +164,10 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           cardStyleCss = 'background-color: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 6px !important; position: relative !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;';
           // Updated Minimal Design: Rounded line and larger circles
           separatorHtml = `
-            <div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.4; transform: translateY(-50%);">
-                <div style="width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div>
-                <div style="height: 1.5px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 4px;"></div>
-                <div style="width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div>
+            <div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.5; transform: translateY(-50%);">
+                <div style="width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div>
+                <div style="height: 2px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 8px;"></div>
+                <div style="width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div>
             </div>
           `;
       } else if (cardStyle === 'badge') {

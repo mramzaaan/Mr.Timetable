@@ -772,12 +772,12 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
                 
                 let separatorHtml = '';
                 if (cardStyle === 'minimal-left') {
-                    separatorHtml = `<div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.4; transform: translateY(-50%); pointer-events: none;"><div style="width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div><div style="height: 1.5px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 4px;"></div><div style="width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div></div>`;
+                    separatorHtml = `<div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.5; transform: translateY(-50%); pointer-events: none;"><div style="width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div><div style="height: 2px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 8px;"></div><div style="width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div></div>`;
                 }
 
                 let subjectBadgeStyle = '';
                 if (cardStyle === 'badge') {
-                    subjectBadgeStyle = `background-color: var(--${colorClass}-text); color: #fff !important; padding: 2px 8px; border-radius: 999px; display: inline-block; width: fit-content; margin-bottom: 2px;`;
+                    subjectBadgeStyle = `background-color: var(--${colorClass}-text); color: #fff !important; padding: 4px 12px; border-radius: 999px; display: inline-block; width: fit-content; max-width: 100%; text-align: center; box-sizing: border-box; margin-bottom: 2px;`;
                 }
                 
                 const content = `<div class="period-card-img ${colorClass}">${triangleHtml}${separatorHtml}<div class="period-content-spread"><div class="period-subject" style="${subjectBadgeStyle}" title="${subjectsList.replace(/<[^>]*>/g, '')}">${subjectsList}</div><div class="period-teacher" title="${teachersList.replace(/<[^>]*>/g, '')}">${teachersList}</div></div></div>`;
@@ -940,12 +940,12 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
                 
                 let separatorHtml = '';
                 if (cardStyle === 'minimal-left') {
-                    separatorHtml = `<div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.4; transform: translateY(-50%); pointer-events: none;"><div style="width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div><div style="height: 1.5px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 4px;"></div><div style="width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div></div>`;
+                    separatorHtml = `<div style="position: absolute; top: 50%; left: 15%; right: 15%; display: flex; align-items: center; justify-content: center; opacity: 0.5; transform: translateY(-50%); pointer-events: none;"><div style="width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div><div style="height: 2px; flex-grow: 1; border-radius: 99px; background-color: currentColor; margin: 0 8px;"></div><div style="width: 6px; height: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div></div>`;
                 }
                 
                 let subjectBadgeStyle = '';
                 if (cardStyle === 'badge') {
-                    subjectBadgeStyle = `background-color: var(--${colorClass}-text); color: #fff !important; padding: 2px 8px; border-radius: 999px; display: inline-block; width: fit-content; margin-bottom: 2px;`;
+                    subjectBadgeStyle = `background-color: var(--${colorClass}-text); color: #fff !important; padding: 4px 12px; border-radius: 999px; display: inline-block; width: fit-content; max-width: 100%; text-align: center; box-sizing: border-box; margin-bottom: 2px;`;
                 }
 
                 const cards = `<div class="period-card-img ${colorClass}">${triangleHtml}${separatorHtml}<div class="period-content-spread"><div class="period-subject" style="${subjectBadgeStyle}">${classList}</div><div class="period-class">${subjectName}</div></div></div>`;

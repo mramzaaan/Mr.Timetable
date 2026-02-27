@@ -80,8 +80,7 @@ const NavButton: React.FC<{
 };
 
 const TopNavBar: React.FC<TopNavBarProps> = ({ t, currentPage, setCurrentPage, schoolConfig }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
+  
   const navItems: { page: Page; labelKey: string; icon: React.ReactNode; theme: string }[] = [
     { page: 'home', labelKey: 'home', icon: <HomeIcon />, theme: 'blue' },
     { page: 'dataEntry', labelKey: 'dataEntry', icon: <DataEntryIcon />, theme: 'emerald' },
@@ -94,44 +93,34 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ t, currentPage, setCurrentPage, s
 
   return (
     <>
-      <nav className="hidden xl:flex fixed top-0 right-0 z-40 w-full pointer-events-none flex-col items-end">
-        <div className={`
-            relative pointer-events-auto flex items-center transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1.0)]
-            ${isCollapsed 
-                // Collapsed: Small circle
-                ? 'mr-6 mt-6 w-20 h-20 rounded-full border-2 border-[var(--accent-primary)] justify-center shadow-2xl overflow-hidden bg-[var(--bg-secondary)] backdrop-blur-xl' 
-                // Expanded: Floating Dock in Top Right Corner (Right-Aligned) - Transparent
-                : 'mr-6 mt-4 w-auto h-[72px] rounded-2xl bg-transparent px-6 justify-between'
-            }
-        `} dir="ltr">
-            {/* Logo Section - Fades out and shrinks width when collapsing */}
-            <div className={`flex items-center gap-3 overflow-hidden whitespace-nowrap transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1.0)] ${isCollapsed ? 'max-w-0 opacity-0 px-0' : 'max-w-[400px] opacity-100 mr-6'}`}>
-                {schoolConfig.schoolLogoBase64 && (
-                    <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-9 w-9 object-contain rounded-full" />
-                )}
-            </div>
+      <nav className="hidden xl:flex fixed top-0 left-0 right-0 z-40 w-full h-20 bg-[var(--bg-secondary)] border-b border-[var(--border-secondary)] shadow-sm items-center justify-between px-8 transition-all duration-300">
+        {/* Logo Section */}
+        <div className="flex items-center gap-4">
+            {schoolConfig.schoolLogoBase64 && (
+                <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full shadow-sm" />
+            )}
+            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+                {schoolConfig.schoolNameEn || 'Timetable App'}
+            </h1>
+        </div>
 
-            {/* Nav Items - Centers content when collapsed */}
-            <div className={`flex items-center gap-2 transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1.0)] ${isCollapsed ? 'w-full justify-center' : ''}`}>
-                {navItems.map(item => {
-                    const isActive = currentPage === item.page;
-                    // When collapsed, hide all except active
-                    const isHidden = isCollapsed && !isActive;
-
-                    return (
-                    <NavButton
-                        key={item.page}
-                        label={t[item.labelKey]}
-                        icon={item.icon}
-                        isActive={isActive}
-                        onClick={() => { setCurrentPage(item.page); setIsCollapsed(false); }}
-                        isCollapsed={isCollapsed}
-                        isHidden={isHidden}
-                        theme={item.theme}
-                    />
-                    );
-                })}
-            </div>
+        {/* Nav Items */}
+        <div className="flex items-center gap-3">
+            {navItems.map(item => {
+                const isActive = currentPage === item.page;
+                return (
+                <NavButton
+                    key={item.page}
+                    label={t[item.labelKey]}
+                    icon={item.icon}
+                    isActive={isActive}
+                    onClick={() => setCurrentPage(item.page)}
+                    isCollapsed={false}
+                    isHidden={false}
+                    theme={item.theme}
+                />
+                );
+            })}
         </div>
       </nav>
     </>
