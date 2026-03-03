@@ -977,6 +977,14 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
       return map;
   }, [teacherTimetableData]);
 
+  const maxTeacherWorkload = useMemo(() => {
+      let max = 0;
+      teacherPeriodCounts.forEach(count => {
+          if (count > max) max = count;
+      });
+      return max > 0 ? max : 30;
+  }, [teacherPeriodCounts]);
+
   const handleSavePrintDesign = (newDesign: DownloadDesignConfig) => {
     onUpdateSchoolConfig({
       downloadDesigns: { ...schoolConfig.downloadDesigns, teacher: newDesign }
@@ -1194,7 +1202,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
           {/* Unscheduled Periods Sidebar */}
           <div className="lg:w-1/4 space-y-6">
             {/* Workload Summary Moved Here */}
-            <TeacherAvailabilitySummary t={t} workloadStats={workloadStats} />
+            <TeacherAvailabilitySummary t={t} workloadStats={workloadStats} maxWorkload={maxTeacherWorkload} />
             
             <div 
                 className={`bg-[var(--bg-secondary)] p-4 rounded-lg shadow-md border border-[var(--border-primary)] sticky top-24 transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'unscheduled-drop-target cursor-pointer' : ''}`}
