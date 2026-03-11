@@ -486,23 +486,38 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                          {/* GENERAL */}
                          <div>
                             <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4 ml-1">{t.general}</h4>
-                            <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
-                                <div>
-                                    <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">{t.appLanguage}</h5>
-                                    <p className="text-xs text-[var(--text-secondary)]">{t.switchLanguageDesc}</p>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
+                                    <div>
+                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">{t.appLanguage}</h5>
+                                        <p className="text-xs text-[var(--text-secondary)]">{t.switchLanguageDesc}</p>
+                                    </div>
+                                    <div className="flex bg-[var(--bg-primary)] rounded-lg p-1 border border-[var(--border-secondary)] shadow-inner">
+                                        <button
+                                            onClick={() => setLanguage('en')}
+                                            className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${language === 'en' ? 'bg-[var(--bg-secondary)] text-[var(--accent-primary)] shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                                        >
+                                            English
+                                        </button>
+                                        <button
+                                            onClick={() => setLanguage('ur')}
+                                            className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all font-urdu ${language === 'ur' ? 'bg-[var(--bg-secondary)] text-[var(--accent-primary)] shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                                        >
+                                            اردو
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="flex bg-[var(--bg-primary)] rounded-lg p-1 border border-[var(--border-secondary)] shadow-inner">
-                                    <button
-                                        onClick={() => setLanguage('en')}
-                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${language === 'en' ? 'bg-[var(--bg-secondary)] text-[var(--accent-primary)] shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+
+                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
+                                    <div>
+                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">Auto-hide Navigation</h5>
+                                        <p className="text-xs text-[var(--text-secondary)]">Hide navigation bar when scrolling down</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => setNavAnimation(!navAnimation)} 
+                                        className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${navAnimation ? 'bg-[var(--accent-primary)]' : 'bg-gray-300 dark:bg-gray-600'}`}
                                     >
-                                        English
-                                    </button>
-                                    <button
-                                        onClick={() => setLanguage('ur')}
-                                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all font-urdu ${language === 'ur' ? 'bg-[var(--bg-secondary)] text-[var(--accent-primary)] shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                                    >
-                                        اردو
+                                        <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${navAnimation ? 'translate-x-5' : 'translate-x-0'}`} />
                                     </button>
                                 </div>
                             </div>
@@ -529,24 +544,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                         />
                                         <span className="text-lg font-bold text-[var(--text-primary)]">A</span>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {/* NAVIGATION BAR */}
-                        <div>
-                            <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4 ml-1">{t.navigationBar}</h4>
-                            
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                                {/* Animate */}
-                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
-                                    <span className="text-sm font-bold text-[var(--text-primary)] leading-tight">Animate</span>
-                                    <button 
-                                        onClick={() => setNavAnimation(!navAnimation)} 
-                                        className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${navAnimation ? 'bg-[var(--accent-primary)]' : 'bg-gray-300 dark:bg-gray-600'}`}
-                                    >
-                                        <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${navAnimation ? 'translate-x-5' : 'translate-x-0'}`} />
-                                    </button>
                                 </div>
                             </div>
                         </div>
