@@ -416,7 +416,7 @@ const App: React.FC = () => {
             <SchoolInfoModal t={t} isOpen={isSchoolInfoModalOpen} onClose={() => setIsSchoolInfoModalOpen(false)} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} />
             <div className={`min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 ${currentPage !== 'home' ? 'pb-24 xl:pb-0' : ''}`}>
                 {currentPage !== 'home' && (
-                    <TopNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />
+                    <TopNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} showLabels={navShowLabels} />
                 )}
                 <main className={`${currentPage === 'home' ? '!pt-0' : 'pt-6 xl:pt-28'}`}>
                     {renderPage()}

@@ -1078,20 +1078,25 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
   const handleSaveModal = () => {
       if (!modalState.data.id) return;
+      
+      const isMulti = modalState.data.isMultiDay && !!modalState.data.startDate && !!modalState.data.endDate;
+      const finalStartDate = String(modalState.data.startDate || selectedDate);
+      const finalEndDate = isMulti ? String(modalState.data.endDate) : finalStartDate;
+
       const details: LeaveDetails = {
           leaveType: modalState.data.leaveType,
           startPeriod: Number(modalState.data.startPeriod),
           periods: modalState.data.periods,
           reason: String(modalState.data.reason === 'Other' ? modalState.data.customReason : modalState.data.reason),
-          startDate: String(modalState.data.startDate),
-          endDate: String(modalState.data.endDate)
+          startDate: finalStartDate,
+          endDate: finalEndDate
       };
 
-      if (modalState.data.isMultiDay && modalState.data.startDate && modalState.data.endDate) {
+      if (isMulti) {
           onUpdateSession(session => {
               const newLeaveDetails = { ...(session.leaveDetails || {}) };
-              const s = new Date(String(modalState.data.startDate));
-              const e = new Date(String(modalState.data.endDate));
+              const s = new Date(finalStartDate);
+              const e = new Date(finalEndDate);
               for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
                   const dStr = d.toISOString().split('T')[0];
                   if (!newLeaveDetails[dStr]) newLeaveDetails[dStr] = {};
@@ -1235,7 +1240,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
           mode,
           data: {
               id: id || '',
-              isMultiDay: false,
+              isMultiDay: details ? (details.startDate !== details.endDate) : false,
               startDate: details?.startDate || selectedDate,
               endDate: details?.endDate || selectedDate,
               reason: details ? (LEAVE_REASONS.includes(details.reason || '') ? (details.reason || 'Illness') : 'Other') : 'Illness',
