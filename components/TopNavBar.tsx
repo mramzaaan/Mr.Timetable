@@ -6,7 +6,6 @@ interface TopNavBarProps {
   currentPage: Page;
   setCurrentPage: (page: Page) => void;
   schoolConfig: SchoolConfig;
-  showLabels?: boolean;
 }
 
 // Icon components for clarity
@@ -26,8 +25,7 @@ const NavButton: React.FC<{
   isActive: boolean;
   onClick: () => void;
   theme: string;
-  showLabels?: boolean;
-}> = ({ label, icon, isActive, onClick, theme, showLabels }) => {
+}> = ({ label, icon, isActive, onClick, theme }) => {
   
   const colors: Record<string, { bg: string, text: string }> = {
       blue: { bg: 'bg-blue-500', text: 'text-blue-500' },
@@ -43,7 +41,7 @@ const NavButton: React.FC<{
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center justify-center h-12 rounded-full transition-all duration-300 focus:outline-none group ${(showLabels && isActive) ? 'px-5' : 'w-12'}`}
+      className={`relative flex items-center justify-center h-12 rounded-full transition-all duration-300 focus:outline-none group ${isActive ? 'px-5' : 'w-12'}`}
     >
       {isActive && (
           <motion.div
@@ -60,7 +58,7 @@ const NavButton: React.FC<{
               {React.cloneElement(icon as React.ReactElement, { className: "h-6 w-6" })}
           </span>
           
-          {(showLabels && isActive) && (
+          {isActive && (
               <motion.span 
                   initial={{ opacity: 0, width: 0, marginLeft: 0 }}
                   animate={{ opacity: 1, width: 'auto', marginLeft: 8 }}
@@ -75,7 +73,7 @@ const NavButton: React.FC<{
   );
 };
 
-const TopNavBar: React.FC<TopNavBarProps> = ({ t, currentPage, setCurrentPage, schoolConfig, showLabels }) => {
+const TopNavBar: React.FC<TopNavBarProps> = ({ t, currentPage, setCurrentPage, schoolConfig }) => {
   
   const navItems: { page: Page; labelKey: string; icon: React.ReactNode; theme: string }[] = [
     { page: 'home', labelKey: 'home', icon: <HomeIcon />, theme: 'blue' },
@@ -89,19 +87,19 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ t, currentPage, setCurrentPage, s
 
   return (
     <>
-      <nav className="hidden xl:flex fixed top-0 left-0 right-0 z-40 w-full h-20 bg-[var(--bg-secondary)] border-b border-[var(--border-secondary)] shadow-sm items-center justify-between px-8 transition-all duration-300">
+      <nav className="hidden xl:flex fixed top-6 left-1/2 -translate-x-1/2 z-40 bg-[var(--bg-secondary)]/95 backdrop-blur-md h-16 rounded-full shadow-2xl border border-[var(--border-secondary)] items-center px-4 transition-all duration-300 gap-2">
         {/* Logo Section */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 pr-6 border-r border-[var(--border-secondary)] mr-2">
             {schoolConfig.schoolLogoBase64 && (
-                <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full shadow-sm" />
+                <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-8 w-8 object-contain rounded-full shadow-sm" />
             )}
-            <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-lg font-bold text-[var(--text-primary)] tracking-tight whitespace-nowrap">
                 {schoolConfig.schoolNameEn || 'Timetable App'}
             </h1>
         </div>
 
         {/* Nav Items */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
             {navItems.map(item => {
                 const isActive = currentPage === item.page;
                 return (
@@ -112,7 +110,6 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ t, currentPage, setCurrentPage, s
                     isActive={isActive}
                     onClick={() => setCurrentPage(item.page)}
                     theme={item.theme}
-                    showLabels={showLabels}
                 />
                 );
             })}

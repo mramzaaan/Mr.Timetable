@@ -612,62 +612,100 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity" onClick={() => setIsModalOpen(false)}>
-            <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden transform transition-all border border-[var(--border-primary)]" onClick={e => e.stopPropagation()}>
-                <div className="p-6 border-b border-[var(--border-primary)]">
-                    <h3 className="text-xl font-bold text-[var(--text-primary)]">{editingLesson ? t.updateLesson : t.addLesson}</h3>
+        <div className="fixed inset-0 bg-slate-800/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity" onClick={() => setIsModalOpen(false)}>
+            <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+                <div className="p-8 pb-6">
+                    <h3 className="text-2xl font-bold text-slate-900">{editingLesson ? t.updateLesson : t.addLesson}</h3>
                 </div>
-                <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="px-8 pb-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    {/* Teacher */}
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{t.teacher}</label>
-                        <select value={teacherId} onChange={(e) => setTeacherId(e.target.value)} className={inputStyleClasses} disabled={!!limitToTeacherId}>
-                            <option value="">{t.withoutTeacher}</option>
-                            {teachers.map(t => <option key={t.id} value={t.id}>{t.nameEn}</option>)}
-                        </select>
+                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.teacher}</label>
+                        <div className="relative">
+                            <select value={teacherId} onChange={(e) => setTeacherId(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent appearance-none font-medium" disabled={!!limitToTeacherId}>
+                                <option value="">{t.withoutTeacher}</option>
+                                {teachers.map(t => <option key={t.id} value={t.id}>{t.nameEn}</option>)}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
                     </div>
+                    {/* Subject */}
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{t.subject} <span className="text-red-500">*</span></label>
-                        <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className={inputStyleClasses}>
-                            <option value="">{t.select}</option>
-                            {subjects.map(s => <option key={s.id} value={s.id}>{s.nameEn}</option>)}
-                        </select>
+                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.subject} <span className="text-red-500">*</span></label>
+                        <div className="relative">
+                            <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent appearance-none font-medium">
+                                <option value="">{t.select}</option>
+                                {subjects.map(s => <option key={s.id} value={s.id}>{s.nameEn}</option>)}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
                     </div>
+                    {/* Periods/Week */}
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{t.periodsPerWeek}</label>
-                        <select value={periodsCount} onChange={(e) => setPeriodsCount(Number(e.target.value))} className={inputStyleClasses}>
-                            {Array.from({ length: 15 }, (_, i) => i + 1).map(num => <option key={num} value={num}>{num}</option>)}
-                        </select>
+                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.periodsPerWeek}</label>
+                        <div className="relative">
+                            <select value={periodsCount} onChange={(e) => setPeriodsCount(Number(e.target.value))} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent appearance-none font-medium">
+                                {Array.from({ length: 15 }, (_, i) => i + 1).map(num => <option key={num} value={num}>{num}</option>)}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
                     </div>
+                    {/* Class */}
                     <div className="animate-fade-in">
                         <div className="flex justify-between items-center mb-2">
-                            <label className="block text-sm font-medium text-[var(--text-secondary)]">{t.class} <span className="text-red-500">*</span></label>
-                            <span className="text-xs text-[var(--text-secondary)]">{selectedClassIds.length} selected</span>
+                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest">{t.class} <span className="text-red-500">*</span></label>
+                            <span className="text-xs text-slate-500 font-medium">{selectedClassIds.length} selected</span>
                         </div>
-                        <div className="max-h-40 overflow-y-auto border border-[var(--border-secondary)] rounded-lg p-2 bg-[var(--bg-tertiary)] grid grid-cols-2 gap-2">
-                            {visibleClasses.map(c => (
-                                <label key={c.id} className="flex items-center space-x-2 cursor-pointer p-1 hover:bg-[var(--accent-secondary)] rounded">
-                                    <input type="checkbox" checked={selectedClassIds.includes(c.id)} onChange={(e) => handleClassSelectionChange(c.id, e.target.checked)} disabled={!!limitToClassId && c.id === limitToClassId} className="form-checkbox text-[var(--accent-primary)] rounded" />
-                                    <span className="text-xs text-[var(--text-primary)] truncate">{c.nameEn}</span>
-                                </label>
-                            ))}
+                        <div className="border border-slate-100 rounded-2xl p-4 bg-slate-50/50 grid grid-cols-2 gap-2">
+                            {visibleClasses.map(c => {
+                                const isSelected = selectedClassIds.includes(c.id);
+                                return (
+                                    <label key={c.id} className={`flex items-center space-x-3 cursor-pointer p-2 rounded-xl transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-slate-100'}`}>
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
+                                            {isSelected && <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
+                                        </div>
+                                        <input type="checkbox" checked={isSelected} onChange={(e) => handleClassSelectionChange(c.id, e.target.checked)} disabled={!!limitToClassId && c.id === limitToClassId} className="hidden" />
+                                        <span className={`text-sm font-medium truncate ${isSelected ? 'text-blue-800' : 'text-slate-600'}`}>{c.nameEn}</span>
+                                    </label>
+                                );
+                            })}
                         </div>
                     </div>
-                    <div className="pt-2 border-t border-[var(--border-secondary)]">
-                        <label className="flex items-center gap-2 cursor-pointer mb-3">
-                            <input type="checkbox" checked={isGroupLesson} onChange={(e) => setIsGroupLesson(e.target.checked)} className="form-checkbox text-[var(--accent-primary)] rounded" />
-                            <span className="text-sm font-bold text-[var(--text-primary)]">{t.groupConfiguration || 'Group Configuration'}</span>
+                    
+                    {/* Group Config */}
+                    <div className="pt-4 border-t border-slate-100">
+                        <label className="flex items-center gap-3 cursor-pointer mb-3">
+                            <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${isGroupLesson ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
+                                {isGroupLesson && <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
+                            </div>
+                            <input type="checkbox" checked={isGroupLesson} onChange={(e) => setIsGroupLesson(e.target.checked)} className="hidden" />
+                            <span className="text-[13px] font-bold text-slate-800 uppercase tracking-wide">{t.groupConfiguration || 'Group Configuration'}</span>
                         </label>
                         {isGroupLesson && (
-                            <div className="space-y-3 pl-6 animate-scale-in">
-                                <div><label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{t.groupName || 'Group Name'} (e.g. Bio, Comp)</label><input type="text" value={customGroupName} onChange={(e) => setCustomGroupName(e.target.value)} className={inputStyleClasses} placeholder="Enter group name" /></div>
-                                <div><label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">{t.groupSetName || 'Group Set Name'} (Optional)</label><input type="text" value={customGroupSetName} onChange={(e) => setCustomGroupSetName(e.target.value)} className={inputStyleClasses} placeholder="e.g. Science Group" /></div>
+                            <div className="space-y-4 pl-8 animate-scale-in mt-4">
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{t.groupName || 'Group Name'} (e.g. Bio, Comp)</label>
+                                    <input type="text" value={customGroupName} onChange={(e) => setCustomGroupName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent text-sm font-medium" placeholder="Enter group name" />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{t.groupSetName || 'Group Set Name'} (Optional)</label>
+                                    <input type="text" value={customGroupSetName} onChange={(e) => setCustomGroupSetName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent text-sm font-medium" placeholder="e.g. Science Group" />
+                                </div>
                             </div>
                         )}
                     </div>
-                </div>
-                <div className="p-6 border-t border-[var(--border-primary)] flex justify-end gap-3 bg-[var(--bg-tertiary)]/30">
-                    <button onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors">{t.cancel}</button>
-                    <button onClick={handleSave} className="px-6 py-2.5 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-xl shadow-lg transition-transform active:scale-95">{t.save}</button>
+
+                    {/* Buttons */}
+                    <div className="pt-6 flex justify-center sm:justify-end items-center gap-8 sm:gap-6">
+                        <button onClick={() => setIsModalOpen(false)} className="text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors">{t.cancel}</button>
+                        <button onClick={handleSave} className="px-10 py-3.5 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-2xl shadow-lg shadow-[var(--accent-primary)]/30 transition-transform active:scale-95">{t.save}</button>
+                    </div>
                 </div>
             </div>
         </div>

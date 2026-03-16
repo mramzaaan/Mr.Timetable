@@ -243,6 +243,7 @@ interface SubstitutionGroup {
     combinedClassNames: { en: string; ur: string };
     subjectInfo: { en: string; ur: string };
     isLegacy?: boolean; // New Flag
+    isClassAbsent?: boolean; // New Flag
 }
 
 interface SubstitutionCardProps {
@@ -416,13 +417,20 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
 
     return (
         <div className={`relative p-3 rounded-2xl border transition-all flex flex-col gap-3 group 
-            ${currentSubstituteId 
-                ? 'bg-[var(--bg-secondary)] border-emerald-500/30 shadow-md' 
-                : 'bg-[var(--bg-tertiary)]/30 border-[var(--border-secondary)]'
+            ${group.isClassAbsent
+                ? 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50 opacity-80'
+                : currentSubstituteId 
+                    ? 'bg-[var(--bg-secondary)] border-emerald-500/30 shadow-md' 
+                    : 'bg-[var(--bg-tertiary)]/30 border-[var(--border-secondary)]'
             }
             ${isLegacy ? 'ring-2 ring-orange-400 ring-offset-2 ring-offset-[var(--bg-primary)]' : ''}
             `}
         >
+            {group.isClassAbsent && (
+                <div className="absolute -top-2 -left-2 bg-red-500 text-white border border-red-600 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1">
+                    {language === 'ur' ? <span className="font-urdu">کلاس بند ہے</span> : 'Class Closed'}
+                </div>
+            )}
             {isLegacy && (
                 <div className="absolute -top-2 -right-2 bg-orange-500 text-white border border-orange-600 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -433,24 +441,24 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
             )}
 
             <div className="flex items-center gap-3 mb-1">
-               <div className="flex flex-col items-center justify-center bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl w-11 h-11 flex-shrink-0">
-                    <span className="text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-wider leading-none mb-0.5">PD</span>
-                    <span className={`text-xl font-black leading-none ${currentSubstituteId ? 'text-emerald-600' : 'text-[var(--accent-primary)]'}`}>
+               <div className={`flex flex-col items-center justify-center border rounded-xl w-11 h-11 flex-shrink-0 ${group.isClassAbsent ? 'bg-red-100/50 dark:bg-red-900/30 border-red-200 dark:border-red-800' : 'bg-[var(--bg-tertiary)] border-[var(--border-secondary)]'}`}>
+                    <span className={`text-[8px] font-bold uppercase tracking-wider leading-none mb-0.5 ${group.isClassAbsent ? 'text-red-500' : 'text-[var(--text-secondary)]'}`}>PD</span>
+                    <span className={`text-xl font-black leading-none ${group.isClassAbsent ? 'text-red-600 dark:text-red-400' : currentSubstituteId ? 'text-emerald-600' : 'text-[var(--accent-primary)]'}`}>
                         {group.periodIndex + 1}
                     </span>
                </div>
 
                <div className="flex flex-col flex-grow overflow-hidden text-center items-center">
-                    <h4 className="text-lg font-black text-[var(--text-primary)] leading-tight truncate w-full" title={language === 'ur' ? group.combinedClassNames.ur : group.combinedClassNames.en}>
+                    <h4 className={`text-lg font-black leading-tight truncate w-full ${group.isClassAbsent ? 'text-red-900 dark:text-red-100' : 'text-[var(--text-primary)]'}`} title={language === 'ur' ? group.combinedClassNames.ur : group.combinedClassNames.en}>
                        {language === 'ur' ? <span className="font-urdu">{group.combinedClassNames.ur}</span> : group.combinedClassNames.en}
                     </h4>
-                    <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider opacity-80 truncate w-full" title={language === 'ur' ? group.subjectInfo.ur : group.subjectInfo.en}>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider opacity-80 truncate w-full ${group.isClassAbsent ? 'text-red-700 dark:text-red-300' : 'text-[var(--text-secondary)]'}`} title={language === 'ur' ? group.subjectInfo.ur : group.subjectInfo.en}>
                        {language === 'ur' ? <span className="font-urdu">{group.subjectInfo.ur}</span> : group.subjectInfo.en}
                     </p>
                </div>
 
                <div className="w-8 flex-shrink-0 flex justify-end">
-                   {currentSubstituteId && (
+                   {currentSubstituteId && !group.isClassAbsent && (
                        <button 
                            onClick={() => onSubstituteChange(group, '')}
                            className="w-8 h-8 flex items-center justify-center text-[var(--text-placeholder)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
@@ -463,39 +471,45 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
             </div>
 
             <div className="relative z-10 w-full">
-                <div className="flex items-center gap-2 h-10">
-                    <div className="flex-grow h-full text-xs">
-                        <SubstitutePicker 
-                            teachersWithStatus={availableTeachersList}
-                            selectedId={currentSubstituteId}
-                            onChange={(id) => onSubstituteChange(group, id)}
-                            language={language}
-                            historyStats={historyStats}
-                            onToggle={onToggleDropdown}
-                        />
+                {group.isClassAbsent ? (
+                    <div className="flex items-center justify-center h-10 bg-red-100/50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800/50 text-xs font-bold uppercase tracking-wider">
+                        {language === 'ur' ? <span className="font-urdu">کلاس غیر حاضر ہے</span> : 'Class is Absent'}
                     </div>
-                    
-                    {currentSubstituteId && (
-                        <button 
-                            onClick={handleNotifyClick} 
-                            disabled={isSending}
-                            className={`h-full aspect-square flex items-center justify-center rounded-lg transition-all shadow-sm ${
-                                isSent 
-                                ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                                : 'bg-[var(--bg-tertiary)] text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800'
-                            }`}
-                            title={t.notifySubstitute}
-                        >
-                            {isSending ? (
-                                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            ) : isSent ? (
-                                <CheckIcon />
-                            ) : (
-                                <WhatsAppIcon />
-                            )}
-                        </button>
-                    )}
-                </div>
+                ) : (
+                    <div className="flex items-center gap-2 h-10">
+                        <div className="flex-grow h-full text-xs">
+                            <SubstitutePicker 
+                                teachersWithStatus={availableTeachersList}
+                                selectedId={currentSubstituteId}
+                                onChange={(id) => onSubstituteChange(group, id)}
+                                language={language}
+                                historyStats={historyStats}
+                                onToggle={onToggleDropdown}
+                            />
+                        </div>
+                        
+                        {currentSubstituteId && (
+                            <button 
+                                onClick={handleNotifyClick} 
+                                disabled={isSending}
+                                className={`h-full aspect-square flex items-center justify-center rounded-lg transition-all shadow-sm ${
+                                    isSent 
+                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                    : 'bg-[var(--bg-tertiary)] text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800'
+                                }`}
+                                title={t.notifySubstitute}
+                            >
+                                {isSending ? (
+                                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                ) : isSent ? (
+                                    <CheckIcon />
+                                ) : (
+                                    <WhatsAppIcon />
+                                )}
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
             
             {assignedAdj?.conflictDetails && (
@@ -699,6 +713,21 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       if (!dayOfWeek) return [];
       const groups: SubstitutionGroup[] = [];
 
+      const checkIfClassAbsent = (classId: string, pIndex: number) => {
+          const leave = absenteeDetails[`CLASS_${classId}`];
+          if (!leave) return false;
+          if (leave.leaveType === 'full') return true;
+          if (leave.leaveType === 'half') {
+              const pNum = pIndex + 1;
+              if (leave.periods && leave.periods.length > 0) {
+                  return leave.periods.includes(pNum);
+              } else if (leave.startPeriod && pNum >= leave.startPeriod) {
+                  return true;
+              }
+          }
+          return false;
+      };
+
       absentTeachers.forEach(absentTeacher => {
           const leave = absenteeDetails[absentTeacher.id];
           const teacherPeriods: { classId: string; period: Period; periodIndex: number }[] = [];
@@ -764,7 +793,8 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                       periodIndex: pIndex,
                       combinedClassIds: clsIds,
                       combinedClassNames: { en: clsNamesEn, ur: clsNamesUr },
-                      subjectInfo: { en: subInfoEn, ur: subInfoUr }
+                      subjectInfo: { en: subInfoEn, ur: subInfoUr },
+                      isClassAbsent: clsIds.some(cId => checkIfClassAbsent(cId, pIndex))
                   });
               });
 
@@ -779,7 +809,8 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                       periodIndex: pIndex,
                       combinedClassIds: [s.classId],
                       combinedClassNames: { en: c?.nameEn || '', ur: c?.nameUr || '' },
-                      subjectInfo: { en: sub?.nameEn || '', ur: sub?.nameUr || '' }
+                      subjectInfo: { en: sub?.nameEn || '', ur: sub?.nameUr || '' },
+                      isClassAbsent: checkIfClassAbsent(s.classId, pIndex)
                   });
               });
           });
@@ -827,7 +858,8 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                           periodIndex: pIndex,
                           combinedClassIds: [absentClass.id],
                           combinedClassNames: { en: absentClass.nameEn, ur: absentClass.nameUr },
-                          subjectInfo: { en: infoEn, ur: infoUr }
+                          subjectInfo: { en: infoEn, ur: infoUr },
+                          isClassAbsent: true
                       });
                   }
               });
@@ -856,7 +888,8 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                       combinedClassIds: [adj.classId],
                       combinedClassNames: { en: cls?.nameEn || 'Unknown', ur: cls?.nameUr || '' },
                       subjectInfo: { en: sub?.nameEn || 'Unknown', ur: sub?.nameUr || '' },
-                      isLegacy: true
+                      isLegacy: true,
+                      isClassAbsent: checkIfClassAbsent(adj.classId, adj.periodIndex)
                    });
                }
           }

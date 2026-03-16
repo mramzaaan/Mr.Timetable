@@ -34,8 +34,6 @@ interface SettingsPageProps {
   setNavDesign: (design: NavDesign) => void;
   navShape: NavShape;
   setNavShape: (shape: NavShape) => void;
-  navShowLabels: boolean;
-  setNavShowLabels: (show: boolean) => void;
   navBtnAlphaSelected: number;
   setNavBtnAlphaSelected: (val: number) => void;
   navBtnAlphaUnselected: number;
@@ -216,7 +214,7 @@ const ReportCard: React.FC<{
 };
 
 const SettingsPage: React.FC<SettingsPageProps> = ({
-  t, language, setLanguage, theme, setTheme, themeColors, onColorChange, onResetTheme, navDesign, setNavDesign, navShape, setNavShape, navShowLabels, setNavShowLabels, navBtnAlphaSelected, setNavBtnAlphaSelected, navBtnAlphaUnselected, setNavBtnAlphaUnselected, navBarAlpha, setNavBarAlpha, navBarColor, setNavBarColor, navAnimation, setNavAnimation, fontSize, setFontSize, appFont, setAppFont, schoolConfig, onUpdateSchoolConfig, classes, teachers, subjects, adjustments, leaveDetails, attendance
+  t, language, setLanguage, theme, setTheme, themeColors, onColorChange, onResetTheme, navDesign, setNavDesign, navShape, setNavShape, navBtnAlphaSelected, setNavBtnAlphaSelected, navBtnAlphaUnselected, setNavBtnAlphaUnselected, navBarAlpha, setNavBarAlpha, navBarColor, setNavBarColor, navAnimation, setNavAnimation, fontSize, setFontSize, appFont, setAppFont, schoolConfig, onUpdateSchoolConfig, classes, teachers, subjects, adjustments, leaveDetails, attendance
 }) => {
   const [isThemeOptionsOpen, setIsThemeOptionsOpen] = useState(false); 
   const [isInterfaceOptionsOpen, setIsInterfaceOptionsOpen] = useState(false);
