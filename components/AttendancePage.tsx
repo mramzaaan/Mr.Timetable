@@ -222,23 +222,23 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
         <div className="w-16 h-1 bg-indigo-500 mx-auto opacity-80 rounded-full"></div>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-gray-200 shadow-2xl p-8 sm:p-12 mb-10 flex flex-col items-center gap-8">
-        <div className="flex flex-wrap items-center justify-center gap-10 w-full">
-            <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-black uppercase text-gray-400 px-1 tracking-widest text-center">SELECT DATE</label>
+      <div className="bg-[var(--bg-secondary)] rounded-[2rem] border border-[var(--border-primary)] shadow-2xl p-6 sm:p-8 lg:p-12 mb-10 flex flex-col items-center gap-8">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 w-full">
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
+            <label className="text-[11px] font-black uppercase text-[var(--text-secondary)] px-1 tracking-widest text-center">SELECT DATE</label>
             <input 
                 type="date" 
                 value={selectedDate} 
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-6 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-bold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all"
+                className="w-full sm:w-auto px-6 py-3 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl text-[var(--text-primary)] font-bold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all cursor-pointer"
             />
             </div>
-            <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-black uppercase text-gray-400 px-1 tracking-widest text-center">SELECT A CLASS</label>
+            <div className="flex flex-col gap-2 w-full sm:w-auto">
+            <label className="text-[11px] font-black uppercase text-[var(--text-secondary)] px-1 tracking-widest text-center">SELECT A CLASS</label>
             <select 
                 value={selectedClassId || ''} 
                 onChange={(e) => setSelectedClassId(e.target.value)}
-                className="px-6 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-bold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all min-w-[240px]"
+                className="w-full sm:w-auto px-6 py-3 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl text-[var(--text-primary)] font-bold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all min-w-[240px] cursor-pointer"
             >
                 {visibleClasses.map(c => (
                 <option key={c.id} value={c.id}>{c.nameEn} / {c.nameUr}</option>
@@ -247,18 +247,18 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
             </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap justify-center">
             <button 
                 onClick={handleDownloadJson}
                 title={t.downloadAttendanceJson}
-                className="p-4 bg-gray-100 text-gray-600 border border-gray-200 rounded-2xl shadow-md hover:bg-gray-200 transition-all hover:scale-105 active:scale-95"
+                className="p-4 bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-secondary)] rounded-2xl shadow-md hover:bg-[var(--bg-secondary)] transition-all hover:scale-105 active:scale-95"
             >
                 <DownloadIcon />
             </button>
             <button 
                 onClick={() => fileInputRef.current?.click()}
                 title={t.uploadAttendanceJson}
-                className="p-4 bg-gray-100 text-gray-600 border border-gray-200 rounded-2xl shadow-md hover:bg-gray-200 transition-all hover:scale-105 active:scale-95"
+                className="p-4 bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-secondary)] rounded-2xl shadow-md hover:bg-[var(--bg-secondary)] transition-all hover:scale-105 active:scale-95"
             >
                 <UploadIcon />
                 <input type="file" ref={fileInputRef} onChange={handleUploadJson} accept=".json" className="hidden" />

@@ -496,7 +496,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   const isSelectionActive = !!(draggedData || moveSource);
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8 pt-24 sm:pt-28">
       {selectedClass && (<PrintPreview t={t} isOpen={isPrintPreviewOpen} onClose={() => setIsPrintPreviewOpen(false)} title={`${t.classTimetable}: ${selectedClass.nameEn}`} fileNameBase={`Timetable_${selectedClass.nameEn.replace(' ', '_')}`} generateHtml={(lang, options) => generateClassTimetableHtml(selectedClass, lang, options, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} onSaveDesign={handleSavePrintDesign} />)}
       {selectedClass && <CopyTimetableModal t={t} isOpen={isCopyModalOpen} onClose={() => setIsCopyModalOpen(false)} classes={visibleClasses} subjects={subjects} teachers={teachers} onUpdateClass={(updatedClass) => { const newClasses = classes.map(c => c.id === updatedClass.id ? updatedClass : c); onSetClasses(newClasses); }} sourceClassId={selectedClass.id} />}
       {selectedClass && (<ClassCommunicationModal t={t} isOpen={isCommModalOpen} onClose={() => setIsCommModalOpen(false)} selectedClass={selectedClass} inChargeTeacher={teachers.find(t => t.id === selectedClass.inCharge)!} subjects={subjects} teachers={teachers} schoolConfig={schoolConfig} subjectColorMap={teacherColorMap} />)}
@@ -511,7 +511,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
              <button 
                  onClick={handlePreviousClass} 
                  disabled={currentClassIndex <= 0}
-                 className="w-12 h-12 rounded-full bg-[var(--bg-secondary)] shadow-sm border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-30 transition-all flex items-center justify-center"
+                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--bg-secondary)] shadow-sm border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-30 transition-all flex items-center justify-center"
              >
                  <ChevronLeftIcon />
              </button>
@@ -520,27 +520,27 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
              <div className="relative z-20" ref={classDropdownRef}>
                  <button
                      onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}
-                     className="flex items-center gap-4 bg-[var(--bg-secondary)] rounded-full pl-2 pr-6 py-2 shadow-md border border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:shadow-lg transition-all min-w-[260px] sm:min-w-[300px]"
+                     className="flex items-center gap-2 sm:gap-4 bg-[var(--bg-secondary)] rounded-full pl-2 pr-4 sm:pr-6 py-2 shadow-md border border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:shadow-lg transition-all min-w-[200px] sm:min-w-[300px]"
                  >
                      {selectedClass ? (
                          <>
                              {/* Serial Circle */}
-                             <div className="w-10 h-10 rounded-full bg-[var(--accent-primary)] text-white flex items-center justify-center font-bold text-lg shadow-sm flex-shrink-0">
+                             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--accent-primary)] text-white flex items-center justify-center font-bold text-sm sm:text-lg shadow-sm flex-shrink-0">
                                  {selectedClass.serialNumber ?? '-'}
                              </div>
                              
                              {/* Text Stack */}
                              <div className="flex flex-col items-start mr-auto overflow-hidden">
-                                 <span className="font-black text-lg text-[var(--text-primary)] leading-none truncate w-full text-left">
+                                 <span className="font-black text-sm sm:text-lg text-[var(--text-primary)] leading-none truncate w-full text-left">
                                      {language === 'ur' ? selectedClass.nameUr : selectedClass.nameEn}
                                  </span>
-                                 <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-0.5 truncate w-full text-left">
+                                 <span className="text-[8px] sm:text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-0.5 truncate w-full text-left">
                                      {selectedClass.roomNumber ? `ROOM ${selectedClass.roomNumber}` : 'NO ROOM'}
                                  </span>
                              </div>
                          </>
                      ) : (
-                         <span className="text-[var(--text-secondary)] font-medium pl-4">{t.selectAClass}</span>
+                         <span className="text-[var(--text-secondary)] font-medium pl-4 text-sm sm:text-base">{t.selectAClass}</span>
                      )}
                      
                      <div className="text-[var(--text-secondary)]">
@@ -613,8 +613,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                          className={`w-full text-left px-3 py-2.5 rounded-lg text-sm flex items-center gap-3 transition-colors ${selectedClassId === c.id ? 'bg-[var(--accent-secondary)] text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]' : 'hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
                                      >
                                          <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-0.5 rounded ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/10' : 'bg-[var(--bg-primary)]'}`}>#{c.serialNumber ?? '-'}</span>
-                                         <span className="font-bold flex-grow text-base break-words text-left leading-tight">{language === 'ur' ? c.nameUr : c.nameEn}</span>
-                                         {c.roomNumber && <span className={`text-[10px] opacity-70 whitespace-nowrap px-1.5 py-0.5 rounded border border-[var(--border-secondary)] ${selectedClassId === c.id ? 'bg-white/50 text-[var(--accent-primary)]' : 'bg-[var(--bg-secondary)]'}`}>Rm {c.roomNumber}</span>}
+                                         <span className="font-bold flex-grow text-sm sm:text-base break-words text-left leading-tight">{language === 'ur' ? c.nameUr : c.nameEn}</span>
+                                         {c.roomNumber && <span className={`text-[8px] sm:text-[10px] opacity-70 whitespace-nowrap px-1.5 py-0.5 rounded border border-[var(--border-secondary)] ${selectedClassId === c.id ? 'bg-white/50 text-[var(--accent-primary)]' : 'bg-[var(--bg-secondary)]'}`}>Rm {c.roomNumber}</span>}
                                          {selectedClassId === c.id && <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] flex-shrink-0"></div>}
                                      </button>
                                  ))
@@ -628,26 +628,26 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
              <button 
                  onClick={handleNextClass} 
                  disabled={currentClassIndex >= sortedClasses.length - 1}
-                 className="w-12 h-12 rounded-full bg-[var(--bg-secondary)] shadow-sm border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-30 transition-all flex items-center justify-center"
+                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--bg-secondary)] shadow-sm border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-30 transition-all flex items-center justify-center"
              >
                  <ChevronRightIcon />
              </button>
         </div>
         
         {/* Action Buttons */}
-        <div className="flex items-center gap-3 flex-wrap justify-center">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
             {onUndo && (
-              <button onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><UndoIcon /></button>
+              <button onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" className="p-2 sm:p-2.5 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><UndoIcon /></button>
             )}
             {onRedo && (
-              <button onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><RedoIcon /></button>
+              <button onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)" className="p-2 sm:p-2.5 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><RedoIcon /></button>
             )}
             {onSave && (
-              <button onClick={onSave} title="Save (Ctrl+S)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] transition-colors"><SaveIcon /></button>
+              <button onClick={onSave} title="Save (Ctrl+S)" className="p-2 sm:p-2.5 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] transition-colors"><SaveIcon /></button>
             )}
             <div className="w-px h-6 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
-            <button onClick={() => setIsCopyModalOpen(true)} disabled={!selectedClass} className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 transition-colors" title={t.copyTimetable}><CopyIcon /></button>
-            <button onClick={() => selectedClass && onSetClasses(classes.map(c => c.id === selectedClass.id ? { ...c, timetable: { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [] } as any } : c))} disabled={!selectedClass} className="p-2 text-sm font-medium text-red-600 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-red-50 hover:border-red-200 disabled:opacity-50 transition-colors" title={t.clearTimetable}><ClearIcon /></button>
+            <button onClick={() => setIsCopyModalOpen(true)} disabled={!selectedClass} className="p-2 sm:p-2.5 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 transition-colors" title={t.copyTimetable}><CopyIcon /></button>
+            <button onClick={() => selectedClass && onSetClasses(classes.map(c => c.id === selectedClass.id ? { ...c, timetable: { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [] } as any } : c))} disabled={!selectedClass} className="p-2 sm:p-2.5 text-sm font-medium text-red-600 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-red-50 hover:border-red-200 disabled:opacity-50 transition-colors" title={t.clearTimetable}><ClearIcon /></button>
             <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><WhatsAppIcon /></button>
             <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedClass} className="p-2 text-sm font-medium bg-[var(--accent-primary)] text-[var(--accent-text)] border border-[var(--accent-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 transition-colors" title={t.printViewAction}><PrintIcon /></button>
         </div>
@@ -772,19 +772,19 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
           {/* Timetable Grid */}
           <div className={`transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto ${isLessonListOpen ? 'lg:w-3/4' : 'w-full'}`}>
             <div className="bg-[var(--bg-secondary)] shadow-lg rounded-lg overflow-hidden border border-[var(--border-primary)]" ref={tableRef}>
-              <table className="w-full text-center border-collapse table-fixed">
+              <table className="w-full text-center border-collapse table-fixed min-w-[600px]">
                 <thead>
                   <tr className="bg-[var(--accent-primary)] text-[var(--accent-text)]">
-                    <th className="border border-[var(--border-secondary)] p-2 w-12"></th>
+                    <th className="border border-[var(--border-secondary)] p-2 w-10 sm:w-12"></th>
                     {activeDays.map(day => (
-                      <th key={day} className="border border-[var(--border-secondary)] p-2 font-bold uppercase text-sm">{t[day.toLowerCase()]}</th>
+                      <th key={day} className="border border-[var(--border-secondary)] p-2 font-bold uppercase text-xs sm:text-sm">{t[day.toLowerCase()]}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {periodLabels.map((label, periodIndex) => (
                     <tr key={label}>
-                      <td className="border border-[var(--border-secondary)] font-black text-xl bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-sans">{label}</td>
+                      <td className="border border-[var(--border-secondary)] font-black text-lg sm:text-xl bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-sans">{label}</td>
                       {activeDays.map(day => {
                         const periodLimit = schoolConfig.daysConfig?.[day]?.periodCount ?? 8;
                         const isDisabled = periodIndex >= periodLimit;
@@ -831,7 +831,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
 
                         return (
                           <td key={day} 
-                            className={`timetable-slot border border-[var(--border-secondary)] h-16 p-1 align-top ${cellBackgroundClass} transition-colors duration-300 ${statusClass} ${isTarget ? 'hover:bg-[var(--accent-secondary)] cursor-pointer ring-inset ring-2 ring-[var(--accent-primary)]/30' : ''} relative group`}
+                            className={`timetable-slot border border-[var(--border-secondary)] h-16 sm:h-20 p-1 align-top ${cellBackgroundClass} transition-colors duration-300 ${statusClass} ${isTarget ? 'hover:bg-[var(--accent-secondary)] cursor-pointer ring-inset ring-2 ring-[var(--accent-primary)]/30' : ''} relative group`}
                             onDragOver={(e) => !isDisabled && handleDragOver(e)}
                             onDrop={(e) => !isDisabled && handleDrop(e, day, periodIndex)}
                             onClick={() => !isDisabled && moveSource && handleExecuteMove(day, periodIndex)}
@@ -840,11 +840,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                             {!isDisabled && teacherAvailabilityMap && (
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                                     {conflictText ? (
-                                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100/95 dark:bg-red-900/95 rounded-lg border-2 border-red-500/50 dark:border-red-400/50 shadow-md animate-pulse z-20 backdrop-blur-sm">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-700 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor">
+                                        <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-red-100/95 dark:bg-red-900/95 rounded-lg border-2 border-red-500/50 dark:border-red-400/50 shadow-md animate-pulse z-20 backdrop-blur-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-red-700 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                             </svg>
-                                            <span className="text-xs font-black text-red-800 dark:text-red-100 whitespace-nowrap">{conflictText}</span>
+                                            <span className="text-[10px] sm:text-xs font-black text-red-800 dark:text-red-100 whitespace-nowrap">{conflictText}</span>
                                         </div>
                                     ) : (
                                         // Only show 'Available' if slot is empty (no cards) and status is not 'here'
@@ -924,46 +924,46 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
 
       {/* History Section (Logs) */}
       {selectedClass && hasActiveSession && (
-        <div className={`mt-8 bg-[var(--bg-secondary)] rounded-2xl shadow-xl border border-[var(--border-primary)] overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[500px]' : 'max-h-16'}`}>
-            <div className="w-full flex items-center justify-between p-4 bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
-                <h3 className="text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
+        <div className={`mt-8 bg-[var(--bg-secondary)] rounded-2xl shadow-xl border border-[var(--border-primary)] overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[600px]' : 'max-h-16 sm:max-h-20'}`}>
+            <div className="w-full flex items-center justify-between p-4 sm:p-6 bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
+                <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)] flex items-center gap-2 sm:gap-3">
                     History / Logs
-                    <span className="bg-[var(--accent-primary)] text-white text-xs px-2 py-0.5 rounded-full">{classLogs.length}</span>
+                    <span className="bg-[var(--accent-primary)] text-white text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">{classLogs.length}</span>
                 </h3>
                 <div className={`text-[var(--text-secondary)] transform transition-transform duration-200 ${isHistoryExpanded ? 'rotate-180' : ''}`}>
                    <ChevronDownIcon /> 
                 </div>
             </div>
             
-            <div className="p-4 bg-[var(--bg-secondary)] overflow-y-auto custom-scrollbar max-h-[400px]">
+            <div className="p-4 sm:p-6 bg-[var(--bg-secondary)] overflow-y-auto custom-scrollbar max-h-[400px] sm:max-h-[500px]">
                 {classLogs.length === 0 ? (
-                    <div className="text-center py-8 opacity-50">
-                         <div className="mb-2 mx-auto w-12 h-12 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center">
+                    <div className="text-center py-8 sm:py-12 opacity-50">
+                         <div className="mb-2 sm:mb-4 mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center text-[var(--text-secondary)]">
                             <HistoryIcon />
                         </div>
-                        <p className="text-sm text-[var(--text-secondary)] font-medium">No recent changes.</p>
+                        <p className="text-sm sm:text-base text-[var(--text-secondary)] font-medium">No recent changes.</p>
                     </div>
                 ) : (
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 sm:space-y-3">
                         {classLogs.map((log) => (
-                            <li key={log.id} className={`p-3 rounded-xl border shadow-sm hover:shadow-md transition-all ${
+                            <li key={log.id} className={`p-3 sm:p-4 rounded-xl border shadow-sm hover:shadow-md transition-all ${
                                 log.type === 'delete' ? 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50' :
                                 log.type === 'add' ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50' :
                                 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/50'
                             }`}>
-                                <div className="flex justify-between items-center mb-1.5">
-                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                                    <span className={`text-[9px] sm:text-[10px] font-black px-2 sm:px-3 py-0.5 sm:py-1 rounded-full uppercase tracking-wider ${
                                         log.type === 'delete' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 
                                         log.type === 'add' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 
                                         'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                                     }`}>
                                         {log.type}
                                     </span>
-                                    <span className="text-[10px] font-bold opacity-50">
+                                    <span className="text-[10px] sm:text-xs font-bold opacity-50 text-[var(--text-secondary)]">
                                         {new Date(log.timestamp).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
-                                <p className="text-xs font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>
+                                <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>
                             </li>
                         ))}
                     </ul>

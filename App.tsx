@@ -11,7 +11,7 @@ import { AttendancePage } from './components/AttendancePage';
 import SettingsPage from './components/SettingsPage';
 import { generateUniqueId, allDays } from './types';
 import BottomNavBar from './components/BottomNavBar';
-import TopNavBar from './components/TopNavBar';
+import SideNavBar from './components/SideNavBar';
 import GlobalSearch from './components/GlobalSearch';
 import SchoolInfoModal from './components/SchoolInfoModal';
 
@@ -412,17 +412,17 @@ const App: React.FC = () => {
         <>
             <ConfirmationModal t={t} isOpen={confirmationState.isOpen} onClose={() => setConfirmationState(prev => ({ ...prev, isOpen: false }))} onConfirm={confirmationState.onConfirm} title={confirmationState.title} message={confirmationState.message} />
             <SchoolInfoModal t={t} isOpen={isSchoolInfoModalOpen} onClose={() => setIsSchoolInfoModalOpen(false)} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} />
-            <div className={`min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 ${currentPage !== 'home' ? 'pb-24 xl:pb-0' : ''}`}>
-                {currentPage !== 'home' && (
-                    <TopNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />
-                )}
-                <main className={`${currentPage === 'home' ? '!pt-0' : 'pt-6 xl:pt-28'}`}>
-                    {renderPage()}
-                </main>
-                
-                {currentPage !== 'home' && (
-                    <BottomNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} position="bottom" design={navDesign} shape={navShape} alphaSelected={navBtnAlphaSelected} alphaUnselected={navBtnAlphaUnselected} barAlpha={navBarAlpha} barColor={navBarColor} navAnimation={navAnimation} />
-                )}
+            <div className={`min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 flex`}>
+                <SideNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />
+                <div className={`flex-1 flex flex-col min-w-0 pb-24 xl:pb-0 xl:ml-64`}>
+                    <main className={`flex-1 ${currentPage === 'home' ? '!pt-0' : 'pt-6 xl:pt-8 px-4 xl:px-8'}`}>
+                        {renderPage()}
+                    </main>
+                    
+                    {currentPage !== 'home' && (
+                        <BottomNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} position="bottom" design={navDesign} shape={navShape} alphaSelected={navBtnAlphaSelected} alphaUnselected={navBtnAlphaUnselected} barAlpha={navBarAlpha} barColor={navBarColor} navAnimation={navAnimation} />
+                    )}
+                </div>
             </div>
         </>
     );

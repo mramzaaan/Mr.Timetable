@@ -1103,7 +1103,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                     placeholder="Search teachers..."
                                     value={teacherSearchQuery}
                                     onChange={(e) => setTeacherSearchQuery(e.target.value)}
-                                    className="w-full pl-10 pr-10 py-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
+                                    className="w-full pl-10 pr-10 py-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl text-sm sm:text-base text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
                                     autoFocus
                                 />
                                 {teacherSearchQuery && (
@@ -1131,20 +1131,20 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                                 setSortDirection('asc');
                                             }
                                         }}
-                                        className={`flex-1 text-[10px] font-bold uppercase py-1 rounded-md transition-colors flex items-center justify-center gap-1 ${teacherSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]'}`}
+                                        className={`flex-1 text-[10px] sm:text-xs font-bold uppercase py-1 rounded-md transition-colors flex items-center justify-center gap-1 ${teacherSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]'}`}
                                     >
                                         {key === 'serial' ? '#' : key.toUpperCase()}
                                         {teacherSortBy === key && (
-                                            <span className="text-[8px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                                            <span className="text-[8px] sm:text-[10px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                                         )}
                                     </button>
                                 ))}
                             </div>
 
                             {/* List */}
-                            <div className="max-h-60 overflow-y-auto custom-scrollbar flex flex-col gap-1">
+                            <div className="max-h-60 sm:max-h-80 overflow-y-auto custom-scrollbar flex flex-col gap-1">
                                 {sortedTeachers.length === 0 ? (
-                                    <div className="p-3 text-center text-xs text-[var(--text-secondary)] italic">No teachers found</div>
+                                    <div className="p-3 text-center text-xs sm:text-sm text-[var(--text-secondary)] italic">No teachers found</div>
                                 ) : (
                                     sortedTeachers.map(t => (
                                         <button
@@ -1179,19 +1179,19 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
         </div>
         
         {/* Centered Action Buttons */}
-        <div className="flex items-center justify-center gap-3 flex-wrap">
+        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
             {onUndo && (
-              <button onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><UndoIcon /></button>
+              <button onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" className="p-1.5 sm:p-2 text-xs sm:text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><UndoIcon /></button>
             )}
             {onRedo && (
-              <button onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><RedoIcon /></button>
+              <button onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)" className="p-1.5 sm:p-2 text-xs sm:text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><RedoIcon /></button>
             )}
             {onSave && (
-              <button onClick={onSave} title="Save (Ctrl+S)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] transition-colors"><SaveIcon /></button>
+              <button onClick={onSave} title="Save (Ctrl+S)" className="p-1.5 sm:p-2 text-xs sm:text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] transition-colors"><SaveIcon /></button>
             )}
             <div className="w-px h-6 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
-            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedTeacher} title={t.sendViaWhatsApp} className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><WhatsAppIcon /></button>
-            <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedTeacher} title={t.printViewAction} className="p-2 text-sm font-medium bg-[var(--accent-primary)] text-[var(--accent-text)] border border-[var(--accent-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><PrintIcon /></button>
+            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedTeacher} title={t.sendViaWhatsApp} className="p-1.5 sm:p-2 text-xs sm:text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><WhatsAppIcon /></button>
+            <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedTeacher} title={t.printViewAction} className="p-1.5 sm:p-2 text-xs sm:text-sm font-medium bg-[var(--accent-primary)] text-[var(--accent-text)] border border-[var(--accent-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><PrintIcon /></button>
         </div>
       </div>
 
@@ -1219,7 +1219,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
               {sidebarItems.length === 0 ? (
                 <p className="text-sm text-[var(--text-secondary)] italic">{t.dragAndDropInstruction}</p>
               ) : (
-                <div className="flex flex-col gap-2 max-h-[calc(100vh-350px)] overflow-y-auto pr-2 period-stack-clickable">
+                <div className="flex flex-col gap-2 max-h-[calc(100vh-350px)] overflow-y-auto pr-2 period-stack-clickable custom-scrollbar">
                   {sidebarItems.map((group, index) => {
                       const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                       const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
@@ -1251,19 +1251,19 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
           {/* Timetable Grid */}
           <div className="lg:w-3/4 overflow-x-auto">
             <div className="bg-[var(--bg-secondary)] shadow-lg rounded-lg overflow-hidden border border-[var(--border-primary)]">
-              <table className="w-full text-center border-collapse table-fixed">
+              <table className="w-full text-center border-collapse table-fixed min-w-[600px]">
                 <thead>
                   <tr className="bg-[var(--accent-primary)] text-[var(--accent-text)]">
-                    <th className="border border-[var(--border-secondary)] p-2 w-12"></th>
+                    <th className="border border-[var(--border-secondary)] p-2 w-10 sm:w-12"></th>
                     {activeDays.map(day => (
-                      <th key={day} className="border border-[var(--border-secondary)] p-2 font-bold uppercase text-sm">{t[day.toLowerCase()]}</th>
+                      <th key={day} className="border border-[var(--border-secondary)] p-2 font-bold uppercase text-xs sm:text-sm">{t[day.toLowerCase()]}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {periodLabels.map((label, periodIndex) => (
                     <tr key={label}>
-                      <td className="border border-[var(--border-secondary)] font-black text-xl bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-sans">{label}</td>
+                      <td className="border border-[var(--border-secondary)] font-black text-lg sm:text-xl bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-sans">{label}</td>
                       {activeDays.map(day => {
                         const periodLimit = schoolConfig.daysConfig?.[day]?.periodCount ?? 8;
                         const isDisabled = periodIndex >= periodLimit;
@@ -1307,7 +1307,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
 
                         return (
                           <td key={day} 
-                            className={`timetable-slot border border-[var(--border-secondary)] h-16 p-1 align-top ${isDisabled ? 'bg-[var(--slot-disabled-bg)] cursor-not-allowed' : 'bg-[var(--slot-available-bg)]'} transition-colors duration-300 ${statusClass} ${isTarget ? 'hover:bg-[var(--accent-secondary)] cursor-pointer ring-inset ring-2 ring-[var(--accent-primary)]/30' : ''} ${dragVisualClass} relative group`}
+                            className={`timetable-slot border border-[var(--border-secondary)] h-16 sm:h-20 p-1 align-top ${isDisabled ? 'bg-[var(--slot-disabled-bg)] cursor-not-allowed' : 'bg-[var(--slot-available-bg)]'} transition-colors duration-300 ${statusClass} ${isTarget ? 'hover:bg-[var(--accent-secondary)] cursor-pointer ring-inset ring-2 ring-[var(--accent-primary)]/30' : ''} ${dragVisualClass} relative group`}
                             onDragOver={(e) => !isDisabled && handleDragOver(e)}
                             onDragEnter={() => !isDisabled && handleDragEnter(day, periodIndex)}
                             onDragLeave={handleDragLeave}
@@ -1379,13 +1379,15 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
       {/* History Section (Moved Here) */}
       {selectedTeacher && hasActiveSession && (
         <div className="mt-8 bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] overflow-hidden">
-            <div className="w-full flex items-center justify-between p-4 bg-[var(--bg-tertiary)]/50 hover:bg-[var(--bg-tertiary)] transition-colors border-b border-[var(--border-primary)]">
+            <div className="w-full flex items-center justify-between p-4 sm:p-6 bg-[var(--bg-tertiary)]/50 hover:bg-[var(--bg-tertiary)] transition-colors border-b border-[var(--border-primary)]">
                 <button 
                     onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
-                    className="flex items-center gap-2 focus:outline-none flex-grow text-left"
+                    className="flex items-center gap-2 sm:gap-3 focus:outline-none flex-grow text-left"
                 >
-                    <HistoryIcon />
-                    <h3 className="text-lg font-bold text-[var(--text-primary)]">History / Logs</h3>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-secondary)] shadow-sm border border-[var(--border-secondary)]">
+                        <HistoryIcon />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)]">History / Logs</h3>
                     <div className={`text-[var(--text-secondary)] transform transition-transform duration-200 ${isHistoryExpanded ? 'rotate-180' : ''}`}>
                        <ChevronDownIcon /> 
                     </div>
@@ -1393,62 +1395,62 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                 {isHistoryExpanded && (
                     <button 
                         onClick={resetHistorySort}
-                        className="p-1.5 rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider border border-transparent hover:border-[var(--border-secondary)]"
+                        className="p-1.5 sm:px-3 sm:py-2 rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider border border-transparent hover:border-[var(--border-secondary)]"
                         title="Reset Sort to Date"
                     >
                         <SortIcon />
-                        Reset Sort
+                        <span className="hidden sm:inline">Reset Sort</span>
                     </button>
                 )}
             </div>
             
             {isHistoryExpanded && (
-                <div className="p-4 bg-[var(--bg-secondary)]">
-                    <div className="flex space-x-1 bg-[var(--bg-tertiary)] p-1 rounded-lg mb-4 border border-[var(--border-secondary)] w-fit">
+                <div className="p-4 sm:p-6 bg-[var(--bg-secondary)]">
+                    <div className="flex space-x-1 sm:space-x-2 bg-[var(--bg-tertiary)] p-1 sm:p-1.5 rounded-lg mb-4 sm:mb-6 border border-[var(--border-secondary)] w-fit">
                         <button
                             onClick={() => setHistoryTab('timeline')}
-                            className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-colors ${historyTab === 'timeline' ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                            className={`px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-md transition-colors ${historyTab === 'timeline' ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                         >
                             Timeline
                         </button>
                         <button
                             onClick={() => setHistoryTab('attendance')}
-                            className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-colors ${historyTab === 'attendance' ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                            className={`px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-md transition-colors ${historyTab === 'attendance' ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                         >
                             Leaves & Subs
                         </button>
                     </div>
 
                     {historyTab === 'timeline' && (
-                        <div className="max-h-96 overflow-y-auto custom-scrollbar p-2">
+                        <div className="max-h-96 sm:max-h-[500px] overflow-y-auto custom-scrollbar p-2 sm:p-4">
                             {teacherLogs.length === 0 ? (
-                                <div className="text-center py-8 opacity-50">
-                                     <div className="mb-2 mx-auto w-12 h-12 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center">
+                                <div className="text-center py-8 sm:py-12 opacity-50">
+                                     <div className="mb-2 sm:mb-4 mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center text-[var(--text-secondary)]">
                                         <HistoryIcon />
                                     </div>
-                                    <p className="text-sm text-[var(--text-secondary)] font-medium">No recent changes.</p>
+                                    <p className="text-sm sm:text-base text-[var(--text-secondary)] font-medium">No recent changes.</p>
                                 </div>
                             ) : (
-                                <ul className="space-y-2">
+                                <ul className="space-y-2 sm:space-y-3">
                                     {teacherLogs.map((log) => (
-                                        <li key={log.id} className={`p-3 rounded-xl border shadow-sm hover:shadow-md transition-all ${
+                                        <li key={log.id} className={`p-3 sm:p-4 rounded-xl border shadow-sm hover:shadow-md transition-all ${
                                             log.type === 'delete' ? 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50' :
                                             log.type === 'add' ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50' :
                                             'bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/50'
                                         }`}>
-                                            <div className="flex justify-between items-center mb-1.5">
-                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                            <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                                                <span className={`text-[9px] sm:text-[10px] font-black px-2 sm:px-3 py-0.5 sm:py-1 rounded-full uppercase tracking-wider ${
                                                     log.type === 'delete' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 
                                                     log.type === 'add' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 
                                                     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                                                 }`}>
                                                     {log.type}
                                                 </span>
-                                                <span className="text-[10px] font-bold opacity-50 text-[var(--text-secondary)]">
+                                                <span className="text-[10px] sm:text-xs font-bold opacity-50 text-[var(--text-secondary)]">
                                                     {new Date(log.timestamp).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
-                                            <p className="text-xs font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>
+                                            <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>
                                         </li>
                                     ))}
                                 </ul>
@@ -1459,37 +1461,37 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                     {historyTab === 'attendance' && (
                         <div className="space-y-8">
                             {(sortedHistory.leaves.length === 0 && sortedHistory.substitutions.length === 0) ? (
-                                <p className="text-sm text-[var(--text-secondary)] italic text-center py-4">No attendance records found.</p>
+                                <p className="text-sm sm:text-base text-[var(--text-secondary)] italic text-center py-4 sm:py-8">No attendance records found.</p>
                             ) : (
                                 <>
                                 {sortedHistory.leaves.length > 0 && (
                                     <div>
-                                        <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-3 border-b-2 border-red-200 pb-1 flex items-center gap-2 text-red-600">
+                                        <h4 className="text-xs sm:text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-3 sm:mb-4 border-b-2 border-red-200 pb-1 sm:pb-2 flex items-center gap-2 text-red-600">
                                             {t.leavesTaken || 'Leaves'} ({sortedHistory.leaves.length})
                                         </h4>
                                         <div className="overflow-x-auto rounded-lg border border-[var(--border-secondary)]">
                                             <table className="w-full text-sm text-left">
-                                                <thead className="text-xs text-[var(--text-secondary)] uppercase bg-[var(--bg-tertiary)] border-b border-[var(--border-secondary)]">
+                                                <thead className="text-xs sm:text-sm text-[var(--text-secondary)] uppercase bg-[var(--bg-tertiary)] border-b border-[var(--border-secondary)]">
                                                     <tr>
-                                                        <th className="px-4 py-3 font-bold w-32 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors" onClick={() => handleSort('date')}>Date {historySortField === 'date' && (historySortOrder === 'asc' ? '↑' : '↓')}</th>
-                                                        <th className="px-4 py-3 font-bold w-24">Day</th>
-                                                        <th className="px-4 py-3 font-bold w-24 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors" onClick={() => handleSort('type')}>Type {historySortField === 'type' && (historySortOrder === 'asc' ? '↑' : '↓')}</th>
-                                                        <th className="px-4 py-3 font-bold">Details / Reason</th>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold w-32 sm:w-40 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors" onClick={() => handleSort('date')}>Date {historySortField === 'date' && (historySortOrder === 'asc' ? '↑' : '↓')}</th>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold w-24 sm:w-32">Day</th>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold w-24 sm:w-32 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors" onClick={() => handleSort('type')}>Type {historySortField === 'type' && (historySortOrder === 'asc' ? '↑' : '↓')}</th>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold">Details / Reason</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-[var(--border-secondary)]">
                                                     {sortedHistory.leaves.map((item, idx) => (
                                                         <tr key={`l-${idx}`} className="hover:bg-[var(--bg-tertiary)]/50 transition-colors">
-                                                            <td className="px-4 py-3 font-mono font-medium text-[var(--text-primary)]">
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4 font-mono font-medium text-[var(--text-primary)]">
                                                                 {new Date(item.date).toLocaleDateString()}
                                                             </td>
-                                                            <td className="px-4 py-3 text-[var(--text-secondary)]">{item.dayName}</td>
-                                                            <td className="px-4 py-3">
-                                                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border ${item.leaveType === 'full' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4 text-[var(--text-secondary)]">{item.dayName}</td>
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4">
+                                                                <span className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-bold uppercase border ${item.leaveType === 'full' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
                                                                     {item.leaveType === 'full' ? 'Full Day' : 'Half Day'}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-4 py-3 text-[var(--text-primary)]">
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4 text-[var(--text-primary)]">
                                                                 {item.leaveType === 'half' && <span className="font-bold text-[var(--text-secondary)] mr-2">From P{item.startPeriod}:</span>}
                                                                 {item.reason}
                                                             </td>
@@ -1503,23 +1505,23 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
 
                                 {sortedHistory.substitutions.length > 0 && (
                                     <div className="border-2 border-red-200 rounded-xl overflow-hidden shadow-sm">
-                                        <h4 className="text-sm font-bold text-red-700 uppercase tracking-wider px-4 py-2 bg-red-50 border-b border-red-100 flex items-center gap-2">
+                                        <h4 className="text-sm sm:text-base font-bold text-red-700 uppercase tracking-wider px-4 sm:px-6 py-2 sm:py-3 bg-red-50 border-b border-red-100 flex items-center gap-2">
                                             {t.substitution || 'Substitutions'} ({sortedHistory.substitutions.length})
                                         </h4>
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-sm text-left">
-                                                <thead className="text-xs text-[var(--text-secondary)] uppercase bg-[var(--bg-tertiary)] border-b border-[var(--border-secondary)]">
+                                                <thead className="text-xs sm:text-sm text-[var(--text-secondary)] uppercase bg-[var(--bg-tertiary)] border-b border-[var(--border-secondary)]">
                                                     <tr>
-                                                        <th className="px-4 py-3 font-bold w-32 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('date')}>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold w-32 sm:w-40 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('date')}>
                                                             Date {historySortField === 'date' && (historySortOrder === 'asc' ? '↑' : '↓')}
                                                         </th>
-                                                        <th className="px-4 py-3 font-bold w-16 text-center cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('period')}>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold w-16 sm:w-20 text-center cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('period')}>
                                                             Pd {historySortField === 'period' && (historySortOrder === 'asc' ? '↑' : '↓')}
                                                         </th>
-                                                        <th className="px-4 py-3 font-bold w-24 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('type')}>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold w-24 sm:w-32 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('type')}>
                                                             Type {historySortField === 'type' && (historySortOrder === 'asc' ? '↑' : '↓')}
                                                         </th>
-                                                        <th className="px-4 py-3 font-bold cursor-default">
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold cursor-default">
                                                             <div className="flex items-center gap-2">
                                                                 <span className="cursor-pointer hover:text-[var(--accent-primary)] flex items-center gap-1 select-none" onClick={() => handleSort('class')}>
                                                                     Class {historySortField === 'class' && (historySortOrder === 'asc' ? '↑' : '↓')}
@@ -1530,7 +1532,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                                                 </span>
                                                             </div>
                                                         </th>
-                                                        <th className="px-4 py-3 font-bold cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('teacher')}>
+                                                        <th className="px-4 sm:px-6 py-3 sm:py-4 font-bold cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('teacher')}>
                                                             Teacher {historySortField === 'teacher' && (historySortOrder === 'asc' ? '↑' : '↓')}
                                                         </th>
                                                     </tr>
@@ -1538,23 +1540,23 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                                 <tbody className="divide-y divide-[var(--border-secondary)]">
                                                     {sortedHistory.substitutions.map((item, idx) => (
                                                         <tr key={`s-${idx}`} className="hover:bg-[var(--bg-tertiary)]/50 transition-colors">
-                                                            <td className="px-4 py-3 font-mono font-medium text-[var(--text-primary)]">
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4 font-mono font-medium text-[var(--text-primary)]">
                                                                 {new Date(item.date).toLocaleDateString()}
-                                                                <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold">{item.dayName}</div>
+                                                                <div className="text-[10px] sm:text-xs text-[var(--text-secondary)] uppercase font-bold">{item.dayName}</div>
                                                             </td>
-                                                            <td className="px-4 py-3 text-center font-bold text-[var(--text-primary)] bg-[var(--bg-tertiary)]/30">{item.period}</td>
-                                                            <td className="px-4 py-3">
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4 text-center font-bold text-[var(--text-primary)] bg-[var(--bg-tertiary)]/30">{item.period}</td>
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4">
                                                                 {item.type === 'sub_given' ? (
-                                                                    <span className="px-2 py-1 rounded text-[10px] font-bold uppercase bg-orange-100 text-orange-700 border border-orange-200 whitespace-nowrap">Given ➔</span>
+                                                                    <span className="px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-bold uppercase bg-orange-100 text-orange-700 border border-orange-200 whitespace-nowrap">Given ➔</span>
                                                                 ) : (
-                                                                    <span className="px-2 py-1 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">Taken ⬅️</span>
+                                                                    <span className="px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[10px] sm:text-xs font-bold uppercase bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">Taken ⬅️</span>
                                                                 )}
                                                             </td>
-                                                            <td className="px-4 py-3">
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4">
                                                                 <div className="font-bold text-[var(--text-primary)]">{item.className}</div>
-                                                                <div className="text-xs text-[var(--text-secondary)]">{item.subjectName}</div>
+                                                                <div className="text-xs sm:text-sm text-[var(--text-secondary)]">{item.subjectName}</div>
                                                             </td>
-                                                            <td className="px-4 py-3 text-[var(--text-primary)] font-medium">
+                                                            <td className="px-4 sm:px-6 py-3 sm:py-4 text-[var(--text-primary)] font-medium">
                                                                 {item.teacherName}
                                                             </td>
                                                         </tr>

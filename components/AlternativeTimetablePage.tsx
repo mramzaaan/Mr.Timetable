@@ -1578,24 +1578,24 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
         )}
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-wrap">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)]">{t.dailyAdjustments}</h2>
-            <div className="flex items-center gap-2 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-secondary)] shadow-sm">
-                <input type="date" value={selectedDate} onChange={(e) => onSelectionChange(prev => ({ ...prev, date: e.target.value }))} className="bg-transparent border-none text-[var(--text-primary)] focus:ring-0 text-sm font-medium px-2 py-1 outline-none" />
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+            <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">{t.dailyAdjustments}</h2>
+            <div className="flex items-center gap-2 bg-[var(--bg-secondary)] p-1.5 sm:p-2 rounded-xl border border-[var(--border-secondary)] shadow-sm w-fit">
+                <input type="date" value={selectedDate} onChange={(e) => onSelectionChange(prev => ({ ...prev, date: e.target.value }))} className="bg-transparent border-none text-[var(--text-primary)] focus:ring-0 text-sm sm:text-base font-bold px-2 py-1 outline-none cursor-pointer" />
             </div>
         </div>
         
-        <div className="flex items-center gap-3 flex-wrap">
-            <button onClick={() => { setSelectedTeachersForSlip(absentTeachers.map(t => t.id)); setIsShareModalOpen(true); }} className="p-3 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Share Slips"><ShareIcon /></button>
-            <button onClick={() => setIsImportExportOpen(true)} className="p-3 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Import/Export Adjustments"><ImportExportIcon /></button>
-            <button onClick={() => setIsPrintPreviewOpen(true)} className="p-3 text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors border border-[var(--border-secondary)] shadow-sm" title={t.printViewAction}><PrintIcon /></button>
+        <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
+            <button onClick={() => { setSelectedTeachersForSlip(absentTeachers.map(t => t.id)); setIsShareModalOpen(true); }} className="p-2.5 sm:p-3 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Share Slips"><ShareIcon /></button>
+            <button onClick={() => setIsImportExportOpen(true)} className="p-2.5 sm:p-3 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Import/Export Adjustments"><ImportExportIcon /></button>
+            <button onClick={() => setIsPrintPreviewOpen(true)} className="p-2.5 sm:p-3 text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors border border-[var(--border-secondary)] shadow-sm" title={t.printViewAction}><PrintIcon /></button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-         <div className="mb-2">
-             <button onClick={() => openModal('teacher')} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
+      <div className="grid grid-cols-1 gap-6 sm:gap-8">
+         <div className="mb-2 sm:mb-4">
+             <button onClick={() => openModal('teacher')} className="w-full sm:w-auto sm:px-8 py-4 sm:py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-lg sm:text-base shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
                  <PlusIcon /> 
                  <span>{t.add || 'Add'} Absence</span>
              </button>
@@ -1603,7 +1603,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
          {dayOfWeek ? (
             allAbsentEntities.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 sm:space-y-6">
                 {allAbsentEntities.map(entity => {
                     const entityGroups = substitutionGroups.filter(g => g.absentEntity.id === entity.id);
                     const isExpanded = expandedTeacherIds.has(entity.id);
@@ -1612,28 +1612,28 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     return (
                         <div key={entity.id} className="animate-fade-in group">
                             <div 
-                                className={`w-full flex items-center justify-between p-3 bg-[var(--bg-secondary)] border-l-4 ${isClass ? 'border-l-blue-500' : 'border-l-red-500'} border border-gray-200 dark:border-gray-700 rounded-r-lg shadow-sm transition-all cursor-pointer hover:shadow-md mb-0.5`}
+                                className={`w-full flex items-center justify-between p-3 sm:p-4 bg-[var(--bg-secondary)] border-l-4 ${isClass ? 'border-l-blue-500' : 'border-l-red-500'} border border-gray-200 dark:border-gray-700 rounded-r-lg shadow-sm transition-all cursor-pointer hover:shadow-md mb-0.5`}
                                 onClick={() => toggleTeacherCollapse(entity.id)}
                             >
-                                <div className="flex items-center gap-3">
-                                    <h3 className={`text-sm font-black ${isClass ? 'text-blue-900 dark:text-blue-100' : 'text-red-900 dark:text-red-500'} uppercase tracking-tight ml-2`}>
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <h3 className={`text-sm sm:text-base font-black ${isClass ? 'text-blue-900 dark:text-blue-100' : 'text-red-900 dark:text-red-500'} uppercase tracking-tight ml-2`}>
                                         {getName(entity)}
-                                        {isClass && <span className="ml-2 text-xs opacity-60 font-medium normal-case">(Class Leave)</span>}
+                                        {isClass && <span className="ml-2 text-xs sm:text-sm opacity-60 font-medium normal-case">(Class Leave)</span>}
                                     </h3>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div className="flex items-center gap-1 opacity-100 transition-opacity">
+                                <div className="flex items-center gap-2 sm:gap-4">
+                                    <div className="flex items-center gap-1 sm:gap-2 opacity-100 transition-opacity">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); openModal(entity.type, entity.id); }} 
-                                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            className="p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                             title="Edit Leave"
                                         >
                                             <EditIcon />
                                         </button>
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleDeleteItem(entity.id, entity.type); }} 
-                                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                             title="Remove Leave / Clear Substitutions"
                                         >
                                             <TrashIcon />
@@ -1646,7 +1646,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                             </div>
 
                             {isExpanded && (
-                                <div className="p-4 bg-[var(--bg-tertiary)]/50 border-x border-b border-gray-200 dark:border-gray-700 rounded-b-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-scale-in mb-4">
+                                <div className="p-4 sm:p-6 bg-[var(--bg-tertiary)]/50 border-x border-b border-gray-200 dark:border-gray-700 rounded-b-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 animate-scale-in mb-4 sm:mb-6">
                                     {entityGroups.length === 0 ? (
                                         <div className="col-span-full text-center text-sm text-[var(--text-secondary)] italic py-2">
                                             No periods scheduled for this day.
