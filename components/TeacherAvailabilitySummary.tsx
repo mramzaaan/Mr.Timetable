@@ -42,7 +42,7 @@ const TeacherAvailabilitySummary: React.FC<TeacherAvailabilitySummaryProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. Daily Cards Row */}
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
         {allDays.map((day) => {
            const count = workloadStats.dailyCounts[day.toLowerCase()] || 0;
            const isToday = day === currentDayName;
@@ -53,16 +53,16 @@ const TeacherAvailabilitySummary: React.FC<TeacherAvailabilitySummaryProps> = ({
            return (
               <div 
                 key={day} 
-                className={`flex flex-col items-center justify-center py-3 rounded-xl border transition-all duration-300 ${
+                className={`flex flex-col items-center justify-center py-2 sm:py-3 rounded-xl border transition-all duration-300 ${
                     isToday 
                     ? 'bg-blue-500 text-white border-blue-500 shadow-lg scale-105 ring-2 ring-blue-200' 
                     : 'bg-white dark:bg-[#1e293b] text-[var(--text-primary)] border-[var(--border-secondary)] hover:border-blue-300'
                 }`}
               >
-                <span className={`text-[10px] uppercase font-bold tracking-wider mb-1 ${isToday ? 'text-blue-100' : 'text-[var(--text-secondary)]'}`}>
+                <span className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider mb-0.5 sm:mb-1 ${isToday ? 'text-blue-100' : 'text-[var(--text-secondary)]'}`}>
                     {shortName}
                 </span>
-                <span className="text-2xl font-black leading-none">{count}</span>
+                <span className="text-xl sm:text-2xl font-black leading-none">{count}</span>
               </div>
            );
         })}

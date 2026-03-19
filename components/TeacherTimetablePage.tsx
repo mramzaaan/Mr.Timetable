@@ -77,10 +77,6 @@ type SortField = 'date' | 'period' | 'type' | 'class' | 'subject' | 'teacher';
 export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
   t, language, classes, subjects, teachers, jointPeriods, adjustments, leaveDetails, onSetClasses, schoolConfig, onUpdateSchoolConfig, selectedTeacherId, onSelectedTeacherChange, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, openConfirmation, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs
 }) => {
-  if (!hasActiveSession) {
-    return <NoSessionPlaceholder t={t} />;
-  }
-
   const [draggedData, setDraggedData] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const draggedDataRef = useRef<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const [moveSource, setMoveSource] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
@@ -992,6 +988,10 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
   };
 
   const isSelectionActive = !!(draggedData || moveSource);
+
+  if (!hasActiveSession) {
+    return <NoSessionPlaceholder t={t} />;
+  }
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
