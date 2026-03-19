@@ -245,7 +245,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div className="grid grid-cols-3 lg:grid-cols-2 gap-3 sm:gap-4">
                     <div className={inputRowClass}>
                         <label className={labelClass}>{t.totalStudents.toUpperCase()}</label>
                         <div className={valueContainerClass}>{classItem.studentCount}</div>
@@ -253,7 +253,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
 
                     <div className={inputRowClass}>
                         <label className={`${labelClass} text-emerald-600`}>{t.present.toUpperCase()}</label>
-                        <div className="w-full py-3 sm:py-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl sm:rounded-2xl text-emerald-700 dark:text-emerald-400 font-black text-center text-xl sm:text-2xl flex items-center justify-center">
+                        <div className="w-full py-3 sm:py-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl sm:rounded-2xl text-emerald-700 dark:text-emerald-400 font-black text-center text-xl sm:text-2xl">
                             {presentCount}
                         </div>
                     </div>
@@ -262,7 +262,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                         <label className={`${labelClass} text-red-600`}>{t.absent.toUpperCase()}</label>
                         <input 
                             type="number" 
-                            value={absent === 0 ? '' : absent} 
+                            value={absent || ''} 
                             onChange={(e) => setAbsent(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
                             className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-red-100 dark:border-red-900 rounded-xl sm:rounded-2xl text-red-700 dark:text-red-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-red-400 transition-all shadow-inner"
                         />
@@ -272,7 +272,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                         <label className={`${labelClass} text-amber-600`}>{t.sick.toUpperCase()}</label>
                         <input 
                             type="number" 
-                            value={sick === 0 ? '' : sick} 
+                            value={sick || ''} 
                             onChange={(e) => setSick(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
                             className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-amber-100 dark:border-amber-900 rounded-xl sm:rounded-2xl text-amber-700 dark:text-amber-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-amber-400 transition-all shadow-inner"
                         />
@@ -282,7 +282,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                         <label className={`${labelClass} text-blue-600`}>{t.leave.toUpperCase()}</label>
                         <input 
                             type="number" 
-                            value={leave === 0 ? '' : leave} 
+                            value={leave || ''} 
                             onChange={(e) => setLeave(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
                             className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-blue-100 dark:border-blue-900 rounded-xl sm:rounded-2xl text-blue-700 dark:text-blue-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-blue-400 transition-all shadow-inner"
                         />
