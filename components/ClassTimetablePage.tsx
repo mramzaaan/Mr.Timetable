@@ -69,6 +69,10 @@ const WhatsAppIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h
 const PrintIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2v4h10z" /></svg>;
 
 const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, classes, subjects, teachers, jointPeriods, adjustments, onSetClasses, schoolConfig, onUpdateSchoolConfig, selection, onSelectionChange, openConfirmation, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs }) => {
+  if (!hasActiveSession) {
+    return <NoSessionPlaceholder t={t} />;
+  }
+
   const { classId: selectedClassId, highlightedTeacherId } = selection;
   const [draggedData, setDraggedData] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const [moveSource, setMoveSource] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
@@ -78,7 +82,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   const [isCommModalOpen, setIsCommModalOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
-  const [isLessonListOpen, setIsLessonListOpen] = useState(true);
+  const [isLessonListOpen, setIsLessonListOpen] = useState(false);
   
   // Custom Dropdown State
   const [isClassDropdownOpen, setIsClassDropdownOpen] = useState(false);
@@ -491,10 +495,6 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
 
   const isSelectionActive = !!(draggedData || moveSource);
 
-  if (!hasActiveSession) {
-    return <NoSessionPlaceholder t={t} />;
-  }
-
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       {selectedClass && (<PrintPreview t={t} isOpen={isPrintPreviewOpen} onClose={() => setIsPrintPreviewOpen(false)} title={`${t.classTimetable}: ${selectedClass.nameEn}`} fileNameBase={`Timetable_${selectedClass.nameEn.replace(' ', '_')}`} generateHtml={(lang, options) => generateClassTimetableHtml(selectedClass, lang, options, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} onSaveDesign={handleSavePrintDesign} />)}
@@ -656,9 +656,121 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
       {!selectedClass ? (
         <p className="text-center text-[var(--text-secondary)] py-10">{t.selectAClass}</p>
       ) : (
-        <div className="relative flex flex-col gap-6 items-start w-full">
+        <div className="relative flex flex-col lg:flex-row gap-6 items-start">
+          
+          {/* Desktop Toggle Button (Visible when closed) */}
+          <button
+              onClick={() => setIsLessonListOpen(true)}
+              className={`
+                  hidden lg:flex absolute left-0 top-24 z-10 
+                  bg-[var(--accent-primary)] text-white 
+                  pl-1 pr-2 py-3 rounded-r-xl shadow-lg 
+                  hover:bg-[var(--accent-primary-hover)] hover:pr-3
+                  transition-all duration-300 items-center gap-2 
+                  ${isLessonListOpen ? 'opacity-0 -translate-x-full pointer-events-none' : 'opacity-100 translate-x-0'}
+              `}
+              title={t.unscheduledPeriods}
+              style={{ writingMode: 'vertical-lr' }}
+          >
+              <span className="rotate-180 text-xs font-bold uppercase tracking-widest whitespace-nowrap">{t.unscheduledPeriods}</span>
+              <ChevronRightIcon />
+          </button>
+
+          {/* Unscheduled Periods Sidebar Wrapper */}
+          <div className={`
+              w-full 
+              lg:transition-all lg:duration-500 lg:ease-[cubic-bezier(0.4,0,0.2,1)]
+              ${isLessonListOpen ? 'lg:w-1/4' : 'lg:w-0'}
+              order-last lg:order-first lg:overflow-hidden
+          `}>
+            {/* Mobile Toggle Button */}
+            <button
+                  onClick={() => setIsLessonListOpen(!isLessonListOpen)}
+                  className="lg:hidden w-full mb-4 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white p-4 rounded-xl shadow-lg flex items-center justify-between transform transition-transform active:scale-95"
+              >
+                  <div className="flex items-center gap-2">
+                      <span className="font-black text-lg tracking-wide">{t.unscheduledPeriods}</span>
+                      <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full font-bold">{Object.keys(groupedUnscheduled).length}</span>
+                  </div>
+                  {isLessonListOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </button>
+
+            {/* Sidebar Content */}
+            <div className={`
+                w-full 
+                lg:transition-all lg:duration-500 lg:ease-[cubic-bezier(0.4,0,0.2,1)]
+                ${isLessonListOpen ? 'lg:opacity-100 lg:translate-x-0' : 'lg:opacity-0 lg:-translate-x-4 lg:pointer-events-none'}
+                ${isLessonListOpen ? 'block' : 'hidden lg:block'}
+            `}>
+                <div className="w-full min-w-[280px]">
+                    <div 
+                        className={`bg-[var(--bg-secondary)] rounded-2xl shadow-xl border border-[var(--border-primary)] sticky top-24 transition-colors overflow-hidden ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'unscheduled-drop-target cursor-pointer ring-2 ring-red-400' : ''}`}
+                        onDragOver={handleDragOver}
+                        onDrop={handleSidebarDrop}
+                        onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
+                    >
+                    <div className="flex justify-between items-center p-4 bg-gradient-to-b from-[var(--bg-tertiary)]/50 to-transparent border-b border-[var(--border-secondary)]">
+                        <h3 className="text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
+                            {t.unscheduledPeriods}
+                            <span className="bg-[var(--accent-primary)] text-white text-xs px-2 py-0.5 rounded-full shadow-sm">{Object.keys(groupedUnscheduled).length}</span>
+                        </h3>
+                        <button onClick={() => setIsLessonListOpen(false)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1.5 rounded-full hover:bg-[var(--bg-tertiary)] transition-colors lg:block hidden">
+                            <ChevronLeftIcon />
+                        </button>
+                    </div>
+                    
+                    <div className="p-4 pt-2">
+                    {moveSource && moveSource.sourceDay && (
+                        <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center animate-pulse cursor-pointer">
+                            <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
+                        </div>
+                    )}
+
+                    {Object.keys(groupedUnscheduled).length === 0 ? (
+                        <div className="text-center py-8 opacity-50">
+                            <div className="mb-2 mx-auto w-12 h-12 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                            </div>
+                            <p className="text-sm text-[var(--text-secondary)] font-medium">{t.allLessonsScheduled}</p>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-3 max-h-[calc(100vh-250px)] overflow-y-auto pr-1 custom-scrollbar period-stack-clickable p-1">
+                        {Object.values(groupedUnscheduled).map((group, index) => {
+                            const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
+                            const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
+                            const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
+                            
+                            return (
+                                <div key={`unscheduled-${groupKey}-${index}`} className="transform transition-transform hover:scale-[1.02]">
+                                    <PeriodStack 
+                                        periods={group} 
+                                        onDragStart={handleDragStart} 
+                                        onDragEnd={handleDragEnd}
+                                        onClick={(p) => handleStackClick(p)}
+                                        colorName={teacherColorMap.get(group[0].teacherId)}
+                                        language={language}
+                                        subjects={subjects}
+                                        teachers={teachers}
+                                        classes={classes}
+                                        jointPeriods={jointPeriods}
+                                        displayContext="teacher"
+                                        jointPeriodName={jp?.name}
+                                        isSelected={!!isSelected}
+                                        className="w-full max-w-[180px] mx-auto shadow-sm hover:shadow-md"
+                                    />
+                                </div>
+                            );
+                        })}
+                        </div>
+                    )}
+                    </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+
           {/* Timetable Grid */}
-          <div className="w-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto">
+          <div className={`transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto ${isLessonListOpen ? 'lg:w-3/4' : 'w-full'}`}>
             <div className="bg-[var(--bg-secondary)] shadow-lg rounded-lg overflow-hidden border border-[var(--border-primary)]" ref={tableRef}>
               <table className="w-full text-center border-collapse table-fixed">
                 <thead>
@@ -785,79 +897,6 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
-
-          {/* Unscheduled Periods Wrapper */}
-          <div className="w-full">
-            <div 
-                className={`bg-[var(--bg-secondary)] rounded-2xl shadow-xl border border-[var(--border-primary)] transition-all duration-300 overflow-hidden ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'unscheduled-drop-target cursor-pointer ring-2 ring-red-400' : ''} ${isLessonListOpen ? 'max-h-[2000px]' : 'max-h-16'}`}
-                onDragOver={handleDragOver}
-                onDrop={handleSidebarDrop}
-                onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
-            >
-            <div 
-                className="flex justify-between items-center p-4 bg-gradient-to-b from-[var(--bg-tertiary)]/50 to-transparent border-b border-[var(--border-secondary)] cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors"
-                onClick={(e) => {
-                    // Prevent toggling if we are dropping something
-                    if (moveSource?.sourceDay) return;
-                    setIsLessonListOpen(!isLessonListOpen);
-                }}
-            >
-                <h3 className="text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
-                    {t.unscheduledPeriods}
-                    <span className="bg-[var(--accent-primary)] text-white text-xs px-2 py-0.5 rounded-full shadow-sm">{Object.keys(groupedUnscheduled).length}</span>
-                </h3>
-                <div className={`text-[var(--text-secondary)] transform transition-transform duration-200 ${isLessonListOpen ? 'rotate-180' : ''}`}>
-                   <ChevronDownIcon /> 
-                </div>
-            </div>
-            
-            <div className={`p-4 pt-2 transition-opacity duration-300 ${isLessonListOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            {moveSource && moveSource.sourceDay && (
-                <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center animate-pulse cursor-pointer">
-                    <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
-                </div>
-            )}
-
-            {Object.keys(groupedUnscheduled).length === 0 ? (
-                <div className="text-center py-8 opacity-50">
-                    <div className="mb-2 mx-auto w-12 h-12 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    </div>
-                    <p className="text-sm text-[var(--text-secondary)] font-medium">{t.allLessonsScheduled}</p>
-                </div>
-            ) : (
-                <div className="flex flex-wrap gap-3 max-h-[calc(100vh-250px)] overflow-y-auto pr-1 custom-scrollbar period-stack-clickable p-1">
-                {Object.values(groupedUnscheduled).map((group, index) => {
-                    const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
-                    const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
-                    const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
-                    
-                    return (
-                        <div key={`unscheduled-${groupKey}-${index}`} className="transform transition-transform hover:scale-[1.02]">
-                            <PeriodStack 
-                                periods={group} 
-                                onDragStart={handleDragStart} 
-                                onDragEnd={handleDragEnd}
-                                onClick={(p) => handleStackClick(p)}
-                                colorName={teacherColorMap.get(group[0].teacherId)}
-                                language={language}
-                                subjects={subjects}
-                                teachers={teachers}
-                                classes={classes}
-                                jointPeriods={jointPeriods}
-                                displayContext="teacher"
-                                jointPeriodName={jp?.name}
-                                isSelected={!!isSelected}
-                                className="w-full min-w-[180px] max-w-[220px] shadow-sm hover:shadow-md"
-                            />
-                        </div>
-                    );
-                })}
-                </div>
-            )}
-            </div>
             </div>
           </div>
         </div>

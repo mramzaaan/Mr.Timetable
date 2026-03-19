@@ -121,7 +121,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
     return (
         <button
           onClick={() => onTabChange(tabName)}
-          className={`flex items-center justify-center px-4 sm:px-8 py-2.5 text-xs sm:text-sm font-bold rounded-full transition-all duration-200 whitespace-nowrap min-w-[80px] sm:min-w-[100px] ${
+          className={`flex items-center justify-center px-8 py-2.5 text-sm font-bold rounded-full transition-all duration-200 whitespace-nowrap min-w-[100px] ${
             isActive
               ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5'
               : 'text-slate-500 hover:text-slate-700'
@@ -133,7 +133,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 pt-24 sm:pt-28">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       <CsvManagementModal
         t={t}
         isOpen={isCsvModalOpen}
@@ -143,36 +143,34 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
       />
       
       <div className="max-w-[1600px] mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-            <div>
-                <h2 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] uppercase tracking-tighter">DATA ENTRY</h2>
-                <p className="text-[var(--text-secondary)] font-bold text-xs sm:text-sm uppercase tracking-widest mt-1 opacity-70">Manage school infrastructure</p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-4">
-                 <button 
-                    onClick={() => setIsCsvModalOpen(true)} 
-                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#10b981] text-white rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all group"
-                 >
-                    <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
-                        <TransferIcon />
-                    </div>
-                    <span className="font-bold text-xs sm:text-sm uppercase tracking-wide">{t.importExport}</span>
-                 </button>
-                 <button 
-                    onClick={onOpenSchoolInfo} 
-                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#f59e0b] text-white rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all group"
-                 >
-                    <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
-                        <SchoolIcon />
-                    </div>
-                    <span className="font-bold text-xs sm:text-sm uppercase tracking-wide">School Info</span>
-                 </button>
-            </div>
+        <div className="mb-8">
+            <h2 className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tighter">DATA ENTRY</h2>
+            <p className="text-[var(--text-secondary)] font-bold text-xs uppercase tracking-widest mt-1 opacity-70">Manage school infrastructure</p>
         </div>
 
-        <div className="flex justify-start md:justify-center mb-8 overflow-x-auto no-scrollbar pb-2">
-            <div className="inline-flex bg-slate-100 p-1.5 rounded-full shadow-inner flex-nowrap">
+        <div className="grid grid-cols-2 gap-4 mb-8">
+             <button 
+                onClick={() => setIsCsvModalOpen(true)} 
+                className="flex items-center justify-center gap-2 px-4 py-4 bg-[#10b981] text-white rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+             >
+                <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
+                    <TransferIcon />
+                </div>
+                <span className="font-bold text-sm uppercase tracking-wide">{t.importExport}</span>
+             </button>
+             <button 
+                onClick={onOpenSchoolInfo} 
+                className="flex items-center justify-center gap-2 px-4 py-4 bg-[#f59e0b] text-white rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+             >
+                <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
+                    <SchoolIcon />
+                </div>
+                <span className="font-bold text-sm uppercase tracking-wide">School Info</span>
+             </button>
+        </div>
+
+        <div className="flex justify-center mb-8">
+            <div className="inline-flex bg-slate-100 p-1.5 rounded-full shadow-inner">
                 <TabButton tabName="teacher" label={t.teacher} />
                 <TabButton tabName="subject" label={t.subject} />
                 <TabButton tabName="class" label={t.class} />
@@ -180,7 +178,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
             </div>
         </div>
         
-        <div className="animate-fade-in bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 lg:p-8">{renderTabContent()}</div>
+        <div className="animate-fade-in">{renderTabContent()}</div>
       </div>
     </div>
   );

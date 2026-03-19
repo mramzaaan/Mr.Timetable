@@ -527,6 +527,10 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
     onSetLeaveDetails, onUpdateSession, schoolConfig, onUpdateSchoolConfig, selection, 
     onSelectionChange, openConfirmation, hasActiveSession, jointPeriods = [] 
 }) => {
+  if (!hasActiveSession) {
+    return <NoSessionPlaceholder t={t} />;
+  }
+
   const { date: selectedDate, teacherIds: absentTeacherIds } = selection;
   const [dailyAdjustments, setDailyAdjustments] = useState<Adjustment[]>([]);
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
@@ -1314,10 +1318,6 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
           });
       });
   };
-
-  if (!hasActiveSession) {
-    return <NoSessionPlaceholder t={t} />;
-  }
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">

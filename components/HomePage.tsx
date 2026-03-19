@@ -840,14 +840,14 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
 
       <div className="min-h-screen flex flex-col overflow-x-hidden">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-40 bg-transparent border-none shadow-none transition-all duration-300 xl:left-64">
+        <header className="fixed top-0 left-0 right-0 z-40 bg-transparent border-none shadow-none transition-all duration-300">
           <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none opacity-50"></div>
           <div className="container mx-auto px-4 py-3 flex justify-between items-center relative z-10">
-            <div className="flex items-center gap-3 xl:hidden">
+            <div className="flex items-center gap-3">
                {schoolConfig.schoolLogoBase64 && <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full shadow-lg border-2 border-white/20" />}
                <div className="flex flex-col justify-center"><span className="text-2xl font-black text-gray-900 dark:text-white leading-none tracking-tighter">Mr. Timetable</span><span className="text-[0.6rem] font-black text-indigo-500 uppercase tracking-widest leading-none mt-1">Timetable Management System</span></div>
             </div>
-            <div className="flex items-center gap-3 ml-auto">
+            <div className="flex items-center gap-3">
                 {currentTimetableSession && (
                     <button onClick={() => setIsSearchOpen(true)} className="p-3 text-gray-400 bg-white/20 dark:bg-white/5 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-white shadow-xl backdrop-blur-md border border-white/40 transition-all duration-300" title="Search"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></button>
                 )}
