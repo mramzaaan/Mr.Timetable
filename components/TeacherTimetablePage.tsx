@@ -77,10 +77,6 @@ type SortField = 'date' | 'period' | 'type' | 'class' | 'subject' | 'teacher';
 export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
   t, language, classes, subjects, teachers, jointPeriods, adjustments, leaveDetails, onSetClasses, schoolConfig, onUpdateSchoolConfig, selectedTeacherId, onSelectedTeacherChange, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, openConfirmation, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs
 }) => {
-  if (!hasActiveSession) {
-    return <NoSessionPlaceholder t={t} />;
-  }
-
   const [draggedData, setDraggedData] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const draggedDataRef = useRef<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const [moveSource, setMoveSource] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
@@ -993,6 +989,10 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
 
   const isSelectionActive = !!(draggedData || moveSource);
 
+  if (!hasActiveSession) {
+    return <NoSessionPlaceholder t={t} />;
+  }
+
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       {/* ... (Existing modals/components) */}
@@ -1198,58 +1198,12 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
       {!selectedTeacher || !teacherTimetableData ? (
         <p className="text-center text-[var(--text-secondary)] py-10">{t.selectATeacher}</p>
       ) : (
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Unscheduled Periods Sidebar */}
-          <div className="lg:w-1/4 space-y-6">
-            {/* Workload Summary Moved Here */}
-            <TeacherAvailabilitySummary t={t} workloadStats={workloadStats} maxWorkload={maxTeacherWorkload} />
-            
-            <div 
-                className={`bg-[var(--bg-secondary)] p-4 rounded-lg shadow-md border border-[var(--border-primary)] sticky top-24 transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'unscheduled-drop-target cursor-pointer' : ''}`}
-                onDragOver={handleDragOver}
-                onDrop={handleSidebarDrop}
-                onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
-            >
-              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-primary)] pb-2 flex justify-between items-center">
-                  {t.unscheduledPeriods}
-                  {moveSource && moveSource.sourceDay && (
-                      <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full animate-pulse">Click here to Unschedule</span>
-                  )}
-              </h3>
-              {sidebarItems.length === 0 ? (
-                <p className="text-sm text-[var(--text-secondary)] italic">{t.dragAndDropInstruction}</p>
-              ) : (
-                <div className="flex flex-col gap-2 max-h-[calc(100vh-350px)] overflow-y-auto pr-2 period-stack-clickable">
-                  {sidebarItems.map((group, index) => {
-                      const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
-                      const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
-                      
-                      return (
-                        <PeriodStack 
-                            key={`unscheduled-${index}`} 
-                            periods={group} 
-                            onDragStart={handleDragStart} 
-                            onDragEnd={handleDragEnd}
-                            onClick={(p) => handleStackClick(p)}
-                            colorName={getCombinationColor(group)}
-                            language={language}
-                            subjects={subjects}
-                            teachers={teachers}
-                            classes={classes}
-                            jointPeriods={jointPeriods}
-                            displayContext="class"
-                            jointPeriodName={jp?.name}
-                            isSelected={!!isSelected}
-                        />
-                      );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="flex flex-col gap-8">
+          {/* Workload Summary */}
+          <TeacherAvailabilitySummary t={t} workloadStats={workloadStats} maxWorkload={maxTeacherWorkload} />
 
           {/* Timetable Grid */}
-          <div className="lg:w-3/4 overflow-x-auto">
+          <div className="w-full overflow-x-auto">
             <div className="bg-[var(--bg-secondary)] shadow-lg rounded-lg overflow-hidden border border-[var(--border-primary)]">
               <table className="w-full text-center border-collapse table-fixed">
                 <thead>
@@ -1352,6 +1306,53 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
             </div>
             
             {/* History Section REMOVED FROM HERE */}
+          </div>
+
+          {/* Unscheduled Periods Sidebar */}
+          <div className="w-full space-y-6">
+            <div 
+                className={`bg-[var(--bg-secondary)] p-4 rounded-lg shadow-md border border-[var(--border-primary)] transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'unscheduled-drop-target cursor-pointer' : ''}`}
+                onDragOver={handleDragOver}
+                onDrop={handleSidebarDrop}
+                onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
+            >
+              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-primary)] pb-2 flex justify-between items-center">
+                  {t.unscheduledPeriods}
+                  {moveSource && moveSource.sourceDay && (
+                      <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full animate-pulse">Click here to Unschedule</span>
+                  )}
+              </h3>
+              {sidebarItems.length === 0 ? (
+                <p className="text-sm text-[var(--text-secondary)] italic">{t.dragAndDropInstruction}</p>
+              ) : (
+                <div className="flex flex-row flex-wrap gap-2 max-h-[300px] overflow-y-auto pr-2 period-stack-clickable">
+                  {sidebarItems.map((group, index) => {
+                      const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
+                      const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
+                      
+                      return (
+                        <PeriodStack 
+                            key={`unscheduled-${index}`}
+                            periods={group} 
+                            onDragStart={handleDragStart} 
+                            onDragEnd={handleDragEnd}
+                            onClick={(p) => handleStackClick(p)}
+                            colorName={getCombinationColor(group)}
+                            language={language}
+                            subjects={subjects}
+                            teachers={teachers}
+                            classes={classes}
+                            jointPeriods={jointPeriods}
+                            displayContext="class"
+                            jointPeriodName={jp?.name}
+                            isSelected={!!isSelected}
+                            className="w-48"
+                        />
+                      );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

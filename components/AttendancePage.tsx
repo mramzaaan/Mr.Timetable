@@ -49,21 +49,17 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
     }
   }, [visibleClasses, selectedClassId]);
 
-  if (!currentTimetableSession) {
-    return <NoSessionPlaceholder t={t} />;
-  }
-
   const selectedClass = visibleClasses.find(c => c.id === selectedClassId);
-  const attendanceRecord = currentTimetableSession.attendance?.[selectedDate]?.[selectedClassId || ''];
+  const attendanceRecord = currentTimetableSession?.attendance?.[selectedDate]?.[selectedClassId || ''];
 
   const vacationToday = useMemo(() => {
-    return currentTimetableSession.vacations?.find(v => {
+    return currentTimetableSession?.vacations?.find(v => {
         const start = new Date(v.startDate);
         const end = new Date(v.endDate);
         const current = new Date(selectedDate);
         return current >= start && current <= end;
     });
-  }, [selectedDate, currentTimetableSession.vacations]);
+  }, [selectedDate, currentTimetableSession?.vacations]);
 
   // Logic to determine who is submitting attendance
   const submitterInfo = useMemo(() => {
@@ -120,6 +116,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
   };
 
   const handleDownloadJson = () => {
+    if (!currentTimetableSession) return;
     const data = currentTimetableSession.attendance || {};
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -184,6 +181,10 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
   };
 
   const formattedDateForTitle = new Date(selectedDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  if (!currentTimetableSession) {
+    return <NoSessionPlaceholder t={t} />;
+  }
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">

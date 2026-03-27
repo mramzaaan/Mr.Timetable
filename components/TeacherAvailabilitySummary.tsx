@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { allDays } from '../types';
 import type { WorkloadStats } from './reportUtils';
 
@@ -16,12 +16,12 @@ const TeacherAvailabilitySummary: React.FC<TeacherAvailabilitySummaryProps> = ({
   const currentDayName = daysMap[currentDayIndex];
 
   // Animation state
-  const [animatedPercentage, setAnimatedPercentage] = React.useState(0);
+  const [animatedPercentage, setAnimatedPercentage] = useState(0);
 
   // Calculate percentage based on maxWorkload (highest teacher workload)
   const targetPercentage = Math.min(100, Math.round((workloadStats.weeklyPeriods / (maxWorkload || 1)) * 100));
   
-  React.useEffect(() => {
+  useEffect(() => {
     // Small delay to ensure transition triggers after mount
     const timer = setTimeout(() => {
         setAnimatedPercentage(targetPercentage);

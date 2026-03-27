@@ -367,9 +367,11 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                 if (!findIdByName(classes, row.className)) return { isValid: false, error: `Class '${row.className}' not found.` };
                 break;
             case 'timings':
-                if (!row.dayType || !row.type || !row.startTime || !row.endTime) return { isValid: false, error: "Missing: dayType, type, startTime, or endTime." };
+                if (!row.dayType || !row.type) return { isValid: false, error: "Missing: dayType or type." };
                 if (!['default', 'friday'].includes(row.dayType.toLowerCase())) return { isValid: false, error: "dayType must be 'default' or 'friday'." };
                 if (!['assembly', 'period', 'break'].includes(row.type.toLowerCase())) return { isValid: false, error: "type must be 'assembly', 'period', or 'break'." };
+                if (row.type.toLowerCase() === 'break' && !row.beforePeriod) return { isValid: false, error: "Missing: beforePeriod for break." };
+                if (row.type.toLowerCase() === 'break' && isNaN(parseInt(row.beforePeriod, 10))) return { isValid: false, error: "'beforePeriod' must be a number." };
                 break;
         }
         return { isValid: true };
@@ -634,16 +636,16 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                                 if (dt === 'default' || dt === 'friday') {
                                     const t = row.type.toLowerCase();
                                     if (t === 'assembly') {
-                                        newAssembly[dt] = { start: row.startTime, end: row.endTime };
+                                        newAssembly[dt] = { start: row.startTime || '', end: row.endTime || '' };
                                     } else if (t === 'period') {
-                                        newTimings[dt].push({ start: row.startTime, end: row.endTime, name: row.name });
+                                        newTimings[dt].push({ start: row.startTime || '', end: row.endTime || '', name: row.name || '' });
                                     } else if (t === 'break') {
                                         newBreaks[dt].push({ 
                                             id: generateUniqueId(), 
-                                            name: row.name, 
-                                            startTime: row.startTime, 
-                                            endTime: row.endTime, 
-                                            beforePeriod: parseInt(row.beforePeriod, 10) 
+                                            name: row.name || '', 
+                                            startTime: row.startTime || '', 
+                                            endTime: row.endTime || '', 
+                                            beforePeriod: parseInt(row.beforePeriod, 10) || 1
                                         });
                                     }
                                 }
