@@ -207,7 +207,8 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             background: #ffffff;
             padding: 30px;
             width: ${width}px;
-            height: ${height}px;
+            min-height: ${height}px;
+            height: auto;
             color: #000000;
             box-sizing: border-box;
             border: 2px solid ${themeColors.accent};
@@ -348,31 +349,30 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             background-color: transparent; 
             border: 1px solid ${themeColors.accent}; 
             vertical-align: top;
-            height: 1px;
           }
           
           .card-wrapper {
             display: flex;
             flex-direction: column;
             width: 100%;
-            height: 100%;
-            justify-content: center;
-            align-items: center;
+            min-height: 80px;
+            justify-content: stretch;
+            align-items: stretch;
           }
 
           .period-card-img { 
-            flex: 1;
             width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: stretch;
             text-align: center;
             overflow: hidden;
             ${cardStyleCss}
             position: relative;
-            padding: 6px;
+            padding: 8px;
             border-bottom: 1px solid ${themeColors.accent};
+            flex-grow: 1;
           }
           .period-card-img:last-child { border-bottom: none; }
 
@@ -381,7 +381,8 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             flex-direction: column;
             justify-content: space-between;
             width: 100%;
-            height: 100%;
+            flex-grow: 1;
+            min-height: 60px;
           }
 
           .period-subject { 
@@ -697,7 +698,6 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
   const generateAndGetBlob = async (): Promise<Blob | null> => {
     const size = 1200;
     const width = size;
-    const height = size;
 
     const tempContainer = document.createElement('div');
     Object.assign(tempContainer.style, {
@@ -705,10 +705,8 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
         left: '-9999px',
         top: '0',
         width: `${width}px`,
-        height: `${height}px`,
         backgroundColor: '#ffffff',
         zIndex: '-9999',
-        overflow: 'hidden'
     });
     tempContainer.innerHTML = generateTimetableImageHtml();
     document.body.appendChild(tempContainer);
@@ -718,15 +716,16 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
         await new Promise(resolve => setTimeout(resolve, 800));
 
         const targetElement = tempContainer.children[0] as HTMLElement;
+        const actualHeight = targetElement.offsetHeight;
         const canvas = await html2canvas(targetElement, { 
             scale: 2, 
             useCORS: true, 
             backgroundColor: '#ffffff',
             logging: false,
             width: width,
-            height: height,
+            height: actualHeight,
             windowWidth: width, 
-            windowHeight: height,
+            windowHeight: actualHeight,
             onclone: (clonedDoc: Document) => {
                 const style = clonedDoc.createElement('style');
                 style.innerHTML = `
