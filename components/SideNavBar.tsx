@@ -40,28 +40,31 @@ const NavButton: React.FC<{
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center w-full h-12 px-4 rounded-xl transition-all duration-300 focus:outline-none group ${isActive ? '' : 'hover:bg-[var(--bg-tertiary)]'}`}
+      className={`relative flex items-center justify-center h-10 px-3 rounded-xl transition-all duration-300 focus:outline-none group ${isActive ? '' : 'hover:bg-[var(--bg-tertiary)]'}`}
+      title={!isActive ? label : undefined}
     >
       {isActive && (
           <motion.div
-              layoutId="side-active-indicator"
+              layoutId="top-active-indicator"
               className={`absolute inset-0 ${color.bg} rounded-xl -z-10`}
               transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
           />
       )}
       
-      <div className="flex items-center z-10 w-full">
+      <div className="flex items-center z-10">
           <span 
               className={`transition-colors duration-300 flex-shrink-0 ${isActive ? 'text-white' : `${color.text} group-hover:opacity-80`}`}
           >
               {icon}
           </span>
           
-          <span 
-              className={`ml-4 text-sm font-medium whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-white font-bold' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`}
-          >
-              {label}
-          </span>
+          {isActive && (
+            <span 
+                className={`ml-2 text-sm font-bold whitespace-nowrap transition-colors duration-300 text-white`}
+            >
+                {label}
+            </span>
+          )}
       </div>
     </button>
   );
@@ -80,19 +83,19 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
   ];
 
   return (
-    <aside className="hidden xl:flex flex-col fixed top-0 left-0 bottom-0 w-64 z-40 bg-[var(--bg-secondary)] border-r border-[var(--border-secondary)] shadow-lg">
+    <header className="hidden xl:flex items-center justify-between fixed top-0 left-0 right-0 h-16 z-40 bg-[var(--bg-secondary)] border-b border-[var(--border-secondary)] shadow-sm px-6">
       {/* Logo Section */}
-      <div className="flex items-center gap-3 p-6 border-b border-[var(--border-secondary)]">
+      <div className="flex items-center gap-3">
           {schoolConfig.schoolLogoBase64 && (
-              <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full shadow-sm" />
+              <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-8 w-8 object-contain rounded-full shadow-sm" />
           )}
-          <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight line-clamp-2">
+          <h1 className="text-lg font-bold text-[var(--text-primary)] tracking-tight line-clamp-1">
               {schoolConfig.schoolNameEn || 'Timetable App'}
           </h1>
       </div>
 
       {/* Nav Items */}
-      <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-2">
+      <nav className="flex items-center gap-2">
           {navItems.map(item => {
               const isActive = currentPage === item.page;
               return (
@@ -106,15 +109,8 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
               />
               );
           })}
-      </div>
-      
-      {/* Footer Section (Optional) */}
-      <div className="p-4 border-t border-[var(--border-secondary)]">
-        <div className="text-xs text-[var(--text-secondary)] text-center">
-            &copy; {new Date().getFullYear()} Timetable App
-        </div>
-      </div>
-    </aside>
+      </nav>
+    </header>
   );
 };
 
