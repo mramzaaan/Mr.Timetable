@@ -205,16 +205,13 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           body { margin: 0; padding: 0; overflow: hidden; background: #fff; }
           .timetable-image-container {
             background: #ffffff;
-            padding: 30px;
+            padding: 30px 30px 80px 30px;
             width: ${width}px;
             min-height: ${height}px;
             height: auto;
             color: #000000;
             box-sizing: border-box;
             border: 2px solid ${themeColors.accent};
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
             position: relative;
           }
           
@@ -293,16 +290,13 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           .compact-val { color: #1e293b; font-weight: 900; font-size: 20px; }
 
           .img-table-wrapper {
-            flex-grow: 1;
             width: 100%;
             border: 2px solid ${themeColors.accent};
-            display: flex;
-            flex-direction: column;
+            margin-bottom: 20px;
           }
 
           .img-table { 
             width: 100%; 
-            height: 100%;
             border-collapse: collapse; 
             table-layout: fixed; 
           }
@@ -328,6 +322,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             font-weight: 900; 
             font-size: 70px;
             text-align: center;
+            vertical-align: middle;
             line-height: 1;
             border: 1px solid ${themeColors.accent};
             position: relative; 
@@ -349,73 +344,58 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             background-color: transparent; 
             border: 1px solid ${themeColors.accent}; 
             vertical-align: top;
+            height: 1px;
           }
           
           .card-wrapper {
             display: flex;
             flex-direction: column;
             width: 100%;
-            min-height: 80px;
-            justify-content: stretch;
-            align-items: stretch;
+            height: 100%;
           }
 
           .period-card-img { 
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: stretch;
+            flex-grow: 1;
+            min-height: 90px;
+            display: block;
             text-align: center;
             overflow: hidden;
             ${cardStyleCss}
             position: relative;
             padding: 8px;
             border-bottom: 1px solid ${themeColors.accent};
-            flex-grow: 1;
+            box-sizing: border-box;
           }
           .period-card-img:last-child { border-bottom: none; }
-
-          .period-content-spread {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 100%;
-            flex-grow: 1;
-            min-height: 60px;
-          }
 
           .period-subject { 
             display: block;
             font-weight: 900; 
-            font-size: 34px; /* Increased Size - Subject Top Left */
+            font-size: 28px;
             text-transform: none; 
             line-height: 1.1;
-            text-align: left; /* Top Left */
-            align-self: flex-start;
+            text-align: left;
             margin: 0;
             color: inherit;
             white-space: normal;
-            overflow: hidden;
-            width: fit-content;
-            max-width: 100%;
-            padding-left: 2px;
+            word-break: break-word;
           }
           .period-teacher { 
             display: block;
             font-weight: 800; 
             opacity: 0.95; 
-            font-size: 20px; /* Regular Size - Teacher Bottom Right */
+            font-size: 18px;
             line-height: 1.1;
-            white-space: normal; 
-            overflow: hidden; 
-            text-align: right; /* Bottom Right */
-            align-self: flex-end;
-            margin-top: auto;
+            text-align: right;
+            margin: 0;
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
             color: inherit;
-            width: fit-content;
-            max-width: 100%;
-            padding-right: 2px;
+            white-space: normal; 
+            word-break: break-word;
+            max-width: calc(100% - 16px);
           }
 
           .card-triangle {
@@ -459,10 +439,13 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           `).join('\n')}
 
           .footer-watermark {
+             position: absolute;
+             bottom: 30px;
+             left: 30px;
+             right: 30px;
              display: flex;
              justify-content: space-between;
              align-items: center;
-             margin-top: 10px; 
              font-size: 12px; 
              color: #000000; 
              font-weight: 700; 
@@ -533,10 +516,8 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                       <div class="period-card-img ${colorName}">
                           ${triangleHtml}
                           ${separatorHtml}
-                          <div class="period-content-spread">
-                              <p class="period-subject" style="${subjectBadgeStyle}">${subjectNames}</p>
-                              <p class="period-teacher" style="${teacherBadgeStyle}">${teacherNames}</p>
-                          </div>
+                          <p class="period-subject" style="${subjectBadgeStyle}">${subjectNames}</p>
+                          <p class="period-teacher" style="${teacherBadgeStyle}">${teacherNames}</p>
                       </div>
                   `;
                   
@@ -554,7 +535,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
               : '';
 
           let rowHtml = `<td class="period-label">
-              <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;">
+              <div>
                 <span>${r + 1}</span>
                 ${startTime ? `<span class="period-time-label">${startTime}</span>` : ''}
               </div>
@@ -701,7 +682,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
 
     const tempContainer = document.createElement('div');
     Object.assign(tempContainer.style, {
-        position: 'fixed',
+        position: 'absolute',
         left: '-9999px',
         top: '0',
         width: `${width}px`,
@@ -716,7 +697,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
         await new Promise(resolve => setTimeout(resolve, 800));
 
         const targetElement = tempContainer.children[0] as HTMLElement;
-        const actualHeight = targetElement.offsetHeight;
+        const actualHeight = targetElement.scrollHeight;
         const canvas = await html2canvas(targetElement, { 
             scale: 2, 
             useCORS: true, 

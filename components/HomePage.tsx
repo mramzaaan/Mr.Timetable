@@ -4,7 +4,6 @@ import type { Language, Page, TimetableSession, SchoolConfig, TimetableGridData,
 import TimetableSessionModal from './TimetableSessionModal';
 import GlobalSearch from './GlobalSearch';
 import PrintPreview from './PrintPreview';
-import CsvManagementModal from './CsvManagementModal';
 import { 
   generateBasicInformationHtml, 
   generateBasicInformationExcel, 
@@ -705,8 +704,6 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
       `}</style>
 
       <TimetableSessionModal t={t} isOpen={isSessionModalOpen} onClose={() => setIsSessionModalOpen(false)} session={editingSession} onCreate={onCreateTimetableSession} onUpdate={onUpdateTimetableSession} setFeedback={setFeedback} />
-      
-      <CsvManagementModal t={t} isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} currentTimetableSession={currentTimetableSession || null} onUpdateTimetableSession={onUpdateCurrentSession} />
 
       {isReportsModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setIsReportsModalOpen(false)}>

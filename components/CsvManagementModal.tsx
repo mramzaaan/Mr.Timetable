@@ -59,6 +59,8 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
   const [importAnalysis, setImportAnalysis] = useState<ImportAnalysis | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [skipErrors, setSkipErrors] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
 
   const resetUploadState = () => {
     setParsedData(null);
@@ -67,6 +69,8 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
     setImportAnalysis(null);
     setImportMode('replace');
     setShowErrors(false);
+    setSkipErrors(false);
+    setSelectedRows(new Set());
   };
 
   useEffect(() => {
@@ -78,6 +82,11 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
   useEffect(() => {
     if (parsedData) {
         analyzeData(parsedData, activeTab);
+        const initialSelected = new Set<number>();
+        parsedData.forEach((_, index) => {
+            initialSelected.add(index);
+        });
+        setSelectedRows(initialSelected);
     }
   }, [importMode, activeTab, parsedData]);
 
@@ -500,8 +509,20 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
     };
 
     const handleConfirmImport = (type: CsvDataType) => {
-        if (!parsedData || !currentTimetableSession || !importAnalysis || importAnalysis.errors.length > 0) {
-            setFeedback({ message: 'Cannot import due to errors or missing data.', type: 'error' });
+        if (!parsedData || !currentTimetableSession || !importAnalysis) {
+            setFeedback({ message: 'Cannot import due to missing data.', type: 'error' });
+            return;
+        }
+        
+        if (!skipErrors && importAnalysis.errors.length > 0) {
+            setFeedback({ message: 'Cannot import due to errors. Check "Skip rows with errors" to proceed anyway.', type: 'error' });
+            return;
+        }
+
+        const selectedValidRows = parsedData.filter((_, index) => selectedRows.has(index) && !importAnalysis.errors.some(e => e.rowIndex === index + 2));
+        
+        if (selectedValidRows.length === 0) {
+            setFeedback({ message: 'No valid rows selected for import.', type: 'error' });
             return;
         }
 
@@ -520,54 +541,59 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                         session[dataKey].forEach((item: any) => newDataSet.set(item.id, item));
                     }
             
-                    // Add new items
-                    importAnalysis.newItems.forEach(row => {
-                        const obj = convertRowToObject(row, type, session);
-                        newDataSet.set(obj.id, obj);
+                    // Add/Update selected items
+                    const existingDataMap = new Map<string, any>();
+                    session[dataKey].forEach((item: any) => {
+                        if (item.nameEn) existingDataMap.set(item.nameEn.toLowerCase(), item);
+                        if (item.nameUr) existingDataMap.set(item.nameUr.trim(), item);
+                        if (item.name) existingDataMap.set(item.name.toLowerCase(), item); 
                     });
-            
-                    // Update existing items
-                    importAnalysis.updatedItems.forEach(({ newItem, oldItem }) => {
-                        const converted = convertRowToObject(newItem, type, session);
-                        const obj = { ...oldItem, ...converted, id: oldItem.id };
+
+                    selectedValidRows.forEach(row => {
+                        const uniqueKey = (row.nameEn || row.name || '').toLowerCase();
+                        const existingItem = existingDataMap.get(uniqueKey) || (row.nameUr ? existingDataMap.get(row.nameUr.trim()) : undefined);
                         
-                        if (type === 'classes') {
-                            obj.subjects = oldItem.subjects;
-                            obj.timetable = oldItem.timetable;
-                            obj.groupSets = oldItem.groupSets;
+                        if (existingItem) {
+                            const converted = convertRowToObject(row, type, session);
+                            const obj = { ...existingItem, ...converted, id: existingItem.id };
+                            if (type === 'classes') {
+                                obj.subjects = existingItem.subjects;
+                                obj.timetable = existingItem.timetable;
+                                obj.groupSets = existingItem.groupSets;
+                            }
+                            newDataSet.set(obj.id, obj);
+                        } else {
+                            const obj = convertRowToObject(row, type, session);
+                            newDataSet.set(obj.id, obj);
                         }
-                        
-                        newDataSet.set(obj.id, obj);
                     });
             
                     updatedSession[dataKey] = Array.from(newDataSet.values());
                 } else { 
-                    const validRows = parsedData.filter((_, rowIndex) => !importAnalysis.errors.some(e => e.rowIndex === rowIndex + 2));
                     const { classes, subjects, teachers } = updatedSession;
 
                     switch (type) {
                         case 'lessons':
                             const classSubjectsMap = new Map<string, ClassSubject[]>();
-                            // Map existing group sets
-                            validRows.forEach(row => {
+                            const classesToUpdateLessons = new Set<string>();
+                            
+                            selectedValidRows.forEach(row => {
                                 const classId = findIdByName(classes, row.className);
                                 const subjectId = findIdByName(subjects, row.subjectName);
                                 const teacherId = findIdByName(teachers, row.teacherName); // optional allocation
                                 const periodsPerWeek = parseInt(row.periodsPerWeek, 10);
 
                                 if (classId && subjectId && !isNaN(periodsPerWeek)) {
+                                    classesToUpdateLessons.add(classId);
                                     if (!classSubjectsMap.has(classId)) classSubjectsMap.set(classId, []);
                                     
                                     let groupSetId: string | undefined;
                                     let groupId: string | undefined;
                                     
                                     if (row.groupSetName && row.groupName) {
-                                        // Logic to find/create group would go here if we were strict,
-                                        // but for simplicity, we rely on groups being imported first via 'groups' tab or existing structure.
-                                        // We will try to match existing structure in class.
-                                        const cls = classes.find(c => c.id === classId);
-                                        const gs = cls?.groupSets?.find(g => g.name === row.groupSetName);
-                                        const g = gs?.groups.find(g => g.name === row.groupName);
+                                        const cls = classes.find((c: any) => c.id === classId);
+                                        const gs = cls?.groupSets?.find((g: any) => g.name === row.groupSetName);
+                                        const g = gs?.groups.find((g: any) => g.name === row.groupName);
                                         if (gs) groupSetId = gs.id;
                                         if (g) groupId = g.id;
                                     }
@@ -576,15 +602,13 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                                 }
                             });
                             updatedSession.classes.forEach((c: SchoolClass) => { 
-                                // Replace allocating subjects
-                                if (classSubjectsMap.has(c.id)) {
+                                if (classesToUpdateLessons.has(c.id)) {
                                     c.subjects = classSubjectsMap.get(c.id) || [];
                                 }
                             });
                             break;
                         case 'groups':
-                            // Rebuild groups structure for classes
-                            validRows.forEach(row => {
+                            selectedValidRows.forEach(row => {
                                 const classId = findIdByName(classes, row.className);
                                 if (classId) {
                                     const cls = updatedSession.classes.find((c: any) => c.id === classId);
@@ -603,10 +627,20 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                             });
                             break;
                         case 'timetable':
-                            updatedSession.classes.forEach((c: SchoolClass) => c.timetable = createEmptyTimetable());
                             const classMap = new Map<string, SchoolClass>(updatedSession.classes.map((c: SchoolClass) => [c.id, c]));
+                            const classesToUpdateTimetable = new Set<string>();
                             
-                            validRows.forEach(row => {
+                            selectedValidRows.forEach(row => {
+                                const classId = findIdByName(classes, row.className);
+                                if (classId) classesToUpdateTimetable.add(classId);
+                            });
+                            
+                            classesToUpdateTimetable.forEach(classId => {
+                                const c = classMap.get(classId);
+                                if (c) c.timetable = createEmptyTimetable();
+                            });
+                            
+                            selectedValidRows.forEach(row => {
                                 const classId = findIdByName(classes, row.className);
                                 const subjectId = findIdByName(subjects, row.subjectName);
                                 const teacherId = findIdByName(teachers, row.teacherName);
@@ -626,12 +660,11 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                             });
                             break;
                         case 'timings':
-                            // Reset current session structure config
                             const newTimings: { default: PeriodTime[], friday: PeriodTime[] } = { default: [], friday: [] };
                             const newBreaks: { default: Break[], friday: Break[] } = { default: [], friday: [] };
                             const newAssembly: { default: PeriodTime | null, friday: PeriodTime | null } = { default: null, friday: null };
                             
-                            validRows.forEach(row => {
+                            selectedValidRows.forEach(row => {
                                 const dt = row.dayType.toLowerCase() as 'default' | 'friday';
                                 if (dt === 'default' || dt === 'friday') {
                                     const t = row.type.toLowerCase();
@@ -743,20 +776,40 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                                 <div className={importAnalysis.errors.length > 0 ? "text-red-600" : "text-gray-500"}><span className="font-bold">{importAnalysis.errors.length}</span> {t.errors}</div>
                             </div>
                             {importAnalysis.errors.length > 0 && (
-                                <div className="pt-2">
+                                <div className="pt-2 flex items-center justify-between">
                                     <button onClick={() => setShowErrors(!showErrors)} className="text-xs text-red-500 hover:underline flex items-center gap-1">
                                         {showErrors ? t.hideErrors : t.showErrors}
                                         <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 transition-transform ${showErrors ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                                     </button>
-                                    {showErrors && <ul className="mt-2 text-xs bg-red-50 p-2 rounded-md max-h-24 overflow-y-auto">{importAnalysis.errors.map(err => <li key={err.rowIndex}><strong>Row {err.rowIndex}:</strong> {err.message}</li>)}</ul>}
+                                    <label className="flex items-center gap-2 text-xs text-[var(--text-primary)] cursor-pointer">
+                                        <input type="checkbox" checked={skipErrors} onChange={e => setSkipErrors(e.target.checked)} className="rounded border-gray-300 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]" />
+                                        Skip rows with errors
+                                    </label>
                                 </div>
                             )}
+                            {showErrors && importAnalysis.errors.length > 0 && <ul className="mt-2 text-xs bg-red-50 p-2 rounded-md max-h-24 overflow-y-auto">{importAnalysis.errors.map(err => <li key={err.rowIndex}><strong>Row {err.rowIndex}:</strong> {err.message}</li>)}</ul>}
                         </div>
                     )}
                     
                     <div className="overflow-auto border border-[var(--border-primary)] rounded-lg max-h-80 relative">
                       <table className="w-full text-xs">
-                          <thead className="bg-[var(--bg-tertiary)] sticky top-0 z-10"><tr>{parsedData[0] && Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 text-left font-semibold text-[var(--text-secondary)]">{h}</th>)}</tr></thead>
+                          <thead className="bg-[var(--bg-tertiary)] sticky top-0 z-10">
+                            <tr>
+                              <th className="p-2 text-left w-8">
+                                <input type="checkbox" 
+                                  checked={selectedRows.size === parsedData.length && parsedData.length > 0} 
+                                  onChange={e => {
+                                    if (e.target.checked) {
+                                      setSelectedRows(new Set(parsedData.map((_, i) => i)));
+                                    } else {
+                                      setSelectedRows(new Set());
+                                    }
+                                  }} 
+                                />
+                              </th>
+                              {parsedData[0] && Object.keys(parsedData[0]).map(h => <th key={h} className="p-2 text-left font-semibold text-[var(--text-secondary)]">{h}</th>)}
+                            </tr>
+                          </thead>
                           <tbody className="divide-y divide-[var(--border-primary)]">
                             {parsedData.map((row, index) => {
                                 const error = importAnalysis?.errors.find(e => e.rowIndex === index + 2);
@@ -767,7 +820,22 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                                 else if (isNew) { statusClass = 'border-l-4 border-green-500'; } 
                                 else if (isUpdate) { statusClass = 'border-l-4 border-blue-500'; }
                                 const visibleKeys = parsedData[0] ? Object.keys(parsedData[0]) : [];
-                                return (<tr key={index} className={`${rowClass} ${textClass}`} title={error?.message}>{visibleKeys.map((key, i) => (<td key={i} className={`p-2 whitespace-nowrap ${i === 0 ? statusClass : ''} ${key.toLowerCase().includes('ur') ? 'font-urdu' : ''}`}>{row[key]}</td>))}</tr>);
+                                return (
+                                  <tr key={index} className={`${rowClass} ${textClass}`} title={error?.message}>
+                                    <td className={`p-2 ${statusClass}`}>
+                                      <input type="checkbox"
+                                        checked={selectedRows.has(index)}
+                                        onChange={e => {
+                                          const newSelected = new Set(selectedRows);
+                                          if (e.target.checked) newSelected.add(index);
+                                          else newSelected.delete(index);
+                                          setSelectedRows(newSelected);
+                                        }}
+                                      />
+                                    </td>
+                                    {visibleKeys.map((key, i) => (<td key={i} className={`p-2 whitespace-nowrap ${key.toLowerCase().includes('ur') ? 'font-urdu' : ''}`}>{row[key]}</td>))}
+                                  </tr>
+                                );
                             })}
                           </tbody>
                       </table>

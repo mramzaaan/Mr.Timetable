@@ -15,6 +15,8 @@ import SideNavBar from './components/SideNavBar';
 import GlobalSearch from './components/GlobalSearch';
 import SchoolInfoModal from './components/SchoolInfoModal';
 
+import CsvManagementModal from './components/CsvManagementModal';
+
 export type Theme = 'light' | 'dark' | 'mint' | 'amoled';
 
 // Great Theme Presets
@@ -273,6 +275,8 @@ const App: React.FC = () => {
     const [adjustmentsSelection, setAdjustmentsSelection] = useState<{ date: string; teacherIds: string[]; }>({ date: new Date().toISOString().split('T')[0], teacherIds: [] });
     const [confirmationState, setConfirmationState] = useState<{ isOpen: boolean; onConfirm: () => void; title: string; message: React.ReactNode; }>({ isOpen: false, onConfirm: () => {}, title: '', message: '' });
 
+    const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+
     const t = translations[language];
 
     useEffect(() => {
@@ -412,6 +416,18 @@ const App: React.FC = () => {
         <>
             <ConfirmationModal t={t} isOpen={confirmationState.isOpen} onClose={() => setConfirmationState(prev => ({ ...prev, isOpen: false }))} onConfirm={confirmationState.onConfirm} title={confirmationState.title} message={confirmationState.message} />
             <SchoolInfoModal t={t} isOpen={isSchoolInfoModalOpen} onClose={() => setIsSchoolInfoModalOpen(false)} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} />
+            <CsvManagementModal t={t} isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} currentTimetableSession={currentTimetableSession || null} onUpdateTimetableSession={updateCurrentSession} />
+            
+            <button
+                onClick={() => setIsCsvModalOpen(true)}
+                className="fixed bottom-24 right-6 xl:bottom-8 xl:right-8 z-50 bg-[var(--accent-primary)] text-white p-4 rounded-full shadow-2xl hover:bg-[var(--accent-primary-hover)] transition-transform hover:scale-110 flex items-center justify-center group"
+                title={t.openCsvManager || "Open CSV Manager"}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </button>
+
             <div className={`min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 flex`}>
                 <SideNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />
                 <div className={`flex-1 flex flex-col min-w-0 pb-24 xl:pb-0 xl:ml-64`}>

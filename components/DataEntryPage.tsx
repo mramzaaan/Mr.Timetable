@@ -6,7 +6,6 @@ import AddTeacherForm from './AddTeacherForm';
 import AddClassForm from './AddClassForm';
 import TimetableStructureForm from './TimetableStructureForm';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
-import CsvManagementModal from './CsvManagementModal';
 
 interface DataEntryPageProps {
   t: any;
@@ -134,13 +133,6 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 pt-24 sm:pt-28">
-      <CsvManagementModal
-        t={t}
-        isOpen={isCsvModalOpen}
-        onClose={() => setIsCsvModalOpen(false)}
-        currentTimetableSession={currentTimetableSession}
-        onUpdateTimetableSession={onUpdateTimetableSession}
-      />
       
       <div className="max-w-[1600px] mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
