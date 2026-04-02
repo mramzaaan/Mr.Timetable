@@ -539,7 +539,6 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<TimetableSession | null>(null);
   const [isSelectSessionModalOpen, setIsSelectSessionModalOpen] = useState(false);
-  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' | null }>({ message: '', type: null });
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);

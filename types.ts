@@ -1,7 +1,7 @@
 
 export type Language = 'en' | 'ur';
 export type Page = 'home' | 'classTimetable' | 'teacherTimetable' | 'alternativeTimetable' | 'attendance' | 'dataEntry' | 'settings';
-export type DataEntryTab = 'class' | 'teacher' | 'subject' | 'jointPeriods' | 'structure' | 'importExport' | 'school';
+export type DataEntryTab = 'class' | 'teacher' | 'subject' | 'jointPeriods' | 'structure' | 'school';
 
 export type NavPosition = 'top' | 'bottom';
 export type NavDesign = 'modern' | 'classic' | 'minimal' | '3d' | 'gradient' | 'outline' | 'crystal' | 'soft' | 'transparent';

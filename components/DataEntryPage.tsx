@@ -6,6 +6,7 @@ import AddTeacherForm from './AddTeacherForm';
 import AddClassForm from './AddClassForm';
 import TimetableStructureForm from './TimetableStructureForm';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
+import CsvManagementModal from './CsvManagementModal';
 
 interface DataEntryPageProps {
   t: any;
@@ -174,6 +175,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
         
         <div className="animate-fade-in bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 lg:p-8">{renderTabContent()}</div>
       </div>
+      <CsvManagementModal t={t} isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} currentTimetableSession={currentTimetableSession} onUpdateTimetableSession={onUpdateTimetableSession} />
     </div>
   );
 };
