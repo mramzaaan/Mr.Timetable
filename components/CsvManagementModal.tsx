@@ -55,7 +55,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' | null }>({ message: '', type: null });
   const [parsedData, setParsedData] = useState<Record<string, string>[] | null>(null);
   const [fileName, setFileName] = useState<string>('');
-  const [importMode, setImportMode] = useState<'replace' | 'append'>('replace');
+  const [importMode, setImportMode] = useState<'replace' | 'append'>('append');
   const [importAnalysis, setImportAnalysis] = useState<ImportAnalysis | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -67,7 +67,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
     setFileName('');
     setFeedback({ message: '', type: null });
     setImportAnalysis(null);
-    setImportMode('replace');
+    setImportMode('append');
     setShowErrors(false);
     setSkipErrors(false);
     setSelectedRows(new Set());
@@ -81,11 +81,20 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
   
   useEffect(() => {
     if (parsedData) {
-        analyzeData(parsedData, activeTab);
+        const analysis = analyzeData(parsedData, activeTab);
         const initialSelected = new Set<number>();
-        parsedData.forEach((_, index) => {
-            initialSelected.add(index);
-        });
+        if (analysis) {
+            parsedData.forEach((_, index) => {
+                const hasError = analysis.errors.some(e => e.rowIndex === index + 2);
+                if (!hasError) {
+                    initialSelected.add(index);
+                }
+            });
+        } else {
+            parsedData.forEach((_, index) => {
+                initialSelected.add(index);
+            });
+        }
         setSelectedRows(initialSelected);
     }
   }, [importMode, activeTab, parsedData]);
@@ -386,10 +395,10 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
         return { isValid: true };
     };
 
-    const analyzeData = (rows: Record<string, string>[], type: CsvDataType) => {
+    const analyzeData = (rows: Record<string, string>[], type: CsvDataType): ImportAnalysis | null => {
         if (!currentTimetableSession) {
             setImportAnalysis(null);
-            return;
+            return null;
         }
 
         const isEntity = ['subjects', 'teachers', 'classes', 'jointPeriods'].includes(type);
@@ -453,6 +462,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
             if (existingCount > 0) analysis.itemsToDelete = [{ count: existingCount }];
         }
         setImportAnalysis(analysis);
+        return analysis;
     };
 
     const processFile = async (file: File) => {
@@ -514,13 +524,14 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
             return;
         }
         
-        if (!skipErrors && importAnalysis.errors.length > 0) {
-            setFeedback({ message: 'Cannot import due to errors. Check "Skip rows with errors" to proceed anyway.', type: 'error' });
+        const selectedValidRows = parsedData.filter((_, index) => selectedRows.has(index) && !importAnalysis.errors.some(e => e.rowIndex === index + 2));
+        const selectedErrorRows = parsedData.filter((_, index) => selectedRows.has(index) && importAnalysis.errors.some(e => e.rowIndex === index + 2));
+
+        if (!skipErrors && selectedErrorRows.length > 0) {
+            setFeedback({ message: 'Cannot import due to selected rows having errors. Unselect them or check "Skip rows with errors" to proceed anyway.', type: 'error' });
             return;
         }
 
-        const selectedValidRows = parsedData.filter((_, index) => selectedRows.has(index) && !importAnalysis.errors.some(e => e.rowIndex === index + 2));
-        
         if (selectedValidRows.length === 0) {
             setFeedback({ message: 'No valid rows selected for import.', type: 'error' });
             return;
@@ -848,7 +859,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
         <div className="flex-shrink-0 p-4 border-t border-[var(--border-primary)] flex justify-end items-center gap-4">
             {feedback.message && feedback.type === 'success' && <p className={`text-sm text-green-600`}>{feedback.message}</p>}
             {parsedData && (
-                <button onClick={() => handleConfirmImport(activeTab)} disabled={!!importAnalysis && importAnalysis.errors.length > 0}
+                <button onClick={() => handleConfirmImport(activeTab)} disabled={!importAnalysis || selectedRows.size === 0 || (!skipErrors && parsedData.some((_, index) => selectedRows.has(index) && importAnalysis.errors.some(e => e.rowIndex === index + 2)))}
                     className="px-6 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-lg hover:bg-[var(--accent-primary-hover)] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                     {t.confirmImport}
                 </button>

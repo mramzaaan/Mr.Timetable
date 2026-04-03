@@ -57,6 +57,10 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
   const [sortBy, setSortBy] = useState<'class' | 'teacher'>('class');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  const [isClassesExpanded, setIsClassesExpanded] = useState(false);
+  const [isJointPeriod, setIsJointPeriod] = useState(true);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+
   // Edit Context
   const [editingLesson, setEditingLesson] = useState<{
       originalType: 'single' | 'joint';
@@ -82,6 +86,8 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
     setSubjectId('');
     setPeriodsCount(1);
     setSelectedClassIds(limitToClassId ? [limitToClassId] : []);
+    setIsClassesExpanded(false);
+    setIsJointPeriod(true);
     setIsGroupLesson(false);
     setCustomGroupName('');
     setCustomGroupSetName('Subject Groups');
@@ -188,40 +194,41 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
         const actionType = editingLesson ? 'update' : 'add';
 
         // 2. Add New Lesson Definition (Allocation)
-        if (selectedClassIds.length === 1) {
-            const targetClassId = selectedClassIds[0];
-            const targetClassIndex = currentClasses.findIndex(c => c.id === targetClassId);
-            
-            if (targetClassIndex !== -1) {
-                let targetClass = currentClasses[targetClassIndex];
+        if (selectedClassIds.length === 1 || !isJointPeriod) {
+            selectedClassIds.forEach(targetClassId => {
+                const targetClassIndex = currentClasses.findIndex(c => c.id === targetClassId);
                 
-                let assignedGroupSetId: string | undefined = undefined;
-                let assignedGroupId: string | undefined = undefined;
+                if (targetClassIndex !== -1) {
+                    let targetClass = currentClasses[targetClassIndex];
+                    
+                    let assignedGroupSetId: string | undefined = undefined;
+                    let assignedGroupId: string | undefined = undefined;
 
-                if (isGroupLesson) {
-                    const result = getOrCreateGroup(targetClass, customGroupSetName || 'Subject Groups', customGroupName);
-                    targetClass = result.updatedClass;
-                    assignedGroupSetId = result.groupSetId;
-                    assignedGroupId = result.groupId;
+                    if (isGroupLesson) {
+                        const result = getOrCreateGroup(targetClass, customGroupSetName || 'Subject Groups', customGroupName);
+                        targetClass = result.updatedClass;
+                        assignedGroupSetId = result.groupSetId;
+                        assignedGroupId = result.groupId;
+                    }
+
+                    const newSubjectEntry = {
+                        subjectId,
+                        teacherId: teacherId || '',
+                        periodsPerWeek: periodsCount,
+                        groupSetId: assignedGroupSetId,
+                        groupId: assignedGroupId
+                    };
+
+                    targetClass = { ...targetClass, subjects: [...targetClass.subjects, newSubjectEntry] };
+                    currentClasses[targetClassIndex] = targetClass;
+                    
+                    const desc = `${actionType === 'add' ? 'Added' : 'Updated'} lesson: ${sub?.nameEn} (${periodsCount} periods/week)${tea ? ` assigned to ${tea.nameEn}` : ''}`;
+                    currentLogs.push(createLog(actionType, desc, 'class', targetClass.id));
+                    if (tea) {
+                        currentLogs.push(createLog(actionType, `${desc} for class ${targetClass.nameEn}`, 'teacher', tea.id));
+                    }
                 }
-
-                const newSubjectEntry = {
-                    subjectId,
-                    teacherId: teacherId || '',
-                    periodsPerWeek: periodsCount,
-                    groupSetId: assignedGroupSetId,
-                    groupId: assignedGroupId
-                };
-
-                targetClass = { ...targetClass, subjects: [...targetClass.subjects, newSubjectEntry] };
-                currentClasses[targetClassIndex] = targetClass;
-                
-                const desc = `${actionType === 'add' ? 'Added' : 'Updated'} lesson: ${sub?.nameEn} (${periodsCount} periods/week)${tea ? ` assigned to ${tea.nameEn}` : ''}`;
-                currentLogs.push(createLog(actionType, desc, 'class', targetClass.id));
-                if (tea) {
-                    currentLogs.push(createLog(actionType, `${desc} for class ${targetClass.nameEn}`, 'teacher', tea.id));
-                }
-            }
+            });
         } else {
             const name = `${sub?.nameEn || 'Lesson'} (${tea?.nameEn || 'No Teacher'})`;
 
@@ -338,7 +345,9 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
         };
     });
 
-    alert(selectedClassIds.length > 1 ? 'Joint Lesson saved.' : 'Lesson saved.');
+    const subName = subjects.find(s => s.id === subjectId)?.nameEn || 'Lesson';
+    setNotification({ message: `${subName} saved successfully.`, type: 'success' });
+    setTimeout(() => setNotification(null), 3000);
     setIsModalOpen(false);
     resetForm();
   };
@@ -514,7 +523,18 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
   const inputStyleClasses = "mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {notification && (
+          <div className={`fixed top-4 right-4 z-[200] px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in ${notification.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>
+              {notification.type === 'success' ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              )}
+              <span className="font-bold">{notification.message}</span>
+          </div>
+      )}
+
       <div className="flex justify-between items-center">
           <h3 className="text-3xl font-black text-[var(--text-primary)] tracking-tight">{t.lessonList}</h3>
           <button 
@@ -647,23 +667,45 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                     {/* Periods/Week */}
                     <div>
                         <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.periodsPerWeek}</label>
-                        <div className="relative">
-                            <select value={periodsCount} onChange={(e) => setPeriodsCount(Number(e.target.value))} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent appearance-none font-medium">
-                                {Array.from({ length: 15 }, (_, i) => i + 1).map(num => <option key={num} value={num}>{num}</option>)}
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
+                        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl">
+                            <button 
+                                type="button"
+                                onClick={() => setPeriodsCount(Math.max(1, periodsCount - 1))}
+                                className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
+                            </button>
+                            <span className="text-lg font-bold text-slate-800 w-12 text-center">{periodsCount}</span>
+                            <button 
+                                type="button"
+                                onClick={() => setPeriodsCount(Math.min(20, periodsCount + 1))}
+                                className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
+                            </button>
                         </div>
                     </div>
                     {/* Class */}
                     <div className="animate-fade-in">
                         <div className="flex justify-between items-center mb-2">
                             <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest">{t.class} <span className="text-red-500">*</span></label>
-                            <span className="text-xs text-slate-500 font-medium">{selectedClassIds.length} selected</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs text-slate-500 font-medium">{selectedClassIds.length} selected</span>
+                                {!isClassesExpanded && visibleClasses.length > 1 && (
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setIsClassesExpanded(true)}
+                                        className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors"
+                                    >
+                                        + Add More
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <div className="border border-slate-100 rounded-2xl p-4 bg-slate-50/50 grid grid-cols-2 gap-2">
-                            {visibleClasses.map(c => {
+                            {visibleClasses
+                                .filter(c => isClassesExpanded || selectedClassIds.includes(c.id) || (selectedClassIds.length === 0 && visibleClasses.indexOf(c) === 0))
+                                .map(c => {
                                 const isSelected = selectedClassIds.includes(c.id);
                                 return (
                                     <label key={c.id} className={`flex items-center space-x-3 cursor-pointer p-2 rounded-xl transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-slate-100'}`}>
@@ -678,6 +720,24 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                         </div>
                     </div>
                     
+                    {/* Multiple Classes Config */}
+                    {selectedClassIds.length > 1 && (
+                        <div className="pt-4 border-t border-slate-100">
+                            <label className="flex items-center gap-3 cursor-pointer mb-2">
+                                <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${isJointPeriod ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>
+                                    {isJointPeriod && <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
+                                </div>
+                                <input type="checkbox" checked={isJointPeriod} onChange={(e) => setIsJointPeriod(e.target.checked)} className="hidden" />
+                                <span className="text-[13px] font-bold text-slate-800 uppercase tracking-wide">Combine as Joint Period</span>
+                            </label>
+                            <p className="text-xs text-slate-500 pl-8">
+                                {isJointPeriod 
+                                    ? "Classes will be taught together by the same teacher at the same time." 
+                                    : "A separate lesson will be created for each selected class."}
+                            </p>
+                        </div>
+                    )}
+
                     {/* Group Config */}
                     <div className="pt-4 border-t border-slate-100">
                         <label className="flex items-center gap-3 cursor-pointer mb-3">

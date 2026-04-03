@@ -498,7 +498,13 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       {selectedClass && (<PrintPreview t={t} isOpen={isPrintPreviewOpen} onClose={() => setIsPrintPreviewOpen(false)} title={`${t.classTimetable}: ${selectedClass.nameEn}`} fileNameBase={`Timetable_${selectedClass.nameEn.replace(' ', '_')}`} generateHtml={(lang, options) => generateClassTimetableHtml(selectedClass, lang, options, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} onSaveDesign={handleSavePrintDesign} />)}
-      {selectedClass && <CopyTimetableModal t={t} isOpen={isCopyModalOpen} onClose={() => setIsCopyModalOpen(false)} classes={visibleClasses} subjects={subjects} teachers={teachers} onUpdateClass={(updatedClass) => { const newClasses = classes.map(c => c.id === updatedClass.id ? updatedClass : c); onSetClasses(newClasses); }} sourceClassId={selectedClass.id} />}
+      {selectedClass && <CopyTimetableModal t={t} isOpen={isCopyModalOpen} onClose={() => setIsCopyModalOpen(false)} classes={visibleClasses} subjects={subjects} teachers={teachers} onUpdateClasses={(updatedClasses) => { 
+        const newClasses = classes.map(c => {
+          const updated = updatedClasses.find(uc => uc.id === c.id);
+          return updated ? updated : c;
+        });
+        onSetClasses(newClasses); 
+      }} sourceClassId={selectedClass.id} />}
       {selectedClass && (<ClassCommunicationModal t={t} isOpen={isCommModalOpen} onClose={() => setIsCommModalOpen(false)} selectedClass={selectedClass} inChargeTeacher={teachers.find(t => t.id === selectedClass.inCharge)!} subjects={subjects} teachers={teachers} schoolConfig={schoolConfig} subjectColorMap={teacherColorMap} />)}
       
       <DownloadModal t={t} isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} title={t.downloadTimetable} fileNameBase="Class_Timetables" items={visibleClasses} itemType="class" generateFullPageHtml={(item, lang, design) => generateClassTimetableHtml(item, lang, design, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} />

@@ -626,7 +626,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
 
             {/* Bottom Action Buttons */}
             <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
-                <button onClick={() => setIsDownloadModalOpen(true)} className="px-6 py-2 bg-white border border-[#005f5f] text-[#005f5f] font-semibold rounded-lg shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+                <button onClick={() => setIsPrintPreviewOpen(true)} className="px-6 py-2 bg-white border border-[#005f5f] text-[#005f5f] font-semibold rounded-lg shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     Print View
                 </button>

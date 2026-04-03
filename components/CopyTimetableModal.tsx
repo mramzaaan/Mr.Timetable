@@ -10,7 +10,7 @@ interface CopyTimetableModalProps {
   classes: SchoolClass[];
   subjects: Subject[];
   teachers: Teacher[];
-  onUpdateClass: (updatedClass: SchoolClass) => void;
+  onUpdateClasses: (updatedClasses: SchoolClass[]) => void;
   sourceClassId: string; // The ID of the currently selected class
 }
 
@@ -24,7 +24,7 @@ const CopyTimetableModal: React.FC<CopyTimetableModalProps> = ({
   classes,
   subjects,
   teachers,
-  onUpdateClass,
+  onUpdateClasses,
   sourceClassId,
 }) => {
   const [selectedSourceClassId, setSelectedSourceClassId] = useState<string>(sourceClassId);
@@ -62,6 +62,7 @@ const CopyTimetableModal: React.FC<CopyTimetableModalProps> = ({
 
     let copiedCount = 0;
     let errors: string[] = [];
+    const updatedClasses: SchoolClass[] = [];
 
     selectedTargetClassIds.forEach(targetClassId => {
       const targetClass = classes.find(c => c.id === targetClassId);
@@ -71,38 +72,40 @@ const CopyTimetableModal: React.FC<CopyTimetableModalProps> = ({
       }
 
       const newTimetable: TimetableGridData = {
-        Monday: Array.from({ length: 8 }, () => []),
-        Tuesday: Array.from({ length: 8 }, () => []),
-        Wednesday: Array.from({ length: 8 }, () => []),
-        Thursday: Array.from({ length: 8 }, () => []),
-        Friday: Array.from({ length: 8 }, () => []),
-        Saturday: Array.from({ length: 8 }, () => []),
+        Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: []
       };
 
       days.forEach(day => {
-        periodLabels.forEach((_, periodIndex) => {
-          const sourcePeriodsInSlot = sourceClass.timetable[day][periodIndex];
-          sourcePeriodsInSlot.forEach(sourcePeriod => {
-            const targetClassSubjectConfig = targetClass.subjects.find(
-              cs => cs.subjectId === sourcePeriod.subjectId
-            );
+        const sourceDaySlots = sourceClass.timetable[day] || [];
+        newTimetable[day] = sourceDaySlots.map(sourcePeriodsInSlot => {
+          const newSlot: Period[] = [];
+          if (sourcePeriodsInSlot) {
+            sourcePeriodsInSlot.forEach(sourcePeriod => {
+              const targetClassSubjectConfig = targetClass.subjects.find(
+                cs => cs.subjectId === sourcePeriod.subjectId
+              );
 
-            if (targetClassSubjectConfig) {
               const newPeriod: Period = {
-                id: generateUniqueId(), // Ensure new unique ID
+                id: generateUniqueId(),
                 classId: targetClass.id,
                 subjectId: sourcePeriod.subjectId,
-                teacherId: targetClassSubjectConfig.teacherId, // Use target class's assigned teacher for this subject
+                teacherId: targetClassSubjectConfig?.teacherId || sourcePeriod.teacherId,
+                ...(sourcePeriod.jointPeriodId ? { jointPeriodId: sourcePeriod.jointPeriodId } : {})
               };
-              newTimetable[day][periodIndex].push(newPeriod);
-            }
-          });
+              newSlot.push(newPeriod);
+            });
+          }
+          return newSlot;
         });
       });
 
-      onUpdateClass({ ...targetClass, timetable: newTimetable });
+      updatedClasses.push({ ...targetClass, timetable: newTimetable });
       copiedCount++;
     });
+
+    if (updatedClasses.length > 0) {
+      onUpdateClasses(updatedClasses);
+    }
 
     if (copiedCount > 0) {
       setFeedback({ message: t.timetableCopiedSuccessfully.replace('{count}', copiedCount.toString()), type: 'success' });
