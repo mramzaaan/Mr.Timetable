@@ -478,22 +478,40 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
       if (limitToClassId) {
           const c = classes.find(cls => cls.id === limitToClassId);
           if (!c) return [];
-          const standard = c.subjects.map((s, idx) => ({
-              type: 'single', key: `single-${c.id}-${idx}`, classId: c.id, subjectIndex: idx, subject: s,
-              displaySubject: subjects.find(sub => sub.id === s.subjectId), displayTeacher: teachers.find(t => t.id === s.teacherId),
-              groupName: s.groupId ? c.groupSets?.find(gs => gs.id === s.groupSetId)?.groups.find(g => g.id === s.groupId)?.name : undefined
-          }));
-          const joints = jointPeriods.filter(jp => jp.assignments?.some(a => a.classId === c.id)).map(jp => {
+          
+          const teacherGroups = new Map<string, any[]>();
+          
+          c.subjects.forEach((s, idx) => {
+              if (!s.teacherId) return;
+              if (!teacherGroups.has(s.teacherId)) teacherGroups.set(s.teacherId, []);
+              teacherGroups.get(s.teacherId)!.push({
+                  type: 'single', key: `single-${c.id}-${idx}`, classId: c.id, subjectIndex: idx, subject: s,
+                  displaySubject: subjects.find(sub => sub.id === s.subjectId), displayTeacher: teachers.find(t => t.id === s.teacherId),
+                  groupName: s.groupId ? c.groupSets?.find(gs => gs.id === s.groupSetId)?.groups.find(g => g.id === s.groupId)?.name : undefined
+              });
+          });
+          
+          jointPeriods.filter(jp => jp.assignments?.some(a => a.classId === c.id)).forEach(jp => {
+              if (!jp.teacherId) return;
+              if (!teacherGroups.has(jp.teacherId)) teacherGroups.set(jp.teacherId, []);
               const firstAssign = jp.assignments.find(a => a.classId === c.id);
-              return {
+              teacherGroups.get(jp.teacherId)!.push({
                 type: 'joint', key: `joint-${jp.id}`, jointPeriod: jp,
                 displaySubject: subjects.find(sub => sub.id === firstAssign?.subjectId), displayTeacher: teachers.find(t => t.id === jp.teacherId),
                 jointClassNames: jp.assignments?.map(a => classes.find(c => c.id === a.classId)?.nameEn).filter(Boolean).join(', '),
                 groupName: firstAssign?.groupId ? c.groupSets?.find(gs => gs.id === firstAssign.groupSetId)?.groups.find(g => g.id === firstAssign.groupId)?.name : undefined
-              };
+              });
           });
-          const combinedItems = [...standard, ...joints].sort((a, b) => (a.displaySubject?.nameEn || '').localeCompare(b.displaySubject?.nameEn || ''));
-          return [{ id: c.id, label: c.nameEn, subLabel: c.nameUr, items: combinedItems }];
+          
+          return Array.from(teacherGroups.entries()).map(([teacherId, items]) => {
+              const t = teachers.find(teacher => teacher.id === teacherId);
+              return {
+                  id: teacherId,
+                  label: t?.nameEn || 'Unknown Teacher',
+                  subLabel: t?.nameUr || '',
+                  items: items.sort((a, b) => (a.displaySubject?.nameEn || '').localeCompare(b.displaySubject?.nameEn || ''))
+              };
+          }).sort((a, b) => a.label.localeCompare(b.label));
       }
       
       if (limitToTeacherId) {
@@ -557,11 +575,9 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                         <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-bold shadow-sm group-hover:bg-blue-200 transition-colors">
                             {entity.label}
                         </span>
-                        {entity.subLabel && (
-                            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shadow-sm">
-                                13
-                            </div>
-                        )}
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shadow-sm">
+                            {entity.items.length}
+                        </div>
                         {entity.subLabel && <span className="text-lg font-urdu text-slate-600">{entity.subLabel}</span>}
                       </div>
                       

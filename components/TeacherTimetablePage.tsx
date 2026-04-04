@@ -133,6 +133,68 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
     return counts;
   }, [teachers, classes, adjustments, leaveDetails, schoolConfig]);
 
+  const teacherUnscheduledCounts = useMemo(() => {
+      const counts = new Map<string, number>();
+      teachers.forEach(t => counts.set(t.id, 0));
+      
+      teachers.forEach(t => {
+          let totalAssigned = 0;
+          let scheduled = 0;
+          const jointPeriodScheduledSlots = new Map<string, Set<string>>();
+          
+          classes.forEach(c => {
+              if (c.id === NON_TEACHING_CLASS_ID) return;
+              c.subjects.forEach(sub => {
+                  if (sub.teacherId === t.id) {
+                      const isJoint = jointPeriods.some(jp => 
+                          jp.teacherId === t.id && 
+                          jp.assignments.some(a => a.classId === c.id && a.subjectId === sub.subjectId)
+                      );
+                      if (!isJoint) {
+                          totalAssigned += (sub.periodsPerWeek || 0);
+                      }
+                  }
+              });
+              
+              allDays.forEach(day => {
+                  const slots = c.timetable[day];
+                  if (Array.isArray(slots)) {
+                      slots.forEach((slot, periodIndex) => {
+                          if (Array.isArray(slot)) {
+                              slot.forEach(p => {
+                                  if (p.teacherId === t.id) {
+                                      if (p.jointPeriodId) {
+                                          if (!jointPeriodScheduledSlots.has(p.jointPeriodId)) {
+                                              jointPeriodScheduledSlots.set(p.jointPeriodId, new Set());
+                                          }
+                                          jointPeriodScheduledSlots.get(p.jointPeriodId)!.add(`${day}-${periodIndex}`);
+                                      } else {
+                                          scheduled++;
+                                      }
+                                  }
+                              });
+                          }
+                      });
+                  }
+              });
+          });
+          
+          jointPeriods.forEach(jp => {
+              if (jp.teacherId === t.id) {
+                  totalAssigned += (jp.periodsPerWeek || 0);
+              }
+          });
+          
+          let jointScheduled = 0;
+          jointPeriodScheduledSlots.forEach(slots => {
+              jointScheduled += slots.size;
+          });
+          
+          counts.set(t.id, Math.max(0, totalAssigned - (scheduled + jointScheduled)));
+      });
+      return counts;
+  }, [classes, teachers, jointPeriods]);
+
   const sortedTeachers = useMemo(() => {
       let sorted = [...teachers];
       if (teacherSearchQuery) {
@@ -151,12 +213,16 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
               const pa = teacherPeriodCounts.get(a.id) || 0;
               const pb = teacherPeriodCounts.get(b.id) || 0;
               res = pa - pb;
+          } else if (teacherSortBy === 'unscheduled') {
+              const ua = teacherUnscheduledCounts.get(a.id) || 0;
+              const ub = teacherUnscheduledCounts.get(b.id) || 0;
+              res = ua - ub;
           } else { // name
               res = a.nameEn.localeCompare(b.nameEn);
           }
           return sortDirection === 'asc' ? res : -res;
       });
-  }, [teachers, teacherSearchQuery, teacherSortBy, sortDirection, teacherPeriodCounts]);
+  }, [teachers, teacherSearchQuery, teacherSortBy, sortDirection, teacherPeriodCounts, teacherUnscheduledCounts]);
 
   const currentTeacherIndex = useMemo(() => {
     if (!selectedTeacherId) return -1;
@@ -1092,7 +1158,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                     </button>
 
                     {isTeacherDropdownOpen && (
-                        <div className="absolute top-full left-0 mt-2 w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl p-3 animate-scale-in origin-top z-50">
+                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl p-3 animate-scale-in origin-top z-50">
                             {/* Search */}
                             <div className="relative mb-3">
                                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-placeholder)] pointer-events-none">
@@ -1120,7 +1186,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                             
                             {/* Sort Controls */}
                             <div className="flex gap-1 mb-2 bg-[var(--bg-tertiary)] p-1 rounded-lg">
-                                {(['serial', 'name', 'periods'] as const).map(key => (
+                                {(['serial', 'name', 'periods', 'unscheduled'] as const).map(key => (
                                     <button
                                         key={key}
                                         onClick={() => {
@@ -1133,7 +1199,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                         }}
                                         className={`flex-1 text-[10px] font-bold uppercase py-1 rounded-md transition-colors flex items-center justify-center gap-1 ${teacherSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]'}`}
                                     >
-                                        {key === 'serial' ? '#' : key.toUpperCase()}
+                                        {key === 'serial' ? '#' : key === 'unscheduled' ? 'Unsch' : key.toUpperCase()}
                                         {teacherSortBy === key && (
                                             <span className="text-[8px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                                         )}
@@ -1157,7 +1223,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                         >
                                             <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-0.5 rounded ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10' : 'bg-[var(--bg-primary)]'}`}>#{t.serialNumber ?? '-'}</span>
                                             <span className="font-bold flex-grow text-base break-words text-left leading-tight">{language === 'ur' ? t.nameUr : t.nameEn}</span>
-                                            <span className={`text-xs opacity-70 whitespace-nowrap min-w-[60px] text-center px-2 py-0.5 rounded ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10' : 'bg-[var(--bg-primary)]'}`}>{teacherPeriodCounts.get(t.id) || 0} Periods</span>
+                                            <span className={`text-xs opacity-70 whitespace-nowrap min-w-[60px] text-center px-2 py-0.5 rounded ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10' : 'bg-[var(--bg-primary)]'}`}>{teacherPeriodCounts.get(t.id) || 0} Sch | {teacherUnscheduledCounts.get(t.id) || 0} Unsch</span>
                                             {selectedTeacherId === t.id && <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] flex-shrink-0"></div>}
                                         </button>
                                     ))
@@ -1200,7 +1266,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
       ) : (
         <div className="flex flex-col gap-8">
           {/* Workload Summary */}
-          <TeacherAvailabilitySummary t={t} workloadStats={workloadStats} maxWorkload={maxTeacherWorkload} />
+          <TeacherAvailabilitySummary t={t} workloadStats={workloadStats} maxWorkload={maxTeacherWorkload} unscheduledCount={teacherUnscheduledCounts.get(selectedTeacherId) || 0} />
 
           {/* Timetable Grid */}
           <div className="w-full overflow-x-auto">

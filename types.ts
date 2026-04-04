@@ -279,6 +279,10 @@ export interface DownloadDesignConfig {
         includePageNumber: boolean;
         color: string;
         includeTimestamp?: boolean;
+        includeDate?: boolean;
+        appNamePlacement?: 'left' | 'center' | 'right' | 'hidden';
+        datePlacement?: 'left' | 'center' | 'right' | 'hidden';
+        pageNumberPlacement?: 'left' | 'center' | 'right' | 'hidden';
     };
     colorMode: 'color' | 'bw';
     rowsPerPage?: number;

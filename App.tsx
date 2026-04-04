@@ -69,7 +69,7 @@ const defaultDesignV3: DownloadDesignConfig = {
     page: { size: 'a4', orientation: 'portrait', margins: { top: 4, right: 4, bottom: 4, left: 4 }, watermarkOpacity: 0.07 },
     header: { showLogo: true, logoSize: 80, logoPosition: 'left', schoolName: { fontFamily: 'sans-serif', fontSize: 24, fontWeight: 'bold', align: 'left', color: '#000000' }, showTitle: true, title: { fontFamily: 'sans-serif', fontSize: 18, fontWeight: 'bold', align: 'left', color: '#444444' }, details: { fontFamily: 'sans-serif', fontSize: 14, fontWeight: 'normal', align: 'left', color: '#000000' }, divider: true, bgColor: '#FFFFFF' },
     table: { fontFamily: 'sans-serif', fontSize: 14, cellPadding: 8, headerBgColor: '#1e293b', headerColor: '#FFFFFF', bodyBgColor: '#FFFFFF', bodyColor: '#000000', borderColor: '#000000', periodColumnWidth: 40, periodColumnBgColor: '#f1f5f9', periodColumnColor: '#000000', altRowColor: '#FFFFFF', gridStyle: 'solid', borderWidth: 1, headerFontSize: 14, cardStyle: 'minimal-left', triangleCorner: 'bottom-left', outlineWidth: 2 },
-    footer: { show: false, text: 'Mr.🇵🇰', fontFamily: 'sans-serif', fontSize: 12, align: 'center', includePageNumber: false, color: '#4b5563', includeTimestamp: false },
+    footer: { show: false, text: 'Mr.🇵🇰', fontFamily: 'sans-serif', fontSize: 12, align: 'center', includePageNumber: false, color: '#4b5563', includeTimestamp: false, includeDate: false, appNamePlacement: 'center', datePlacement: 'hidden', pageNumberPlacement: 'right' },
     colorMode: 'color', rowsPerPage: 50, rowsPerFirstPage: 50, daysPerPage: 7, watermarkText: '', compactMode: false,
     visibleElements: { teacherName: true, subjectName: true, roomNumber: true }, contentScale: 1,
 };

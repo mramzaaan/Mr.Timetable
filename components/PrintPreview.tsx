@@ -41,12 +41,13 @@ const Icons = {
   Bold: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4h-1v1h1a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6V4zm5 6h3a2 2 0 0 0 2-2 2 2 0 0 0-2-2h-3v4zm0 8h3a2 2 0 0 0 2-2 2 2 0 0 0-2-2h-3v4z"/></svg>,
   Italic: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"/></svg>,
   AlignLeft: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3V4zm0 15h12v2H3v-2zm0-5h18v2H3v-2zm0-5h12v2H3V9z"/></svg>,
-  AlignCenter: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3 4h18v2H3V4zm2 15h14v2H5v-2zm-2-5h18v2H3v-2zm2-5h14v2H5V9z"/></svg>,
-  AlignRight: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 24 24" fill="currentColor"><path d="M3 4h18v2H3V4zm6 15h12v2H9v-2zm-6-5h18v2H3v-2zm6-5h12v2H9V9z"/></svg>,
+  AlignCenter: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3V4zm2 15h14v2H5v-2zm-2-5h18v2H3v-2zm2-5h14v2H5V9z"/></svg>,
+  AlignRight: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3V4zm6 15h12v2H9v-2zm-6-5h18v2H3v-2zm6-5h12v2H9V9z"/></svg>,
   Color: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clipRule="evenodd" /></svg>,
   BgColor: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>,
-  Eraser: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>,
-  Edit: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+  Settings: ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className || "h-5 w-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+  Edit: ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className || "h-5 w-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+  Eraser: ({ className }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className || "h-5 w-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 };
 
 const UndoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>;
@@ -93,7 +94,7 @@ const SettingsSidebar: React.FC<{
     onApplyStyle: (property: string, value: string) => void,
     onExecCmd: (cmd: string, val?: string) => void,
 }> = ({ options, onUpdate, onSaveDesign, resetToDefaults, activeElement, activeElementStyles, onApplyStyle, onExecCmd }) => {
-    const [activeSection, setActiveSection] = useState<'page' | 'header' | 'table' | 'footer' | 'edit' | 'visibility' | 'presets'>('page');
+    const [activeSection, setActiveSection] = useState<'page' | 'header' | 'table' | 'footer' | 'edit' | 'visibility' | 'presets' | null>('page');
     const [isSaving, setIsSaving] = useState(false);
 
     const handleValueChange = (path: string, value: any) => {
@@ -101,6 +102,9 @@ const SettingsSidebar: React.FC<{
         const keys = path.split('.');
         let current: any = newOptions;
         for (let i = 0; i < keys.length - 1; i++) {
+            if (current[keys[i]] === undefined) {
+                current[keys[i]] = {};
+            }
             current = current[keys[i]];
         }
         current[keys[keys.length - 1]] = value;
@@ -115,11 +119,11 @@ const SettingsSidebar: React.FC<{
 
     const SectionButton = ({ id, label, icon: Icon }: any) => (
         <button
-            onClick={() => setActiveSection(id)}
-            className={`flex items-center gap-3 w-full px-4 py-3 text-sm font-bold transition-all duration-200 border-l-4 ${
+            onClick={() => setActiveSection(activeSection === id ? null : id)}
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-bold transition-all duration-200 border-b-2 whitespace-nowrap ${
                 activeSection === id 
-                ? 'bg-gray-800 border-teal-500 text-teal-400' 
-                : 'border-transparent text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                ? 'border-teal-500 text-teal-400' 
+                : 'border-transparent text-gray-400 hover:text-gray-200'
             }`}
         >
             <Icon />
@@ -127,44 +131,107 @@ const SettingsSidebar: React.FC<{
         </button>
     );
 
-    const ControlGroup = ({ label, children }: any) => (
-        <div className="mb-4">
-            <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest mb-2 border-b border-gray-700 pb-1">{label}</h4>
-            <div className="space-y-3">{children}</div>
-        </div>
-    );
+    const ControlGroup = ({ label, children, defaultOpen = false }: any) => {
+        const [isOpen, setIsOpen] = useState(defaultOpen);
+        return (
+            <div className="mb-4 bg-[#1a1d21] rounded-lg overflow-hidden border border-gray-800 shadow-sm">
+                <button 
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="w-full flex items-center justify-between p-4 text-xs font-bold text-gray-400 uppercase tracking-widest hover:bg-gray-800/50 transition-colors"
+                >
+                    {label}
+                    <div className={`transform transition-transform text-teal-500 ${isOpen ? 'rotate-180' : ''}`}>
+                        <ChevronDownIcon />
+                    </div>
+                </button>
+                {isOpen && (
+                    <div className="p-4 pt-0 space-y-4">
+                        {children}
+                    </div>
+                )}
+            </div>
+        );
+    };
 
-    const NumberInput = ({ label, path, value, min, max, step = 1 }: any) => (
-        <div className="flex items-center justify-between">
+    const NumberInput = ({ label, path, value, min, max, step = 1, showPercent = false }: any) => (
+        <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
             <label className="text-xs text-gray-300 font-medium">{label}</label>
-            <div className="flex items-center bg-gray-900 rounded border border-gray-700 w-24">
-                <button onClick={() => handleValueChange(path, Math.max(min, Number((value - step).toFixed(2))))} className="px-2 text-gray-400 hover:text-white">-</button>
+            <div className="flex items-center bg-[#1a1d21] rounded border border-gray-700 w-24">
+                <button onClick={() => handleValueChange(path, Math.max(min, Number((value - step).toFixed(2))))} className="px-2 text-teal-500 hover:text-teal-400 font-bold">-</button>
                 <input 
-                    type="number" 
-                    value={value} 
-                    onChange={(e) => handleValueChange(path, Number(e.target.value))} 
-                    className="w-full bg-transparent text-center text-xs text-white outline-none py-1 appearance-none"
+                    type="text" 
+                    value={showPercent ? `${Math.round(value * 100)}%` : value} 
+                    onChange={(e) => {
+                        if (showPercent) return;
+                        handleValueChange(path, Number(e.target.value));
+                    }} 
+                    readOnly={showPercent}
+                    className="w-full bg-transparent text-center text-xs font-bold text-white outline-none py-1 appearance-none"
                 />
-                <button onClick={() => handleValueChange(path, Math.min(max, Number((value + step).toFixed(2))))} className="px-2 text-gray-400 hover:text-white">+</button>
+                <button onClick={() => handleValueChange(path, Math.min(max, Number((value + step).toFixed(2))))} className="px-2 text-teal-500 hover:text-teal-400 font-bold">+</button>
             </div>
         </div>
     );
 
     const SelectInput = ({ label, path, value, options: opts }: any) => (
-        <div className="space-y-1">
-            <label className="text-xs text-gray-300 font-medium">{label}</label>
-            <select 
-                value={value} 
+        <div className="bg-[#22252a] p-3 rounded-lg space-y-2 flex-1">
+            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{label}</label>
+            <div className="relative">
+                <select 
+                    value={value} 
+                    onChange={(e) => handleValueChange(path, e.target.value)} 
+                    className="w-full bg-transparent text-white text-sm outline-none appearance-none cursor-pointer"
+                >
+                    {opts.map((o: any) => <option key={o.value} value={o.value} className="bg-gray-900">{o.label}</option>)}
+                </select>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
+                    <ChevronDownIcon />
+                </div>
+            </div>
+        </div>
+    );
+
+    const MarginInput = () => (
+        <div className="grid grid-cols-4 gap-2">
+            {['top', 'right', 'bottom', 'left'].map(side => (
+                <div key={side} className="bg-[#22252a] p-2 rounded-lg flex flex-col items-center justify-center gap-1">
+                    <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{side}</label>
+                    <input 
+                        type="number" 
+                        value={options.page.margins[side as keyof typeof options.page.margins]} 
+                        onChange={(e) => handleValueChange(`page.margins.${side}`, Number(e.target.value))}
+                        className="w-full bg-transparent text-center text-sm font-bold text-teal-500 outline-none appearance-none"
+                    />
+                </div>
+            ))}
+        </div>
+    );
+
+    const ToggleInput = ({ label, path, value }: any) => (
+        <div className="flex items-center justify-between cursor-pointer" onClick={() => handleValueChange(path, !value)}>
+            <label className="text-sm text-gray-300 font-medium cursor-pointer">{label}</label>
+            <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-teal-500' : 'bg-gray-700'}`}>
+                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${value ? 'left-5.5' : 'left-0.5'}`}></div>
+            </div>
+        </div>
+    );
+
+    const TextInput = ({ label, path, value, icon: Icon }: any) => (
+        <div className="flex items-center bg-[#22252a] p-3 rounded-lg gap-3">
+            {Icon && <Icon className="text-gray-500 w-5 h-5" />}
+            <input 
+                type="text" 
+                value={value || ''} 
                 onChange={(e) => handleValueChange(path, e.target.value)} 
-                className="w-full bg-gray-900 border border-gray-700 text-white text-xs rounded px-2 py-1.5 outline-none focus:border-teal-500"
-            >
-                {opts.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
+                placeholder={label}
+                className="flex-1 bg-transparent text-white text-sm outline-none placeholder-gray-500"
+            />
+            <Icons.Edit className="text-teal-500 w-4 h-4" />
         </div>
     );
 
     const ColorInput = ({ label, path, value }: any) => (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
             <label className="text-xs text-gray-300 font-medium">{label}</label>
             <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded border border-gray-600 overflow-hidden relative cursor-pointer">
@@ -175,37 +242,16 @@ const SettingsSidebar: React.FC<{
                     type="text" 
                     value={value} 
                     onChange={(e) => handleValueChange(path, e.target.value)} 
-                    className="w-16 bg-gray-900 border border-gray-700 text-white text-xs rounded px-1 py-1 outline-none text-center font-mono uppercase"
+                    className="w-16 bg-[#1a1d21] border border-gray-700 text-white text-xs rounded px-1 py-1 outline-none text-center font-mono uppercase"
                     maxLength={7}
                 />
             </div>
         </div>
     );
 
-    const ToggleInput = ({ label, path, value }: any) => (
-        <div className="flex items-center justify-between cursor-pointer" onClick={() => handleValueChange(path, !value)}>
-            <label className="text-xs text-gray-300 font-medium cursor-pointer">{label}</label>
-            <div className={`w-8 h-4 rounded-full relative transition-colors ${value ? 'bg-teal-600' : 'bg-gray-700'}`}>
-                <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${value ? 'left-4.5' : 'left-0.5'}`}></div>
-            </div>
-        </div>
-    );
-
-    const TextInput = ({ label, path, value }: any) => (
-        <div className="space-y-1">
-            <label className="text-xs text-gray-300 font-medium">{label}</label>
-            <input 
-                type="text" 
-                value={value || ''} 
-                onChange={(e) => handleValueChange(path, e.target.value)} 
-                className="w-full bg-gray-900 border border-gray-700 text-white text-xs rounded px-2 py-1.5 outline-none focus:border-teal-500"
-            />
-        </div>
-    );
-
     // Edit Section Handlers
     const ManualColorInput = ({ label, value, onChange }: any) => (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
             <label className="text-xs text-gray-300 font-medium">{label}</label>
             <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded border border-gray-600 overflow-hidden relative cursor-pointer">
@@ -242,12 +288,23 @@ const SettingsSidebar: React.FC<{
     };
 
     return (
-        <div className="w-72 bg-gray-900 border-r border-gray-800 flex flex-col h-full shadow-xl z-20">
-            <div className="p-4 border-b border-gray-800 bg-gray-900">
-                <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">Configuration</h3>
+        <div className="w-full md:w-80 bg-[#111315] border-r border-gray-800 flex flex-col h-full shadow-xl z-20">
+            <div className="p-4 border-b border-gray-800 bg-[#1a1d21] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Icons.Settings className="text-teal-500 w-5 h-5" />
+                    <h3 className="text-lg font-bold text-teal-500">Print config.</h3>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button className="text-teal-500 hover:text-teal-400 transition-colors" title="Print">
+                        <Icons.Print />
+                    </button>
+                    <button className="text-teal-500 hover:text-teal-400 transition-colors" title="Share">
+                        <Icons.Share />
+                    </button>
+                </div>
             </div>
             
-            <div className="flex flex-col border-b border-gray-800">
+            <div className="flex overflow-x-auto border-b border-gray-800 bg-[#1a1d21] no-scrollbar">
                 <SectionButton id="page" label="Layout" icon={Icons.Layout} />
                 <SectionButton id="header" label="Header" icon={Icons.Header} />
                 <SectionButton id="table" label="Table" icon={Icons.Table} />
@@ -257,26 +314,39 @@ const SettingsSidebar: React.FC<{
                 <SectionButton id="edit" label="Edit Text" icon={Icons.Edit} />
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
                 {activeSection === 'page' && (
                     <>
-                        <ControlGroup label="General">
+                        <ControlGroup label="Scaling & Dimension">
+                            <NumberInput label="Content Scale" path="contentScale" value={options.contentScale || 1} min={0.5} max={2.0} step={0.05} showPercent={true} />
+                            <div className="flex gap-3">
+                                <SelectInput label="Paper Size" path="page.size" value={options.page.size} options={[{value: 'a4', label: 'A4 (Standard)'}, {value: 'letter', label: 'Letter'}, {value: 'legal', label: 'Legal'}]} />
+                                <SelectInput label="Orientation" path="page.orientation" value={options.page.orientation} options={[{value: 'portrait', label: 'Portrait'}, {value: 'landscape', label: 'Landscape'}]} />
+                            </div>
+                        </ControlGroup>
+                        <ControlGroup label="Margin Controls">
+                            <MarginInput />
+                        </ControlGroup>
+                        <ControlGroup label="Watermark">
+                            <div className="flex items-center justify-between cursor-pointer mb-3" onClick={() => handleValueChange('page.watermarkOpacity', options.page.watermarkOpacity > 0 ? 0 : 0.1)}>
+                                <label className="text-sm text-gray-300 font-medium cursor-pointer">Enable Watermark</label>
+                                <div className={`w-10 h-5 rounded-full relative transition-colors ${options.page.watermarkOpacity > 0 ? 'bg-teal-500' : 'bg-gray-700'}`}>
+                                    <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${options.page.watermarkOpacity > 0 ? 'left-5.5' : 'left-0.5'}`}></div>
+                                </div>
+                            </div>
+                            {options.page.watermarkOpacity > 0 && (
+                                <>
+                                    <TextInput label="Watermark Text" path="watermarkText" value={options.watermarkText} icon={Icons.Edit} />
+                                    <div className="mt-3">
+                                        <NumberInput label="Transparency" path="page.watermarkOpacity" value={options.page.watermarkOpacity} min={0.05} max={1.0} step={0.05} />
+                                    </div>
+                                </>
+                            )}
+                        </ControlGroup>
+                        <ControlGroup label="Other Settings" defaultOpen={false}>
                             <NumberInput label="Rows (All Pages)" path="rowsPerPage" value={options.rowsPerPage} min={5} max={100} />
                             <NumberInput label="Rows (1st Page)" path="rowsPerFirstPage" value={options.rowsPerFirstPage || options.rowsPerPage} min={5} max={100} />
                             <SelectInput label="Color Mode" path="colorMode" value={options.colorMode} options={[{value: 'color', label: 'Color'}, {value: 'bw', label: 'Black & White'}]} />
-                            <NumberInput label="Content Scale" path="contentScale" value={options.contentScale || 1} min={0.5} max={2.0} step={0.05} />
-                        </ControlGroup>
-                        <ControlGroup label="Paper">
-                            <SelectInput label="Size" path="page.size" value={options.page.size} options={[{value: 'a4', label: 'A4'}, {value: 'letter', label: 'Letter'}, {value: 'legal', label: 'Legal'}]} />
-                            <SelectInput label="Orientation" path="page.orientation" value={options.page.orientation} options={[{value: 'portrait', label: 'Portrait'}, {value: 'landscape', label: 'Landscape'}]} />
-                            <NumberInput label="Watermark Opacity" path="page.watermarkOpacity" value={options.page.watermarkOpacity} min={0} max={1} step={0.05} />
-                            <TextInput label="Watermark Text" path="watermarkText" value={options.watermarkText} />
-                        </ControlGroup>
-                        <ControlGroup label="Margins (mm)">
-                            <NumberInput label="Top" path="page.margins.top" value={options.page.margins.top} min={0} max={50} />
-                            <NumberInput label="Bottom" path="page.margins.bottom" value={options.page.margins.bottom} min={0} max={50} />
-                            <NumberInput label="Left" path="page.margins.left" value={options.page.margins.left} min={0} max={50} />
-                            <NumberInput label="Right" path="page.margins.right" value={options.page.margins.right} min={0} max={50} />
                         </ControlGroup>
                     </>
                 )}
@@ -329,8 +399,18 @@ const SettingsSidebar: React.FC<{
                             <NumberInput label="Logo Size" path="header.logoSize" value={options.header.logoSize} min={20} max={200} />
                             <ToggleInput label="Show Title" path="header.showTitle" value={options.header.showTitle} />
                             {options.header.showTitle && (
-                                <NumberInput label="Title Size" path="header.title.fontSize" value={options.header.title?.fontSize || 18} min={10} max={80} />
+                                <>
+                                    <NumberInput label="Title Size" path="header.title.fontSize" value={options.header.title?.fontSize || 18} min={10} max={80} />
+                                    <ColorInput label="Title Color" path="header.title.color" value={options.header.title?.color || '#000000'} />
+                                </>
                             )}
+                            <div className="mt-4 pt-4 border-t border-gray-800">
+                                <h5 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-3">Details (Name, Room, etc.)</h5>
+                                <div className="space-y-3">
+                                    <NumberInput label="Size" path="header.details.fontSize" value={options.header.details?.fontSize || 14} min={8} max={40} />
+                                    <ColorInput label="Color" path="header.details.color" value={options.header.details?.color || '#000000'} />
+                                </div>
+                            </div>
                             <ToggleInput label="Show Date" path="header.showDate" value={options.header.showDate} />
                             <TextInput label="Subtitle" path="header.subtitle" value={options.header.subtitle} />
                             <ToggleInput label="Show Divider" path="header.divider" value={options.header.divider} />
@@ -386,54 +466,67 @@ const SettingsSidebar: React.FC<{
                         <ControlGroup label="Footer Settings">
                             <ToggleInput label="Show Footer" path="footer.show" value={options.footer.show} />
                             {options.footer.show && (
-                                <TextInput label="Footer Text" path="footer.text" value={options.footer.text} />
+                                <>
+                                    <TextInput label="App Name" path="footer.text" value={options.footer.text} />
+                                    <SelectInput label="App Name Pos" path="footer.appNamePlacement" value={options.footer.appNamePlacement || 'center'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} />
+                                    
+                                    <ToggleInput label="Show Date" path="footer.includeDate" value={options.footer.includeDate} />
+                                    <SelectInput label="Date Pos" path="footer.datePlacement" value={options.footer.datePlacement || 'hidden'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} />
+                                    
+                                    <ToggleInput label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} />
+                                    <SelectInput label="Page Num Pos" path="footer.pageNumberPlacement" value={options.footer.pageNumberPlacement || 'right'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} />
+                                    
+                                    <NumberInput label="Font Size" path="footer.fontSize" value={options.footer.fontSize} min={6} max={20} />
+                                    <ColorInput label="Color" path="footer.color" value={options.footer.color} />
+                                </>
                             )}
-                            <ToggleInput label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} />
-                            <SelectInput label="Alignment" path="footer.align" value={options.footer.align} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} />
-                            <NumberInput label="Font Size" path="footer.fontSize" value={options.footer.fontSize} min={6} max={20} />
-                            <ColorInput label="Color" path="footer.color" value={options.footer.color} />
                         </ControlGroup>
                     </>
                 )}
 
                 {activeSection === 'edit' && (
                     <>
-                        <div className="bg-gray-800 p-3 rounded-lg border border-gray-700 mb-4">
+                        <div className="bg-[#1a1d21] p-3 rounded-lg border border-gray-800 mb-4 shadow-sm">
                             <p className="text-[10px] text-gray-400">Click on any text element in the preview to edit its style.</p>
                             {!activeElement && <p className="text-xs text-yellow-500 mt-2 font-bold">No element selected</p>}
                         </div>
                         
                         <ControlGroup label="Typography">
-                            <div className="space-y-1">
-                                <label className="text-xs text-gray-300 font-medium">Font Family</label>
-                                <select 
-                                    value={activeElementStyles.fontFamily.replace(/['"]/g, '')}
-                                    onChange={(e) => onApplyStyle('fontFamily', e.target.value)}
-                                    disabled={!activeElement}
-                                    className="w-full bg-gray-900 border border-gray-700 text-white text-xs rounded px-2 py-1.5 outline-none focus:border-teal-500 disabled:opacity-50"
-                                >
-                                    {fontOptions.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-                                </select>
+                            <div className="bg-[#22252a] p-3 rounded-lg space-y-2">
+                                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Font Family</label>
+                                <div className="relative">
+                                    <select 
+                                        value={activeElementStyles.fontFamily.replace(/['"]/g, '')}
+                                        onChange={(e) => onApplyStyle('fontFamily', e.target.value)}
+                                        disabled={!activeElement}
+                                        className="w-full bg-transparent text-white text-sm outline-none appearance-none cursor-pointer disabled:opacity-50"
+                                    >
+                                        {fontOptions.map(f => <option key={f.value} value={f.value} className="bg-gray-900">{f.label}</option>)}
+                                    </select>
+                                    <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
+                                        <ChevronDownIcon />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg mt-3">
                                 <label className="text-xs text-gray-300 font-medium">Font Size</label>
-                                <div className="flex items-center bg-gray-900 rounded border border-gray-700 w-24">
-                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size - 1}px`); } }} disabled={!activeElement} className="px-2 text-gray-400 hover:text-white disabled:opacity-50">-</button>
-                                    <span className="w-full bg-transparent text-center text-xs text-white py-1">{parseInt(activeElementStyles.fontSize) || '--'}</span>
-                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size + 1}px`); } }} disabled={!activeElement} className="px-2 text-gray-400 hover:text-white disabled:opacity-50">+</button>
+                                <div className="flex items-center bg-[#1a1d21] rounded border border-gray-700 w-24">
+                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size - 1}px`); } }} disabled={!activeElement} className="px-2 text-teal-500 hover:text-teal-400 font-bold disabled:opacity-50">-</button>
+                                    <span className="w-full bg-transparent text-center text-xs font-bold text-white py-1">{parseInt(activeElementStyles.fontSize) || '--'}</span>
+                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size + 1}px`); } }} disabled={!activeElement} className="px-2 text-teal-500 hover:text-teal-400 font-bold disabled:opacity-50">+</button>
                                 </div>
                             </div>
                         </ControlGroup>
 
                         <ControlGroup label="Formatting">
                             <div className="flex gap-2 mb-3">
-                                <button onClick={() => onExecCmd('bold')} disabled={!activeElement} className="flex-1 py-1.5 bg-gray-800 border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50"><Icons.Bold /></button>
-                                <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="flex-1 py-1.5 bg-gray-800 border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50"><Icons.Italic /></button>
+                                <button onClick={() => onExecCmd('bold')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.Bold /></button>
+                                <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.Italic /></button>
                             </div>
                             <div className="flex gap-2">
-                                <button onClick={() => onApplyStyle('textAlign', 'left')} disabled={!activeElement} className="flex-1 py-1.5 bg-gray-800 border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50"><Icons.AlignLeft /></button>
-                                <button onClick={() => onApplyStyle('textAlign', 'center')} disabled={!activeElement} className="flex-1 py-1.5 bg-gray-800 border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50"><Icons.AlignCenter /></button>
-                                <button onClick={() => onApplyStyle('textAlign', 'right')} disabled={!activeElement} className="flex-1 py-1.5 bg-gray-800 border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50"><Icons.AlignRight /></button>
+                                <button onClick={() => onApplyStyle('textAlign', 'left')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.AlignLeft /></button>
+                                <button onClick={() => onApplyStyle('textAlign', 'center')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.AlignCenter /></button>
+                                <button onClick={() => onApplyStyle('textAlign', 'right')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.AlignRight /></button>
                             </div>
                         </ControlGroup>
 
@@ -449,8 +542,8 @@ const SettingsSidebar: React.FC<{
                 )}
             </div>
 
-            <div className="p-4 border-t border-gray-800 bg-gray-900 flex gap-2">
-                 <button onClick={resetToDefaults} className="flex-1 py-2 text-xs font-bold text-gray-400 bg-gray-800 border border-gray-700 rounded hover:bg-gray-700 hover:text-white transition">
+            <div className="p-4 border-t border-gray-800 bg-[#1a1d21] flex gap-2">
+                 <button onClick={resetToDefaults} className="flex-1 py-2 text-xs font-bold text-gray-400 bg-[#22252a] border border-gray-700 rounded hover:bg-gray-700 hover:text-white transition">
                      <div className="flex items-center justify-center gap-1"><Icons.Reset /> Reset</div>
                  </button>
                  <button onClick={handleSave} className="flex-1 py-2 text-xs font-bold text-white bg-teal-600 rounded hover:bg-teal-700 transition shadow-lg">
@@ -850,9 +943,17 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
   return (
     <div className="fixed inset-0 bg-black z-[110] flex overflow-hidden animate-scale-in">
         
+        {/* Mobile Backdrop */}
+        {isSidebarOpen && (
+            <div 
+                className="md:hidden fixed inset-0 bg-black/50 z-40" 
+                onClick={() => setIsSidebarOpen(false)}
+            />
+        )}
+
         {/* Left Sidebar */}
-        <div className={`transition-all duration-300 relative bg-gray-900 border-r border-gray-800 flex flex-col ${isSidebarOpen ? 'w-80' : 'w-0'}`}>
-            <div className="absolute -right-6 top-4 z-50"> {/* Moved to top-4 */}
+        <div className={`transition-all duration-300 absolute md:relative z-50 bg-gray-900 border-r border-gray-800 flex flex-col h-full ${isSidebarOpen ? 'w-80 md:w-80 translate-x-0' : 'w-80 md:w-0 -translate-x-full md:translate-x-0'}`}>
+            <div className="absolute -right-6 top-4 z-50 hidden md:block">
                 <button 
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
                     className="bg-gray-800 p-1.5 rounded-r-lg border-y border-r border-gray-700 shadow-lg text-gray-400 hover:text-white transition-colors"
@@ -862,7 +963,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                 </button>
             </div>
             
-            <div className={`overflow-hidden flex flex-col h-full ${!isSidebarOpen ? 'invisible' : ''}`}>
+            <div className={`overflow-hidden flex flex-col h-full ${!isSidebarOpen && 'md:invisible'}`}>
                 <SettingsSidebar 
                     options={options} 
                     onUpdate={handleDesignUpdate} 
@@ -877,7 +978,20 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-gray-800">
+        <div className="flex-1 flex flex-col min-w-0 bg-gray-800 relative">
+            {/* Mobile Sidebar Toggle */}
+            <div className="md:hidden absolute top-3 left-3 z-50">
+                <button 
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+                    className={`p-2 rounded-lg border shadow-lg transition-colors ${
+                        isSidebarOpen 
+                        ? 'bg-red-900/20 border-red-800 text-red-500 hover:text-red-400' 
+                        : 'bg-gray-800 border-gray-700 text-teal-500 hover:text-teal-400'
+                    }`}
+                >
+                    <Icons.Settings className="w-5 h-5" />
+                </button>
+            </div>
             
             {/* Top Bar: Header & Toolbar */}
             <div className="flex flex-col bg-white border-b border-gray-200 z-40 relative shadow-md">
@@ -886,7 +1000,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                 <div className="h-14 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-2 sm:px-4 text-white">
                     <div className="flex items-center gap-3 flex-shrink-0">
                         {/* Modified margin to clear sidebar toggle and smaller text size */}
-                        <span className="font-black text-xs uppercase tracking-wider text-gray-300 ml-8 sm:ml-12 whitespace-nowrap truncate max-w-[60px] sm:max-w-[200px]" title={title}>{title}</span>
+                        <span className="font-black text-xs uppercase tracking-wider text-gray-300 ml-14 sm:ml-12 whitespace-nowrap truncate max-w-[60px] sm:max-w-[200px]" title={title}>{title}</span>
                     </div>
                     
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pl-2">

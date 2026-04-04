@@ -7,38 +7,18 @@ interface TeacherAvailabilitySummaryProps {
   t: any;
   workloadStats: WorkloadStats;
   maxWorkload: number;
+  unscheduledCount?: number;
 }
 
-const TeacherAvailabilitySummary: React.FC<TeacherAvailabilitySummaryProps> = ({ t, workloadStats, maxWorkload }) => {
+const TeacherAvailabilitySummary: React.FC<TeacherAvailabilitySummaryProps> = ({ t, workloadStats, maxWorkload, unscheduledCount = 0 }) => {
   const currentDayIndex = new Date().getDay(); 
   // 0 = Sunday, 1 = Monday, ... 6 = Saturday
   const daysMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const currentDayName = daysMap[currentDayIndex];
 
-  // Animation state
-  const [animatedPercentage, setAnimatedPercentage] = useState(0);
-
   // Calculate percentage based on maxWorkload (highest teacher workload)
   const targetPercentage = Math.min(100, Math.round((workloadStats.weeklyPeriods / (maxWorkload || 1)) * 100));
   
-  useEffect(() => {
-    // Small delay to ensure transition triggers after mount
-    const timer = setTimeout(() => {
-        setAnimatedPercentage(targetPercentage);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [targetPercentage]);
-
-  const remaining = Math.max(0, maxWorkload - workloadStats.weeklyPeriods);
-  
-  // SVG Circle properties
-  const radius = 45; // Increased radius for better fit
-  const strokeWidth = 8;
-  const size = 120;
-  const center = size / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (animatedPercentage / 100) * circumference;
-
   return (
     <div className="space-y-6">
       {/* 1. Daily Cards Row */}
@@ -68,64 +48,10 @@ const TeacherAvailabilitySummary: React.FC<TeacherAvailabilitySummaryProps> = ({
         })}
       </div>
 
-      {/* 2. Weekly Summary Card (Blue) */}
-      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-        {/* Background Decorative Circles */}
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl"></div>
-
-        <div className="flex justify-between items-center relative z-10">
-            <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-blue-200 mb-2">Weekly Summary</h3>
-                <div className="text-5xl font-black mb-1">{workloadStats.weeklyPeriods}</div>
-                <div className="text-sm font-medium text-blue-100 mb-4">Total Periods</div>
-                
-                <p className="text-xs text-blue-200 max-w-[150px] leading-relaxed opacity-80">
-                    {workloadStats.weeklyPeriods >= maxWorkload 
-                        ? "Highest workload among teachers." 
-                        : `${remaining} less than the busiest teacher.`}
-                </p>
-            </div>
-
-            {/* Circular Progress */}
-            <div className="relative flex items-center justify-center w-32 h-32">
-                <svg className="transform -rotate-90 w-full h-full" viewBox={`0 0 ${size} ${size}`}>
-                    {/* Track */}
-                    <circle
-                        cx={center}
-                        cy={center}
-                        r={radius}
-                        stroke="currentColor"
-                        strokeWidth={strokeWidth}
-                        fill="transparent"
-                        className="text-blue-800/50"
-                    />
-                    {/* Progress */}
-                    <circle
-                        cx={center}
-                        cy={center}
-                        r={radius}
-                        stroke="currentColor"
-                        strokeWidth={strokeWidth}
-                        fill="transparent"
-                        strokeDasharray={circumference}
-                        strokeDashoffset={strokeDashoffset}
-                        strokeLinecap="round"
-                        className="text-white transition-all duration-1000 ease-out"
-                    />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-3xl font-bold">{Math.round(animatedPercentage)}%</span>
-                    <span className="text-[8px] uppercase tracking-wider text-blue-200">Load</span>
-                </div>
-            </div>
-        </div>
-      </div>
-
-      {/* 3. Workload Details Grid */}
+      {/* 2. Workload Details Grid */}
       <div>
         <h3 className="text-sm font-bold text-[var(--text-primary)] mb-2 uppercase tracking-wider">Workload Details</h3>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
             
             {/* Joint Periods */}
             <div className="bg-white dark:bg-[#1e293b] p-2 rounded-lg border border-[var(--border-secondary)] shadow-sm flex flex-col items-center justify-center text-center">
@@ -158,6 +84,29 @@ const TeacherAvailabilitySummary: React.FC<TeacherAvailabilitySummaryProps> = ({
                 </div>
                 <div className="text-lg font-black text-[var(--text-primary)] leading-none">{workloadStats.leavesTaken}</div>
                 <div className="text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">Leaves</div>
+            </div>
+
+            {/* Unscheduled */}
+            <div className="bg-white dark:bg-[#1e293b] p-2 rounded-lg border border-[var(--border-secondary)] shadow-sm flex flex-col items-center justify-center text-center">
+                <div className="w-6 h-6 rounded-md bg-gray-100 text-gray-600 flex items-center justify-center mb-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div className="text-lg font-black text-[var(--text-primary)] leading-none">{unscheduledCount}</div>
+                <div className="text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">Unsch</div>
+            </div>
+
+            {/* Percentage */}
+            <div className="bg-white dark:bg-[#1e293b] p-2 rounded-lg border border-[var(--border-secondary)] shadow-sm flex flex-col items-center justify-center text-center">
+                <div className="w-6 h-6 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center mb-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                    </svg>
+                </div>
+                <div className="text-lg font-black text-[var(--text-primary)] leading-none">{targetPercentage}%</div>
+                <div className="text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-wide mt-0.5">Load</div>
             </div>
 
             {/* Total Load */}

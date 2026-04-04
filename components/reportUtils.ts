@@ -567,10 +567,29 @@ const generateReportHTML = (
     
     const showPageNum = design.footer.includePageNumber && pageNumber !== undefined && totalPages !== undefined;
     const pageNumHtml = showPageNum ? `<span>Page ${pageNumber} of ${totalPages}</span>` : '';
+    
+    const dateHtml = design.footer.includeDate ? new Date().toLocaleDateString() : '';
+    const timeHtml = design.footer.includeTimestamp ? new Date().toLocaleString() : dateHtml;
+
+    const leftItems: string[] = [];
+    const centerItems: string[] = [];
+    const rightItems: string[] = [];
+
+    if (design.footer.text && design.footer.appNamePlacement === 'left') leftItems.push(design.footer.text);
+    if (design.footer.text && design.footer.appNamePlacement === 'center') centerItems.push(design.footer.text);
+    if (design.footer.text && design.footer.appNamePlacement === 'right') rightItems.push(design.footer.text);
+
+    if (timeHtml && design.footer.datePlacement === 'left') leftItems.push(timeHtml);
+    if (timeHtml && design.footer.datePlacement === 'center') centerItems.push(timeHtml);
+    if (timeHtml && design.footer.datePlacement === 'right') rightItems.push(timeHtml);
+
+    if (pageNumHtml && design.footer.pageNumberPlacement === 'left') leftItems.push(pageNumHtml);
+    if (pageNumHtml && design.footer.pageNumberPlacement === 'center') centerItems.push(pageNumHtml);
+    if (pageNumHtml && design.footer.pageNumberPlacement === 'right') rightItems.push(pageNumHtml);
 
     const watermarkHtml = design.watermarkText 
         ? `<div class="watermark-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; font-weight: bold; color: rgba(0,0,0,${design.page.watermarkOpacity}); pointer-events: none; white-space: nowrap; z-index: 0;">${design.watermarkText}</div>`
-        : (schoolConfig.schoolLogoBase64 && design.page.watermarkOpacity > 0 ? `<img src="${schoolConfig.schoolLogoBase64}" class="watermark" />` : '');
+        : (schoolConfig.schoolLogoBase64 && design.page.watermarkOpacity > 0 ? `<img src="${schoolConfig.schoolLogoBase64}" class="watermark" style="opacity: ${design.page.watermarkOpacity};" />` : '');
 
     return `
         <div class="print-container" dir="${lang === 'ur' ? 'rtl' : 'ltr'}">
@@ -593,10 +612,10 @@ const generateReportHTML = (
                         ${content}
                     </main>
                     ${design.footer.show ? `
-                    <footer class="footer" style="justify-content: ${design.footer.align === 'center' ? 'center' : design.footer.align === 'right' ? 'flex-end' : 'flex-start'}">
-                        <div style="flex: 1; text-align: left;">${design.footer.includeTimestamp ? new Date().toLocaleString() : ''}</div>
-                        <div style="flex: 2; text-align: center;">${design.footer.text}</div>
-                        <div style="flex: 1; text-align: right;">${pageNumHtml}</div>
+                    <footer class="footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div style="flex: 1; text-align: left; display: flex; gap: 10px;">${leftItems.join(' | ')}</div>
+                        <div style="flex: 1; text-align: center; display: flex; justify-content: center; gap: 10px;">${centerItems.join(' | ')}</div>
+                        <div style="flex: 1; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">${rightItems.join(' | ')}</div>
                     </footer>` : ''}
                 </div>
             </div>
@@ -807,20 +826,25 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
                     continue;
                 }
 
-                let rowspan = 1;
+                let colspan = 1;
                 if (mergePatterns) {
-                    while (pIdx + rowspan < maxPeriods) {
-                        const next = grid[pIdx + rowspan][dIdx];
-                        const nextDayLimit = schoolConfig.daysConfig?.[day]?.periodCount ?? 8;
-                        if (pIdx + rowspan < nextDayLimit && next && next.key === current.key) {
-                            rowspan++;
+                    while (dIdx + colspan < chunkDays.length) {
+                        const nextDay = chunkDays[dIdx + colspan];
+                        const nextDayLimit = schoolConfig.daysConfig?.[nextDay]?.periodCount ?? 8;
+                        if (pIdx < nextDayLimit) {
+                            const next = grid[pIdx][dIdx + colspan];
+                            if (next && next.key === current.key) {
+                                colspan++;
+                            } else {
+                                break;
+                            }
                         } else {
                             break;
                         }
                     }
                 }
-                for (let r = 0; r < rowspan; r++) visited[pIdx + r][dIdx] = true;
-                rowHtml += `<td ${rowspan > 1 ? `rowspan="${rowspan}"` : ''} >${current.html}</td>`;
+                for (let c = 0; c < colspan; c++) visited[pIdx][dIdx + c] = true;
+                rowHtml += `<td ${colspan > 1 ? `colspan="${colspan}"` : ''} >${current.html}</td>`;
             }
             tableRows += `<tr>${rowHtml}</tr>`;
         }
@@ -975,20 +999,25 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
                     continue;
                 }
 
-                let rowspan = 1;
+                let colspan = 1;
                 if (mergePatterns) {
-                    while (pIdx + rowspan < maxPeriods) {
-                        const next = grid[pIdx + rowspan][dIdx];
-                        const nextDayLimit = schoolConfig.daysConfig?.[day]?.periodCount ?? 8;
-                        if (pIdx + rowspan < nextDayLimit && next && next.key === current.key) {
-                            rowspan++;
+                    while (dIdx + colspan < chunkDays.length) {
+                        const nextDay = chunkDays[dIdx + colspan];
+                        const nextDayLimit = schoolConfig.daysConfig?.[nextDay]?.periodCount ?? 8;
+                        if (pIdx < nextDayLimit) {
+                            const next = grid[pIdx][dIdx + colspan];
+                            if (next && next.key === current.key) {
+                                colspan++;
+                            } else {
+                                break;
+                            }
                         } else {
                             break;
                         }
                     }
                 }
-                for (let r = 0; r < rowspan; r++) visited[pIdx + r][dIdx] = true;
-                rowHtml += `<td ${rowspan > 1 ? `rowspan="${rowspan}"` : ''} >${current.html}</td>`;
+                for (let c = 0; c < colspan; c++) visited[pIdx][dIdx + c] = true;
+                rowHtml += `<td ${colspan > 1 ? `colspan="${colspan}"` : ''} >${current.html}</td>`;
             }
             tableRows += `<tr>${rowHtml}</tr>`;
         }
