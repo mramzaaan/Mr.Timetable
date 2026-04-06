@@ -189,13 +189,14 @@ export interface SchoolClass {
   serialNumber?: number;
   nameEn: string;
   nameUr: string;
-  category?: 'High' | 'Middle' | 'Primary';
+  category?: 'High' | 'Middle' | 'Primary' | 'Extra Room';
   inCharge: string; 
   roomNumber: string;
   studentCount: number;
   subjects: ClassSubject[];
   timetable: TimetableGridData;
   groupSets?: GroupSet[];
+  comments?: string;
 }
 
 // --- Download Types ---

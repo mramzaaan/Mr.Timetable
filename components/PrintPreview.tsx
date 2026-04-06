@@ -84,6 +84,151 @@ const triangleCornerOptions: { label: string, value: TriangleCorner }[] = [
     { label: 'Bottom Right', value: 'bottom-right' },
 ];
 
+const ControlGroup = ({ label, children, defaultOpen = false }: any) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+    return (
+        <div className="mb-4 bg-[#1a1d21] rounded-lg overflow-hidden border border-gray-800 shadow-sm">
+            <button 
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full flex items-center justify-between p-4 text-xs font-bold text-gray-400 uppercase tracking-widest hover:bg-gray-800/50 transition-colors"
+            >
+                {label}
+                <div className={`transform transition-transform text-teal-500 ${isOpen ? 'rotate-180' : ''}`}>
+                    <ChevronDownIcon />
+                </div>
+            </button>
+            {isOpen && (
+                <div className="p-4 pt-0 space-y-4">
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+};
+
+const NumberInput = ({ label, path, value, min, max, step = 1, showPercent = false, onChange }: any) => (
+    <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
+        <label className="text-xs text-gray-300 font-medium">{label}</label>
+        <div className="flex items-center bg-[#1a1d21] rounded border border-gray-700 w-24">
+            <button onClick={() => onChange(path, Math.max(min, Number((value - step).toFixed(2))))} className="px-2 text-teal-500 hover:text-teal-400 font-bold">-</button>
+            <input 
+                type="text" 
+                value={showPercent ? `${Math.round(value * 100)}%` : value} 
+                onChange={(e) => {
+                    if (showPercent) return;
+                    onChange(path, Number(e.target.value));
+                }} 
+                readOnly={showPercent}
+                className="w-full bg-transparent text-center text-xs font-bold text-white outline-none py-1 appearance-none"
+            />
+            <button onClick={() => onChange(path, Math.min(max, Number((value + step).toFixed(2))))} className="px-2 text-teal-500 hover:text-teal-400 font-bold">+</button>
+        </div>
+    </div>
+);
+
+const SelectInput = ({ label, path, value, options: opts, onChange }: any) => (
+    <div className="bg-[#22252a] p-3 rounded-lg space-y-2 flex-1">
+        <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{label}</label>
+        <div className="relative">
+            <select 
+                value={value} 
+                onChange={(e) => onChange(path, e.target.value)} 
+                className="w-full bg-transparent text-white text-sm outline-none appearance-none cursor-pointer"
+            >
+                {opts.map((o: any) => <option key={o.value} value={o.value} className="bg-gray-900">{o.label}</option>)}
+            </select>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
+                <ChevronDownIcon />
+            </div>
+        </div>
+    </div>
+);
+
+const MarginInput = ({ options, onChange }: any) => (
+    <div className="grid grid-cols-4 gap-2">
+        {['top', 'right', 'bottom', 'left'].map(side => (
+            <div key={side} className="bg-[#22252a] p-2 rounded-lg flex flex-col items-center justify-center gap-1">
+                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{side}</label>
+                <input 
+                    type="number" 
+                    value={options.page.margins[side as keyof typeof options.page.margins]} 
+                    onChange={(e) => onChange(`page.margins.${side}`, Number(e.target.value))}
+                    className="w-full bg-transparent text-center text-sm font-bold text-teal-500 outline-none appearance-none"
+                />
+            </div>
+        ))}
+    </div>
+);
+
+const ToggleInput = ({ label, path, value, onChange }: any) => (
+    <div className="flex items-center justify-between cursor-pointer" onClick={() => onChange(path, !value)}>
+        <label className="text-sm text-gray-300 font-medium cursor-pointer">{label}</label>
+        <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-teal-500' : 'bg-gray-700'}`}>
+            <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${value ? 'left-5.5' : 'left-0.5'}`}></div>
+        </div>
+    </div>
+);
+
+const TextInput = ({ label, path, value, icon: Icon, onChange }: any) => (
+    <div className="flex items-center bg-[#22252a] p-3 rounded-lg gap-3">
+        {Icon && <Icon className="text-gray-500 w-5 h-5" />}
+        <input 
+            type="text" 
+            value={value || ''} 
+            onChange={(e) => onChange(path, e.target.value)} 
+            placeholder={label}
+            className="flex-1 bg-transparent text-white text-sm outline-none placeholder-gray-500"
+        />
+        <Icons.Edit className="text-teal-500 w-4 h-4" />
+    </div>
+);
+
+const ColorInput = ({ label, path, value, onChange }: any) => (
+    <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
+        <label className="text-xs text-gray-300 font-medium">{label}</label>
+        <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded border border-gray-600 overflow-hidden relative cursor-pointer">
+                <div className="absolute inset-0" style={{ backgroundColor: value }}></div>
+                <input type="color" value={value} onChange={(e) => onChange(path, e.target.value)} className="opacity-0 w-full h-full cursor-pointer" />
+            </div>
+            <input 
+                type="text" 
+                value={value} 
+                onChange={(e) => onChange(path, e.target.value)} 
+                className="w-16 bg-[#1a1d21] border border-gray-700 text-white text-xs rounded px-1 py-1 outline-none text-center font-mono uppercase"
+                maxLength={7}
+            />
+        </div>
+    </div>
+);
+
+const ManualColorInput = ({ label, value, onChange }: any) => (
+    <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
+        <label className="text-xs text-gray-300 font-medium">{label}</label>
+        <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded border border-gray-600 overflow-hidden relative cursor-pointer">
+                <div className="absolute inset-0" style={{ backgroundColor: value }}></div>
+                <input type="color" onChange={(e) => onChange(e.target.value)} disabled={!value} className="opacity-0 w-full h-full cursor-pointer disabled:cursor-not-allowed" />
+            </div>
+        </div>
+    </div>
+);
+
+
+const SectionButton = ({ id, label, icon: Icon, activeSection, onClick }: any) => (
+    <button
+        onClick={() => onClick(id)}
+        className={`flex items-center gap-2 px-4 py-3 text-sm font-bold transition-all duration-200 border-b-2 whitespace-nowrap ${
+            activeSection === id 
+            ? 'border-teal-500 text-teal-400' 
+            : 'border-transparent text-gray-400 hover:text-gray-200'
+        }`}
+    >
+        <Icon />
+        <span>{label}</span>
+    </button>
+);
+
 const SettingsSidebar: React.FC<{
     options: DownloadDesignConfig,
     onUpdate: (options: DownloadDesignConfig) => void,
@@ -117,150 +262,9 @@ const SettingsSidebar: React.FC<{
         setTimeout(() => setIsSaving(false), 2000);
     };
 
-    const SectionButton = ({ id, label, icon: Icon }: any) => (
-        <button
-            onClick={() => setActiveSection(activeSection === id ? null : id)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-bold transition-all duration-200 border-b-2 whitespace-nowrap ${
-                activeSection === id 
-                ? 'border-teal-500 text-teal-400' 
-                : 'border-transparent text-gray-400 hover:text-gray-200'
-            }`}
-        >
-            <Icon />
-            <span>{label}</span>
-        </button>
-    );
-
-    const ControlGroup = ({ label, children, defaultOpen = false }: any) => {
-        const [isOpen, setIsOpen] = useState(defaultOpen);
-        return (
-            <div className="mb-4 bg-[#1a1d21] rounded-lg overflow-hidden border border-gray-800 shadow-sm">
-                <button 
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="w-full flex items-center justify-between p-4 text-xs font-bold text-gray-400 uppercase tracking-widest hover:bg-gray-800/50 transition-colors"
-                >
-                    {label}
-                    <div className={`transform transition-transform text-teal-500 ${isOpen ? 'rotate-180' : ''}`}>
-                        <ChevronDownIcon />
-                    </div>
-                </button>
-                {isOpen && (
-                    <div className="p-4 pt-0 space-y-4">
-                        {children}
-                    </div>
-                )}
-            </div>
-        );
+    const handleSectionClick = (id: any) => {
+        setActiveSection(activeSection === id ? null : id);
     };
-
-    const NumberInput = ({ label, path, value, min, max, step = 1, showPercent = false }: any) => (
-        <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
-            <label className="text-xs text-gray-300 font-medium">{label}</label>
-            <div className="flex items-center bg-[#1a1d21] rounded border border-gray-700 w-24">
-                <button onClick={() => handleValueChange(path, Math.max(min, Number((value - step).toFixed(2))))} className="px-2 text-teal-500 hover:text-teal-400 font-bold">-</button>
-                <input 
-                    type="text" 
-                    value={showPercent ? `${Math.round(value * 100)}%` : value} 
-                    onChange={(e) => {
-                        if (showPercent) return;
-                        handleValueChange(path, Number(e.target.value));
-                    }} 
-                    readOnly={showPercent}
-                    className="w-full bg-transparent text-center text-xs font-bold text-white outline-none py-1 appearance-none"
-                />
-                <button onClick={() => handleValueChange(path, Math.min(max, Number((value + step).toFixed(2))))} className="px-2 text-teal-500 hover:text-teal-400 font-bold">+</button>
-            </div>
-        </div>
-    );
-
-    const SelectInput = ({ label, path, value, options: opts }: any) => (
-        <div className="bg-[#22252a] p-3 rounded-lg space-y-2 flex-1">
-            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{label}</label>
-            <div className="relative">
-                <select 
-                    value={value} 
-                    onChange={(e) => handleValueChange(path, e.target.value)} 
-                    className="w-full bg-transparent text-white text-sm outline-none appearance-none cursor-pointer"
-                >
-                    {opts.map((o: any) => <option key={o.value} value={o.value} className="bg-gray-900">{o.label}</option>)}
-                </select>
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
-                    <ChevronDownIcon />
-                </div>
-            </div>
-        </div>
-    );
-
-    const MarginInput = () => (
-        <div className="grid grid-cols-4 gap-2">
-            {['top', 'right', 'bottom', 'left'].map(side => (
-                <div key={side} className="bg-[#22252a] p-2 rounded-lg flex flex-col items-center justify-center gap-1">
-                    <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{side}</label>
-                    <input 
-                        type="number" 
-                        value={options.page.margins[side as keyof typeof options.page.margins]} 
-                        onChange={(e) => handleValueChange(`page.margins.${side}`, Number(e.target.value))}
-                        className="w-full bg-transparent text-center text-sm font-bold text-teal-500 outline-none appearance-none"
-                    />
-                </div>
-            ))}
-        </div>
-    );
-
-    const ToggleInput = ({ label, path, value }: any) => (
-        <div className="flex items-center justify-between cursor-pointer" onClick={() => handleValueChange(path, !value)}>
-            <label className="text-sm text-gray-300 font-medium cursor-pointer">{label}</label>
-            <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-teal-500' : 'bg-gray-700'}`}>
-                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${value ? 'left-5.5' : 'left-0.5'}`}></div>
-            </div>
-        </div>
-    );
-
-    const TextInput = ({ label, path, value, icon: Icon }: any) => (
-        <div className="flex items-center bg-[#22252a] p-3 rounded-lg gap-3">
-            {Icon && <Icon className="text-gray-500 w-5 h-5" />}
-            <input 
-                type="text" 
-                value={value || ''} 
-                onChange={(e) => handleValueChange(path, e.target.value)} 
-                placeholder={label}
-                className="flex-1 bg-transparent text-white text-sm outline-none placeholder-gray-500"
-            />
-            <Icons.Edit className="text-teal-500 w-4 h-4" />
-        </div>
-    );
-
-    const ColorInput = ({ label, path, value }: any) => (
-        <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
-            <label className="text-xs text-gray-300 font-medium">{label}</label>
-            <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded border border-gray-600 overflow-hidden relative cursor-pointer">
-                    <div className="absolute inset-0" style={{ backgroundColor: value }}></div>
-                    <input type="color" value={value} onChange={(e) => handleValueChange(path, e.target.value)} className="opacity-0 w-full h-full cursor-pointer" />
-                </div>
-                <input 
-                    type="text" 
-                    value={value} 
-                    onChange={(e) => handleValueChange(path, e.target.value)} 
-                    className="w-16 bg-[#1a1d21] border border-gray-700 text-white text-xs rounded px-1 py-1 outline-none text-center font-mono uppercase"
-                    maxLength={7}
-                />
-            </div>
-        </div>
-    );
-
-    // Edit Section Handlers
-    const ManualColorInput = ({ label, value, onChange }: any) => (
-        <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
-            <label className="text-xs text-gray-300 font-medium">{label}</label>
-            <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded border border-gray-600 overflow-hidden relative cursor-pointer">
-                    <div className="absolute inset-0" style={{ backgroundColor: value }}></div>
-                    <input type="color" onChange={(e) => onChange(e.target.value)} disabled={!activeElement} className="opacity-0 w-full h-full cursor-pointer disabled:cursor-not-allowed" />
-                </div>
-            </div>
-        </div>
-    );
 
     const [presets, setPresets] = useState<{name: string, config: DownloadDesignConfig}[]>(() => {
         try {
@@ -305,27 +309,27 @@ const SettingsSidebar: React.FC<{
             </div>
             
             <div className="flex overflow-x-auto border-b border-gray-800 bg-[#1a1d21] no-scrollbar">
-                <SectionButton id="page" label="Layout" icon={Icons.Layout} />
-                <SectionButton id="header" label="Header" icon={Icons.Header} />
-                <SectionButton id="table" label="Table" icon={Icons.Table} />
-                <SectionButton id="footer" label="Footer" icon={Icons.Footer} />
-                <SectionButton id="visibility" label="Visibility" icon={Icons.Check} />
-                <SectionButton id="presets" label="Presets" icon={Icons.Share} />
-                <SectionButton id="edit" label="Edit Text" icon={Icons.Edit} />
+                <SectionButton id="page" label="Layout" icon={Icons.Layout} activeSection={activeSection} onClick={handleSectionClick} />
+                <SectionButton id="header" label="Header" icon={Icons.Header} activeSection={activeSection} onClick={handleSectionClick} />
+                <SectionButton id="table" label="Table" icon={Icons.Table} activeSection={activeSection} onClick={handleSectionClick} />
+                <SectionButton id="footer" label="Footer" icon={Icons.Footer} activeSection={activeSection} onClick={handleSectionClick} />
+                <SectionButton id="visibility" label="Visibility" icon={Icons.Check} activeSection={activeSection} onClick={handleSectionClick} />
+                <SectionButton id="presets" label="Presets" icon={Icons.Share} activeSection={activeSection} onClick={handleSectionClick} />
+                <SectionButton id="edit" label="Edit Text" icon={Icons.Edit} activeSection={activeSection} onClick={handleSectionClick} />
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
                 {activeSection === 'page' && (
                     <>
                         <ControlGroup label="Scaling & Dimension">
-                            <NumberInput label="Content Scale" path="contentScale" value={options.contentScale || 1} min={0.5} max={2.0} step={0.05} showPercent={true} />
+                            <NumberInput label="Content Scale" path="contentScale" value={options.contentScale || 1} min={0.5} max={2.0} step={0.05} showPercent={true} onChange={handleValueChange} />
                             <div className="flex gap-3">
-                                <SelectInput label="Paper Size" path="page.size" value={options.page.size} options={[{value: 'a4', label: 'A4 (Standard)'}, {value: 'letter', label: 'Letter'}, {value: 'legal', label: 'Legal'}]} />
-                                <SelectInput label="Orientation" path="page.orientation" value={options.page.orientation} options={[{value: 'portrait', label: 'Portrait'}, {value: 'landscape', label: 'Landscape'}]} />
+                                <SelectInput label="Paper Size" path="page.size" value={options.page.size} options={[{value: 'a4', label: 'A4 (Standard)'}, {value: 'letter', label: 'Letter'}, {value: 'legal', label: 'Legal'}]} onChange={handleValueChange} />
+                                <SelectInput label="Orientation" path="page.orientation" value={options.page.orientation} options={[{value: 'portrait', label: 'Portrait'}, {value: 'landscape', label: 'Landscape'}]} onChange={handleValueChange} />
                             </div>
                         </ControlGroup>
                         <ControlGroup label="Margin Controls">
-                            <MarginInput />
+                            <MarginInput options={options} onChange={handleValueChange} />
                         </ControlGroup>
                         <ControlGroup label="Watermark">
                             <div className="flex items-center justify-between cursor-pointer mb-3" onClick={() => handleValueChange('page.watermarkOpacity', options.page.watermarkOpacity > 0 ? 0 : 0.1)}>
@@ -336,26 +340,26 @@ const SettingsSidebar: React.FC<{
                             </div>
                             {options.page.watermarkOpacity > 0 && (
                                 <>
-                                    <TextInput label="Watermark Text" path="watermarkText" value={options.watermarkText} icon={Icons.Edit} />
+                                    <TextInput label="Watermark Text" path="watermarkText" value={options.watermarkText} icon={Icons.Edit} onChange={handleValueChange} />
                                     <div className="mt-3">
-                                        <NumberInput label="Transparency" path="page.watermarkOpacity" value={options.page.watermarkOpacity} min={0.05} max={1.0} step={0.05} />
+                                        <NumberInput label="Transparency" path="page.watermarkOpacity" value={options.page.watermarkOpacity} min={0.05} max={1.0} step={0.05} onChange={handleValueChange} />
                                     </div>
                                 </>
                             )}
                         </ControlGroup>
                         <ControlGroup label="Other Settings" defaultOpen={false}>
-                            <NumberInput label="Rows (All Pages)" path="rowsPerPage" value={options.rowsPerPage} min={5} max={100} />
-                            <NumberInput label="Rows (1st Page)" path="rowsPerFirstPage" value={options.rowsPerFirstPage || options.rowsPerPage} min={5} max={100} />
-                            <SelectInput label="Color Mode" path="colorMode" value={options.colorMode} options={[{value: 'color', label: 'Color'}, {value: 'bw', label: 'Black & White'}]} />
+                            <NumberInput label="Rows (All Pages)" path="rowsPerPage" value={options.rowsPerPage} min={5} max={100} onChange={handleValueChange} />
+                            <NumberInput label="Rows (1st Page)" path="rowsPerFirstPage" value={options.rowsPerFirstPage || options.rowsPerPage} min={5} max={100} onChange={handleValueChange} />
+                            <SelectInput label="Color Mode" path="colorMode" value={options.colorMode} options={[{value: 'color', label: 'Color'}, {value: 'bw', label: 'Black & White'}]} onChange={handleValueChange} />
                         </ControlGroup>
                     </>
                 )}
 
                 {activeSection === 'visibility' && (
                     <ControlGroup label="Show/Hide Elements">
-                        <ToggleInput label="Teacher Name" path="visibleElements.teacherName" value={options.visibleElements?.teacherName ?? true} />
-                        <ToggleInput label="Subject Name" path="visibleElements.subjectName" value={options.visibleElements?.subjectName ?? true} />
-                        <ToggleInput label="Room Number" path="visibleElements.roomNumber" value={options.visibleElements?.roomNumber ?? true} />
+                        <ToggleInput label="Teacher Name" path="visibleElements.teacherName" value={options.visibleElements?.teacherName ?? true} onChange={handleValueChange} />
+                        <ToggleInput label="Subject Name" path="visibleElements.subjectName" value={options.visibleElements?.subjectName ?? true} onChange={handleValueChange} />
+                        <ToggleInput label="Room Number" path="visibleElements.roomNumber" value={options.visibleElements?.roomNumber ?? true} onChange={handleValueChange} />
                     </ControlGroup>
                 )}
 
@@ -389,32 +393,32 @@ const SettingsSidebar: React.FC<{
                 {activeSection === 'header' && (
                     <>
                         <ControlGroup label="School Name">
-                            <SelectInput label="Font" path="header.schoolName.fontFamily" value={options.header.schoolName.fontFamily} options={fontOptions} />
-                            <NumberInput label="Size" path="header.schoolName.fontSize" value={options.header.schoolName.fontSize} min={10} max={80} />
-                            <SelectInput label="Align" path="header.schoolName.align" value={options.header.schoolName.align} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} />
-                            <ColorInput label="Color" path="header.schoolName.color" value={options.header.schoolName.color} />
+                            <SelectInput label="Font" path="header.schoolName.fontFamily" value={options.header.schoolName.fontFamily} options={fontOptions} onChange={handleValueChange} />
+                            <NumberInput label="Size" path="header.schoolName.fontSize" value={options.header.schoolName.fontSize} min={10} max={80} onChange={handleValueChange} />
+                            <SelectInput label="Align" path="header.schoolName.align" value={options.header.schoolName.align} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} onChange={handleValueChange} />
+                            <ColorInput label="Color" path="header.schoolName.color" value={options.header.schoolName.color} onChange={handleValueChange} />
                         </ControlGroup>
                         <ControlGroup label="Header Features">
-                            <ToggleInput label="Show Logo" path="header.showLogo" value={options.header.showLogo} />
-                            <NumberInput label="Logo Size" path="header.logoSize" value={options.header.logoSize} min={20} max={200} />
-                            <ToggleInput label="Show Title" path="header.showTitle" value={options.header.showTitle} />
+                            <ToggleInput label="Show Logo" path="header.showLogo" value={options.header.showLogo} onChange={handleValueChange} />
+                            <NumberInput label="Logo Size" path="header.logoSize" value={options.header.logoSize} min={20} max={200} onChange={handleValueChange} />
+                            <ToggleInput label="Show Title" path="header.showTitle" value={options.header.showTitle} onChange={handleValueChange} />
                             {options.header.showTitle && (
                                 <>
-                                    <NumberInput label="Title Size" path="header.title.fontSize" value={options.header.title?.fontSize || 18} min={10} max={80} />
-                                    <ColorInput label="Title Color" path="header.title.color" value={options.header.title?.color || '#000000'} />
+                                    <NumberInput label="Title Size" path="header.title.fontSize" value={options.header.title?.fontSize || 18} min={10} max={80} onChange={handleValueChange} />
+                                    <ColorInput label="Title Color" path="header.title.color" value={options.header.title?.color || '#000000'} onChange={handleValueChange} />
                                 </>
                             )}
                             <div className="mt-4 pt-4 border-t border-gray-800">
                                 <h5 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-3">Details (Name, Room, etc.)</h5>
                                 <div className="space-y-3">
-                                    <NumberInput label="Size" path="header.details.fontSize" value={options.header.details?.fontSize || 14} min={8} max={40} />
-                                    <ColorInput label="Color" path="header.details.color" value={options.header.details?.color || '#000000'} />
+                                    <NumberInput label="Size" path="header.details.fontSize" value={options.header.details?.fontSize || 14} min={8} max={40} onChange={handleValueChange} />
+                                    <ColorInput label="Color" path="header.details.color" value={options.header.details?.color || '#000000'} onChange={handleValueChange} />
                                 </div>
                             </div>
-                            <ToggleInput label="Show Date" path="header.showDate" value={options.header.showDate} />
-                            <TextInput label="Subtitle" path="header.subtitle" value={options.header.subtitle} />
-                            <ToggleInput label="Show Divider" path="header.divider" value={options.header.divider} />
-                            <ColorInput label="Background" path="header.bgColor" value={options.header.bgColor} />
+                            <ToggleInput label="Show Date" path="header.showDate" value={options.header.showDate} onChange={handleValueChange} />
+                            <TextInput label="Subtitle" path="header.subtitle" value={options.header.subtitle} onChange={handleValueChange} />
+                            <ToggleInput label="Show Divider" path="header.divider" value={options.header.divider} onChange={handleValueChange} />
+                            <ColorInput label="Background" path="header.bgColor" value={options.header.bgColor} onChange={handleValueChange} />
                         </ControlGroup>
                     </>
                 )}
@@ -422,41 +426,41 @@ const SettingsSidebar: React.FC<{
                 {activeSection === 'table' && (
                     <>
                         <ControlGroup label="Dimensions & Layout">
-                            <NumberInput label="Column Width" path="table.periodColumnWidth" value={options.table.periodColumnWidth} min={20} max={100} />
-                            <NumberInput label="Border Width" path="table.borderWidth" value={options.table.borderWidth} min={0} max={10} step={0.5} />
-                            <SelectInput label="Grid Style" path="table.gridStyle" value={options.table.gridStyle} options={[{value:'solid', label:'Solid'}, {value:'dashed', label:'Dashed'}, {value:'dotted', label:'Dotted'}]} />
-                            <SelectInput label="Vertical Align" path="table.verticalAlign" value={options.table.verticalAlign} options={[{value:'top', label:'Top'}, {value:'middle', label:'Middle'}, {value:'bottom', label:'Bottom'}]} />
-                            <ToggleInput label="Merge Identical" path="table.mergeIdenticalPeriods" value={options.table.mergeIdenticalPeriods ?? true} />
+                            <NumberInput label="Column Width" path="table.periodColumnWidth" value={options.table.periodColumnWidth} min={20} max={100} onChange={handleValueChange} />
+                            <NumberInput label="Border Width" path="table.borderWidth" value={options.table.borderWidth} min={0} max={10} step={0.5} onChange={handleValueChange} />
+                            <SelectInput label="Grid Style" path="table.gridStyle" value={options.table.gridStyle} options={[{value:'solid', label:'Solid'}, {value:'dashed', label:'Dashed'}, {value:'dotted', label:'Dotted'}]} onChange={handleValueChange} />
+                            <SelectInput label="Vertical Align" path="table.verticalAlign" value={options.table.verticalAlign} options={[{value:'top', label:'Top'}, {value:'middle', label:'Middle'}, {value:'bottom', label:'Bottom'}]} onChange={handleValueChange} />
+                            <ToggleInput label="Merge Identical" path="table.mergeIdenticalPeriods" value={options.table.mergeIdenticalPeriods ?? true} onChange={handleValueChange} />
                         </ControlGroup>
 
                         <ControlGroup label="Typography & Style">
-                            <SelectInput label="Card Design" path="table.cardStyle" value={options.table.cardStyle || 'full'} options={cardStyleOptions} />
+                            <SelectInput label="Card Design" path="table.cardStyle" value={options.table.cardStyle || 'full'} options={cardStyleOptions} onChange={handleValueChange} />
                             
                             {options.table.cardStyle === 'outline' && (
-                                <NumberInput label="Outline Width" path="table.outlineWidth" value={options.table.outlineWidth || 2} min={0.5} max={10} step={0.5} />
+                                <NumberInput label="Outline Width" path="table.outlineWidth" value={options.table.outlineWidth || 2} min={0.5} max={10} step={0.5} onChange={handleValueChange} />
                             )}
                             {options.table.cardStyle === 'triangle' && (
-                                <SelectInput label="Corner" path="table.triangleCorner" value={options.table.triangleCorner || 'bottom-left'} options={triangleCornerOptions} />
+                                <SelectInput label="Corner" path="table.triangleCorner" value={options.table.triangleCorner || 'bottom-left'} options={triangleCornerOptions} onChange={handleValueChange} />
                             )}
                             {options.table.cardStyle === 'badge' && (
-                                <SelectInput label="Badge Target" path="table.badgeTarget" value={options.table.badgeTarget || 'subject'} options={[{value:'subject', label:'Subject'}, {value:'teacher', label:'Teacher'}, {value:'class', label:'Class'}]} />
+                                <SelectInput label="Badge Target" path="table.badgeTarget" value={options.table.badgeTarget || 'subject'} options={[{value:'subject', label:'Subject'}, {value:'teacher', label:'Teacher'}, {value:'class', label:'Class'}]} onChange={handleValueChange} />
                             )}
 
-                            <SelectInput label="Font Family" path="table.fontFamily" value={options.table.fontFamily} options={fontOptions} />
-                            <NumberInput label="Body Size" path="table.fontSize" value={options.table.fontSize} min={8} max={32} />
-                            <NumberInput label="Header Size" path="table.headerFontSize" value={options.table.headerFontSize || options.table.fontSize} min={8} max={40} />
-                            <NumberInput label="Line Height" path="table.lineHeight" value={options.table.lineHeight || 1.1} min={0.8} max={3.0} step={0.1} />
-                            <NumberInput label="Cell Padding" path="table.cellPadding" value={options.table.cellPadding} min={0} max={30} />
+                            <SelectInput label="Font Family" path="table.fontFamily" value={options.table.fontFamily} options={fontOptions} onChange={handleValueChange} />
+                            <NumberInput label="Body Size" path="table.fontSize" value={options.table.fontSize} min={8} max={32} onChange={handleValueChange} />
+                            <NumberInput label="Header Size" path="table.headerFontSize" value={options.table.headerFontSize || options.table.fontSize} min={8} max={40} onChange={handleValueChange} />
+                            <NumberInput label="Line Height" path="table.lineHeight" value={options.table.lineHeight || 1.1} min={0.8} max={3.0} step={0.1} onChange={handleValueChange} />
+                            <NumberInput label="Cell Padding" path="table.cellPadding" value={options.table.cellPadding} min={0} max={30} onChange={handleValueChange} />
                         </ControlGroup>
 
                         <ControlGroup label="Colors">
-                            <ColorInput label="Header BG" path="table.headerBgColor" value={options.table.headerBgColor} />
-                            <ColorInput label="Header Text" path="table.headerColor" value={options.table.headerColor} />
-                            <ColorInput label="Body Text" path="table.bodyColor" value={options.table.bodyColor || '#000000'} />
-                            <ColorInput label="Period Col BG" path="table.periodColumnBgColor" value={options.table.periodColumnBgColor} />
-                            <ColorInput label="Period Col Text" path="table.periodColumnColor" value={options.table.periodColumnColor} />
-                            <ColorInput label="Alt Row" path="table.altRowColor" value={options.table.altRowColor} />
-                            <ColorInput label="Borders" path="table.borderColor" value={options.table.borderColor} />
+                            <ColorInput label="Header BG" path="table.headerBgColor" value={options.table.headerBgColor} onChange={handleValueChange} />
+                            <ColorInput label="Header Text" path="table.headerColor" value={options.table.headerColor} onChange={handleValueChange} />
+                            <ColorInput label="Body Text" path="table.bodyColor" value={options.table.bodyColor || '#000000'} onChange={handleValueChange} />
+                            <ColorInput label="Period Col BG" path="table.periodColumnBgColor" value={options.table.periodColumnBgColor} onChange={handleValueChange} />
+                            <ColorInput label="Period Col Text" path="table.periodColumnColor" value={options.table.periodColumnColor} onChange={handleValueChange} />
+                            <ColorInput label="Alt Row" path="table.altRowColor" value={options.table.altRowColor} onChange={handleValueChange} />
+                            <ColorInput label="Borders" path="table.borderColor" value={options.table.borderColor} onChange={handleValueChange} />
                         </ControlGroup>
                     </>
                 )}
@@ -464,20 +468,20 @@ const SettingsSidebar: React.FC<{
                 {activeSection === 'footer' && (
                     <>
                         <ControlGroup label="Footer Settings">
-                            <ToggleInput label="Show Footer" path="footer.show" value={options.footer.show} />
+                            <ToggleInput label="Show Footer" path="footer.show" value={options.footer.show} onChange={handleValueChange} />
                             {options.footer.show && (
                                 <>
-                                    <TextInput label="App Name" path="footer.text" value={options.footer.text} />
-                                    <SelectInput label="App Name Pos" path="footer.appNamePlacement" value={options.footer.appNamePlacement || 'center'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} />
+                                    <TextInput label="App Name" path="footer.text" value={options.footer.text} onChange={handleValueChange} />
+                                    <SelectInput label="App Name Pos" path="footer.appNamePlacement" value={options.footer.appNamePlacement || 'center'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />
                                     
-                                    <ToggleInput label="Show Date" path="footer.includeDate" value={options.footer.includeDate} />
-                                    <SelectInput label="Date Pos" path="footer.datePlacement" value={options.footer.datePlacement || 'hidden'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} />
+                                    <ToggleInput label="Show Date" path="footer.includeDate" value={options.footer.includeDate} onChange={handleValueChange} />
+                                    <SelectInput label="Date Pos" path="footer.datePlacement" value={options.footer.datePlacement || 'hidden'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />
                                     
-                                    <ToggleInput label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} />
-                                    <SelectInput label="Page Num Pos" path="footer.pageNumberPlacement" value={options.footer.pageNumberPlacement || 'right'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} />
+                                    <ToggleInput label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} onChange={handleValueChange} />
+                                    <SelectInput label="Page Num Pos" path="footer.pageNumberPlacement" value={options.footer.pageNumberPlacement || 'right'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />
                                     
-                                    <NumberInput label="Font Size" path="footer.fontSize" value={options.footer.fontSize} min={6} max={20} />
-                                    <ColorInput label="Color" path="footer.color" value={options.footer.color} />
+                                    <NumberInput label="Font Size" path="footer.fontSize" value={options.footer.fontSize} min={6} max={20} onChange={handleValueChange} />
+                                    <ColorInput label="Color" path="footer.color" value={options.footer.color} onChange={handleValueChange} />
                                 </>
                             )}
                         </ControlGroup>
@@ -941,29 +945,15 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black z-[110] flex overflow-hidden animate-scale-in">
+    <div className="fixed inset-0 bg-black z-[110] flex flex-col md:flex-row overflow-hidden animate-scale-in">
         
-        {/* Mobile Backdrop */}
-        {isSidebarOpen && (
-            <div 
-                className="md:hidden fixed inset-0 bg-black/50 z-40" 
-                onClick={() => setIsSidebarOpen(false)}
-            />
-        )}
-
-        {/* Left Sidebar */}
-        <div className={`transition-all duration-300 absolute md:relative z-50 bg-gray-900 border-r border-gray-800 flex flex-col h-full ${isSidebarOpen ? 'w-80 md:w-80 translate-x-0' : 'w-80 md:w-0 -translate-x-full md:translate-x-0'}`}>
-            <div className="absolute -right-6 top-4 z-50 hidden md:block">
-                <button 
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-                    className="bg-gray-800 p-1.5 rounded-r-lg border-y border-r border-gray-700 shadow-lg text-gray-400 hover:text-white transition-colors"
-                    title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
-                >
-                    {isSidebarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                </button>
-            </div>
-            
-            <div className={`overflow-hidden flex flex-col h-full ${!isSidebarOpen && 'md:invisible'}`}>
+        {/* Top/Left Sidebar */}
+        <div className={`transition-all duration-300 z-50 bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col ${
+            isSidebarOpen 
+            ? 'h-1/2 md:h-full w-full md:w-80' 
+            : 'h-0 md:h-full w-full md:w-0 overflow-hidden'
+        }`}>
+            <div className={`overflow-hidden flex flex-col h-full ${!isSidebarOpen && 'invisible md:invisible'}`}>
                 <SettingsSidebar 
                     options={options} 
                     onUpdate={handleDesignUpdate} 
@@ -979,8 +969,8 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 bg-gray-800 relative">
-            {/* Mobile Sidebar Toggle */}
-            <div className="md:hidden absolute top-3 left-3 z-50">
+            {/* Sidebar Toggle */}
+            <div className="absolute top-2 left-2 z-50">
                 <button 
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
                     className={`p-2 rounded-lg border shadow-lg transition-colors ${
@@ -1000,7 +990,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                 <div className="h-14 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-2 sm:px-4 text-white">
                     <div className="flex items-center gap-3 flex-shrink-0">
                         {/* Modified margin to clear sidebar toggle and smaller text size */}
-                        <span className="font-black text-xs uppercase tracking-wider text-gray-300 ml-14 sm:ml-12 whitespace-nowrap truncate max-w-[60px] sm:max-w-[200px]" title={title}>{title}</span>
+                        <span className="font-black text-xs uppercase tracking-wider text-gray-300 ml-12 whitespace-nowrap truncate max-w-[60px] sm:max-w-[200px]" title={title}>{title}</span>
                     </div>
                     
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pl-2">

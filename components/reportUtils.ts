@@ -1022,8 +1022,8 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
             tableRows += `<tr>${rowHtml}</tr>`;
         }
 
-        const colGroupHtml = `<colgroup><col style="width: ${customDesign.table.periodColumnWidth}px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
-        const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
+        const colGroupHtml = `<colgroup><col style="width: ${customDesign.table.periodColumnWidth}px"><col style="width: 24px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
+        const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col" colspan="2"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
         pages.push(generateReportHTML(schoolConfig, customDesign, `${tLocal('teacherTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
     }
     return pages.length === 1 ? pages[0] : pages;
@@ -1147,12 +1147,17 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
         let tableRows = '';
         pageClasses.forEach((c, idx) => {
             const rowIdx = (i === 0) ? idx : (rowsPerFirstPage + (i - 1) * rowsPerPage + idx);
-            const tea = teachers.find(t => t.id === c.inCharge); 
-            const inCharge = tea ? renderText(lang, tea.nameEn, tea.nameUr) : '-';
-            const name = renderText(lang, c.nameEn, c.nameUr); 
             const serial = c.serialNumber || rowIdx + 1;
-            const count = parseInt(String(c.studentCount), 10) || 0;
-            tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${c.roomNumber}</td><td>${count}</td><td></td><td></td><td></td></tr>`;
+            const name = renderText(lang, c.nameEn, c.nameUr); 
+            
+            if (c.category === 'Extra Room') {
+                tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td></td><td>${c.roomNumber}</td><td colspan="4" style="text-align: left;">${c.comments || ''}</td></tr>`;
+            } else {
+                const tea = teachers.find(t => t.id === c.inCharge); 
+                const inCharge = tea ? renderText(lang, tea.nameEn, tea.nameUr) : '-';
+                const count = parseInt(String(c.studentCount), 10) || 0;
+                tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${c.roomNumber}</td><td>${count}</td><td></td><td></td><td></td></tr>`;
+            }
         });
 
         const isLastPage = i === totalPagesCount - 1;
@@ -1175,25 +1180,30 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
     const { en: enT, ur: urT } = translations;
     const trLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
     
-    const header = ['#', trLocal('class'), trLocal('classInCharge'), trLocal('roomNumber'), trLocal('studentCount')];
+    const header = ['#', trLocal('class'), trLocal('classInCharge'), trLocal('roomNumber'), trLocal('studentCount'), 'Comments'];
     const rows: (string | number)[][] = [header];
 
     let highTotal = 0; let middleTotal = 0; let primaryTotal = 0; let grandTotal = 0;
 
     classes.forEach((c, idx) => {
-        const count = parseInt(String(c.studentCount), 10) || 0;
-        grandTotal += count;
-        const cat = (c.category || '').trim().toLowerCase();
-        if (cat === 'high') highTotal += count;
-        else if (cat === 'middle') middleTotal += count;
-        else if (cat === 'primary') primaryTotal += count;
-
-        const tea = teachers.find(tea => tea.id === c.inCharge);
-        const inCharge = tea ? (lang === 'ur' ? tea.nameUr : tea.nameEn) : '-';
-        const className = lang === 'ur' ? c.nameUr : c.nameEn;
         const serial = c.serialNumber || idx + 1;
+        const className = lang === 'ur' ? c.nameUr : c.nameEn;
 
-        rows.push([serial, className, inCharge, c.roomNumber, count]);
+        if (c.category === 'Extra Room') {
+            rows.push([serial, className, '', c.roomNumber, '', c.comments || '']);
+        } else {
+            const count = parseInt(String(c.studentCount), 10) || 0;
+            grandTotal += count;
+            const cat = (c.category || '').trim().toLowerCase();
+            if (cat === 'high') highTotal += count;
+            else if (cat === 'middle') middleTotal += count;
+            else if (cat === 'primary') primaryTotal += count;
+
+            const tea = teachers.find(tea => tea.id === c.inCharge);
+            const inCharge = tea ? (lang === 'ur' ? tea.nameUr : tea.nameEn) : '-';
+
+            rows.push([serial, className, inCharge, c.roomNumber, count, '']);
+        }
     });
 
     rows.push([]);

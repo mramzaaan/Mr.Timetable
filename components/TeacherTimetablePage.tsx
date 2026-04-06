@@ -82,6 +82,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
   const [moveSource, setMoveSource] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
+  const [isFabOpen, setIsFabOpen] = useState(false);
   const [isCommModalOpen, setIsCommModalOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
@@ -1243,22 +1244,6 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                  <ChevronRightIcon />
              </button>
         </div>
-        
-        {/* Centered Action Buttons */}
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-            {onUndo && (
-              <button onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><UndoIcon /></button>
-            )}
-            {onRedo && (
-              <button onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><RedoIcon /></button>
-            )}
-            {onSave && (
-              <button onClick={onSave} title="Save (Ctrl+S)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] transition-colors"><SaveIcon /></button>
-            )}
-            <div className="w-px h-6 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
-            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedTeacher} title={t.sendViaWhatsApp} className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><WhatsAppIcon /></button>
-            <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedTeacher} title={t.printViewAction} className="p-2 text-sm font-medium bg-[var(--accent-primary)] text-[var(--accent-text)] border border-[var(--accent-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><PrintIcon /></button>
-        </div>
       </div>
 
       {!selectedTeacher || !teacherTimetableData ? (
@@ -1274,16 +1259,16 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
               <table className="w-full text-center border-collapse table-fixed">
                 <thead>
                   <tr className="bg-[var(--accent-primary)] text-[var(--accent-text)]">
-                    <th className="border border-[var(--border-secondary)] p-2 w-12"></th>
+                    <th className="border border-[var(--border-secondary)] p-1 w-10"></th>
                     {activeDays.map(day => (
-                      <th key={day} className="border border-[var(--border-secondary)] p-2 font-bold uppercase text-sm">{t[day.toLowerCase()]}</th>
+                      <th key={day} className="border border-[var(--border-secondary)] p-1 font-bold uppercase text-xs">{t[day.toLowerCase()]}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {periodLabels.map((label, periodIndex) => (
                     <tr key={label}>
-                      <td className="border border-[var(--border-secondary)] font-black text-xl bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-sans">{label}</td>
+                      <td className="border border-[var(--border-secondary)] font-black text-lg bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-sans">{label}</td>
                       {activeDays.map(day => {
                         const periodLimit = schoolConfig.daysConfig?.[day]?.periodCount ?? 8;
                         const isDisabled = periodIndex >= periodLimit;
@@ -1639,6 +1624,52 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
             )}
         </div>
       )}
+
+      {/* Floating Action Buttons */}
+      <div className="fixed top-24 right-6 z-50 flex flex-col items-end gap-3">
+          {/* Main Toggle Button */}
+          <div className="flex flex-col items-center gap-3">
+              {/* WhatsApp Button - Always visible */}
+              <button 
+                  onClick={() => setIsCommModalOpen(true)}
+                  disabled={!selectedTeacher}
+                  className="w-12 h-12 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:bg-[#128C7E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={t.sendViaWhatsApp}
+              >
+                  <WhatsAppIcon />
+              </button>
+
+              {/* Toggle FAB */}
+              <button 
+                  onClick={() => setIsFabOpen(!isFabOpen)}
+                  className={`w-12 h-12 rounded-full bg-[var(--accent-primary)] text-[var(--accent-text)] flex items-center justify-center shadow-lg hover:bg-[var(--accent-primary-hover)] transition-transform duration-300 ${isFabOpen ? 'rotate-90' : ''}`}
+              >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+              </button>
+          </div>
+
+          {/* Collapsible Buttons */}
+          <div className={`flex flex-col gap-3 transition-all duration-300 origin-top ${isFabOpen ? 'scale-100 opacity-100 mt-2' : 'scale-0 opacity-0 h-0 pointer-events-none'}`}>
+              <button onClick={() => { setIsPrintPreviewOpen(true); setIsFabOpen(false); }} disabled={!selectedTeacher} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title={t.printViewAction}>
+                  <PrintIcon />
+              </button>
+              {onSave && (
+                  <button onClick={() => { onSave(); setIsFabOpen(false); }} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors" title="Save (Ctrl+S)">
+                      <SaveIcon />
+                  </button>
+              )}
+              {onRedo && (
+                  <button onClick={() => { onRedo(); setIsFabOpen(false); }} disabled={!canRedo} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Redo (Ctrl+Y)">
+                      <RedoIcon />
+                  </button>
+              )}
+              {onUndo && (
+                  <button onClick={() => { onUndo(); setIsFabOpen(false); }} disabled={!canUndo} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Undo (Ctrl+Z)">
+                      <UndoIcon />
+                  </button>
+              )}
+          </div>
+      </div>
     </div>
   );
 };
