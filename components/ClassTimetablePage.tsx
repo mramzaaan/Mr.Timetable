@@ -96,7 +96,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   const maxPeriods = useMemo(() => Math.max(...activeDays.map(day => schoolConfig.daysConfig?.[day]?.periodCount ?? 8)), [activeDays, schoolConfig.daysConfig]);
   const periodLabels = useMemo(() => Array.from({length: maxPeriods}, (_, i) => (i + 1).toString()), [maxPeriods]);
 
-  const visibleClasses = useMemo(() => classes.filter(c => c.id !== 'non-teaching-duties'), [classes]);
+  const visibleClasses = useMemo(() => classes.filter(c => c.id !== 'non-teaching-duties' && !c.isExtraRoom), [classes]);
 
   useEffect(() => {
       if ((!selectedClassId || selectedClassId === 'non-teaching-duties') && visibleClasses.length > 0) {
@@ -643,7 +643,19 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         
         {/* Action Buttons */}
         <div className="flex items-center gap-3 flex-wrap justify-center">
+            {onUndo && (
+              <button onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><UndoIcon /></button>
+            )}
+            {onRedo && (
+              <button onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><RedoIcon /></button>
+            )}
+            {onSave && (
+              <button onClick={onSave} title="Save (Ctrl+S)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] transition-colors"><SaveIcon /></button>
+            )}
+            <div className="w-px h-6 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
             <button onClick={() => selectedClass && onSetClasses(classes.map(c => c.id === selectedClass.id ? { ...c, timetable: { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [] } as any } : c))} disabled={!selectedClass} className="p-2 text-sm font-medium text-red-600 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-red-50 hover:border-red-200 disabled:opacity-50 transition-colors" title={t.clearTimetable}><ClearIcon /></button>
+            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><WhatsAppIcon /></button>
+            <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedClass} className="p-2 text-sm font-medium bg-[var(--accent-primary)] text-[var(--accent-text)] border border-[var(--accent-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 transition-colors" title={t.printViewAction}><PrintIcon /></button>
         </div>
       </div>
 

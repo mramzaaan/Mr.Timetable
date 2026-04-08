@@ -1,6 +1,6 @@
 
 export type Language = 'en' | 'ur';
-export type Page = 'home' | 'classTimetable' | 'teacherTimetable' | 'alternativeTimetable' | 'attendance' | 'dataEntry' | 'settings';
+export type Page = 'home' | 'classTimetable' | 'teacherTimetable' | 'alternativeTimetable' | 'attendance' | 'teacherAttendance' | 'dataEntry' | 'settings';
 export type DataEntryTab = 'class' | 'teacher' | 'subject' | 'jointPeriods' | 'structure' | 'school';
 
 export type NavPosition = 'top' | 'bottom';
@@ -136,6 +136,15 @@ export interface AttendanceData {
     submittedBy?: string; // Added field to track who submitted the attendance
 }
 
+export interface TeacherAttendanceRecord {
+    date: string;
+    period: number;
+    teacherId: string;
+    classId: string;
+    status: boolean; // true for Present, false for Absent
+    timestamp: string;
+}
+
 export interface TimetableChangeLog {
     id: string;
     timestamp: string;
@@ -157,6 +166,7 @@ export interface TimetableSession {
   adjustments: Record<string, Adjustment[]>; 
   leaveDetails?: Record<string, Record<string, LeaveDetails>>;
   attendance?: Record<string, Record<string, AttendanceData>>; // date -> classId -> data
+  teacherAttendance?: Record<string, Record<number, Record<string, TeacherAttendanceRecord>>>; // date -> period -> classId -> record
   // Optional structure configuration for portable sessions
   daysConfig?: Record<keyof TimetableGridData, DayConfig>;
   periodTimings?: {
@@ -189,13 +199,14 @@ export interface SchoolClass {
   serialNumber?: number;
   nameEn: string;
   nameUr: string;
-  category?: 'High' | 'Middle' | 'Primary' | 'Extra Room';
+  category?: 'High' | 'Middle' | 'Primary';
   inCharge: string; 
   roomNumber: string;
   studentCount: number;
   subjects: ClassSubject[];
   timetable: TimetableGridData;
   groupSets?: GroupSet[];
+  isExtraRoom?: boolean;
   comments?: string;
 }
 

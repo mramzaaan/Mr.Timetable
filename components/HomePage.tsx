@@ -544,8 +544,6 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
   
   const [isBasicInfoPreviewOpen, setIsBasicInfoPreviewOpen] = useState(false);
-  const [isCategorySelectionForBasicInfoOpen, setIsCategorySelectionForBasicInfoOpen] = useState(false);
-  const [selectedCategoriesForBasicInfo, setSelectedCategoriesForBasicInfo] = useState<string[]>(['Primary', 'Middle', 'High', 'Extra Room']);
   const [isSchoolTimingsPreviewOpen, setIsSchoolTimingsPreviewOpen] = useState(false);
   const [isWorkloadPreviewOpen, setIsWorkloadPreviewOpen] = useState(false);
   const [isByPeriodPreviewOpen, setIsByPeriodPreviewOpen] = useState(false);
@@ -558,6 +556,9 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const [workloadStartDate, setWorkloadStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [workloadEndDate, setWorkloadEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedWeekDate, setSelectedWeekDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  const [isBasicInfoSelectionOpen, setIsBasicInfoSelectionOpen] = useState(false);
+  const [selectedBasicInfoCategories, setSelectedBasicInfoCategories] = useState<string[]>(['Primary', 'Middle', 'High', 'Extra Rooms']);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
   const [isClassSelectionForPrintOpen, setIsClassSelectionForPrintOpen] = useState(false);
@@ -580,7 +581,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const adjustments = currentTimetableSession?.adjustments || {};
   const leaveDetails = currentTimetableSession?.leaveDetails || {};
   const attendance = currentTimetableSession?.attendance || {};
-  const visibleClasses = useMemo(() => classes.filter(c => c.id !== 'non-teaching-duties'), [classes]);
+  const visibleClasses = useMemo(() => classes.filter(c => c.id !== 'non-teaching-duties' && !c.isExtraRoom), [classes]);
 
   const teacherItems = useMemo(() => teachers.map(t => ({ id: t.id, label: <span>{t.nameEn} / <span className="font-urdu">{t.nameUr}</span></span> })), [teachers]);
   const classItems = useMemo(() => visibleClasses.map(c => ({ id: c.id, label: <span>{c.nameEn} / <span className="font-urdu">{c.nameUr}</span></span> })), [visibleClasses]);
@@ -716,7 +717,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 <div className="flex-grow overflow-y-auto pr-1 custom-scrollbar pb-2 no-scrollbar">
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
                         
-                        <DocumentCard index={0} title={t.basicInformation} subtitle="STATS & ROOMS" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>} colorTheme="blue" onClick={() => setIsCategorySelectionForBasicInfoOpen(true)} />
+                        <DocumentCard index={0} title={t.basicInformation} subtitle="STATS & ROOMS" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>} colorTheme="blue" onClick={() => setIsBasicInfoSelectionOpen(true)} />
                         
                         <DocumentCard index={1} title={t.byPeriod} subtitle="AVAILABLE MATRIX" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} colorTheme="cyan" onClick={() => setIsByPeriodPreviewOpen(true)} />
                         
@@ -732,6 +733,40 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                         
                         <DocumentCard index={7} title={t.attendanceReport} subtitle="ENROLLMENT DATA" icon={<AttendanceIcon className="h-6 w-6" />} colorTheme="teal" onClick={() => setIsAttendanceReportPreviewOpen(true)} />
                     </div>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {isBasicInfoSelectionOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4" onClick={() => setIsBasicInfoSelectionOpen(false)}>
+            <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl max-w-md w-full p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">Select Categories</h3>
+                <div className="space-y-3 mb-6">
+                    {['Primary', 'Middle', 'High', 'Extra Rooms'].map(cat => (
+                        <label key={cat} className="flex items-center space-x-3 cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                checked={selectedBasicInfoCategories.includes(cat)}
+                                onChange={(e) => {
+                                    if (e.target.checked) {
+                                        setSelectedBasicInfoCategories(prev => [...prev, cat]);
+                                    } else {
+                                        setSelectedBasicInfoCategories(prev => prev.filter(c => c !== cat));
+                                    }
+                                }}
+                                className="h-5 w-5 text-[var(--accent-primary)] rounded border-gray-300 focus:ring-[var(--accent-primary)]"
+                            />
+                            <span className="text-[var(--text-primary)] font-medium">{cat}</span>
+                        </label>
+                    ))}
+                </div>
+                <div className="flex justify-end space-x-3">
+                    <button onClick={() => setIsBasicInfoSelectionOpen(false)} className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors">Cancel</button>
+                    <button onClick={() => {
+                        setIsBasicInfoSelectionOpen(false);
+                        setIsBasicInfoPreviewOpen(true);
+                    }} className="px-4 py-2 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-lg transition-colors shadow-md">Generate Report</button>
                 </div>
             </div>
         </div>
@@ -766,40 +801,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
             <SelectionModal isOpen={isClassSelectionForPrintOpen} title={t.selectClassesToDownload} items={classItems} selectedIds={selectedClassIdsForPrint} onSelect={(id, checked) => setSelectedClassIdsForPrint(prev => checked ? [...prev, id] : prev.filter(cid => cid !== id))} onSelectAll={(checked) => setSelectedClassIdsForPrint(checked ? visibleClasses.map(c => c.id) : [])} onConfirm={handleClassPrintConfirm} onCancel={() => setIsClassSelectionForPrintOpen(false)} confirmLabel={t.printViewAction} t={t} />
             <SelectionModal isOpen={isTeacherSelectionForPrintOpen} title={t.selectTeachersToDownload} items={teacherItems} selectedIds={selectedTeacherIdsForPrint} onSelect={(id, checked) => setSelectedTeacherIdsForPrint(prev => checked ? [...prev, id] : prev.filter(tid => tid !== id))} onSelectAll={(checked) => setSelectedTeacherIdsForPrint(checked ? teachers.map(t => t.id) : [])} onConfirm={handleTeacherPrintConfirm} onCancel={() => setIsTeacherSelectionForPrintOpen(false)} confirmLabel={t.printViewAction} t={t} />
 
-            <SelectionModal
-              title="Select Categories"
-              items={[
-                { id: 'Primary', label: 'Primary' },
-                { id: 'Middle', label: 'Middle' },
-                { id: 'High', label: 'High' },
-                { id: 'Extra Room', label: 'Extra Rooms' }
-              ]}
-              selectedIds={selectedCategoriesForBasicInfo}
-              onSelect={(id, isChecked) => {
-                if (isChecked) {
-                  setSelectedCategoriesForBasicInfo([...selectedCategoriesForBasicInfo, id]);
-                } else {
-                  setSelectedCategoriesForBasicInfo(selectedCategoriesForBasicInfo.filter(catId => catId !== id));
-                }
-              }}
-              onSelectAll={(isChecked) => {
-                if (isChecked) {
-                  setSelectedCategoriesForBasicInfo(['Primary', 'Middle', 'High', 'Extra Room']);
-                } else {
-                  setSelectedCategoriesForBasicInfo([]);
-                }
-              }}
-              onConfirm={() => {
-                setIsCategorySelectionForBasicInfoOpen(false);
-                setIsBasicInfoPreviewOpen(true);
-              }}
-              onCancel={() => setIsCategorySelectionForBasicInfoOpen(false)}
-              confirmLabel="Generate Report"
-              isOpen={isCategorySelectionForBasicInfoOpen}
-              t={t}
-            />
-
-            <PrintPreview t={t} isOpen={isBasicInfoPreviewOpen} onClose={() => setIsBasicInfoPreviewOpen(false)} title={t.basicInformation} fileNameBase="Basic_Information" generateHtml={(lang, options) => { const filteredClasses = currentTimetableSession.classes.filter(c => c.id !== 'non-teaching-duties' && selectedCategoriesForBasicInfo.includes(c.category || '')); return generateBasicInformationHtml(t, lang, options, filteredClasses, teachers, schoolConfig); }} onGenerateExcel={(lang, options) => { const filteredClasses = currentTimetableSession.classes.filter(c => c.id !== 'non-teaching-duties' && selectedCategoriesForBasicInfo.includes(c.category || '')); generateBasicInformationExcel(t, lang, options, filteredClasses, teachers); }} designConfig={schoolConfig.downloadDesigns.basicInfo} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, basicInfo: newDesign }})} />
+            <PrintPreview t={t} isOpen={isBasicInfoPreviewOpen} onClose={() => setIsBasicInfoPreviewOpen(false)} title={t.basicInformation} fileNameBase="Basic_Information" generateHtml={(lang, options) => generateBasicInformationHtml(t, lang, options, currentTimetableSession.classes, teachers, schoolConfig, selectedBasicInfoCategories)} onGenerateExcel={(lang, options) => generateBasicInformationExcel(t, lang, options, currentTimetableSession.classes, teachers, selectedBasicInfoCategories)} designConfig={schoolConfig.downloadDesigns.basicInfo} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, basicInfo: newDesign }})} />
             <PrintPreview t={t} isOpen={isSchoolTimingsPreviewOpen} onClose={() => setIsSchoolTimingsPreviewOpen(false)} title={t.schoolTimings} fileNameBase="School_Timings" generateHtml={(lang, options) => generateSchoolTimingsHtml(t, lang, options, schoolConfig)} designConfig={schoolConfig.downloadDesigns.schoolTimings} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, schoolTimings: newDesign }})} />
             <PrintPreview t={t} isOpen={isByPeriodPreviewOpen} onClose={() => setIsByPeriodPreviewOpen(false)} title={t.byPeriod} fileNameBase="Available_Teachers" generateHtml={(lang, options) => generateByPeriodHtml(t, lang, options, schoolConfig, currentTimetableSession.classes, teachers)} onGenerateExcel={(lang, options) => generateByPeriodExcel(t, lang, options, schoolConfig, currentTimetableSession.classes, teachers)} designConfig={schoolConfig.downloadDesigns.alternative} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, alternative: newDesign }})} />
             <PrintPreview t={t} isOpen={isWorkloadPreviewOpen} onClose={() => setIsWorkloadPreviewOpen(false)} title={t.workloadSummaryReport} fileNameBase="Teacher_Workload_Summary" generateHtml={(lang, options) => { const selectedTeachers = teachers.filter(t => selectedTeacherIdsForWorkload.includes(t.id)); return generateWorkloadSummaryHtml(t, lang, options, selectedTeachers, schoolConfig, currentTimetableSession.classes, currentTimetableSession.adjustments, currentTimetableSession.leaveDetails, workloadStartDate, workloadEndDate, workloadReportMode); }} onGenerateExcel={(lang, options) => { const selectedTeachers = teachers.filter(t => selectedTeacherIdsForWorkload.includes(t.id)); generateWorkloadSummaryExcel(t, lang, options, selectedTeachers, schoolConfig, currentTimetableSession.classes, currentTimetableSession.adjustments, currentTimetableSession.leaveDetails, workloadStartDate, workloadEndDate, workloadReportMode) }} designConfig={schoolConfig.downloadDesigns.workload} onSaveDesign={(newDesign) => onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, workload: newDesign }})} />

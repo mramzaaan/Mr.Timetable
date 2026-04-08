@@ -20,6 +20,7 @@ const enTranslations = {
     teacherTimetable: 'Teacher Timetable',
     adjustments: 'Adjustments',
     attendance: 'Attendance',
+    teacherAttendance: 'Teacher Attendance',
     settings: 'Settings',
     newTimetableSession: 'New Timetable Session',
     uploadSession: 'Upload Session',

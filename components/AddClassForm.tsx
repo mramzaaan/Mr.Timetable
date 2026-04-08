@@ -30,8 +30,8 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
   const [roomNumber, setRoomNumber] = useState('');
   const [studentCount, setStudentCount] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
-  const [comments, setComments] = useState('');
   const [isExtraRoom, setIsExtraRoom] = useState(false);
+  const [comments, setComments] = useState('');
   const [editingClass, setEditingClass] = useState<SchoolClass | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   
@@ -50,8 +50,8 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
     setRoomNumber('');
     setStudentCount('');
     setSerialNumber('');
-    setComments('');
     setIsExtraRoom(false);
+    setComments('');
   };
 
   useEffect(() => {
@@ -64,8 +64,8 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
         setRoomNumber(editingClass.roomNumber);
         setStudentCount(String(editingClass.studentCount));
         setSerialNumber(String(editingClass.serialNumber || ''));
+        setIsExtraRoom(editingClass.isExtraRoom || false);
         setComments(editingClass.comments || '');
-        setIsExtraRoom(editingClass.category === 'Extra Room');
     } else {
         resetForm();
     }
@@ -83,10 +83,9 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (isExtraRoom) {
         if (!nameEn || !nameUr || !roomNumber) {
-            alert('Please fill out all required room details.');
+            alert('Please fill out all required extra room details.');
             return;
         }
     } else {
@@ -100,15 +99,15 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
         id: editingClass ? editingClass.id : generateUniqueId(),
         serialNumber: serialNumber ? parseInt(serialNumber, 10) : undefined,
         nameEn, nameUr, 
-        category: isExtraRoom ? 'Extra Room' : (category as 'High' | 'Middle' | 'Primary'),
-        inCharge: isExtraRoom ? 'N/A' : inCharge, 
-        roomNumber,
-        studentCount: isExtraRoom ? 0 : parseInt(studentCount, 10),
-        comments: isExtraRoom ? comments : undefined,
+        category: category as 'High' | 'Middle' | 'Primary',
+        inCharge, roomNumber,
+        studentCount: parseInt(studentCount, 10) || 0,
         // Preserve existing subjects and groups if editing
         subjects: editingClass ? editingClass.subjects : [],
         timetable: editingClass ? editingClass.timetable : createEmptyTimetable(),
         groupSets: editingClass ? editingClass.groupSets : [],
+        isExtraRoom,
+        comments,
     };
     
     let updatedClasses = [...classes];
@@ -155,62 +154,40 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity" onClick={handleCancel}>
             <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-3xl w-full mx-4 transform transition-all border border-[var(--border-primary)]" onClick={e => e.stopPropagation()}>
                 <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-xl font-bold text-[var(--text-primary)]">{editingClass ? t.edit : t.addClass}</h3>
                             <p className="text-sm text-[var(--text-secondary)] mt-1">{t.classDetails}</p>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <input 
-                                type="checkbox" 
-                                id="isExtraRoom" 
-                                checked={isExtraRoom} 
-                                onChange={(e) => setIsExtraRoom(e.target.checked)} 
-                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="isExtraRoom"
+                                checked={isExtraRoom}
+                                onChange={(e) => setIsExtraRoom(e.target.checked)}
+                                className="h-4 w-4 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)] border-gray-300 rounded"
                             />
-                            <label htmlFor="isExtraRoom" className="text-sm font-medium text-[var(--text-primary)] cursor-pointer">
+                            <label htmlFor="isExtraRoom" className="ml-2 block text-sm text-[var(--text-primary)] font-medium">
                                 Extra Room
                             </label>
                         </div>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {isExtraRoom ? (
+                        <div>
+                            <label htmlFor="classNameEn" className="block text-sm font-medium text-[var(--text-secondary)]">{isExtraRoom ? 'Room Name (En)' : t.classNameEn}</label>
+                            <input type="text" id="classNameEn" value={nameEn} onChange={(e) => setNameEn(e.target.value)} className={inputStyleClasses} required />
+                        </div>
+                        <div>
+                            <label htmlFor="classNameUr" className="block text-sm font-medium text-[var(--text-secondary)]">{isExtraRoom ? 'Room Name (Ur)' : t.classNameUr}</label>
+                            <input type="text" id="classNameUr" value={nameUr} onChange={(e) => setNameUr(e.target.value)} className={`${inputStyleClasses} font-urdu`} dir="rtl" required />
+                        </div>
+                        
+                        {!isExtraRoom && (
                             <>
-                                <div>
-                                    <label htmlFor="classNameEn" className="block text-sm font-medium text-[var(--text-secondary)]">Room Name (English)</label>
-                                    <input type="text" id="classNameEn" value={nameEn} onChange={(e) => setNameEn(e.target.value)} className={inputStyleClasses} required />
-                                </div>
-                                <div>
-                                    <label htmlFor="classNameUr" className="block text-sm font-medium text-[var(--text-secondary)]">Room Name (Urdu)</label>
-                                    <input type="text" id="classNameUr" value={nameUr} onChange={(e) => setNameUr(e.target.value)} className={`${inputStyleClasses} font-urdu`} dir="rtl" required />
-                                </div>
-                                <div>
-                                    <label htmlFor="roomNumber" className="block text-sm font-medium text-[var(--text-secondary)]">{t.roomNumber}</label>
-                                    <input type="text" id="roomNumber" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} className={inputStyleClasses} required />
-                                </div>
-                                <div>
-                                    <label htmlFor="serialNumber" className="block text-sm font-medium text-[var(--text-secondary)]">{t.serialNumber}</label>
-                                    <input type="number" id="serialNumber" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} className={inputStyleClasses} />
-                                </div>
-                                <div className="sm:col-span-2">
-                                    <label htmlFor="comments" className="block text-sm font-medium text-[var(--text-secondary)]">Comments</label>
-                                    <input type="text" id="comments" value={comments} onChange={(e) => setComments(e.target.value)} className={inputStyleClasses} />
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div>
-                                    <label htmlFor="classNameEn" className="block text-sm font-medium text-[var(--text-secondary)]">{t.classNameEn}</label>
-                                    <input type="text" id="classNameEn" value={nameEn} onChange={(e) => setNameEn(e.target.value)} className={inputStyleClasses} required />
-                                </div>
-                                <div>
-                                    <label htmlFor="classNameUr" className="block text-sm font-medium text-[var(--text-secondary)]">{t.classNameUr}</label>
-                                    <input type="text" id="classNameUr" value={nameUr} onChange={(e) => setNameUr(e.target.value)} className={`${inputStyleClasses} font-urdu`} dir="rtl" required />
-                                </div>
                                 <div>
                                     <label htmlFor="classCategory" className="block text-sm font-medium text-[var(--text-secondary)]">{t.category}</label>
-                                    <select id="classCategory" value={category} onChange={(e) => setCategory(e.target.value as 'High' | 'Middle' | 'Primary' | '')} className={inputStyleClasses} required>
+                                    <select id="classCategory" value={category} onChange={(e) => setCategory(e.target.value as 'High' | 'Middle' | 'Primary' | '')} className={inputStyleClasses} required={!isExtraRoom}>
                                         <option value="">{t.select}</option>
                                         <option value="High">{t.high}</option>
                                         <option value="Middle">{t.middle}</option>
@@ -219,24 +196,36 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
                                 </div>
                                 <div>
                                     <label htmlFor="classInCharge" className="block text-sm font-medium text-[var(--text-secondary)]">{t.classInCharge}</label>
-                                    <select id="classInCharge" value={inCharge} onChange={(e) => setInCharge(e.target.value)} className={inputStyleClasses} required>
+                                    <select id="classInCharge" value={inCharge} onChange={(e) => setInCharge(e.target.value)} className={inputStyleClasses} required={!isExtraRoom}>
                                         <option value="">{t.selectTeacher}</option>
                                         {teachers.map(teacher => <option key={teacher.id} value={teacher.id}>{teacher.nameEn}</option>)}
                                     </select>
                                 </div>
-                                <div>
-                                    <label htmlFor="roomNumber" className="block text-sm font-medium text-[var(--text-secondary)]">{t.roomNumber}</label>
-                                    <input type="text" id="roomNumber" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} className={inputStyleClasses} required />
-                                </div>
-                                <div>
-                                    <label htmlFor="studentCount" className="block text-sm font-medium text-[var(--text-secondary)]">{t.studentCount}</label>
-                                    <input type="number" id="studentCount" value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className={inputStyleClasses} required />
-                                </div>
-                                <div className="sm:col-span-2">
-                                    <label htmlFor="serialNumber" className="block text-sm font-medium text-[var(--text-secondary)]">{t.serialNumber}</label>
-                                    <input type="number" id="serialNumber" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} className={inputStyleClasses} />
-                                </div>
                             </>
+                        )}
+                        
+                        <div>
+                            <label htmlFor="roomNumber" className="block text-sm font-medium text-[var(--text-secondary)]">{t.roomNumber}</label>
+                            <input type="text" id="roomNumber" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} className={inputStyleClasses} required />
+                        </div>
+                        
+                        {!isExtraRoom && (
+                            <div>
+                                <label htmlFor="studentCount" className="block text-sm font-medium text-[var(--text-secondary)]">{t.studentCount}</label>
+                                <input type="number" id="studentCount" value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className={inputStyleClasses} required={!isExtraRoom} />
+                            </div>
+                        )}
+
+                        <div className={isExtraRoom ? '' : 'sm:col-span-2'}>
+                            <label htmlFor="serialNumber" className="block text-sm font-medium text-[var(--text-secondary)]">{t.serialNumber}</label>
+                            <input type="number" id="serialNumber" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} className={inputStyleClasses} />
+                        </div>
+
+                        {isExtraRoom && (
+                            <div className="sm:col-span-2">
+                                <label htmlFor="comments" className="block text-sm font-medium text-[var(--text-secondary)]">Comments</label>
+                                <input type="text" id="comments" value={comments} onChange={(e) => setComments(e.target.value)} className={inputStyleClasses} />
+                            </div>
                         )}
                     </div>
                     

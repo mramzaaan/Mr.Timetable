@@ -242,6 +242,18 @@ const SettingsSidebar: React.FC<{
     const [activeSection, setActiveSection] = useState<'page' | 'header' | 'table' | 'footer' | 'edit' | 'visibility' | 'presets' | null>('page');
     const [isSaving, setIsSaving] = useState(false);
 
+    const defaultFooterConfig = {
+        show: true,
+        text: 'Timetable Generator',
+        appNamePlacement: 'left',
+        includeDate: true,
+        datePlacement: 'center',
+        includePageNumber: false,
+        pageNumberPlacement: 'hidden',
+        fontSize: 10,
+        color: '#666666'
+    };
+
     const handleValueChange = (path: string, value: any) => {
         const newOptions = JSON.parse(JSON.stringify(options)); 
         const keys = path.split('.');
@@ -264,31 +276,6 @@ const SettingsSidebar: React.FC<{
 
     const handleSectionClick = (id: any) => {
         setActiveSection(activeSection === id ? null : id);
-    };
-
-    const [presets, setPresets] = useState<{name: string, config: DownloadDesignConfig}[]>(() => {
-        try {
-            return JSON.parse(localStorage.getItem('print_presets') || '[]');
-        } catch { return []; }
-    });
-    const [newPresetName, setNewPresetName] = useState('');
-
-    const savePreset = () => {
-        if (!newPresetName) return;
-        const newPresets = [...presets, { name: newPresetName, config: options }];
-        setPresets(newPresets);
-        localStorage.setItem('print_presets', JSON.stringify(newPresets));
-        setNewPresetName('');
-    };
-
-    const loadPreset = (config: DownloadDesignConfig) => {
-        onUpdate(config);
-    };
-
-    const deletePreset = (index: number) => {
-        const newPresets = presets.filter((_, i) => i !== index);
-        setPresets(newPresets);
-        localStorage.setItem('print_presets', JSON.stringify(newPresets));
     };
 
     return (
@@ -314,7 +301,6 @@ const SettingsSidebar: React.FC<{
                 <SectionButton id="table" label="Table" icon={Icons.Table} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="footer" label="Footer" icon={Icons.Footer} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="visibility" label="Visibility" icon={Icons.Check} activeSection={activeSection} onClick={handleSectionClick} />
-                <SectionButton id="presets" label="Presets" icon={Icons.Share} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="edit" label="Edit Text" icon={Icons.Edit} activeSection={activeSection} onClick={handleSectionClick} />
             </div>
 
@@ -360,33 +346,6 @@ const SettingsSidebar: React.FC<{
                         <ToggleInput label="Teacher Name" path="visibleElements.teacherName" value={options.visibleElements?.teacherName ?? true} onChange={handleValueChange} />
                         <ToggleInput label="Subject Name" path="visibleElements.subjectName" value={options.visibleElements?.subjectName ?? true} onChange={handleValueChange} />
                         <ToggleInput label="Room Number" path="visibleElements.roomNumber" value={options.visibleElements?.roomNumber ?? true} onChange={handleValueChange} />
-                    </ControlGroup>
-                )}
-
-                {activeSection === 'presets' && (
-                    <ControlGroup label="Saved Presets">
-                        <div className="flex gap-2 mb-4">
-                            <input 
-                                type="text" 
-                                value={newPresetName} 
-                                onChange={(e) => setNewPresetName(e.target.value)}
-                                placeholder="Preset Name"
-                                className="flex-1 bg-gray-900 border border-gray-700 text-white text-xs rounded px-2 py-1.5 outline-none focus:border-teal-500"
-                            />
-                            <button onClick={savePreset} disabled={!newPresetName} className="px-3 py-1 bg-teal-600 text-white rounded text-xs font-bold hover:bg-teal-700 disabled:opacity-50">Save</button>
-                        </div>
-                        <div className="space-y-2">
-                            {presets.map((preset, idx) => (
-                                <div key={idx} className="flex items-center justify-between bg-gray-800 p-2 rounded border border-gray-700">
-                                    <span className="text-xs text-gray-300 font-medium">{preset.name}</span>
-                                    <div className="flex gap-1">
-                                        <button onClick={() => loadPreset(preset.config)} className="p-1 text-teal-400 hover:text-teal-300" title="Load"><Icons.Check /></button>
-                                        <button onClick={() => deletePreset(idx)} className="p-1 text-red-400 hover:text-red-300" title="Delete"><Icons.Close /></button>
-                                    </div>
-                                </div>
-                            ))}
-                            {presets.length === 0 && <p className="text-xs text-gray-500 text-center italic">No saved presets</p>}
-                        </div>
                     </ControlGroup>
                 )}
 
@@ -603,6 +562,28 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
     if (isOpen) {
       const themedDesign = JSON.parse(JSON.stringify(designConfig));
       
+      // Apply footer defaults if not already set
+      if (!themedDesign.footer) {
+          themedDesign.footer = {
+              show: true,
+              text: 'Timetable Generator',
+              appNamePlacement: 'left',
+              includeDate: true,
+              datePlacement: 'center',
+              includePageNumber: false,
+              pageNumberPlacement: 'hidden',
+              fontSize: 10,
+              color: '#666666'
+          };
+      } else {
+          // Ensure specific defaults are applied if they are missing or undefined
+          if (themedDesign.footer.appNamePlacement === undefined) themedDesign.footer.appNamePlacement = 'left';
+          if (themedDesign.footer.includeDate === undefined) themedDesign.footer.includeDate = true;
+          if (themedDesign.footer.datePlacement === undefined) themedDesign.footer.datePlacement = 'center';
+          if (themedDesign.footer.includePageNumber === undefined) themedDesign.footer.includePageNumber = false;
+          if (themedDesign.footer.pageNumberPlacement === undefined) themedDesign.footer.pageNumberPlacement = 'hidden';
+      }
+      
       const initialHtml = generateHtml(lang, themedDesign);
       const initialPages = Array.isArray(initialHtml) ? initialHtml : [initialHtml];
       const initialState = { options: themedDesign, pages: initialPages };
@@ -661,11 +642,15 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       
       const currentHtml = clone.innerHTML;
       const currentPages = [...history[historyIndex].pages];
-      currentPages[currentPage] = currentHtml;
       
-      const updatedHistory = [...history];
-      updatedHistory[historyIndex] = { ...updatedHistory[historyIndex], pages: currentPages };
-      setHistory(updatedHistory);
+      // Only update if content actually changed
+      if (currentPages[currentPage] !== currentHtml) {
+          currentPages[currentPage] = currentHtml;
+          
+          const updatedHistory = [...history];
+          updatedHistory[historyIndex] = { ...updatedHistory[historyIndex], pages: currentPages };
+          setHistory(updatedHistory);
+      }
   };
 
   const handleContentClick = (e: React.MouseEvent) => {
@@ -691,6 +676,10 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       } else {
           setActiveElement(null);
       }
+  };
+
+  const handleContentBlur = () => {
+      saveManualEdit();
   };
 
   // Text Styling Handlers
@@ -1080,6 +1069,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                 <div 
                     ref={contentRef}
                     onClick={handleContentClick}
+                    onBlur={handleContentBlur}
                     className="bg-white shadow-2xl transition-transform duration-200 origin-top"
                     style={{ 
                         transform: `scale(${zoomLevel / 100})`, 
