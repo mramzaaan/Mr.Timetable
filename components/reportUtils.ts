@@ -810,7 +810,15 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
         const visited = Array.from({ length: maxPeriods }, () => Array(chunkDays.length).fill(false));
         for (let pIdx = 0; pIdx < maxPeriods; pIdx++) {
             const startTime = schoolConfig.periodTimings?.default?.[pIdx]?.start || '';
-            let rowHtml = `<td class="period-col" style="width: 24px;">${pIdx + 1}</td>`;
+            const showTime = customDesign.table.showPeriodTime;
+            const timePos = customDesign.table.periodTimePosition || 'below';
+            let periodContent = `${pIdx + 1}`;
+            if (showTime && startTime) {
+                const timeHtml = `<div style="font-size: 0.6em; font-weight: normal; color: #666; margin-top: 2px;">${startTime}</div>`;
+                const timeHtmlAbove = `<div style="font-size: 0.6em; font-weight: normal; color: #666; margin-bottom: 2px;">${startTime}</div>`;
+                periodContent = timePos === 'above' ? `${timeHtmlAbove}${pIdx + 1}` : `${pIdx + 1}${timeHtml}`;
+            }
+            let rowHtml = `<td class="period-col" style="text-align: center; vertical-align: middle;">${periodContent}</td>`;
             for (let dIdx = 0; dIdx < chunkDays.length; dIdx++) {
                 if (visited[pIdx][dIdx]) continue;
                 const current = grid[pIdx][dIdx];
@@ -850,7 +858,7 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
             tableRows += `<tr>${rowHtml}</tr>`;
         }
 
-        const colGroupHtml = `<colgroup><col style="width: 24px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
+        const colGroupHtml = `<colgroup><col style="width: ${customDesign.table.periodColumnWidth || 50}px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
         const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col" colspan="1"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
         pages.push(generateReportHTML(schoolConfig, customDesign, `${tLocal('classTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
     }
@@ -984,7 +992,15 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
         const visited = Array.from({ length: maxPeriods }, () => Array(chunkDays.length).fill(false));
         for (let pIdx = 0; pIdx < maxPeriods; pIdx++) {
             const startTime = schoolConfig.periodTimings?.default?.[pIdx]?.start || '';
-            let rowHtml = `<td class="period-col" style="width: 24px;">${pIdx + 1}</td>`;
+            const showTime = customDesign.table.showPeriodTime;
+            const timePos = customDesign.table.periodTimePosition || 'below';
+            let periodContent = `${pIdx + 1}`;
+            if (showTime && startTime) {
+                const timeHtml = `<div style="font-size: 0.6em; font-weight: normal; color: #666; margin-top: 2px;">${startTime}</div>`;
+                const timeHtmlAbove = `<div style="font-size: 0.6em; font-weight: normal; color: #666; margin-bottom: 2px;">${startTime}</div>`;
+                periodContent = timePos === 'above' ? `${timeHtmlAbove}${pIdx + 1}` : `${pIdx + 1}${timeHtml}`;
+            }
+            let rowHtml = `<td class="period-col" style="text-align: center; vertical-align: middle;">${periodContent}</td>`;
             for (let dIdx = 0; dIdx < chunkDays.length; dIdx++) {
                 if (visited[pIdx][dIdx]) continue;
                 const current = grid[pIdx][dIdx];
@@ -1024,7 +1040,7 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
             tableRows += `<tr>${rowHtml}</tr>`;
         }
 
-        const colGroupHtml = `<colgroup><col style="width: 24px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
+        const colGroupHtml = `<colgroup><col style="width: ${customDesign.table.periodColumnWidth || 50}px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
         const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col" colspan="1"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
         pages.push(generateReportHTML(schoolConfig, customDesign, `${tLocal('teacherTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
     }
@@ -1126,15 +1142,20 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
     const rowsPerPage = customDesign.rowsPerPage || 50;
     const rowsPerFirstPage = customDesign.rowsPerFirstPage || rowsPerPage;
     
+    const includesExtraRooms = selectedCategories.includes('Extra Rooms');
     const filteredClasses = classes.filter(c => {
-        if (c.isExtraRoom) return selectedCategories.includes('Extra Rooms');
+        if (c.isExtraRoom) return includesExtraRooms;
         const cat = c.category || '';
         return selectedCategories.includes(cat);
     });
 
     const standardClasses = filteredClasses.filter(c => !c.isExtraRoom);
     const extraRooms = filteredClasses.filter(c => c.isExtraRoom);
-    const displayItems = [...standardClasses, ...extraRooms];
+    let displayItems = [...standardClasses, ...extraRooms];
+
+    if (includesExtraRooms) {
+        displayItems.sort((a, b) => a.roomNumber.localeCompare(b.roomNumber, undefined, { numeric: true, sensitivity: 'base' }));
+    }
 
     const totalItems = displayItems.length;
     let totalPagesCount = 1;
@@ -1142,7 +1163,12 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
         totalPagesCount = 1 + Math.ceil((totalItems - rowsPerFirstPage) / rowsPerPage);
     }
 
-    const headers = [trLocal('#', '#'), trLocal('Class / Room', 'کلاس / کمرہ'), trLocal('In Charge', 'انچارج'), trLocal('Room No', 'کمرہ نمبر'), trLocal('Students', 'طلباء'), trLocal('Comments', 'تبصرے')];
+    let headers: string[];
+    if (includesExtraRooms) {
+        headers = [trLocal('Room No', 'کمرہ نمبر'), trLocal('Class / Room', 'کلاس / کمرہ'), trLocal('In Charge', 'انچارج'), trLocal('Students', 'طلباء'), trLocal('Comments', 'تبصرے')];
+    } else {
+        headers = [trLocal('#', '#'), trLocal('Class / Room', 'کلاس / کمرہ'), trLocal('In Charge', 'انچارج'), trLocal('Room No', 'کمرہ نمبر'), trLocal('Students', 'طلباء'), trLocal('Comments', 'تبصرے')];
+    }
     const pages: string[] = [];
     let highTotal = 0; let middleTotal = 0; let primaryTotal = 0; let grandTotal = 0;
 
@@ -1165,11 +1191,20 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
             const name = renderText(lang, c.nameEn, c.nameUr); 
             const serial = c.serialNumber || rowIdx + 1;
             
-            if (c.isExtraRoom) {
-                tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>${c.roomNumber}</td><td>-</td><td style="text-align: left;">${c.comments || ''}</td></tr>`;
+            if (includesExtraRooms) {
+                if (c.isExtraRoom) {
+                    tableRows += `<tr><td>${c.roomNumber}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>-</td><td style="text-align: left;">${c.comments || ''}</td></tr>`;
+                } else {
+                    const count = parseInt(String(c.studentCount), 10) || 0;
+                    tableRows += `<tr><td>${c.roomNumber}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${count}</td><td></td></tr>`;
+                }
             } else {
-                const count = parseInt(String(c.studentCount), 10) || 0;
-                tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${c.roomNumber}</td><td>${count}</td><td></td></tr>`;
+                if (c.isExtraRoom) {
+                    tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>${c.roomNumber}</td><td>-</td><td style="text-align: left;">${c.comments || ''}</td></tr>`;
+                } else {
+                    const count = parseInt(String(c.studentCount), 10) || 0;
+                    tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${c.roomNumber}</td><td>${count}</td><td></td></tr>`;
+                }
             }
         });
 
@@ -1181,7 +1216,12 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
             summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th style="width: 25%;">${h}</th>`).join('')}</tr></thead><tbody><tr>${summaryValues.map(v => `<td style="font-weight: bold; font-size: 1.2em;">${v}</td>`).join('')}</tr></tbody></table></div>`;
         }
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        let customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        
+        if (includesExtraRooms) {
+            customStyles = `<style>table { width: auto; margin: 0 auto; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; white-space: nowrap; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        }
+
         const tableHtml = `${customStyles}<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
         pages.push(generateReportHTML(schoolConfig, customDesign, trLocal('Basic Information', 'بنیادی معلومات'), lang, tableHtml, '', i + 1, totalPagesCount));
     }
@@ -1193,39 +1233,68 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
     const { en: enT, ur: urT } = translations;
     const trLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
     
-    const header = ['#', 'Class / Room', trLocal('classInCharge'), trLocal('roomNumber'), trLocal('studentCount'), 'Comments'];
+    const includesExtraRooms = selectedCategories.includes('Extra Rooms');
+    
+    let header: string[];
+    if (includesExtraRooms) {
+        header = [trLocal('roomNumber'), 'Class / Room', trLocal('classInCharge'), trLocal('studentCount'), 'Comments'];
+    } else {
+        header = ['#', 'Class / Room', trLocal('classInCharge'), trLocal('roomNumber'), trLocal('studentCount'), 'Comments'];
+    }
     const rows: (string | number)[][] = [header];
 
     let highTotal = 0; let middleTotal = 0; let primaryTotal = 0; let grandTotal = 0;
 
     const filteredClasses = classes.filter(c => {
-        if (c.isExtraRoom) return selectedCategories.includes('Extra Rooms');
+        if (c.isExtraRoom) return includesExtraRooms;
         const cat = c.category || '';
         return selectedCategories.includes(cat);
     });
 
     const standardClasses = filteredClasses.filter(c => !c.isExtraRoom);
     const extraRooms = filteredClasses.filter(c => c.isExtraRoom);
-    const displayItems = [...standardClasses, ...extraRooms];
+    let displayItems = [...standardClasses, ...extraRooms];
+
+    if (includesExtraRooms) {
+        displayItems.sort((a, b) => a.roomNumber.localeCompare(b.roomNumber, undefined, { numeric: true, sensitivity: 'base' }));
+    }
 
     displayItems.forEach((c, idx) => {
         const className = lang === 'ur' ? c.nameUr : c.nameEn;
         const serial = c.serialNumber || idx + 1;
 
-        if (c.isExtraRoom) {
-            rows.push([serial, className, '-', c.roomNumber, '-', c.comments || '']);
+        if (includesExtraRooms) {
+            if (c.isExtraRoom) {
+                rows.push([c.roomNumber, className, '-', '-', c.comments || '']);
+            } else {
+                const count = parseInt(String(c.studentCount), 10) || 0;
+                grandTotal += count;
+                const cat = (c.category || '').trim().toLowerCase();
+                if (cat === 'high') highTotal += count;
+                else if (cat === 'middle') middleTotal += count;
+                else if (cat === 'primary') primaryTotal += count;
+
+                const tea = teachers.find(tea => tea.id === c.inCharge);
+                const inCharge = tea ? (lang === 'ur' ? tea.nameUr : tea.nameEn) : '-';
+
+                rows.push([c.roomNumber, className, inCharge, count, '']);
+            }
         } else {
-            const count = parseInt(String(c.studentCount), 10) || 0;
-            grandTotal += count;
-            const cat = (c.category || '').trim().toLowerCase();
-            if (cat === 'high') highTotal += count;
-            else if (cat === 'middle') middleTotal += count;
-            else if (cat === 'primary') primaryTotal += count;
+            if (c.isExtraRoom) {
+                rows.push([serial, className, '-', c.roomNumber, '-', c.comments || '']);
+            } else {
+                const count = parseInt(String(c.studentCount), 10) || 0;
+                grandTotal += count;
+                const cat = (c.category || '').trim().toLowerCase();
+                if (cat === 'high') highTotal += count;
+                else if (cat === 'middle') middleTotal += count;
+                else if (cat === 'primary') primaryTotal += count;
 
-            const tea = teachers.find(tea => tea.id === c.inCharge);
-            const inCharge = tea ? (lang === 'ur' ? tea.nameUr : tea.nameEn) : '-';
+                const tea = teachers.find(tea => tea.id === c.inCharge);
+                const inCharge = tea ? (lang === 'ur' ? tea.nameUr : tea.nameEn) : '-';
 
-            rows.push([serial, className, inCharge, c.roomNumber, count, '']);
+                rows.push([serial, className, inCharge, c.roomNumber, count, '']);
+            }
         }
     });
 
