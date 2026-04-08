@@ -447,7 +447,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
       height: 100%;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      font-family: sans-serif; 
     }
 
     .print-container .font-urdu, 
@@ -499,13 +499,13 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         border-top: 1px solid #000; 
         display: flex; 
         align-items: flex-end; 
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: sans-serif;
         font-size: ${footer.fontSize}px; 
         color: ${footer.color};
         flex-shrink: 0;
     }
     
-    table { width: 100%; border-collapse: collapse; margin-bottom: 0; border: ${table.borderWidth || 1}px ${table.gridStyle || 'solid'} ${table.borderColor}; table-layout: fixed; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 0; border: ${table.borderWidth || 1}px ${table.gridStyle || 'solid'} ${table.borderColor}; }
     th, td { 
         border: ${table.borderWidth || 1}px ${table.gridStyle || 'solid'} ${table.borderColor}; 
         padding: ${table.cellPadding}px; 
@@ -513,7 +513,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         text-align: center; 
         font-size: ${table.fontSize}px;
         color: ${table.bodyColor || '#000000'};
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        font-family: sans-serif;
         line-height: 1.1; /* Tighter line height for better canvas centering */
         box-sizing: border-box;
         overflow: visible !important;
@@ -525,10 +525,8 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
     th { 
         background-color: ${table.headerBgColor}; 
         color: ${table.headerColor};
-        font-weight: 800; 
+        font-weight: bold; 
         font-size: ${table.headerFontSize || table.fontSize}px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
     }
     tr:nth-child(even) { background-color: ${table.altRowColor}; }
     .period-col {
@@ -692,7 +690,7 @@ export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design
 
     const maxRows = isFridayActive ? Math.max(colA_Items.length, colB_Items.length) : colA_Items.length; let tableRows = ''; let colBMergeStarted = false; const signatureText = trLocal('Principal Signature', 'دستخط پرنسپل');
     for (let i = 0; i < maxRows; i++) { const itemA = colA_Items[i]; const itemB = colB_Items[i]; let rowHtml = ''; if (itemA) { const isPeriod = itemA.type === 'period'; const bgClass = isPeriod ? 'bg-white' : 'bg-green'; const textClass = 'text-black'; const nameFontSize = isPeriod ? periodNameFontSize : specialNameFontSize; rowHtml += `<td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize} !important; vertical-align: middle;">${itemA.name}</td><td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${timeFontSize} !important; vertical-align: top;"><div style="display: flex; flex-direction: column; align-items: center; justify-content: ${flexAlign}; height: 100%; line-height: 1.1;">${itemA.duration > 0 ? `<div style="font-size: ${durationFontSize} !important; width: 100%; text-align: center; font-weight: normal; margin-bottom: 2px; color: #666;">${itemA.duration} ${minText}</div>` : ''}<div style="unicode-bidi: embed;">${itemA.time}</div></div></td>`; } else { rowHtml += '<td></td><td></td>'; } if (isFridayActive) { if (itemB) { const isPeriod = itemB.type === 'period'; const bgClass = itemB.type === 'period' ? 'bg-white' : 'bg-green'; const textClass = 'text-black'; const nameFontSize = isPeriod ? periodNameFontSize : specialNameFontSize; rowHtml += `<td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize} !important; vertical-align: middle;">${itemB.name}</td><td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${timeFontSize} !important; vertical-align: top;"><div style="display: flex; flex-direction: column; align-items: center; justify-content: ${flexAlign}; height: 100%; line-height: 1.1;">${itemB.duration > 0 ? `<div style="font-size: ${durationFontSize} !important; width: 100%; text-align: center; font-weight: normal; margin-bottom: 2px; color: #666;">${itemB.duration} ${minText}</div>` : ''}<div style="unicode-bidi: embed;">${itemB.time}</div></div></td>`; } else { if (!colBMergeStarted) { const rowSpan = maxRows - i; rowHtml += `<td colspan="2" rowspan="${rowSpan}" style="border: ${customDesign.table.borderWidth || 3}px solid ${customDesign.table.borderColor}; vertical-align: bottom; text-align: center; padding-bottom: 5px;"><div style="display: inline-block; border-top: 1px solid ${customDesign.table.borderColor}; padding-top: 5px; min-width: 180px; font-size: 1.1em; font-weight: bold; text-align: center; margin-bottom: 5px;">${signatureText}</div></td>`; colBMergeStarted = true; } } } tableRows += `<tr>${rowHtml}</tr>`; }
-    const customStyles = `<style> .school-timings-table { width: 100%; border-collapse: collapse; text-align: center; font-size: ${customDesign.table.fontSize}px; } .school-timings-table th, .school-timings-table td { border: ${customDesign.table.borderWidth || 3}px solid ${customDesign.table.borderColor}; padding: ${customDesign.table.cellPadding}px; color: ${customDesign.table.bodyColor || '#000000'}; } .main-header { background-color: ${customDesign.table.headerBgColor}; color: ${customDesign.table.headerColor} !important; font-size: ${mainHeaderFontSize}px !important; font-weight: 900; padding: 12px; text-transform: uppercase; } .sub-header { background-color: #E9D5FF; color: #000000; font-weight: 800; font-size: ${subHeaderFontSize}px !important; text-transform: uppercase; letter-spacing: 1px; } .bg-green { background-color: ${customDesign.table.periodColumnBgColor !== '#F3F4F6' ? customDesign.table.periodColumnBgColor : '#86efac'}; } .bg-white { background-color: ${customDesign.table.bodyBgColor}; } .text-black { color: ${customDesign.table.bodyColor || '#000000'}; } </style>`;
+    const customStyles = `<style> .school-timings-table { width: 100%; border-collapse: collapse; text-align: center; font-size: ${customDesign.table.fontSize}px; } .school-timings-table th, .school-timings-table td { border: ${customDesign.table.borderWidth || 3}px solid ${customDesign.table.borderColor}; padding: ${customDesign.table.cellPadding}px; color: ${customDesign.table.bodyColor || '#000000'}; } .main-header { background-color: ${customDesign.table.headerBgColor}; color: ${customDesign.table.headerColor} !important; font-size: ${mainHeaderFontSize}px !important; font-weight: 900; padding: 12px; text-transform: uppercase; } .sub-header { background-color: #E9D5FF; color: #000000; font-weight: bold; font-size: ${subHeaderFontSize}px !important; } .bg-green { background-color: ${customDesign.table.periodColumnBgColor !== '#F3F4F6' ? customDesign.table.periodColumnBgColor : '#86efac'}; } .bg-white { background-color: ${customDesign.table.bodyBgColor}; } .text-black { color: ${customDesign.table.bodyColor || '#000000'}; } </style>`;
     const subHeaderRow = isFridayActive ? `<tr><th class="sub-header" style="width: 12%">${trLocal('Period', 'پیریڈ')}</th><th class="sub-header" style="width: 38%">${trLocal('Time', 'وقت')}</th><th class="sub-header" style="width: 12%">${trLocal('Period', 'پیریڈ')}</th><th class="sub-header" style="width: 38%">${trLocal('Time', 'وقت')}</th></tr>` : `<tr><th class="sub-header" style="width: 25%">${trLocal('Period', 'پیریڈ')}</th><th class="sub-header" style="width: 75%">${trLocal('Time', 'وقت')}</th></tr>`;
     const tableHtml = isFridayActive ? `${customStyles}<table class="school-timings-table"><thead><tr><th colspan="2" class="main-header">${colA_Title}</th><th colspan="2" class="main-header">${colB_Title}</th></tr>${subHeaderRow}</thead><tbody>${tableRows}</tbody></table>` : `${customStyles}<table class="school-timings-table"><thead>${subHeaderRow}</thead><tbody>${tableRows}</tbody></table>`;
     const reportTitle = trLocal('Timetable', 'ٹائم ٹیبل'); 
@@ -812,7 +810,7 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
         const visited = Array.from({ length: maxPeriods }, () => Array(chunkDays.length).fill(false));
         for (let pIdx = 0; pIdx < maxPeriods; pIdx++) {
             const startTime = schoolConfig.periodTimings?.default?.[pIdx]?.start || '';
-            let rowHtml = `<td class="period-col" style="border-right: none; width: 24px;">${pIdx + 1}</td><td class="time-col" style="border-left: none; padding: 0 !important; width: 24px; vertical-align: middle !important;"><div style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 10px; color: #666; white-space: nowrap; text-align: center; height: 100%; display: flex; align-items: center; justify-content: center; margin: auto;">${startTime}</div></td>`;
+            let rowHtml = `<td class="period-col" style="width: 24px;">${pIdx + 1}</td>`;
             for (let dIdx = 0; dIdx < chunkDays.length; dIdx++) {
                 if (visited[pIdx][dIdx]) continue;
                 const current = grid[pIdx][dIdx];
@@ -852,8 +850,8 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
             tableRows += `<tr>${rowHtml}</tr>`;
         }
 
-        const colGroupHtml = `<colgroup><col style="width: 24px"><col style="width: 24px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
-        const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col" colspan="2"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
+        const colGroupHtml = `<colgroup><col style="width: 24px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
+        const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col" colspan="1"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
         pages.push(generateReportHTML(schoolConfig, customDesign, `${tLocal('classTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
     }
     return pages.length === 1 ? pages[0] : pages; 
@@ -986,7 +984,7 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
         const visited = Array.from({ length: maxPeriods }, () => Array(chunkDays.length).fill(false));
         for (let pIdx = 0; pIdx < maxPeriods; pIdx++) {
             const startTime = schoolConfig.periodTimings?.default?.[pIdx]?.start || '';
-            let rowHtml = `<td class="period-col" style="border-right: none; width: 24px;">${pIdx + 1}</td><td class="time-col" style="border-left: none; padding: 0 !important; width: 24px; vertical-align: middle !important;"><div style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 10px; color: #666; white-space: nowrap; text-align: center; height: 100%; display: flex; align-items: center; justify-content: center; margin: auto;">${startTime}</div></td>`;
+            let rowHtml = `<td class="period-col" style="width: 24px;">${pIdx + 1}</td>`;
             for (let dIdx = 0; dIdx < chunkDays.length; dIdx++) {
                 if (visited[pIdx][dIdx]) continue;
                 const current = grid[pIdx][dIdx];
@@ -1026,8 +1024,8 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
             tableRows += `<tr>${rowHtml}</tr>`;
         }
 
-        const colGroupHtml = `<colgroup><col style="width: 24px"><col style="width: 24px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
-        const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col" colspan="2"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
+        const colGroupHtml = `<colgroup><col style="width: 24px">${chunkDays.map(() => '<col style="width: auto">').join('')}</colgroup>`;
+        const tableHtml = `${customStyles}<table>${colGroupHtml}<thead><tr><th class="period-col" colspan="1"></th>${dayHeaders}</tr></thead><tbody>${tableRows}</tbody></table>`;
         pages.push(generateReportHTML(schoolConfig, customDesign, `${tLocal('teacherTimetable')}`, lang, tableHtml, detailsHtml, i + 1, totalPages));
     }
     return pages.length === 1 ? pages[0] : pages;
@@ -1128,25 +1126,15 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
     const rowsPerPage = customDesign.rowsPerPage || 50;
     const rowsPerFirstPage = customDesign.rowsPerFirstPage || rowsPerPage;
     
-    const hasExtraRooms = selectedCategories.includes('Extra Rooms');
-
     const filteredClasses = classes.filter(c => {
-        if (c.isExtraRoom) return hasExtraRooms;
+        if (c.isExtraRoom) return selectedCategories.includes('Extra Rooms');
         const cat = c.category || '';
         return selectedCategories.includes(cat);
     });
 
-    let displayItems = [...filteredClasses];
-    if (hasExtraRooms) {
-        displayItems.sort((a, b) => {
-            const roomA = a.roomNumber || '';
-            const roomB = b.roomNumber || '';
-            return roomA.localeCompare(roomB, undefined, { numeric: true, sensitivity: 'base' });
-        });
-    } else {
-        const standardClasses = filteredClasses.filter(c => !c.isExtraRoom);
-        displayItems = [...standardClasses];
-    }
+    const standardClasses = filteredClasses.filter(c => !c.isExtraRoom);
+    const extraRooms = filteredClasses.filter(c => c.isExtraRoom);
+    const displayItems = [...standardClasses, ...extraRooms];
 
     const totalItems = displayItems.length;
     let totalPagesCount = 1;
@@ -1154,18 +1142,13 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
         totalPagesCount = 1 + Math.ceil((totalItems - rowsPerFirstPage) / rowsPerPage);
     }
 
-    const headers = hasExtraRooms 
-        ? [trLocal('Room No', 'کمرہ نمبر'), trLocal('Class / Room', 'کلاس / کمرہ'), trLocal('In Charge', 'انچارج'), trLocal('Students', 'طلباء'), trLocal('Comments', 'تبصرے')]
-        : [trLocal('#', '#'), trLocal('Class', 'کلاس'), trLocal('In Charge', 'انچارج'), trLocal('Room', 'کمرہ'), trLocal('Students', 'طلباء'), 'ENG', 'URD', '..'];
-    
+    const headers = [trLocal('#', '#'), trLocal('Class / Room', 'کلاس / کمرہ'), trLocal('In Charge', 'انچارج'), trLocal('Room No', 'کمرہ نمبر'), trLocal('Students', 'طلباء'), trLocal('Comments', 'تبصرے')];
     const pages: string[] = [];
     let highTotal = 0; let middleTotal = 0; let primaryTotal = 0; let grandTotal = 0;
 
-    displayItems.forEach(c => {
-        if (!c.isExtraRoom) {
-            const count = parseInt(String(c.studentCount), 10) || 0; grandTotal += count;
-            const cat = (c.category || '').trim().toLowerCase(); if (cat === 'high') highTotal += count; else if (cat === 'middle') middleTotal += count; else if (cat === 'primary') primaryTotal += count;
-        }
+    standardClasses.forEach(c => {
+        const count = parseInt(String(c.studentCount), 10) || 0; grandTotal += count;
+        const cat = (c.category || '').trim().toLowerCase(); if (cat === 'high') highTotal += count; else if (cat === 'middle') middleTotal += count; else if (cat === 'primary') primaryTotal += count;
     });
 
     let currentIdx = 0;
@@ -1181,16 +1164,12 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
             const inCharge = tea ? renderText(lang, tea.nameEn, tea.nameUr) : '-';
             const name = renderText(lang, c.nameEn, c.nameUr); 
             const serial = c.serialNumber || rowIdx + 1;
-            const count = parseInt(String(c.studentCount), 10) || 0;
             
-            if (hasExtraRooms) {
-                if (c.isExtraRoom) {
-                    tableRows += `<tr><td>${c.roomNumber}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>-</td><td style="text-align: left;">${c.comments || ''}</td></tr>`;
-                } else {
-                    tableRows += `<tr><td>${c.roomNumber}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${count}</td><td></td></tr>`;
-                }
+            if (c.isExtraRoom) {
+                tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>${c.roomNumber}</td><td>-</td><td style="text-align: left;">${c.comments || ''}</td></tr>`;
             } else {
-                tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${c.roomNumber}</td><td>${count}</td><td></td><td></td><td></td></tr>`;
+                const count = parseInt(String(c.studentCount), 10) || 0;
+                tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${c.roomNumber}</td><td>${count}</td><td></td></tr>`;
             }
         });
 
@@ -1202,7 +1181,7 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
             summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th style="width: 25%;">${h}</th>`).join('')}</tr></thead><tbody><tr>${summaryValues.map(v => `<td style="font-weight: bold; font-size: 1.2em;">${v}</td>`).join('')}</tr></tbody></table></div>`;
         }
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; table-layout: fixed; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        const customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
         pages.push(generateReportHTML(schoolConfig, customDesign, trLocal('Basic Information', 'بنیادی معلومات'), lang, tableHtml, '', i + 1, totalPagesCount));
     }
@@ -1214,55 +1193,29 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
     const { en: enT, ur: urT } = translations;
     const trLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
     
-    const hasExtraRooms = selectedCategories.includes('Extra Rooms');
-
-    const header = hasExtraRooms
-        ? [trLocal('roomNumber'), 'Class / Room', trLocal('classInCharge'), trLocal('studentCount'), 'Comments']
-        : ['#', trLocal('class'), trLocal('classInCharge'), trLocal('roomNumber'), trLocal('studentCount')];
-    
+    const header = ['#', 'Class / Room', trLocal('classInCharge'), trLocal('roomNumber'), trLocal('studentCount'), 'Comments'];
     const rows: (string | number)[][] = [header];
 
     let highTotal = 0; let middleTotal = 0; let primaryTotal = 0; let grandTotal = 0;
 
     const filteredClasses = classes.filter(c => {
-        if (c.isExtraRoom) return hasExtraRooms;
+        if (c.isExtraRoom) return selectedCategories.includes('Extra Rooms');
         const cat = c.category || '';
         return selectedCategories.includes(cat);
     });
 
-    let displayItems = [...filteredClasses];
-    if (hasExtraRooms) {
-        displayItems.sort((a, b) => {
-            const roomA = a.roomNumber || '';
-            const roomB = b.roomNumber || '';
-            return roomA.localeCompare(roomB, undefined, { numeric: true, sensitivity: 'base' });
-        });
-    } else {
-        const standardClasses = filteredClasses.filter(c => !c.isExtraRoom);
-        displayItems = [...standardClasses];
-    }
+    const standardClasses = filteredClasses.filter(c => !c.isExtraRoom);
+    const extraRooms = filteredClasses.filter(c => c.isExtraRoom);
+    const displayItems = [...standardClasses, ...extraRooms];
 
     displayItems.forEach((c, idx) => {
         const className = lang === 'ur' ? c.nameUr : c.nameEn;
         const serial = c.serialNumber || idx + 1;
-        const count = parseInt(String(c.studentCount), 10) || 0;
 
-        if (hasExtraRooms) {
-            if (c.isExtraRoom) {
-                rows.push([c.roomNumber, className, '-', '-', c.comments || '']);
-            } else {
-                grandTotal += count;
-                const cat = (c.category || '').trim().toLowerCase();
-                if (cat === 'high') highTotal += count;
-                else if (cat === 'middle') middleTotal += count;
-                else if (cat === 'primary') primaryTotal += count;
-
-                const tea = teachers.find(tea => tea.id === c.inCharge);
-                const inCharge = tea ? (lang === 'ur' ? tea.nameUr : tea.nameEn) : '-';
-
-                rows.push([c.roomNumber, className, inCharge, count, '']);
-            }
+        if (c.isExtraRoom) {
+            rows.push([serial, className, '-', c.roomNumber, '-', c.comments || '']);
         } else {
+            const count = parseInt(String(c.studentCount), 10) || 0;
             grandTotal += count;
             const cat = (c.category || '').trim().toLowerCase();
             if (cat === 'high') highTotal += count;
@@ -1272,7 +1225,7 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
             const tea = teachers.find(tea => tea.id === c.inCharge);
             const inCharge = tea ? (lang === 'ur' ? tea.nameUr : tea.nameEn) : '-';
 
-            rows.push([serial, className, inCharge, c.roomNumber, count]);
+            rows.push([serial, className, inCharge, c.roomNumber, count, '']);
         }
     });
 
@@ -1393,7 +1346,7 @@ export const generateByPeriodHtml = (t: any, lang: DownloadLanguage, design: Dow
         });
         tableRows += `</tr>`;
     }
-    const customStyles = `<style> table { width: 100%; border-collapse: collapse; table-layout: fixed; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; word-wrap: break-word; line-height: 1.1; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } </style>`;
+    const customStyles = `<style> table { width: 100%; border-collapse: collapse; table-layout: fixed; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; word-wrap: break-word; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } </style>`;
     const tableHtml = `${customStyles}<table><thead><tr>${headers.map((h, idx) => `<th ${idx === 0 ? 'style="width: 35px;"' : ''}>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>`;
     return generateReportHTML(schoolConfig, customDesign, trLocal('Available Teachers', 'دستیاب اساتذہ'), lang, tableHtml);
 };
@@ -1476,7 +1429,7 @@ export const generateWorkloadSummaryHtml = (
             tableRows += `<tr><td style="text-align: left; font-weight: bold;">${name}</td>${rowCells}</tr>`;
         });
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${baseHeaders.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>`;
         const titlePrefix = startDate && endDate ? (lang === 'ur' ? `${formattedStartDate} تا ${formattedEndDate}` : `${formattedStartDate} to ${formattedEndDate}`) : '';
         const reportTitle = `${trLocal('Workload Summary', 'ورک لوڈ کا خلاصہ')} ${titlePrefix ? `(${titlePrefix})` : ''}`;
@@ -1509,7 +1462,7 @@ export const generateAttendanceReportHtml = (
     const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; unicode-bidi: embed; line-height: 1.8; font-weight: normal;`;
     const trLocal = (en: string, ur: string) => { const urSpan = `<span class="font-urdu" style="${urduStyle}">${ur}</span>`; if (lang === 'en') return en; if (lang === 'ur') return urSpan; return `${en} / ${urSpan}`; };
     
-    const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties' && !c.isExtraRoom);
+    const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties');
     const rowsPerPage = customDesign.rowsPerPage || 50;
     const rowsPerFirstPage = customDesign.rowsPerFirstPage || rowsPerPage;
     const totalItems = visibleClasses.length;
@@ -1644,7 +1597,7 @@ export const generateAttendanceReportHtml = (
             summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><h3 style="font-size: 1.1em; font-weight: bold; margin-bottom: 5px;">${trLocal('Summary', 'خلاصہ')}</h3><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${summaryRows}${grandTotalRow}</tbody></table></div>`;
         }
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
         const reportTitle = `${trLocal('Attendance Report', 'رپورٹ حاضری')} - ${dateObj.toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
         pages.push(generateReportHTML(schoolConfig, customDesign, reportTitle, lang, tableHtml, '', i + 1, totalPagesCount));
@@ -1667,7 +1620,7 @@ export const generateAttendanceReportExcel = (
     // Updated tr definition to be consistent (1 argument key)
     const trLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
     
-    const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties' && !c.isExtraRoom);
+    const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties');
     const header = [trLocal('class'), trLocal('classInCharge'), trLocal('totalStudents'), trLocal('absent'), trLocal('sick'), trLocal('leave'), trLocal('present'), '%'];
     const rows: (string | number)[][] = [header];
 
