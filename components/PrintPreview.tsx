@@ -416,6 +416,9 @@ const SettingsSidebar: React.FC<{
                                 </div>
                             </div>
                             <ToggleInput label="Show Date" path="header.showDate" value={options.header.showDate} onChange={handleValueChange} />
+                            {options.header.showDate && (
+                                <NumberInput label="Date Font Size" path="header.dateFontSize" value={options.header.dateFontSize || 12} min={6} max={24} onChange={handleValueChange} />
+                            )}
                             <TextInput label="Subtitle" path="header.subtitle" value={options.header.subtitle} onChange={handleValueChange} />
                             <ToggleInput label="Show Divider" path="header.divider" value={options.header.divider} onChange={handleValueChange} />
                             <ColorInput label="Background" path="header.bgColor" value={options.header.bgColor} onChange={handleValueChange} />
@@ -433,7 +436,11 @@ const SettingsSidebar: React.FC<{
                             <ToggleInput label="Merge Identical" path="table.mergeIdenticalPeriods" value={options.table.mergeIdenticalPeriods ?? true} onChange={handleValueChange} />
                             <ToggleInput label="Show Period Time" path="table.showPeriodTime" value={options.table.showPeriodTime ?? false} onChange={handleValueChange} />
                             {options.table.showPeriodTime && (
-                                <SelectInput label="Time Position" path="table.periodTimePosition" value={options.table.periodTimePosition || 'below'} options={[{value:'above', label:'Above'}, {value:'below', label:'Below'}]} onChange={handleValueChange} />
+                                <>
+                                    <SelectInput label="Time Position" path="table.periodTimePosition" value={options.table.periodTimePosition || 'below'} options={[{value:'above', label:'Above'}, {value:'below', label:'Below'}, {value:'left', label:'Left'}, {value:'right', label:'Right'}]} onChange={handleValueChange} />
+                                    <SelectInput label="Time Rotation" path="table.periodTimeRotation" value={options.table.periodTimeRotation || '0'} options={[{value:'0', label:'0°'}, {value:'90', label:'90°'}, {value:'180', label:'180°'}, {value:'270', label:'270°'}]} onChange={handleValueChange} />
+                                    <NumberInput label="Time Font Size" path="table.periodTimeFontSize" value={options.table.periodTimeFontSize || 10} min={6} max={24} onChange={handleValueChange} />
+                                </>
                             )}
                         </ControlGroup>
 
@@ -479,7 +486,15 @@ const SettingsSidebar: React.FC<{
                                     <SelectInput label="App Name Pos" path="footer.appNamePlacement" value={options.footer.appNamePlacement || 'center'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />
                                     
                                     <ToggleInput label="Show Date" path="footer.includeDate" value={options.footer.includeDate} onChange={handleValueChange} />
+                                    {options.footer.includeDate && (
+                                        <NumberInput label="Date Font Size" path="footer.dateFontSize" value={options.footer.dateFontSize || 10} min={6} max={24} onChange={handleValueChange} />
+                                    )}
                                     <SelectInput label="Date Pos" path="footer.datePlacement" value={options.footer.datePlacement || 'hidden'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />
+                                    
+                                    <ToggleInput label="Show Time" path="footer.includeTimestamp" value={options.footer.includeTimestamp} onChange={handleValueChange} />
+                                    {options.footer.includeTimestamp && (
+                                        <NumberInput label="Time Font Size" path="footer.timeFontSize" value={options.footer.timeFontSize || 10} min={6} max={24} onChange={handleValueChange} />
+                                    )}
                                     
                                     <ToggleInput label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} onChange={handleValueChange} />
                                     <SelectInput label="Page Num Pos" path="footer.pageNumberPlacement" value={options.footer.pageNumberPlacement || 'right'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />

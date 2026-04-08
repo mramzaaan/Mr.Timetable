@@ -10,7 +10,7 @@ interface CsvManagementModalProps {
   onUpdateTimetableSession: (updater: (session: TimetableSession) => TimetableSession) => void;
 }
 
-type CsvDataType = 'teachers' | 'classes' | 'subjects' | 'lessons' | 'groups' | 'jointPeriods' | 'timings' | 'timetable';
+type CsvDataType = 'teachers' | 'classes' | 'subjects' | 'lessons' | 'groups' | 'jointPeriods' | 'timings' | 'timetable' | 'adjustments' | 'attendance' | 'leaveDetails';
 
 interface ImportAnalysis {
   newItems: any[];
@@ -28,6 +28,9 @@ const TABS: { id: CsvDataType; label: string }[] = [
     { id: 'jointPeriods', label: 'Joint Periods' },
     { id: 'timings', label: 'School Timings' },
     { id: 'timetable', label: 'Timetable (Grid)' },
+    { id: 'adjustments', label: 'Adjustments' },
+    { id: 'attendance', label: 'Attendance' },
+    { id: 'leaveDetails', label: 'Leave Details' },
 ];
 
 const daysOfWeek: (keyof TimetableGridData)[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

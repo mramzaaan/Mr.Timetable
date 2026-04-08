@@ -4,6 +4,7 @@ import type { Language, Page, TimetableSession, SchoolConfig, TimetableGridData,
 import TimetableSessionModal from './TimetableSessionModal';
 import GlobalSearch from './GlobalSearch';
 import PrintPreview from './PrintPreview';
+import CsvManagementModal from './CsvManagementModal';
 import { 
   generateBasicInformationHtml, 
   generateBasicInformationExcel, 
@@ -568,6 +569,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const [isTeacherSelectionForPrintOpen, setIsTeacherSelectionForPrintOpen] = useState(false);
   const [selectedTeacherIdsForPrint, setSelectedTeacherIdsForPrint] = useState<string[]>([]);
   const [isTeacherTimetablePreviewOpen, setIsTeacherTimetablePreviewOpen] = useState(false);
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
 
   const touchStartRef = useRef<number | null>(null);
   const lastWheelTime = useRef<number>(0);
@@ -581,7 +583,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const adjustments = currentTimetableSession?.adjustments || {};
   const leaveDetails = currentTimetableSession?.leaveDetails || {};
   const attendance = currentTimetableSession?.attendance || {};
-  const visibleClasses = useMemo(() => classes.filter(c => c.id !== 'non-teaching-duties' && !c.isExtraRoom), [classes]);
+  const visibleClasses = useMemo(() => classes.filter(c => c.id !== 'non-teaching-duties'), [classes]);
 
   const teacherItems = useMemo(() => teachers.map(t => ({ id: t.id, label: <span>{t.nameEn} / <span className="font-urdu">{t.nameUr}</span></span> })), [teachers]);
   const classItems = useMemo(() => visibleClasses.map(c => ({ id: c.id, label: <span>{c.nameEn} / <span className="font-urdu">{c.nameUr}</span></span> })), [visibleClasses]);
@@ -605,7 +607,11 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   
   const handleDownloadSession = () => {
     if (!currentTimetableSession) return;
-    const dataStr = JSON.stringify(currentTimetableSession, null, 2);
+    const exportData = {
+        ...currentTimetableSession,
+        schoolLogoBase64: schoolConfig.schoolLogoBase64
+    };
+    const dataStr = JSON.stringify(exportData, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -1029,6 +1035,16 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
         <footer className="w-full py-4 mt-auto border-t border-white/10 text-center">
         </footer>
       </div>
+
+      {isCsvModalOpen && currentTimetableSession && (
+          <CsvManagementModal
+              t={t}
+              isOpen={isCsvModalOpen}
+              onClose={() => setIsCsvModalOpen(false)}
+              currentSession={currentTimetableSession}
+              onUpdateSession={onUpdateCurrentSession}
+          />
+      )}
     </>
   );
 };

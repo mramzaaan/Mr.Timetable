@@ -558,7 +558,8 @@ const generateReportHTML = (
     content: string,
     details?: string,
     pageNumber?: number,
-    totalPages?: number
+    totalPages?: number,
+    reportDate?: string
 ): string => {
     const styles = getPrintStyles(design);
     const logoHtml = design.header.showLogo && schoolConfig.schoolLogoBase64
@@ -568,8 +569,9 @@ const generateReportHTML = (
     const showPageNum = design.footer.includePageNumber && pageNumber !== undefined && totalPages !== undefined;
     const pageNumHtml = showPageNum ? `<span>Page ${pageNumber} of ${totalPages}</span>` : '';
     
-    const dateHtml = design.footer.includeDate ? new Date().toLocaleDateString() : '';
-    const timeHtml = design.footer.includeTimestamp ? new Date().toLocaleString() : dateHtml;
+    const dateToUse = reportDate ? new Date(reportDate) : new Date();
+    const dateHtml = design.footer.includeDate ? `<span style="font-size: ${design.footer.dateFontSize || 10}px;">${dateToUse.toLocaleDateString()}</span>` : '';
+    const timeHtml = design.footer.includeTimestamp ? `<span style="font-size: ${design.footer.timeFontSize || 10}px;">${new Date().toLocaleTimeString()}</span>` : '';
 
     const leftItems: string[] = [];
     const centerItems: string[] = [];
@@ -578,6 +580,10 @@ const generateReportHTML = (
     if (design.footer.text && design.footer.appNamePlacement === 'left') leftItems.push(design.footer.text);
     if (design.footer.text && design.footer.appNamePlacement === 'center') centerItems.push(design.footer.text);
     if (design.footer.text && design.footer.appNamePlacement === 'right') rightItems.push(design.footer.text);
+
+    if (dateHtml && design.footer.datePlacement === 'left') leftItems.push(dateHtml);
+    if (dateHtml && design.footer.datePlacement === 'center') centerItems.push(dateHtml);
+    if (dateHtml && design.footer.datePlacement === 'right') rightItems.push(dateHtml);
 
     if (timeHtml && design.footer.datePlacement === 'left') leftItems.push(timeHtml);
     if (timeHtml && design.footer.datePlacement === 'center') centerItems.push(timeHtml);
@@ -604,6 +610,7 @@ const generateReportHTML = (
                                 ${lang === 'ur' ? schoolConfig.schoolNameUr : schoolConfig.schoolNameEn}
                             </h1>
                             ${design.header.showTitle ? `<h2 class="header-title" style="font-family: sans-serif; font-size: ${design.header.title.fontSize}px; font-weight: ${design.header.title.fontWeight}; color: ${design.header.title.color}; text-align: ${design.header.title.align}">${title}</h2>` : ''}
+                            ${design.header.showDate ? `<div class="header-date" style="font-family: sans-serif; font-size: ${design.header.dateFontSize || 12}px; font-weight: normal; color: #666; text-align: ${design.header.title.align}; margin-top: 4px;">${dateToUse.toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>` : ''}
                             ${details ? `<div class="header-details" style="font-family: sans-serif; font-size: ${design.header.details.fontSize}px; font-weight: ${design.header.details.fontWeight}; color: ${design.header.details.color}; text-align: ${design.header.details.align}">${details}</div>` : ''}
                         </div>
                         ${design.header.logoPosition === 'right' ? logoHtml : ''}
@@ -814,9 +821,25 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
             const timePos = customDesign.table.periodTimePosition || 'below';
             let periodContent = `${pIdx + 1}`;
             if (showTime && startTime) {
-                const timeHtml = `<div style="font-size: 0.6em; font-weight: normal; color: #666; margin-top: 2px;">${startTime}</div>`;
-                const timeHtmlAbove = `<div style="font-size: 0.6em; font-weight: normal; color: #666; margin-bottom: 2px;">${startTime}</div>`;
-                periodContent = timePos === 'above' ? `${timeHtmlAbove}${pIdx + 1}` : `${pIdx + 1}${timeHtml}`;
+                let rotationStyle = '';
+                const rot = customDesign.table.periodTimeRotation || '0';
+                if (rot === '90') rotationStyle = `writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; margin: 2px 0;`;
+                else if (rot === '180') rotationStyle = `transform: rotate(180deg); display: inline-block; margin: 2px 0;`;
+                else if (rot === '270') rotationStyle = `writing-mode: vertical-rl; display: inline-block; margin: 2px 0;`;
+                else rotationStyle = `margin: 2px 0;`;
+                
+                const fontSize = customDesign.table.periodTimeFontSize ? `${customDesign.table.periodTimeFontSize}px` : '0.6em';
+                const timeHtml = `<div style="font-size: ${fontSize}; font-weight: normal; color: #666; ${rotationStyle}">${startTime}</div>`;
+                
+                if (timePos === 'above') {
+                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">${timeHtml}<div>${pIdx + 1}</div></div>`;
+                } else if (timePos === 'left') {
+                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;">${timeHtml}<div>${pIdx + 1}</div></div>`;
+                } else if (timePos === 'right') {
+                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;"><div>${pIdx + 1}</div>${timeHtml}</div>`;
+                } else {
+                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div>${pIdx + 1}</div>${timeHtml}</div>`;
+                }
             }
             let rowHtml = `<td class="period-col" style="text-align: center; vertical-align: middle;">${periodContent}</td>`;
             for (let dIdx = 0; dIdx < chunkDays.length; dIdx++) {
@@ -996,9 +1019,25 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
             const timePos = customDesign.table.periodTimePosition || 'below';
             let periodContent = `${pIdx + 1}`;
             if (showTime && startTime) {
-                const timeHtml = `<div style="font-size: 0.6em; font-weight: normal; color: #666; margin-top: 2px;">${startTime}</div>`;
-                const timeHtmlAbove = `<div style="font-size: 0.6em; font-weight: normal; color: #666; margin-bottom: 2px;">${startTime}</div>`;
-                periodContent = timePos === 'above' ? `${timeHtmlAbove}${pIdx + 1}` : `${pIdx + 1}${timeHtml}`;
+                let rotationStyle = '';
+                const rot = customDesign.table.periodTimeRotation || '0';
+                if (rot === '90') rotationStyle = `writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; margin: 2px 0;`;
+                else if (rot === '180') rotationStyle = `transform: rotate(180deg); display: inline-block; margin: 2px 0;`;
+                else if (rot === '270') rotationStyle = `writing-mode: vertical-rl; display: inline-block; margin: 2px 0;`;
+                else rotationStyle = `margin: 2px 0;`;
+                
+                const fontSize = customDesign.table.periodTimeFontSize ? `${customDesign.table.periodTimeFontSize}px` : '0.6em';
+                const timeHtml = `<div style="font-size: ${fontSize}; font-weight: normal; color: #666; ${rotationStyle}">${startTime}</div>`;
+                
+                if (timePos === 'above') {
+                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">${timeHtml}<div>${pIdx + 1}</div></div>`;
+                } else if (timePos === 'left') {
+                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;">${timeHtml}<div>${pIdx + 1}</div></div>`;
+                } else if (timePos === 'right') {
+                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;"><div>${pIdx + 1}</div>${timeHtml}</div>`;
+                } else {
+                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div>${pIdx + 1}</div>${timeHtml}</div>`;
+                }
             }
             let rowHtml = `<td class="period-col" style="text-align: center; vertical-align: middle;">${periodContent}</td>`;
             for (let dIdx = 0; dIdx < chunkDays.length; dIdx++) {
@@ -1066,8 +1105,7 @@ export const generateAdjustmentsReportHtml = (
     const locale = lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB';
     const dateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
     const dateStr = dateObj.toLocaleDateString(locale, dateOptions);
-    const showDate = design.header.showDate !== false;
-    const title = `${trLocal('substitution')}${showDate ? ` - ${dateStr}` : ''}`;
+    const title = `${trLocal('substitution')}`;
     const subtitle = design.header.subtitle || '';
 
     const sortedAdjustments = [...adjustments].sort((a, b) => { const teacherA = teachers.find(t => t.id === a.originalTeacherId)?.nameEn || ''; const teacherB = teachers.find(t => t.id === b.originalTeacherId)?.nameEn || ''; return teacherA.localeCompare(teacherB) || a.periodIndex - b.periodIndex; });
@@ -1122,7 +1160,7 @@ export const generateAdjustmentsReportHtml = (
       // Signature Block injection
       const signatureHtml = `<div style="margin-top: 20px; display: flex; justify-content: flex-end;"><div style="text-align: center; border-top: 1px solid #000; padding-top: 5px; width: 200px; position: relative;">${signature ? `<img src="${signature}" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); max-height: 60px; pointer-events: none; filter: grayscale(1) contrast(150%);" />` : ''}<strong>${trLocal('signature')}</strong></div></div>`;
       const tableHtml = `${customStyles} ${teachersOnLeaveHtml}<table><thead><tr><th style="width: 10%;">${trLocal('absent')}</th><th style="width: 35px;">${trLocal('period')}</th><th>${trLocal('class')}</th><th>${trLocal('subject')}</th><th>${trLocal('substituteTeacher')}</th><th style="width: 15%;">${trLocal('signature')}</th></tr></thead><tbody>${tableRowsHtml}</tbody></table>${signatureHtml}`;
-      pages.push(generateReportHTML(schoolConfig, customDesign, title, lang, tableHtml, subtitle, i + 1, totalPages));
+      pages.push(generateReportHTML(schoolConfig, customDesign, title, lang, tableHtml, subtitle, i + 1, totalPages, date));
     }
     return pages;
 };
@@ -1193,17 +1231,17 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
             
             if (includesExtraRooms) {
                 if (c.isExtraRoom) {
-                    tableRows += `<tr><td>${c.roomNumber}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>-</td><td style="text-align: left;">${c.comments || ''}</td></tr>`;
+                    tableRows += `<tr><td>${c.roomNumber}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>-</td><td class="comments-col" style="text-align: left;">${c.comments || ''}</td></tr>`;
                 } else {
                     const count = parseInt(String(c.studentCount), 10) || 0;
-                    tableRows += `<tr><td>${c.roomNumber}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${count}</td><td></td></tr>`;
+                    tableRows += `<tr><td>${c.roomNumber}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${count}</td><td class="comments-col"></td></tr>`;
                 }
             } else {
                 if (c.isExtraRoom) {
-                    tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>${c.roomNumber}</td><td>-</td><td style="text-align: left;">${c.comments || ''}</td></tr>`;
+                    tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">-</td><td>${c.roomNumber}</td><td>-</td><td class="comments-col" style="text-align: left;">${c.comments || ''}</td></tr>`;
                 } else {
                     const count = parseInt(String(c.studentCount), 10) || 0;
-                    tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${c.roomNumber}</td><td>${count}</td><td></td></tr>`;
+                    tableRows += `<tr><td>${serial}</td><td style="text-align: left;">${name}</td><td style="text-align: left;">${inCharge}</td><td>${c.roomNumber}</td><td>${count}</td><td class="comments-col"></td></tr>`;
                 }
             }
         });
@@ -1216,13 +1254,9 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
             summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th style="width: 25%;">${h}</th>`).join('')}</tr></thead><tbody><tr>${summaryValues.map(v => `<td style="font-weight: bold; font-size: 1.2em;">${v}</td>`).join('')}</tr></tbody></table></div>`;
         }
 
-        let customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
-        
-        if (includesExtraRooms) {
-            customStyles = `<style>table { width: auto; margin: 0 auto; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; white-space: nowrap; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
-        }
+        let customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; white-space: nowrap; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } td.comments-col, th.comments-col { white-space: normal; width: 100%; text-align: left; }</style>`;
 
-        const tableHtml = `${customStyles}<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
+        const tableHtml = `${customStyles}<table><thead><tr>${headers.map((h, idx) => `<th${(includesExtraRooms && idx === 4) || (!includesExtraRooms && idx === 5) ? ' class="comments-col"' : ''}>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
         pages.push(generateReportHTML(schoolConfig, customDesign, trLocal('Basic Information', 'بنیادی معلومات'), lang, tableHtml, '', i + 1, totalPagesCount));
     }
 
@@ -1557,6 +1591,7 @@ export const generateAttendanceReportHtml = (
         High: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
         Middle: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
         Primary: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
+        'Extra Rooms': { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
         GrandTotal: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 }
     };
 
@@ -1595,15 +1630,15 @@ export const generateAttendanceReportHtml = (
             }
 
             const data = dayAttendance[c.id];
-            const total = c.studentCount;
+            const total = parseInt(String(c.studentCount), 10) || 0;
             const abs = data?.absent || 0;
             const sick = data?.sick || 0;
             const leaveCount = data?.leave || 0;
-            const present = total - (abs + sick + leaveCount);
+            const present = total > 0 ? total - (abs + sick + leaveCount) : 0;
             const percentage = total > 0 ? ((present / total) * 100).toFixed(1) + '%' : '0.0%';
             const signature = data?.signature || '';
 
-            const cat = c.category || 'Primary';
+            const cat = c.isExtraRoom ? 'Extra Rooms' : (c.category || 'Primary');
             if (stats[cat]) {
                 stats[cat].total += total;
                 stats[cat].absent += abs;
@@ -1651,12 +1686,12 @@ export const generateAttendanceReportHtml = (
                 '%'
             ];
             
-            const cats = ['High', 'Middle', 'Primary'];
+            const cats = ['High', 'Middle', 'Primary', 'Extra Rooms'];
             const summaryRows = cats.map(cat => {
                 const s = stats[cat];
-                if (!s) return '';
+                if (!s || s.total === 0) return '';
                 const p = s.total > 0 ? ((s.present / s.total) * 100).toFixed(1) + '%' : '0.0%';
-                return `<tr><td style="font-weight: bold;">${trLocal(cat, cat === 'High' ? 'ہائی' : (cat === 'Middle' ? 'مڈل' : 'پرائمری'))}</td><td>${s.total}</td><td>${s.absent}</td><td>${s.sick}</td><td>${s.leave}</td><td>${s.present}</td><td>${p}</td></tr>`;
+                return `<tr><td style="font-weight: bold;">${trLocal(cat, cat === 'High' ? 'ہائی' : (cat === 'Middle' ? 'مڈل' : (cat === 'Primary' ? 'پرائمری' : 'اضافی کمرے')))}</td><td>${s.total}</td><td>${s.absent}</td><td>${s.sick}</td><td>${s.leave}</td><td>${s.present}</td><td>${p}</td></tr>`;
             }).join('');
 
             const gt = stats.GrandTotal;
@@ -1668,8 +1703,8 @@ export const generateAttendanceReportHtml = (
 
         const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
-        const reportTitle = `${trLocal('Attendance Report', 'رپورٹ حاضری')} - ${dateObj.toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-        pages.push(generateReportHTML(schoolConfig, customDesign, reportTitle, lang, tableHtml, '', i + 1, totalPagesCount));
+        const reportTitle = `${trLocal('Attendance Report', 'رپورٹ حاضری')}`;
+        pages.push(generateReportHTML(schoolConfig, customDesign, reportTitle, lang, tableHtml, '', i + 1, totalPagesCount, date));
     }
 
     return pages.length === 1 ? pages[0] : pages;
@@ -1724,11 +1759,11 @@ export const generateAttendanceReportExcel = (
         }
 
         const data = dayAttendance[c.id];
-        const total = c.studentCount;
+        const total = parseInt(String(c.studentCount), 10) || 0;
         const abs = data?.absent || 0;
         const sick = data?.sick || 0;
         const leaveCount = data?.leave || 0;
-        const present = total - (abs + sick + leaveCount);
+        const present = total > 0 ? total - (abs + sick + leaveCount) : 0;
         const percentage = total > 0 ? ((present / total) * 100).toFixed(1) + '%' : '0.0%';
 
         stats.GrandTotal.total += total;

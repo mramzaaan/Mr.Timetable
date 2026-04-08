@@ -246,6 +246,7 @@ export interface DownloadDesignConfig {
         divider: boolean;
         bgColor: string;
         showDate?: boolean;
+        dateFontSize?: number;
         subtitle?: string;
     };
     table: {
@@ -272,7 +273,9 @@ export interface DownloadDesignConfig {
         badgeTarget?: 'subject' | 'teacher' | 'class'; // For badge style configuration
         lineHeight?: number;
         showPeriodTime?: boolean;
-        periodTimePosition?: 'above' | 'below';
+        periodTimePosition?: 'above' | 'below' | 'left' | 'right';
+        periodTimeRotation?: '0' | '90' | '180' | '270';
+        periodTimeFontSize?: number;
     };
     footer: {
         show: boolean;
@@ -284,6 +287,8 @@ export interface DownloadDesignConfig {
         color: string;
         includeTimestamp?: boolean;
         includeDate?: boolean;
+        dateFontSize?: number;
+        timeFontSize?: number;
         appNamePlacement?: 'left' | 'center' | 'right' | 'hidden';
         datePlacement?: 'left' | 'center' | 'right' | 'hidden';
         pageNumberPlacement?: 'left' | 'center' | 'right' | 'hidden';
