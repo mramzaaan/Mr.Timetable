@@ -26,45 +26,43 @@ const NavButton: React.FC<{
   theme: string;
 }> = ({ label, icon, isActive, onClick, theme }) => {
   
-  const colors: Record<string, { bg: string, text: string }> = {
-      blue: { bg: 'bg-blue-500', text: 'text-blue-500' },
-      emerald: { bg: 'bg-emerald-500', text: 'text-emerald-500' },
-      indigo: { bg: 'bg-indigo-500', text: 'text-indigo-500' },
-      violet: { bg: 'bg-violet-500', text: 'text-violet-500' },
-      orange: { bg: 'bg-orange-500', text: 'text-orange-500' },
-      teal: { bg: 'bg-teal-500', text: 'text-teal-500' },
-      slate: { bg: 'bg-slate-500', text: 'text-slate-500' },
+  const colors: Record<string, { bg: string, text: string, activeText: string }> = {
+      blue: { bg: 'bg-blue-500/10', text: 'text-gray-500', activeText: 'text-blue-600' },
+      emerald: { bg: 'bg-emerald-500/10', text: 'text-gray-500', activeText: 'text-emerald-600' },
+      indigo: { bg: 'bg-indigo-500/10', text: 'text-gray-500', activeText: 'text-indigo-600' },
+      violet: { bg: 'bg-violet-500/10', text: 'text-gray-500', activeText: 'text-violet-600' },
+      orange: { bg: 'bg-orange-500/10', text: 'text-gray-500', activeText: 'text-orange-600' },
+      teal: { bg: 'bg-teal-500/10', text: 'text-gray-500', activeText: 'text-teal-600' },
+      slate: { bg: 'bg-slate-500/10', text: 'text-gray-500', activeText: 'text-slate-600' },
   };
   const color = colors[theme] || colors.blue;
 
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center justify-center h-10 px-3 rounded-xl transition-all duration-300 focus:outline-none group ${isActive ? '' : 'hover:bg-[var(--bg-tertiary)]'}`}
-      title={!isActive ? label : undefined}
+      className={`relative flex items-center w-full h-12 px-6 transition-all duration-300 focus:outline-none group ${isActive ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'hover:bg-[var(--bg-tertiary)]'}`}
+      title={label}
     >
       {isActive && (
           <motion.div
-              layoutId="top-active-indicator"
-              className={`absolute inset-0 ${color.bg} rounded-xl -z-10`}
+              layoutId="side-active-indicator"
+              className={`absolute right-0 top-0 bottom-0 w-1 bg-blue-600 rounded-l-full`}
               transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
           />
       )}
       
-      <div className="flex items-center z-10">
+      <div className="flex items-center z-10 w-full">
           <span 
-              className={`transition-colors duration-300 flex-shrink-0 ${isActive ? 'text-white' : `${color.text} group-hover:opacity-80`}`}
+              className={`transition-colors duration-300 flex-shrink-0 ${isActive ? 'text-blue-600' : `${color.text} group-hover:text-[var(--text-primary)]`}`}
           >
               {icon}
           </span>
           
-          {isActive && (
-            <span 
-                className={`ml-2 text-sm font-bold whitespace-nowrap transition-colors duration-300 text-white`}
-            >
-                {label}
-            </span>
-          )}
+          <span 
+              className={`ml-4 text-sm font-semibold whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-600' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`}
+          >
+              {label}
+          </span>
       </div>
     </button>
   );
@@ -77,26 +75,25 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
     { page: 'dataEntry', labelKey: 'dataEntry', icon: <DataEntryIcon />, theme: 'emerald' },
     { page: 'classTimetable', labelKey: 'classTimetable', icon: <ClassTimetableIcon />, theme: 'indigo' },
     { page: 'teacherTimetable', labelKey: 'teacherTimetable', icon: <TeacherTimetableIcon />, theme: 'violet' },
-    { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon />, theme: 'orange' },
     { page: 'attendance', labelKey: 'attendance', icon: <AttendanceIcon />, theme: 'teal' },
-    { page: 'teacherAttendance', labelKey: 'teacherAttendance', icon: <AttendanceIcon />, theme: 'cyan' },
+    { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon />, theme: 'orange' },
     { page: 'settings', labelKey: 'settings', icon: <SettingsIcon />, theme: 'slate' },
   ];
 
   return (
-    <header className="hidden xl:flex items-center justify-between fixed top-0 left-0 right-0 h-16 z-40 bg-[var(--bg-secondary)] border-b border-[var(--border-secondary)] shadow-sm px-6">
+    <aside className="hidden xl:flex flex-col fixed top-0 left-0 bottom-0 w-64 z-40 bg-[#f0f4f8] dark:bg-[var(--bg-secondary)] border-r border-[var(--border-secondary)] shadow-sm">
       {/* Logo Section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 px-6 h-24 flex-shrink-0">
           {schoolConfig.schoolLogoBase64 && (
               <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-8 w-8 object-contain rounded-full shadow-sm" />
           )}
-          <h1 className="text-lg font-bold text-[var(--text-primary)] tracking-tight line-clamp-1">
-              {schoolConfig.schoolNameEn || 'Timetable App'}
+          <h1 className="text-xl font-black text-blue-700 dark:text-blue-400 tracking-tight line-clamp-1">
+              {schoolConfig.schoolNameEn || 'Mr. TimeTable'}
           </h1>
       </div>
 
       {/* Nav Items */}
-      <nav className="flex items-center gap-2">
+      <nav className="flex-1 overflow-y-auto py-4 flex flex-col gap-1">
           {navItems.map(item => {
               const isActive = currentPage === item.page;
               return (
@@ -111,7 +108,20 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
               );
           })}
       </nav>
-    </header>
+      
+      {/* Add New Lesson Button */}
+      <div className="p-6 mt-auto">
+          <button 
+              onClick={() => setCurrentPage('dataEntry')}
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-full font-bold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-1"
+          >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              Add New Lesson
+          </button>
+      </div>
+    </aside>
   );
 };
 

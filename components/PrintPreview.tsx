@@ -320,39 +320,142 @@ const SettingsSidebar: React.FC<{
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
                 {activeSection === 'page' && (
-                    <>
-                        <ControlGroup label="Scaling & Dimension">
-                            <NumberInput label="Content Scale" path="contentScale" value={options.contentScale || 1} min={0.5} max={2.0} step={0.05} showPercent={true} onChange={handleValueChange} />
-                            <div className="flex gap-3">
-                                <SelectInput label="Paper Size" path="page.size" value={options.page.size} options={[{value: 'a4', label: 'A4 (Standard)'}, {value: 'letter', label: 'Letter'}, {value: 'legal', label: 'Legal'}]} onChange={handleValueChange} />
-                                <SelectInput label="Orientation" path="page.orientation" value={options.page.orientation} options={[{value: 'portrait', label: 'Portrait'}, {value: 'landscape', label: 'Landscape'}]} onChange={handleValueChange} />
-                            </div>
-                        </ControlGroup>
-                        <ControlGroup label="Margin Controls">
-                            <MarginInput options={options} onChange={handleValueChange} />
-                        </ControlGroup>
-                        <ControlGroup label="Watermark">
-                            <div className="flex items-center justify-between cursor-pointer mb-3" onClick={() => handleValueChange('page.watermarkOpacity', options.page.watermarkOpacity > 0 ? 0 : 0.1)}>
-                                <label className="text-sm text-gray-300 font-medium cursor-pointer">Enable Watermark</label>
-                                <div className={`w-10 h-5 rounded-full relative transition-colors ${options.page.watermarkOpacity > 0 ? 'bg-teal-500' : 'bg-gray-700'}`}>
-                                    <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${options.page.watermarkOpacity > 0 ? 'left-5.5' : 'left-0.5'}`}></div>
+                    <div className="flex flex-col gap-6">
+                        <div className="flex flex-col md:flex-row gap-6">
+                            {/* Left Column */}
+                            <div className="flex-1 flex flex-col gap-6">
+                                {/* Orientation */}
+                                <div>
+                                    <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Orientation</label>
+                                    <div className="flex bg-[#22252a] rounded-full p-1 w-fit">
+                                        <button 
+                                            onClick={() => handleValueChange('page.orientation', 'portrait')}
+                                            className={`flex items-center justify-center w-16 h-10 rounded-full transition-colors ${options.page.orientation === 'portrait' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 2h6v10H7V5z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                        <button 
+                                            onClick={() => handleValueChange('page.orientation', 'landscape')}
+                                            className={`flex items-center justify-center w-16 h-10 rounded-full transition-colors ${options.page.orientation === 'landscape' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 2v6h10V7H5z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Page Size */}
+                                <div>
+                                    <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Page Size</label>
+                                    <div className="grid grid-cols-2 gap-2 w-48">
+                                        {['a4', 'letter', 'exec', 'legal'].map(size => (
+                                            <button 
+                                                key={size}
+                                                onClick={() => handleValueChange('page.size', size)}
+                                                className={`py-2 px-4 rounded-full text-xs font-bold transition-colors ${options.page.size === size ? 'bg-[#e0e7ff] text-blue-600 border border-blue-200' : 'bg-[#22252a] text-gray-400 hover:bg-[#2a2d33]'}`}
+                                            >
+                                                {size === 'a4' ? 'A4' : size.charAt(0).toUpperCase() + size.slice(1)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Grid Rows */}
+                                <div className="bg-[#22252a] rounded-2xl p-4 w-48">
+                                    <label className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mb-4 block">Grid Rows</label>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-bold text-teal-400">All</span>
+                                            <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
+                                                <button onClick={() => handleValueChange('rowsPerPage', Math.max(1, (options.rowsPerPage || 5) - 1))} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+                                                <span className="w-8 text-center text-xs font-bold text-teal-400">{options.rowsPerPage || 5}</span>
+                                                <button onClick={() => handleValueChange('rowsPerPage', (options.rowsPerPage || 5) + 1)} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-bold text-pink-400">1st</span>
+                                            <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
+                                                <button onClick={() => handleValueChange('rowsPerFirstPage', Math.max(1, (options.rowsPerFirstPage || options.rowsPerPage || 5) - 1))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+                                                <span className="w-8 text-center text-xs font-bold text-pink-400">{options.rowsPerFirstPage || options.rowsPerPage || 5}</span>
+                                                <button onClick={() => handleValueChange('rowsPerFirstPage', (options.rowsPerFirstPage || options.rowsPerPage || 5) + 1)} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            {options.page.watermarkOpacity > 0 && (
-                                <>
-                                    <TextInput label="Watermark Text" path="watermarkText" value={options.watermarkText} icon={Icons.Edit} onChange={handleValueChange} />
-                                    <div className="mt-3">
-                                        <NumberInput label="Transparency" path="page.watermarkOpacity" value={options.page.watermarkOpacity} min={0.05} max={1.0} step={0.05} onChange={handleValueChange} />
+
+                            {/* Right Column */}
+                            <div className="flex-1 flex flex-col gap-6">
+                                {/* Margin */}
+                                <div>
+                                    <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Margin</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {['top', 'bottom', 'left', 'right'].map(side => (
+                                            <div key={side} className="bg-[#22252a] rounded-2xl p-3 flex flex-col gap-2">
+                                                <span className="text-xs text-gray-400 font-medium capitalize">{side}</span>
+                                                <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
+                                                    <button onClick={() => handleValueChange(`page.margins.${side}`, Math.max(0, options.page.margins[side as keyof typeof options.page.margins] - 1))} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+                                                    <span className="flex-1 text-center text-xs font-bold text-gray-300">{options.page.margins[side as keyof typeof options.page.margins]}</span>
+                                                    <button onClick={() => handleValueChange(`page.margins.${side}`, options.page.margins[side as keyof typeof options.page.margins] + 1)} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                </>
-                            )}
-                        </ControlGroup>
-                        <ControlGroup label="Other Settings" defaultOpen={false}>
-                            <NumberInput label="Rows (All Pages)" path="rowsPerPage" value={options.rowsPerPage} min={5} max={100} onChange={handleValueChange} />
-                            <NumberInput label="Rows (1st Page)" path="rowsPerFirstPage" value={options.rowsPerFirstPage || options.rowsPerPage} min={5} max={100} onChange={handleValueChange} />
-                            <SelectInput label="Color Mode" path="colorMode" value={options.colorMode} options={[{value: 'color', label: 'Color'}, {value: 'bw', label: 'Black & White'}]} onChange={handleValueChange} />
-                        </ControlGroup>
-                    </>
+                                </div>
+
+                                {/* Watermark */}
+                                <div className="bg-[#22252a] rounded-2xl p-4">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <label className="text-[10px] text-pink-800 dark:text-pink-400 font-bold uppercase tracking-wider">Watermark</label>
+                                        <div className="cursor-pointer" onClick={() => handleValueChange('page.watermarkOpacity', options.page.watermarkOpacity > 0 ? 0 : 0.45)}>
+                                            <div className={`w-10 h-5 rounded-full relative transition-colors ${options.page.watermarkOpacity > 0 ? 'bg-pink-500' : 'bg-gray-700'}`}>
+                                                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${options.page.watermarkOpacity > 0 ? 'left-5.5' : 'left-0.5'}`}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {options.page.watermarkOpacity > 0 && (
+                                        <div className="space-y-4">
+                                            <input 
+                                                type="text" 
+                                                value={options.watermarkText || ''} 
+                                                onChange={(e) => handleValueChange('watermarkText', e.target.value)} 
+                                                placeholder="DRAFT-2024"
+                                                className="w-full bg-[#1a1d21] text-gray-300 text-sm rounded-xl px-4 py-2.5 outline-none border border-gray-700 focus:border-pink-500 transition-colors"
+                                            />
+                                            
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs text-gray-400 font-medium">Alpha</span>
+                                                <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5 w-28">
+                                                    <button onClick={() => handleValueChange('page.watermarkOpacity', Math.max(0.05, Number((options.page.watermarkOpacity - 0.05).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+                                                    <span className="flex-1 text-center text-xs font-bold text-gray-300">{Math.round(options.page.watermarkOpacity * 100)}%</span>
+                                                    <button onClick={() => handleValueChange('page.watermarkOpacity', Math.min(1.0, Number((options.page.watermarkOpacity + 0.05).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-3 pt-2">
+                                                {[
+                                                    { color: '#cbd5e1', name: 'gray' },
+                                                    { color: '#000000', name: 'black' },
+                                                    { color: '#3b82f6', name: 'blue' }
+                                                ].map(c => (
+                                                    <button
+                                                        key={c.name}
+                                                        onClick={() => handleValueChange('watermarkColor', c.color)}
+                                                        className={`w-6 h-6 rounded-full transition-transform ${options.watermarkColor === c.color || (!options.watermarkColor && c.name === 'gray') ? 'ring-2 ring-offset-2 ring-offset-[#22252a] ring-gray-400 scale-110' : 'hover:scale-110'}`}
+                                                        style={{ backgroundColor: c.color }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 {activeSection === 'visibility' && (

@@ -413,9 +413,9 @@ const App: React.FC = () => {
             <ConfirmationModal t={t} isOpen={confirmationState.isOpen} onClose={() => setConfirmationState(prev => ({ ...prev, isOpen: false }))} onConfirm={confirmationState.onConfirm} title={confirmationState.title} message={confirmationState.message} />
             <SchoolInfoModal t={t} isOpen={isSchoolInfoModalOpen} onClose={() => setIsSchoolInfoModalOpen(false)} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} />
 
-            <div className={`min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 flex flex-col`}>
+            <div className={`min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 flex`}>
                 <SideNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />
-                <div className={`flex-1 flex flex-col min-w-0 pb-24 xl:pb-0 xl:pt-16`}>
+                <div className={`flex-1 flex flex-col min-w-0 pb-24 xl:pb-0 xl:pl-64`}>
                     <main className={`flex-1 ${currentPage === 'home' ? '!pt-0' : 'pt-6 xl:pt-8 px-4 xl:px-8'}`}>
                         {renderPage()}
                     </main>

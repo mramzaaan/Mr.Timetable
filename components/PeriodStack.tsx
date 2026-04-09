@@ -132,9 +132,10 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
   }
   
   const dynamicStyle = {
-    backgroundColor: `var(--${finalColorName}-bg)`,
-    color: `var(--${finalColorName}-text)`,
-    borderColor: `var(--${finalColorName}-border)`,
+    backgroundColor: 'var(--bg-secondary)',
+    color: 'var(--text-primary)',
+    borderLeftColor: `var(--${finalColorName}-border)`,
+    borderLeftWidth: '4px',
   };
 
   const highlightClasses = 'ring-2 ring-[var(--accent-primary)] shadow-xl';
@@ -192,7 +193,7 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
       onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
       onClick={handleClick}
-      className={`relative block p-1.5 rounded-lg text-left cursor-grab shadow-sm hover:shadow-lg transition-all border group flex flex-col flex-grow ${className || 'w-40'} ${isGhost ? 'period-ghost' : ''} ${isHighlighted ? highlightClasses : ''} ${isDimmed ? dimClasses : ''} ${isSelected ? selectedClasses : ''}`}
+      className={`relative block p-2.5 rounded-xl text-left cursor-grab shadow-sm hover:shadow-md transition-all border border-[var(--border-secondary)] group flex flex-col flex-grow ${className || 'w-40'} ${isGhost ? 'period-ghost' : ''} ${isHighlighted ? highlightClasses : ''} ${isDimmed ? dimClasses : ''} ${isSelected ? selectedClasses : ''}`}
       style={isGhost ? {} : dynamicStyle}
       title={titleString}
     >
@@ -212,25 +213,25 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
             </div>
         )}
         
-        <div className={`flex-1 min-w-0 pr-1 flex flex-col justify-between h-full ${firstPeriod.jointPeriodId || groupInfo ? 'pt-2' : ''}`}>
+        <div className={`flex-1 min-w-0 pr-1 flex flex-col justify-center h-full ${firstPeriod.jointPeriodId || groupInfo ? 'pt-2' : ''}`}>
             {displayContext === 'class' ? (
                 <>
-                    {/* Class Name (Context): Larger, Top-Left */}
-                    <p className="font-black text-xs truncate pt-1 text-left leading-tight">{contextNameJsx}</p>
-                    {/* Subject Name: Smaller, Bottom-Right */}
-                    <p className="text-[10px] font-medium truncate opacity-90 text-right leading-tight">{subjectNameJsx}</p>
+                    {/* Class Name (Context): Smaller, Top-Left */}
+                    <p className="text-[10px] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">{contextNameJsx}</p>
+                    {/* Subject Name: Larger, Bottom-Left */}
+                    <p className="font-black text-sm truncate text-left leading-tight mt-0.5">{subjectNameJsx}</p>
                 </>
             ) : (
                 <>
-                    {/* Subject Name: Increased size (base), Font Black, Top-Left */}
-                    <p className="font-black text-base truncate pt-0.5 text-left leading-tight">{subjectNameJsx}</p>
-                    {/* Teacher Name: Smaller, Font Bold, Bottom-Right */}
-                    <p className="text-[11px] font-bold truncate opacity-90 text-right leading-tight">{contextNameJsx}</p>
+                    {/* Subject Name: Smaller, Top-Left */}
+                    <p className="text-[10px] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">{subjectNameJsx}</p>
+                    {/* Teacher Name: Larger, Bottom-Left */}
+                    <p className="font-black text-sm truncate text-left leading-tight mt-0.5">{contextNameJsx}</p>
                 </>
             )}
         </div>
         {showCount && count > 1 && (
-            <div className="count-badge ml-1 flex-shrink-0 bg-white/70 text-gray-800 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-gray-300">
+            <div className="count-badge ml-1 flex-shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-primary)] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-[var(--border-secondary)]">
                 x{Math.round(count)}
             </div>
         )}

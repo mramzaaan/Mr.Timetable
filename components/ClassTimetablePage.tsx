@@ -543,6 +543,10 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                  </span>
                                  <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-0.5 truncate w-full text-left">
                                      {selectedClass.roomNumber ? `ROOM ${selectedClass.roomNumber}` : 'NO ROOM'}
+                                     {selectedClass.inCharge && (() => {
+                                         const inChargeTeacher = teachers.find(t => t.id === selectedClass.inCharge);
+                                         return inChargeTeacher ? ` • Inc. ${language === 'ur' ? inChargeTeacher.nameUr : inChargeTeacher.nameEn}` : '';
+                                     })()}
                                  </span>
                              </div>
                          </>
@@ -715,10 +719,10 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                 cellBackgroundClass = 'bg-[var(--slot-available-bg)]'; 
                             } else {
                                 // Available (Free)
-                                cellBackgroundClass = 'bg-emerald-100/80 dark:bg-emerald-900/50 ring-inset ring-4 ring-emerald-500 dark:ring-emerald-400';
+                                cellBackgroundClass = 'bg-emerald-100/80 dark:bg-emerald-900/50 ring-inset ring-4 ring-emerald-500 dark:ring-emerald-400 border-dashed';
                             }
                         } else if (!isDisabled) {
-                            cellBackgroundClass = slotPeriods.length === 0 ? 'bg-[var(--slot-available-bg)] opacity-70' : 'bg-[var(--slot-available-bg)]'; 
+                            cellBackgroundClass = slotPeriods.length === 0 ? 'bg-[var(--slot-available-bg)] opacity-70 border-dashed' : 'bg-[var(--slot-available-bg)]'; 
                         } else {
                             cellBackgroundClass = 'bg-[var(--slot-disabled-bg)] cursor-not-allowed';
                         }

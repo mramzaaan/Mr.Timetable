@@ -212,7 +212,7 @@ export type TriangleCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-
 export interface DownloadDesignConfig {
     version: 3;
     page: {
-        size: 'a4' | 'letter' | 'legal';
+        size: 'a4' | 'letter' | 'legal' | 'exec';
         orientation: 'portrait' | 'landscape';
         margins: { top: number, right: number, bottom: number, left: number }; // in mm
         watermarkOpacity: number;
@@ -298,6 +298,7 @@ export interface DownloadDesignConfig {
     rowsPerFirstPage?: number; // Option for different row count on first page
     daysPerPage?: number; // Option for splitting table columns (days) across pages
     watermarkText?: string;
+    watermarkColor?: string;
     compactMode?: boolean;
     contentScale?: number;
     visibleElements?: {

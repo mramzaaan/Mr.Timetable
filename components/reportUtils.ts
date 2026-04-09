@@ -368,8 +368,32 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
     const header = design?.header || { divider: true, bgColor: 'transparent' };
     const footer = design?.footer || { fontFamily: 'sans-serif', fontSize: 10, color: '#000000' };
 
-    const width = page.orientation === 'portrait' ? (page.size === 'legal' ? '816px' : '794px') : (page.size === 'legal' ? '1344px' : '1123px');
-    const height = page.orientation === 'portrait' ? (page.size === 'legal' ? '1344px' : '1123px') : (page.size === 'legal' ? '816px' : '794px');
+    const getWidth = () => {
+        if (page.orientation === 'portrait') {
+            if (page.size === 'legal') return '816px';
+            if (page.size === 'exec') return '696px';
+            return '794px'; // A4/Letter approx
+        } else {
+            if (page.size === 'legal') return '1344px';
+            if (page.size === 'exec') return '1008px';
+            return '1123px';
+        }
+    };
+    
+    const getHeight = () => {
+        if (page.orientation === 'portrait') {
+            if (page.size === 'legal') return '1344px';
+            if (page.size === 'exec') return '1008px';
+            return '1123px';
+        } else {
+            if (page.size === 'legal') return '816px';
+            if (page.size === 'exec') return '696px';
+            return '794px';
+        }
+    };
+
+    const width = getWidth();
+    const height = getHeight();
 
     const importsLatin = ``;
 
@@ -594,7 +618,7 @@ const generateReportHTML = (
     if (pageNumHtml && design.footer.pageNumberPlacement === 'right') rightItems.push(pageNumHtml);
 
     const watermarkHtml = design.watermarkText 
-        ? `<div class="watermark-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; font-weight: bold; color: rgba(0,0,0,${design.page.watermarkOpacity}); pointer-events: none; white-space: nowrap; z-index: 0;">${design.watermarkText}</div>`
+        ? `<div class="watermark-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; font-weight: bold; color: ${design.watermarkColor || '#cbd5e1'}; opacity: ${design.page.watermarkOpacity}; pointer-events: none; white-space: nowrap; z-index: 0;">${design.watermarkText}</div>`
         : (schoolConfig.schoolLogoBase64 && design.page.watermarkOpacity > 0 ? `<img src="${schoolConfig.schoolLogoBase64}" class="watermark" style="opacity: ${design.page.watermarkOpacity};" />` : '');
 
     return `

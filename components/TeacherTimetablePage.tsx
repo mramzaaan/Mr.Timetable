@@ -1312,7 +1312,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
 
                         return (
                           <td key={day} 
-                            className={`timetable-slot border border-[var(--border-secondary)] h-16 p-1 align-top ${isDisabled ? 'bg-[var(--slot-disabled-bg)] cursor-not-allowed' : 'bg-[var(--slot-available-bg)]'} transition-colors duration-300 ${statusClass} ${isTarget ? 'hover:bg-[var(--accent-secondary)] cursor-pointer ring-inset ring-2 ring-[var(--accent-primary)]/30' : ''} ${dragVisualClass} relative group`}
+                            className={`timetable-slot border border-[var(--border-secondary)] h-16 p-1 align-top ${isDisabled ? 'bg-[var(--slot-disabled-bg)] cursor-not-allowed' : (slotPeriods.length === 0 ? 'bg-[var(--slot-available-bg)] opacity-70 border-dashed' : 'bg-[var(--slot-available-bg)]')} transition-colors duration-300 ${statusClass} ${isTarget ? 'hover:bg-[var(--accent-secondary)] cursor-pointer ring-inset ring-2 ring-[var(--accent-primary)]/30' : ''} ${dragVisualClass} relative group`}
                             onDragOver={(e) => !isDisabled && handleDragOver(e)}
                             onDragEnter={() => !isDisabled && handleDragEnter(day, periodIndex)}
                             onDragLeave={handleDragLeave}
