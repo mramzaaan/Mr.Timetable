@@ -4,7 +4,7 @@ import type { SchoolConfig, DayConfig, PeriodTime, Break, TimetableGridData, Tim
 import { allDays, generateUniqueId } from '../types';
 import PrintPreview from './PrintPreview';
 import DownloadModal from './DownloadModal';
-import { generateSchoolTimingsHtml } from './reportUtils';
+import { generateSchoolTimingsHtml, generateSchoolTimingsExcel } from './reportUtils';
 
 interface TimetableStructureFormProps {
   t: any;
@@ -291,6 +291,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
             title="Download Timings"
             fileNameBase="School_Timings"
             generateContentHtml={(lang, design) => generateSchoolTimingsHtml(t, lang, design, previewConfig)}
+            onGenerateExcel={(lang, design) => generateSchoolTimingsExcel(t, lang, design, previewConfig)}
             designConfig={schoolConfig.downloadDesigns.schoolTimings}
         />
 

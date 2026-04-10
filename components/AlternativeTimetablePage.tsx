@@ -1425,7 +1425,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
         title={`${t.dailyAdjustments} - ${formattedDateForTitle}`} 
         fileNameBase={`Adjustments_${selectedDate}`} 
         generateHtml={(lang, design) => generateAdjustmentsReportHtml(t, lang, design, dailyAdjustments, teachers, classes, subjects, schoolConfig, selectedDate, absentTeacherIds)}
-        onGenerateExcel={(lang) => generateAdjustmentsExcel(t, dailyAdjustments, teachers, classes, subjects, selectedDate)}
+        onGenerateExcel={(lang, design) => generateAdjustmentsExcel(t, lang, design, schoolConfig, dailyAdjustments, teachers, classes, subjects, selectedDate)}
         designConfig={schoolConfig.downloadDesigns.adjustments} 
         onSaveDesign={handleSavePrintDesign} 
       />

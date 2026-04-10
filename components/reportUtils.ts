@@ -49,6 +49,41 @@ const downloadCsv = (content: string, filename: string) => {
     document.body.removeChild(link);
 };
 
+export const addExcelHeaderFooter = (
+    rows: (string | number)[][],
+    schoolConfig: SchoolConfig,
+    design: DownloadDesignConfig,
+    title: string,
+    lang: DownloadLanguage,
+    dateStr?: string
+) => {
+    const isUrdu = lang === 'ur';
+    const schoolName = isUrdu ? schoolConfig.schoolNameUr : schoolConfig.schoolNameEn;
+    
+    const headerRows: (string | number)[][] = [];
+    if (design.header?.showSchoolName !== false) {
+        headerRows.push([schoolName]);
+    }
+    if (design.header?.showTitle !== false) {
+        headerRows.push([title]);
+    }
+    if (design.header?.showDate !== false && dateStr) {
+        headerRows.push([dateStr]);
+    }
+    if (design.header?.details?.text) {
+        headerRows.push([design.header.details.text]);
+    }
+    headerRows.push([]); // Empty row
+    
+    const footerRows: (string | number)[][] = [];
+    footerRows.push([]); // Empty row
+    if (design.footer?.text) {
+        footerRows.push([design.footer.text]);
+    }
+    
+    return [...headerRows, ...rows, ...footerRows];
+};
+
 const toCsvRow = (cells: any[]) => cells.map(c => {
     const str = String(c === undefined || c === null ? '' : c);
     if (str.search(/("|,|\n)/g) >= 0) {
@@ -666,6 +701,75 @@ const formatCompressedClassNames = (classIds: string[], classes: SchoolClass[], 
     items.forEach(({ prefix, suffix }) => { if (!grouped.has(prefix)) grouped.set(prefix, []); if (suffix && !grouped.get(prefix)!.includes(suffix)) { grouped.get(prefix)!.push(suffix); } });
     const parts: string[] = []; for (const [prefix, suffixes] of grouped) { if (suffixes.length > 0) { const separator = lang === 'ur' ? '، ' : ', '; parts.push(`${prefix} ${suffixes.join(separator)}`); } else { parts.push(prefix); } }
     return parts.join('-');
+};
+
+export const generateSchoolTimingsExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig) => {
+    const { en: enT, ur: urT } = translations;
+    const trLocal = (en: string, ur: string) => lang === 'ur' ? ur : en;
+    const isUrdu = lang === 'ur';
+    const minText = isUrdu ? 'منٹ' : 'Min';
+    
+    const header = [trLocal('Regular Days', 'عام ایام'), '', '', trLocal('Jummah Mubarak', 'جمعہ المبارک'), '', ''];
+    const subHeader = [trLocal('Period', 'پیریڈ'), trLocal('Time', 'وقت'), trLocal('Duration', 'دورانیہ'), trLocal('Period', 'پیریڈ'), trLocal('Time', 'وقت'), trLocal('Duration', 'دورانیہ')];
+    const rows: (string | number)[][] = [header, subHeader];
+    
+    const getDuration = (start: string, end: string) => { if (!start || !end) return 0; const [h1, m1] = start.split(':').map(Number); const [h2, m2] = end.split(':').map(Number); const d1 = new Date(2000, 0, 1, h1, m1); const d2 = new Date(2000, 0, 1, h2, m2); return Math.round((d2.getTime() - d1.getTime()) / 60000); };
+    
+    const getMaxPeriods = (type: 'default' | 'friday') => {
+        const daysToCheck = type === 'friday' ? ['Friday'] : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Saturday'];
+        let max = 0;
+        daysToCheck.forEach(d => {
+            // @ts-ignore
+            const cfg = schoolConfig.daysConfig[d];
+            if (cfg && cfg.active) {
+                max = Math.max(max, cfg.periodCount);
+            }
+        });
+        return max > 0 ? max : 8;
+    };
+
+    const getScheduleItems = (type: 'default' | 'friday') => { 
+        const periods = schoolConfig.periodTimings[type]; 
+        const breaks = schoolConfig.breaks[type]; 
+        const assembly = schoolConfig.assembly[type]; 
+        const maxPeriods = getMaxPeriods(type);
+
+        const items: { type: 'assembly'|'period'|'break', name: string, time: string, duration: number, sortIndex: number }[] = []; 
+        if (assembly) items.push({ type: 'assembly', name: trLocal('Assembly', 'اسمبلی'), time: `${assembly.start} - ${assembly.end}`, duration: getDuration(assembly.start, assembly.end), sortIndex: 0 }); 
+        periods.forEach((p, i) => { if (i < maxPeriods) { const pName = p.name || (i + 1).toString(); items.push({ type: 'period', name: pName, time: `${p.start} - ${p.end}`, duration: getDuration(p.start, p.end), sortIndex: (i + 1) * 2 }); } }); 
+        breaks.forEach(b => { if (b.beforePeriod <= maxPeriods + 1) { let name = b.name; if (b.name === 'Recess') name = trLocal('Recess', 'تفریح'); else if (b.name === 'Lunch') name = trLocal('Lunch', 'کھانے کا وقفہ'); else if (b.name === 'Jummah') name = trLocal('Jummah', 'جمعہ'); else name = trLocal(b.name, b.name); items.push({ type: 'break', name: name, time: `${b.startTime} - ${b.endTime}`, duration: getDuration(b.startTime, b.endTime), sortIndex: (b.beforePeriod * 2) - 1 }); } }); 
+        return items.sort((a, b) => a.sortIndex - b.sortIndex); 
+    };
+    
+    const isFridayActive = (schoolConfig.daysConfig['Friday'] as any)?.active !== false;
+    const colA_Items = getScheduleItems('default'); 
+    const colB_Items = isFridayActive ? getScheduleItems('friday') : []; 
+    
+    const maxRows = Math.max(colA_Items.length, colB_Items.length);
+    for (let i = 0; i < maxRows; i++) {
+        const itemA = colA_Items[i];
+        const itemB = colB_Items[i];
+        const row = [];
+        
+        if (itemA) {
+            row.push(itemA.name, itemA.time, `${itemA.duration} ${minText}`);
+        } else {
+            row.push('', '', '');
+        }
+        
+        if (isFridayActive) {
+            if (itemB) {
+                row.push(itemB.name, itemB.time, `${itemB.duration} ${minText}`);
+            } else {
+                row.push('', '', '');
+            }
+        }
+        
+        rows.push(row);
+    }
+    
+    const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, trLocal('Timetable', 'ٹائم ٹیبل'), lang);
+    downloadCsv(finalRows.map(toCsvRow).join('\n'), 'School_Timings.csv');
 };
 
 export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig): string => {
@@ -1293,7 +1397,7 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
     return pages.length === 1 ? pages[0] : pages;
 };
 
-export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], teachers: Teacher[], selectedCategories: string[] = ['Primary', 'Middle', 'High', 'Extra Rooms']) => {
+export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[], selectedCategories: string[] = ['Primary', 'Middle', 'High', 'Extra Rooms']) => {
     const { en: enT, ur: urT } = translations;
     const trLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
     
@@ -1366,7 +1470,8 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
     rows.push([trLocal('high'), trLocal('middle'), trLocal('primary'), trLocal('grandTotal')]);
     rows.push([highTotal, middleTotal, primaryTotal, grandTotal]);
 
-    downloadCsv(rows.map(toCsvRow).join('\n'), 'Basic_Information.csv');
+    const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, trLocal('Basic Information') || 'Basic Information', lang);
+    downloadCsv(finalRows.map(toCsvRow).join('\n'), 'Basic_Information.csv');
 };
 
 export const generateByPeriodExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[]) => { 
@@ -1384,7 +1489,8 @@ export const generateByPeriodExcel = (t: any, lang: DownloadLanguage, design: Do
             rows.push([dayName, i + 1, freeText]); 
         } 
     }); 
-    downloadCsv(rows.map(toCsvRow).join('\n'), 'Free_Teachers_Report.csv'); 
+    const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, lang === 'ur' ? 'فارغ اساتذہ' : 'Free Teachers', lang);
+    downloadCsv(finalRows.map(toCsvRow).join('\n'), 'Free_Teachers_Report.csv'); 
 };
 
 export const generateWorkloadSummaryExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, selectedTeachers: Teacher[], schoolConfig: SchoolConfig, classes: SchoolClass[], adjustments: Record<string, Adjustment[]>, leaveDetails: Record<string, Record<string, LeaveDetails>> = {}, startDate?: string, endDate?: string, mode: 'weekly' | 'range' = 'weekly') => { 
@@ -1432,10 +1538,15 @@ export const generateWorkloadSummaryExcel = (t: any, lang: DownloadLanguage, des
             rows.push(row); 
         }
     }); 
-    downloadCsv(rows.map(toCsvRow).join('\n'), 'Workload_Summary.csv'); 
+    
+    const { en: enT, ur: urT } = translations;
+    const trLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
+    const title = mode === 'range' ? trLocal('workloadSummary') : trLocal('weeklyWorkloadSummary');
+    const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, title, lang);
+    downloadCsv(finalRows.map(toCsvRow).join('\n'), 'Workload_Summary.csv'); 
 };
 
-export const generateAdjustmentsExcel = (t: any, adjustments: Adjustment[], teachers: Teacher[], classes: SchoolClass[], subjects: Subject[], date: string) => { 
+export const generateAdjustmentsExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, adjustments: Adjustment[], teachers: Teacher[], classes: SchoolClass[], subjects: Subject[], date: string) => { 
     const header = ['Absent Teacher', 'Period', 'Class', 'Subject', 'Substitute Teacher', 'Conflict']; 
     const rows: (string | number)[][] = [header]; 
     adjustments.sort((a, b) => a.periodIndex - b.periodIndex).forEach(adj => { 
@@ -1446,7 +1557,8 @@ export const generateAdjustmentsExcel = (t: any, adjustments: Adjustment[], teac
         const conflict = adj.conflictDetails ? `Busy in ${adj.conflictDetails.classNameEn}` : ''; 
         rows.push([orig?.nameEn || '', adj.periodIndex + 1, cls?.nameEn || '', sbj?.nameEn || '', sub?.nameEn || '', conflict]); 
     }); 
-    downloadCsv(rows.map(toCsvRow).join('\n'), `Adjustments_${date}.csv`); 
+    const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, lang === 'ur' ? 'تبدیلیاں' : 'Adjustments', lang, new Date(date).toLocaleDateString());
+    downloadCsv(finalRows.map(toCsvRow).join('\n'), `Adjustments_${date}.csv`); 
 };
 
 export const generateByPeriodHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[]): string => {
@@ -1748,13 +1860,15 @@ export const generateAttendanceReportExcel = (
     date: string,
     adjustments: Record<string, Adjustment[]>,
     leaveDetails: Record<string, Record<string, LeaveDetails>>,
-    attendance: Record<string, Record<string, AttendanceData>> = {}
+    attendance: Record<string, Record<string, AttendanceData>> = {},
+    schoolConfig?: SchoolConfig,
+    design?: DownloadDesignConfig
 ) => {
     const { en: enT, ur: urT } = translations;
     // Updated tr definition to be consistent (1 argument key)
     const trLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
     
-    const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties');
+    const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties' && !c.isExtraRoom);
     const header = [trLocal('class'), trLocal('classInCharge'), trLocal('totalStudents'), trLocal('absent'), trLocal('sick'), trLocal('leave'), trLocal('present'), '%'];
     const rows: (string | number)[][] = [header];
 
@@ -1811,5 +1925,10 @@ export const generateAttendanceReportExcel = (
     rows.push([]);
     rows.push([trLocal('grandTotal'), '', gt.total, gt.absent, gt.sick, gt.leave, gt.present, gp]);
 
-    downloadCsv(rows.map(toCsvRow).join('\n'), `Attendance_Report_${date}.csv`);
+    let finalRows = rows;
+    if (schoolConfig && design) {
+        finalRows = addExcelHeaderFooter(rows, schoolConfig, design, trLocal('Attendance Report') || 'Attendance Report', lang, new Date(date).toLocaleDateString());
+    }
+
+    downloadCsv(finalRows.map(toCsvRow).join('\n'), `Attendance_Report_${date}.csv`);
 };
