@@ -256,7 +256,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 1px;
-            line-height: 1;
+            line-height: 1.2;
             margin-bottom: 10px;
             white-space: nowrap;
             overflow: visible;
@@ -275,7 +275,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             font-size: 36px; 
             font-weight: 900; 
             text-transform: uppercase; 
-            line-height: 1.1;
+            line-height: 1.2;
             ${headerStyleCss}
           }
           
@@ -313,7 +313,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             text-transform: uppercase;
             padding: 8px 4px;
             font-size: 20px;
-            line-height: 1;
+            line-height: 1.2;
             letter-spacing: 0.025em;
             border: 1px solid ${themeColors.accent}; 
             height: auto;
@@ -328,7 +328,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             font-size: 40px;
             text-align: center;
             vertical-align: middle;
-            line-height: 1;
+            line-height: 1.2;
             border: 1px solid ${themeColors.accent};
             position: relative; 
             height: 1px;
@@ -340,7 +340,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
              font-weight: 800;
              color: #000000;
              margin-bottom: 4px;
-             line-height: 1;
+             line-height: 1.2;
              white-space: pre;
           }
           
@@ -385,7 +385,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             font-weight: 900; 
             font-size: 18px;
             text-transform: none; 
-            line-height: 1.1;
+            line-height: 1.2;
             text-align: left;
             margin: 0;
             color: inherit;
@@ -400,7 +400,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             font-weight: 800; 
             opacity: 0.95; 
             font-size: 14px;
-            line-height: 1.1;
+            line-height: 1.2;
             text-align: right;
             margin: 0;
             position: absolute;
@@ -725,7 +725,6 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                         text-rendering: geometricPrecision !important;
                         -webkit-font-smoothing: antialiased !important;
                         -moz-osx-font-smoothing: grayscale !important;
-                        line-height: 1.2 !important;
                     }
                 `;
                 clonedDoc.head.appendChild(style);
