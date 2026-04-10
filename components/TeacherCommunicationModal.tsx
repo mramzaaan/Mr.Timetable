@@ -97,7 +97,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
   const [isGenerating, setIsGenerating] = useState(false);
   const [mergePatterns, setMergePatterns] = useState(false);
   const [showStartTimes, setShowStartTimes] = useState(true);
-  const [selectedCardStyle, setSelectedCardStyle] = useState<CardStyle>(schoolConfig.downloadDesigns.teacher.table.cardStyle || 'full');
+  const [selectedCardStyle, setSelectedCardStyle] = useState<CardStyle>('minimal-left');
   const [selectedTriangleCorner, setSelectedTriangleCorner] = useState<TriangleCorner>(schoolConfig.downloadDesigns.teacher.table.triangleCorner || 'bottom-left');
   const [badgeTarget, setBadgeTarget] = useState<'subject' | 'class'>('subject');
 
@@ -205,14 +205,15 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           body { margin: 0; padding: 0; overflow: hidden; background: #fff; }
           .timetable-image-container {
             background: #ffffff;
-            padding: 30px 30px 80px 30px;
+            padding: 30px;
             width: ${width}px;
-            min-height: ${height}px;
-            height: auto;
+            height: ${height}px;
             color: #000000;
             box-sizing: border-box;
             border: 2px solid ${themeColors.accent};
             position: relative;
+            display: flex;
+            flex-direction: column;
           }
           
           .timetable-image-container::before {
@@ -250,13 +251,13 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           .img-school-name { 
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
             font-weight: 900;
-            font-size: 48px; 
+            font-size: 44px; 
             color: ${themeColors.accent}; 
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 1px;
             line-height: 1;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             white-space: nowrap;
             overflow: visible;
             width: 100%;
@@ -267,11 +268,11 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             justify-content: space-between;
             align-items: flex-end;
             padding: 0 10px;
-            margin-top: 15px;
+            margin-top: 10px;
           }
           
           .info-teacher-name { 
-            font-size: 52px; 
+            font-size: 36px; 
             font-weight: 900; 
             text-transform: uppercase; 
             line-height: 1.1;
@@ -279,7 +280,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           }
           
           .info-stats-side { 
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: #64748b;
             text-transform: uppercase;
@@ -292,11 +293,15 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           .img-table-wrapper {
             width: 100%;
             border: 2px solid ${themeColors.accent};
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
           }
 
           .img-table { 
             width: 100%; 
+            height: 100%;
             border-collapse: collapse; 
             table-layout: fixed; 
           }
@@ -306,34 +311,35 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             color: ${themeColors.accent}; 
             font-weight: 900; 
             text-transform: uppercase;
-            padding: 10px 4px;
-            font-size: 32px;
+            padding: 8px 4px;
+            font-size: 20px;
             line-height: 1;
             letter-spacing: 0.025em;
             border: 1px solid ${themeColors.accent}; 
             height: auto;
-            min-height: 55px;
+            min-height: 40px;
           }
-          .img-table th:first-child { width: 75px; background: #ffffff; }
+          .img-table th:first-child { width: 45px; background: #ffffff; }
           
           .period-label { 
             background-color: #f8fafc; 
             color: ${themeColors.accent}; 
             font-weight: 900; 
-            font-size: 70px;
+            font-size: 40px;
             text-align: center;
             vertical-align: middle;
             line-height: 1;
             border: 1px solid ${themeColors.accent};
             position: relative; 
+            height: 1px;
           }
 
           .period-time-label {
              display: block;
-             font-size: 24px;
+             font-size: 14px;
              font-weight: 800;
              color: #000000;
-             margin-top: 4px;
+             margin-bottom: 4px;
              line-height: 1;
              white-space: pre;
           }
@@ -357,13 +363,14 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           .period-card-img { 
             width: 100%;
             flex-grow: 1;
-            min-height: 90px;
-            display: block;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
             text-align: center;
             overflow: hidden;
             ${cardStyleCss}
             position: relative;
-            padding: 8px;
+            padding: 6px;
             border-bottom: 1px solid ${themeColors.accent};
             box-sizing: border-box;
           }
@@ -371,33 +378,39 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
 
           .period-subject { 
             /* Holds Class Name now based on data mapping below */
-            display: block;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
             font-weight: 900; 
-            font-size: 28px; /* Increased Size - Class Name Top Left */
+            font-size: 18px; /* Reduced Size */
             text-transform: none; 
             line-height: 1.1;
             text-align: left; /* Top Left */
             margin: 0;
             color: inherit;
-            white-space: normal;
             word-break: break-word;
           }
           .period-class { 
             /* Holds Subject Name now based on data mapping below */
-            display: block;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
             font-weight: 800; 
             opacity: 0.95; 
-            font-size: 18px; /* Regular Size - Subject Bottom Right */
+            font-size: 14px; /* Reduced Size */
             line-height: 1.1;
             text-align: right; /* Bottom Right */
             margin: 0;
             position: absolute;
-            bottom: 8px;
-            right: 8px;
+            bottom: 6px;
+            right: 6px;
             color: inherit;
-            white-space: normal; 
             word-break: break-word;
-            max-width: calc(100% - 16px);
+            max-width: calc(100% - 12px);
           }
 
           .card-triangle {
@@ -441,10 +454,8 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           `).join('\n')}
 
           .footer-watermark {
-             position: absolute;
-             bottom: 30px;
-             left: 30px;
-             right: 30px;
+             position: relative;
+             margin-top: auto;
              display: flex;
              justify-content: space-between;
              align-items: center;
@@ -542,9 +553,9 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
               : '';
 
           let rowHtml = `<td class="period-label">
-              <div>
-                <span>${r + 1}</span>
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                 ${startTime ? `<span class="period-time-label">${startTime}</span>` : ''}
+                <span>${r + 1}</span>
               </div>
           </td>`;
 
@@ -612,7 +623,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
 
               rowHtml += `<td class="slot-cell" ${rowspan > 1 ? `rowspan="${rowspan}"` : ''} ${colspan > 1 ? `colspan="${colspan}"` : ''}>${current.html}</td>`;
           }
-          tableRows += `<tr style="height: ${100/maxPeriods}%;">${rowHtml}</tr>`;
+          tableRows += `<tr style="height: calc((100% - 40px) / ${maxPeriods});">${rowHtml}</tr>`;
       }
 
       const currentTimestamp = new Date().toLocaleString('en-GB', { 
@@ -643,7 +654,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             <table class="img-table">
                 <thead>
                 <tr>
-                    <th style="width: 75px"></th>
+                    <th style="width: 45px"></th>
                     ${activeDays.map(day => `<th>${t[day.toLowerCase()].substring(0,3)}</th>`).join('')}
                 </tr>
                 </thead>
@@ -684,6 +695,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
   const generateAndGetBlob = async (): Promise<Blob | null> => {
     const size = 1200;
     const width = size;
+    const height = size;
 
     const tempContainer = document.createElement('div');
     Object.assign(tempContainer.style, {
@@ -702,16 +714,15 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
         await new Promise(resolve => setTimeout(resolve, 800));
 
         const targetElement = tempContainer.children[0] as HTMLElement;
-        const actualHeight = targetElement.scrollHeight;
         const canvas = await html2canvas(targetElement, { 
             scale: 2, 
             useCORS: true, 
             backgroundColor: '#ffffff',
             logging: false,
             width: width,
-            height: actualHeight,
+            height: height,
             windowWidth: width, 
-            windowHeight: actualHeight,
+            windowHeight: height,
             onclone: (clonedDoc: Document) => {
                 const style = clonedDoc.createElement('style');
                 style.innerHTML = `

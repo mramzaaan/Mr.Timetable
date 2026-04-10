@@ -1,7 +1,7 @@
 
 export type Language = 'en' | 'ur';
-export type Page = 'home' | 'classTimetable' | 'teacherTimetable' | 'alternativeTimetable' | 'attendance' | 'dataEntry' | 'settings';
-export type DataEntryTab = 'class' | 'teacher' | 'subject' | 'jointPeriods' | 'structure' | 'school';
+export type Page = 'home' | 'classTimetable' | 'teacherTimetable' | 'alternativeTimetable' | 'attendance' | 'teacherAttendance' | 'dataEntry' | 'settings';
+export type DataEntryTab = 'class' | 'teacher' | 'subject' | 'jointPeriods' | 'structure' | 'school' | 'importExport';
 
 export type NavPosition = 'top' | 'bottom';
 export type NavDesign = 'modern' | 'classic' | 'minimal' | '3d' | 'gradient' | 'outline' | 'crystal' | 'soft' | 'transparent';
@@ -261,6 +261,8 @@ export interface DownloadDesignConfig {
         periodColumnWidth: number; // px
         periodColumnBgColor: string;
         periodColumnColor: string;
+        periodFontSize?: number; // Added for period name font size
+        periodTimeColor?: string; // Added for period time color
         altRowColor: string;
         gridStyle?: 'solid' | 'dashed' | 'dotted';
         borderWidth?: number;

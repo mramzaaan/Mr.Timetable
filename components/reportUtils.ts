@@ -843,7 +843,8 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
             const startTime = schoolConfig.periodTimings?.default?.[pIdx]?.start || '';
             const showTime = customDesign.table.showPeriodTime;
             const timePos = customDesign.table.periodTimePosition || 'below';
-            let periodContent = `${pIdx + 1}`;
+            const periodNumFontSize = customDesign.table.periodFontSize ? `${customDesign.table.periodFontSize}px` : 'inherit';
+            let periodContent = `<div style="font-size: ${periodNumFontSize};">${pIdx + 1}</div>`;
             if (showTime && startTime) {
                 let rotationStyle = '';
                 const rot = customDesign.table.periodTimeRotation || '0';
@@ -853,16 +854,18 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
                 else rotationStyle = `margin: 2px 0;`;
                 
                 const fontSize = customDesign.table.periodTimeFontSize ? `${customDesign.table.periodTimeFontSize}px` : '0.6em';
-                const timeHtml = `<div style="font-size: ${fontSize}; font-weight: normal; color: #666; ${rotationStyle}">${startTime}</div>`;
+                const timeColor = customDesign.table.periodTimeColor || '#666666';
+                const timeHtml = `<div style="font-size: ${fontSize}; font-weight: normal; color: ${timeColor}; ${rotationStyle}">${startTime}</div>`;
+                const numHtml = `<div style="font-size: ${periodNumFontSize};">${pIdx + 1}</div>`;
                 
                 if (timePos === 'above') {
-                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">${timeHtml}<div>${pIdx + 1}</div></div>`;
+                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">${timeHtml}${numHtml}</div>`;
                 } else if (timePos === 'left') {
-                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;">${timeHtml}<div>${pIdx + 1}</div></div>`;
+                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;">${timeHtml}${numHtml}</div>`;
                 } else if (timePos === 'right') {
-                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;"><div>${pIdx + 1}</div>${timeHtml}</div>`;
+                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;">${numHtml}${timeHtml}</div>`;
                 } else {
-                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div>${pIdx + 1}</div>${timeHtml}</div>`;
+                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">${numHtml}${timeHtml}</div>`;
                 }
             }
             let rowHtml = `<td class="period-col" style="text-align: center; vertical-align: middle;">${periodContent}</td>`;
@@ -1041,7 +1044,8 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
             const startTime = schoolConfig.periodTimings?.default?.[pIdx]?.start || '';
             const showTime = customDesign.table.showPeriodTime;
             const timePos = customDesign.table.periodTimePosition || 'below';
-            let periodContent = `${pIdx + 1}`;
+            const periodNumFontSize = customDesign.table.periodFontSize ? `${customDesign.table.periodFontSize}px` : 'inherit';
+            let periodContent = `<div style="font-size: ${periodNumFontSize};">${pIdx + 1}</div>`;
             if (showTime && startTime) {
                 let rotationStyle = '';
                 const rot = customDesign.table.periodTimeRotation || '0';
@@ -1051,16 +1055,18 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
                 else rotationStyle = `margin: 2px 0;`;
                 
                 const fontSize = customDesign.table.periodTimeFontSize ? `${customDesign.table.periodTimeFontSize}px` : '0.6em';
-                const timeHtml = `<div style="font-size: ${fontSize}; font-weight: normal; color: #666; ${rotationStyle}">${startTime}</div>`;
+                const timeColor = customDesign.table.periodTimeColor || '#666666';
+                const timeHtml = `<div style="font-size: ${fontSize}; font-weight: normal; color: ${timeColor}; ${rotationStyle}">${startTime}</div>`;
+                const numHtml = `<div style="font-size: ${periodNumFontSize};">${pIdx + 1}</div>`;
                 
                 if (timePos === 'above') {
-                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">${timeHtml}<div>${pIdx + 1}</div></div>`;
+                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">${timeHtml}${numHtml}</div>`;
                 } else if (timePos === 'left') {
-                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;">${timeHtml}<div>${pIdx + 1}</div></div>`;
+                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;">${timeHtml}${numHtml}</div>`;
                 } else if (timePos === 'right') {
-                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;"><div>${pIdx + 1}</div>${timeHtml}</div>`;
+                    periodContent = `<div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;">${numHtml}${timeHtml}</div>`;
                 } else {
-                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div>${pIdx + 1}</div>${timeHtml}</div>`;
+                    periodContent = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">${numHtml}${timeHtml}</div>`;
                 }
             }
             let rowHtml = `<td class="period-col" style="text-align: center; vertical-align: middle;">${periodContent}</td>`;

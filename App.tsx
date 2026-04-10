@@ -186,7 +186,7 @@ const App: React.FC = () => {
              if (st.table.periodColumnBgColor === '#f1f5f9') {
                 st.table.periodColumnBgColor = '#86efac';
              }
-             if (st.header.schoolName.fontFamily === 'Roboto' && st.header.schoolName.fontSize === 24) {
+             if (st.header.schoolName.fontFamily === ('Roboto' as any) && st.header.schoolName.fontSize === 24) {
                  st.header.schoolName.fontFamily = 'sans-serif';
                  st.header.schoolName.fontSize = 51;
              }

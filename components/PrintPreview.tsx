@@ -84,21 +84,21 @@ const triangleCornerOptions: { label: string, value: TriangleCorner }[] = [
     { label: 'Bottom Right', value: 'bottom-right' },
 ];
 
-const ControlGroup = ({ label, children, defaultOpen = false }: any) => {
+const ControlGroup = ({ label, children, defaultOpen = true }: any) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="mb-4 bg-[#1a1d21] rounded-lg overflow-hidden border border-gray-800 shadow-sm">
+        <div className="bg-[#22252a] rounded-2xl p-4 flex flex-col gap-4">
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-4 text-xs font-bold text-gray-400 uppercase tracking-widest hover:bg-gray-800/50 transition-colors"
+                className="w-full flex items-center justify-between text-[10px] text-blue-400 font-bold uppercase tracking-wider"
             >
                 {label}
-                <div className={`transform transition-transform text-teal-500 ${isOpen ? 'rotate-180' : ''}`}>
+                <div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
                     <ChevronDownIcon />
                 </div>
             </button>
             {isOpen && (
-                <div className="p-4 pt-0 space-y-4">
+                <div className="space-y-4">
                     {children}
                 </div>
             )}
@@ -107,37 +107,28 @@ const ControlGroup = ({ label, children, defaultOpen = false }: any) => {
 };
 
 const NumberInput = ({ label, path, value, min, max, step = 1, showPercent = false, onChange }: any) => (
-    <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
-        <label className="text-xs text-gray-300 font-medium">{label}</label>
-        <div className="flex items-center bg-[#1a1d21] rounded border border-gray-700 w-24">
-            <button onClick={() => onChange(path, Math.max(min, Number((value - step).toFixed(2))))} className="px-2 text-teal-500 hover:text-teal-400 font-bold">-</button>
-            <input 
-                type="text" 
-                value={showPercent ? `${Math.round(value * 100)}%` : value} 
-                onChange={(e) => {
-                    if (showPercent) return;
-                    onChange(path, Number(e.target.value));
-                }} 
-                readOnly={showPercent}
-                className="w-full bg-transparent text-center text-xs font-bold text-white outline-none py-1 appearance-none"
-            />
-            <button onClick={() => onChange(path, Math.min(max, Number((value + step).toFixed(2))))} className="px-2 text-teal-500 hover:text-teal-400 font-bold">+</button>
+    <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-gray-400">{label}</span>
+        <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
+            <button onClick={() => onChange(path, Math.max(min, Number((value - step).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+            <span className="w-10 text-center text-xs font-bold text-gray-300">{showPercent ? `${Math.round(value * 100)}%` : value}</span>
+            <button onClick={() => onChange(path, Math.min(max, Number((value + step).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
         </div>
     </div>
 );
 
 const SelectInput = ({ label, path, value, options: opts, onChange }: any) => (
-    <div className="bg-[#22252a] p-3 rounded-lg space-y-2 flex-1">
-        <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{label}</label>
-        <div className="relative">
+    <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-gray-400">{label}</span>
+        <div className="relative w-32">
             <select 
                 value={value} 
                 onChange={(e) => onChange(path, e.target.value)} 
-                className="w-full bg-transparent text-white text-sm outline-none appearance-none cursor-pointer"
+                className="w-full bg-[#1a1d21] text-gray-300 text-xs font-bold rounded-full px-3 py-1.5 outline-none appearance-none cursor-pointer border border-transparent focus:border-teal-500"
             >
                 {opts.map((o: any) => <option key={o.value} value={o.value} className="bg-gray-900">{o.label}</option>)}
             </select>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
                 <ChevronDownIcon />
             </div>
         </div>
@@ -147,13 +138,13 @@ const SelectInput = ({ label, path, value, options: opts, onChange }: any) => (
 const MarginInput = ({ options, onChange }: any) => (
     <div className="grid grid-cols-4 gap-2">
         {['top', 'right', 'bottom', 'left'].map(side => (
-            <div key={side} className="bg-[#22252a] p-2 rounded-lg flex flex-col items-center justify-center gap-1">
+            <div key={side} className="bg-[#1a1d21] p-2 rounded-xl flex flex-col items-center justify-center gap-1 border border-transparent focus-within:border-teal-500">
                 <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{side}</label>
                 <input 
                     type="number" 
                     value={options.page.margins[side as keyof typeof options.page.margins]} 
                     onChange={(e) => onChange(`page.margins.${side}`, Number(e.target.value))}
-                    className="w-full bg-transparent text-center text-sm font-bold text-teal-500 outline-none appearance-none"
+                    className="w-full bg-transparent text-center text-xs font-bold text-gray-300 outline-none appearance-none"
                 />
             </div>
         ))}
@@ -162,7 +153,7 @@ const MarginInput = ({ options, onChange }: any) => (
 
 const ToggleInput = ({ label, path, value, onChange }: any) => (
     <div className="flex items-center justify-between cursor-pointer" onClick={() => onChange(path, !value)}>
-        <label className="text-sm text-gray-300 font-medium cursor-pointer">{label}</label>
+        <span className="text-xs font-bold text-gray-400">{label}</span>
         <div className={`w-10 h-5 rounded-full relative transition-colors ${value ? 'bg-teal-500' : 'bg-gray-700'}`}>
             <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${value ? 'left-5.5' : 'left-0.5'}`}></div>
         </div>
@@ -170,32 +161,34 @@ const ToggleInput = ({ label, path, value, onChange }: any) => (
 );
 
 const TextInput = ({ label, path, value, icon: Icon, onChange }: any) => (
-    <div className="flex items-center bg-[#22252a] p-3 rounded-lg gap-3">
-        {Icon && <Icon className="text-gray-500 w-5 h-5" />}
-        <input 
-            type="text" 
-            value={value || ''} 
-            onChange={(e) => onChange(path, e.target.value)} 
-            placeholder={label}
-            className="flex-1 bg-transparent text-white text-sm outline-none placeholder-gray-500"
-        />
-        <Icons.Edit className="text-teal-500 w-4 h-4" />
+    <div className="flex flex-col gap-2">
+        <span className="text-xs font-bold text-gray-400">{label}</span>
+        <div className="flex items-center bg-[#1a1d21] rounded-full px-3 py-1.5 gap-2 border border-transparent focus-within:border-teal-500">
+            {Icon && <Icon className="text-teal-500 w-4 h-4" />}
+            <input 
+                type="text" 
+                value={value || ''} 
+                onChange={(e) => onChange(path, e.target.value)} 
+                placeholder={label}
+                className="flex-1 bg-transparent text-gray-300 text-xs font-bold outline-none placeholder-gray-600"
+            />
+        </div>
     </div>
 );
 
 const ColorInput = ({ label, path, value, onChange }: any) => (
-    <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
-        <label className="text-xs text-gray-300 font-medium">{label}</label>
+    <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-gray-400">{label}</span>
         <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded border border-gray-600 overflow-hidden relative cursor-pointer">
-                <div className="absolute inset-0" style={{ backgroundColor: value }}></div>
-                <input type="color" value={value} onChange={(e) => onChange(path, e.target.value)} className="opacity-0 w-full h-full cursor-pointer" />
+            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-gray-600 cursor-pointer hover:scale-110 transition-transform">
+                <div className="absolute inset-0" style={{ backgroundColor: value || '#000000' }}></div>
+                <input type="color" value={value || '#000000'} onChange={(e) => onChange(path, e.target.value)} className="opacity-0 w-full h-full cursor-pointer absolute inset-0" />
             </div>
             <input 
                 type="text" 
-                value={value} 
+                value={value || '#000000'} 
                 onChange={(e) => onChange(path, e.target.value)} 
-                className="w-16 bg-[#1a1d21] border border-gray-700 text-white text-xs rounded px-1 py-1 outline-none text-center font-mono uppercase"
+                className="w-16 bg-[#1a1d21] text-gray-300 text-[10px] font-bold rounded-full px-2 py-1 outline-none text-center uppercase border border-transparent focus:border-teal-500"
                 maxLength={7}
             />
         </div>
@@ -203,13 +196,11 @@ const ColorInput = ({ label, path, value, onChange }: any) => (
 );
 
 const ManualColorInput = ({ label, value, onChange }: any) => (
-    <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg">
-        <label className="text-xs text-gray-300 font-medium">{label}</label>
-        <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded border border-gray-600 overflow-hidden relative cursor-pointer">
-                <div className="absolute inset-0" style={{ backgroundColor: value }}></div>
-                <input type="color" onChange={(e) => onChange(e.target.value)} disabled={!value} className="opacity-0 w-full h-full cursor-pointer disabled:cursor-not-allowed" />
-            </div>
+    <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-gray-400">{label}</span>
+        <div className="relative w-6 h-6 rounded-full overflow-hidden border border-gray-600 cursor-pointer hover:scale-110 transition-transform">
+            <div className="absolute inset-0" style={{ backgroundColor: value || '#000000' }}></div>
+            <input type="color" onChange={(e) => onChange(e.target.value)} disabled={!value} className="opacity-0 w-full h-full cursor-pointer absolute inset-0 disabled:cursor-not-allowed" />
         </div>
     </div>
 );
@@ -292,19 +283,11 @@ const SettingsSidebar: React.FC<{
     };
 
     return (
-        <div className="w-full md:w-80 bg-[#111315] border-r border-gray-800 flex flex-col h-full shadow-xl z-20">
+        <div className="w-full md:w-[300px] bg-[#111315] border-r border-gray-800 flex flex-col h-full shadow-xl z-20">
             <div className="p-4 border-b border-gray-800 bg-[#1a1d21] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Icons.Settings className="text-teal-500 w-5 h-5" />
                     <h3 className="text-lg font-bold text-teal-500">Print config.</h3>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button className="text-teal-500 hover:text-teal-400 transition-colors" title="Print">
-                        <Icons.Print />
-                    </button>
-                    <button className="text-teal-500 hover:text-teal-400 transition-colors" title="Share">
-                        <Icons.Share />
-                    </button>
                 </div>
             </div>
             
@@ -314,145 +297,154 @@ const SettingsSidebar: React.FC<{
                 <SectionButton id="table" label="Table" icon={Icons.Table} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="footer" label="Footer" icon={Icons.Footer} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="visibility" label="Visibility" icon={Icons.Check} activeSection={activeSection} onClick={handleSectionClick} />
-                <SectionButton id="presets" label="Presets" icon={Icons.Share} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="edit" label="Edit Text" icon={Icons.Edit} activeSection={activeSection} onClick={handleSectionClick} />
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
                 {activeSection === 'page' && (
                     <div className="flex flex-col gap-6">
-                        <div className="flex flex-col md:flex-row gap-6">
-                            {/* Left Column */}
-                            <div className="flex-1 flex flex-col gap-6">
-                                {/* Orientation */}
-                                <div>
-                                    <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Orientation</label>
-                                    <div className="flex bg-[#22252a] rounded-full p-1 w-fit">
-                                        <button 
-                                            onClick={() => handleValueChange('page.orientation', 'portrait')}
-                                            className={`flex items-center justify-center w-16 h-10 rounded-full transition-colors ${options.page.orientation === 'portrait' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 2h6v10H7V5z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
-                                        <button 
-                                            onClick={() => handleValueChange('page.orientation', 'landscape')}
-                                            className={`flex items-center justify-center w-16 h-10 rounded-full transition-colors ${options.page.orientation === 'landscape' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 2v6h10V7H5z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
-                                    </div>
+                        {/* Row 1: Orientation and Page Size */}
+                        <div className="flex flex-col sm:flex-row gap-6">
+                            {/* Orientation */}
+                            <div className="flex-1">
+                                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Orientation</label>
+                                <div className="flex bg-[#22252a] rounded-full p-1 w-full max-w-[200px]">
+                                    <button 
+                                        onClick={() => handleValueChange('page.orientation', 'portrait')}
+                                        className={`flex-1 flex items-center justify-center h-10 rounded-full transition-colors ${options.page.orientation === 'portrait' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 2h6v10H7V5z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <button 
+                                        onClick={() => handleValueChange('page.orientation', 'landscape')}
+                                        className={`flex-1 flex items-center justify-center h-10 rounded-full transition-colors ${options.page.orientation === 'landscape' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 2v6h10V7H5z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
                                 </div>
+                            </div>
 
-                                {/* Page Size */}
-                                <div>
-                                    <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Page Size</label>
-                                    <div className="grid grid-cols-2 gap-2 w-48">
-                                        {['a4', 'letter', 'exec', 'legal'].map(size => (
-                                            <button 
-                                                key={size}
-                                                onClick={() => handleValueChange('page.size', size)}
-                                                className={`py-2 px-4 rounded-full text-xs font-bold transition-colors ${options.page.size === size ? 'bg-[#e0e7ff] text-blue-600 border border-blue-200' : 'bg-[#22252a] text-gray-400 hover:bg-[#2a2d33]'}`}
-                                            >
-                                                {size === 'a4' ? 'A4' : size.charAt(0).toUpperCase() + size.slice(1)}
-                                            </button>
-                                        ))}
-                                    </div>
+                            {/* Page Size */}
+                            <div className="flex-1">
+                                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Page Size</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {['a4', 'letter', 'exec', 'legal'].map(size => (
+                                        <button 
+                                            key={size}
+                                            onClick={() => handleValueChange('page.size', size)}
+                                            className={`py-2 px-4 rounded-full text-xs font-bold transition-colors ${options.page.size === size ? 'bg-[#e0e7ff] text-blue-600 border border-blue-200' : 'bg-[#22252a] text-gray-400 hover:bg-[#2a2d33]'}`}
+                                        >
+                                            {size === 'a4' ? 'A4' : size.charAt(0).toUpperCase() + size.slice(1)}
+                                        </button>
+                                    ))}
                                 </div>
+                            </div>
+                        </div>
 
-                                {/* Grid Rows */}
-                                <div className="bg-[#22252a] rounded-2xl p-4 w-48">
-                                    <label className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mb-4 block">Grid Rows</label>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xs font-bold text-teal-400">All</span>
-                                            <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
-                                                <button onClick={() => handleValueChange('rowsPerPage', Math.max(1, (options.rowsPerPage || 5) - 1))} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
-                                                <span className="w-8 text-center text-xs font-bold text-teal-400">{options.rowsPerPage || 5}</span>
-                                                <button onClick={() => handleValueChange('rowsPerPage', (options.rowsPerPage || 5) + 1)} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
-                                            </div>
+                        {/* Row 2: Margins */}
+                        <div>
+                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Margin</label>
+                            <div className="flex flex-wrap gap-3">
+                                {['top', 'bottom', 'left', 'right'].map(side => (
+                                    <div key={side} className="bg-[#22252a] rounded-2xl p-3 flex flex-col gap-2 flex-1 min-w-[70px]">
+                                        <span className="text-xs text-gray-400 font-medium capitalize text-center">{side}</span>
+                                        <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5 justify-between">
+                                            <button onClick={() => handleValueChange(`page.margins.${side}`, Math.max(0, options.page.margins[side as keyof typeof options.page.margins] - 1))} className="w-5 h-5 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+                                            <span className="text-xs font-bold text-gray-300">{options.page.margins[side as keyof typeof options.page.margins]}</span>
+                                            <button onClick={() => handleValueChange(`page.margins.${side}`, options.page.margins[side as keyof typeof options.page.margins] + 1)} className="w-5 h-5 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
                                         </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xs font-bold text-pink-400">1st</span>
-                                            <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
-                                                <button onClick={() => handleValueChange('rowsPerFirstPage', Math.max(1, (options.rowsPerFirstPage || options.rowsPerPage || 5) - 1))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
-                                                <span className="w-8 text-center text-xs font-bold text-pink-400">{options.rowsPerFirstPage || options.rowsPerPage || 5}</span>
-                                                <button onClick={() => handleValueChange('rowsPerFirstPage', (options.rowsPerFirstPage || options.rowsPerPage || 5) + 1)} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
-                                            </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Row 3: Grid Rows & Watermark */}
+                        <div className="flex flex-col xl:flex-row gap-6">
+                            {/* Grid Rows */}
+                            <div className="bg-[#22252a] rounded-2xl p-4 flex-1">
+                                <label className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mb-4 block">Grid Rows</label>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-teal-400">All Pages</span>
+                                        <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
+                                            <button onClick={() => handleValueChange('rowsPerPage', Math.max(1, (options.rowsPerPage || 5) - 1))} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+                                            <span className="w-8 text-center text-xs font-bold text-teal-400">{options.rowsPerPage || 5}</span>
+                                            <button onClick={() => handleValueChange('rowsPerPage', (options.rowsPerPage || 5) + 1)} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-pink-400">1st Page</span>
+                                        <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
+                                            <button onClick={() => handleValueChange('rowsPerFirstPage', Math.max(1, (options.rowsPerFirstPage || options.rowsPerPage || 5) - 1))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+                                            <span className="w-8 text-center text-xs font-bold text-pink-400">{options.rowsPerFirstPage || options.rowsPerPage || 5}</span>
+                                            <button onClick={() => handleValueChange('rowsPerFirstPage', (options.rowsPerFirstPage || options.rowsPerPage || 5) + 1)} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Right Column */}
-                            <div className="flex-1 flex flex-col gap-6">
-                                {/* Margin */}
-                                <div>
-                                    <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Margin</label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {['top', 'bottom', 'left', 'right'].map(side => (
-                                            <div key={side} className="bg-[#22252a] rounded-2xl p-3 flex flex-col gap-2">
-                                                <span className="text-xs text-gray-400 font-medium capitalize">{side}</span>
-                                                <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
-                                                    <button onClick={() => handleValueChange(`page.margins.${side}`, Math.max(0, options.page.margins[side as keyof typeof options.page.margins] - 1))} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
-                                                    <span className="flex-1 text-center text-xs font-bold text-gray-300">{options.page.margins[side as keyof typeof options.page.margins]}</span>
-                                                    <button onClick={() => handleValueChange(`page.margins.${side}`, options.page.margins[side as keyof typeof options.page.margins] + 1)} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
-                                                </div>
-                                            </div>
-                                        ))}
+                            {/* Watermark */}
+                            <div className="bg-[#22252a] rounded-2xl p-4 flex-1">
+                                <div className="flex items-center justify-between mb-4">
+                                    <label className="text-[10px] text-pink-800 dark:text-pink-400 font-bold uppercase tracking-wider">Watermark</label>
+                                    <div className="cursor-pointer" onClick={() => handleValueChange('page.watermarkOpacity', options.page.watermarkOpacity > 0 ? 0 : 0.45)}>
+                                        <div className={`w-10 h-5 rounded-full relative transition-colors ${options.page.watermarkOpacity > 0 ? 'bg-pink-500' : 'bg-gray-700'}`}>
+                                            <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${options.page.watermarkOpacity > 0 ? 'left-5.5' : 'left-0.5'}`}></div>
+                                        </div>
                                     </div>
                                 </div>
+                                
+                                {options.page.watermarkOpacity > 0 && (
+                                    <div className="space-y-4">
+                                        <input 
+                                            type="text" 
+                                            value={options.watermarkText || ''} 
+                                            onChange={(e) => handleValueChange('watermarkText', e.target.value)} 
+                                            placeholder="DRAFT-2024"
+                                            className="w-full bg-[#1a1d21] text-gray-300 text-sm rounded-xl px-4 py-2.5 outline-none border border-gray-700 focus:border-pink-500 transition-colors"
+                                        />
+                                        
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs text-gray-400 font-medium">Alpha</span>
+                                            <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5 w-28">
+                                                <button onClick={() => handleValueChange('page.watermarkOpacity', Math.max(0.05, Number((options.page.watermarkOpacity - 0.05).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
+                                                <span className="flex-1 text-center text-xs font-bold text-gray-300">{Math.round(options.page.watermarkOpacity * 100)}%</span>
+                                                <button onClick={() => handleValueChange('page.watermarkOpacity', Math.min(1.0, Number((options.page.watermarkOpacity + 0.05).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
+                                            </div>
+                                        </div>
 
-                                {/* Watermark */}
-                                <div className="bg-[#22252a] rounded-2xl p-4">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <label className="text-[10px] text-pink-800 dark:text-pink-400 font-bold uppercase tracking-wider">Watermark</label>
-                                        <div className="cursor-pointer" onClick={() => handleValueChange('page.watermarkOpacity', options.page.watermarkOpacity > 0 ? 0 : 0.45)}>
-                                            <div className={`w-10 h-5 rounded-full relative transition-colors ${options.page.watermarkOpacity > 0 ? 'bg-pink-500' : 'bg-gray-700'}`}>
-                                                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${options.page.watermarkOpacity > 0 ? 'left-5.5' : 'left-0.5'}`}></div>
+                                        <div className="flex items-center gap-3 pt-2">
+                                            {[
+                                                { color: '#cbd5e1', name: 'gray' },
+                                                { color: '#000000', name: 'black' },
+                                                { color: '#3b82f6', name: 'blue' }
+                                            ].map(c => (
+                                                <button
+                                                    key={c.name}
+                                                    onClick={() => handleValueChange('watermarkColor', c.color)}
+                                                    className={`w-6 h-6 rounded-full transition-transform ${options.watermarkColor === c.color || (!options.watermarkColor && c.name === 'gray') ? 'ring-2 ring-offset-2 ring-offset-[#22252a] ring-gray-400 scale-110' : 'hover:scale-110'}`}
+                                                    style={{ backgroundColor: c.color }}
+                                                />
+                                            ))}
+                                            {/* Custom Color Picker */}
+                                            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-gray-600 cursor-pointer hover:scale-110 transition-transform">
+                                                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-tr from-red-500 via-green-500 to-blue-500">
+                                                    <Icons.Edit className="w-3 h-3 text-white drop-shadow-md" />
+                                                </div>
+                                                <input 
+                                                    type="color" 
+                                                    value={options.watermarkColor || '#cbd5e1'} 
+                                                    onChange={(e) => handleValueChange('watermarkColor', e.target.value)} 
+                                                    className="opacity-0 w-full h-full cursor-pointer absolute inset-0" 
+                                                />
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    {options.page.watermarkOpacity > 0 && (
-                                        <div className="space-y-4">
-                                            <input 
-                                                type="text" 
-                                                value={options.watermarkText || ''} 
-                                                onChange={(e) => handleValueChange('watermarkText', e.target.value)} 
-                                                placeholder="DRAFT-2024"
-                                                className="w-full bg-[#1a1d21] text-gray-300 text-sm rounded-xl px-4 py-2.5 outline-none border border-gray-700 focus:border-pink-500 transition-colors"
-                                            />
-                                            
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-xs text-gray-400 font-medium">Alpha</span>
-                                                <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5 w-28">
-                                                    <button onClick={() => handleValueChange('page.watermarkOpacity', Math.max(0.05, Number((options.page.watermarkOpacity - 0.05).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
-                                                    <span className="flex-1 text-center text-xs font-bold text-gray-300">{Math.round(options.page.watermarkOpacity * 100)}%</span>
-                                                    <button onClick={() => handleValueChange('page.watermarkOpacity', Math.min(1.0, Number((options.page.watermarkOpacity + 0.05).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 pt-2">
-                                                {[
-                                                    { color: '#cbd5e1', name: 'gray' },
-                                                    { color: '#000000', name: 'black' },
-                                                    { color: '#3b82f6', name: 'blue' }
-                                                ].map(c => (
-                                                    <button
-                                                        key={c.name}
-                                                        onClick={() => handleValueChange('watermarkColor', c.color)}
-                                                        className={`w-6 h-6 rounded-full transition-transform ${options.watermarkColor === c.color || (!options.watermarkColor && c.name === 'gray') ? 'ring-2 ring-offset-2 ring-offset-[#22252a] ring-gray-400 scale-110' : 'hover:scale-110'}`}
-                                                        style={{ backgroundColor: c.color }}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -463,33 +455,6 @@ const SettingsSidebar: React.FC<{
                         <ToggleInput label="Teacher Name" path="visibleElements.teacherName" value={options.visibleElements?.teacherName ?? true} onChange={handleValueChange} />
                         <ToggleInput label="Subject Name" path="visibleElements.subjectName" value={options.visibleElements?.subjectName ?? true} onChange={handleValueChange} />
                         <ToggleInput label="Room Number" path="visibleElements.roomNumber" value={options.visibleElements?.roomNumber ?? true} onChange={handleValueChange} />
-                    </ControlGroup>
-                )}
-
-                {activeSection === 'presets' && (
-                    <ControlGroup label="Saved Presets">
-                        <div className="flex gap-2 mb-4">
-                            <input 
-                                type="text" 
-                                value={newPresetName} 
-                                onChange={(e) => setNewPresetName(e.target.value)}
-                                placeholder="Preset Name"
-                                className="flex-1 bg-gray-900 border border-gray-700 text-white text-xs rounded px-2 py-1.5 outline-none focus:border-teal-500"
-                            />
-                            <button onClick={savePreset} disabled={!newPresetName} className="px-3 py-1 bg-teal-600 text-white rounded text-xs font-bold hover:bg-teal-700 disabled:opacity-50">Save</button>
-                        </div>
-                        <div className="space-y-2">
-                            {presets.map((preset, idx) => (
-                                <div key={idx} className="flex items-center justify-between bg-gray-800 p-2 rounded border border-gray-700">
-                                    <span className="text-xs text-gray-300 font-medium">{preset.name}</span>
-                                    <div className="flex gap-1">
-                                        <button onClick={() => loadPreset(preset.config)} className="p-1 text-teal-400 hover:text-teal-300" title="Load"><Icons.Check /></button>
-                                        <button onClick={() => deletePreset(idx)} className="p-1 text-red-400 hover:text-red-300" title="Delete"><Icons.Close /></button>
-                                    </div>
-                                </div>
-                            ))}
-                            {presets.length === 0 && <p className="text-xs text-gray-500 text-center italic">No saved presets</p>}
-                        </div>
                     </ControlGroup>
                 )}
 
@@ -537,12 +502,14 @@ const SettingsSidebar: React.FC<{
                             <SelectInput label="Grid Style" path="table.gridStyle" value={options.table.gridStyle} options={[{value:'solid', label:'Solid'}, {value:'dashed', label:'Dashed'}, {value:'dotted', label:'Dotted'}]} onChange={handleValueChange} />
                             <SelectInput label="Vertical Align" path="table.verticalAlign" value={options.table.verticalAlign} options={[{value:'top', label:'Top'}, {value:'middle', label:'Middle'}, {value:'bottom', label:'Bottom'}]} onChange={handleValueChange} />
                             <ToggleInput label="Merge Identical" path="table.mergeIdenticalPeriods" value={options.table.mergeIdenticalPeriods ?? true} onChange={handleValueChange} />
+                            <NumberInput label="Period Font Size" path="table.periodFontSize" value={options.table.periodFontSize || 12} min={6} max={36} onChange={handleValueChange} />
                             <ToggleInput label="Show Period Time" path="table.showPeriodTime" value={options.table.showPeriodTime ?? false} onChange={handleValueChange} />
                             {options.table.showPeriodTime && (
                                 <>
                                     <SelectInput label="Time Position" path="table.periodTimePosition" value={options.table.periodTimePosition || 'below'} options={[{value:'above', label:'Above'}, {value:'below', label:'Below'}, {value:'left', label:'Left'}, {value:'right', label:'Right'}]} onChange={handleValueChange} />
                                     <SelectInput label="Time Rotation" path="table.periodTimeRotation" value={options.table.periodTimeRotation || '0'} options={[{value:'0', label:'0°'}, {value:'90', label:'90°'}, {value:'180', label:'180°'}, {value:'270', label:'270°'}]} onChange={handleValueChange} />
                                     <NumberInput label="Time Font Size" path="table.periodTimeFontSize" value={options.table.periodTimeFontSize || 10} min={6} max={24} onChange={handleValueChange} />
+                                    <ColorInput label="Time Color" path="table.periodTimeColor" value={options.table.periodTimeColor || '#666666'} onChange={handleValueChange} />
                                 </>
                             )}
                         </ControlGroup>
@@ -618,41 +585,41 @@ const SettingsSidebar: React.FC<{
                         </div>
                         
                         <ControlGroup label="Typography">
-                            <div className="bg-[#22252a] p-3 rounded-lg space-y-2">
-                                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Font Family</label>
-                                <div className="relative">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-gray-400">Font Family</span>
+                                <div className="relative w-32">
                                     <select 
                                         value={activeElementStyles.fontFamily.replace(/['"]/g, '')}
                                         onChange={(e) => onApplyStyle('fontFamily', e.target.value)}
                                         disabled={!activeElement}
-                                        className="w-full bg-transparent text-white text-sm outline-none appearance-none cursor-pointer disabled:opacity-50"
+                                        className="w-full bg-[#1a1d21] text-gray-300 text-xs font-bold rounded-full px-3 py-1.5 outline-none appearance-none cursor-pointer border border-transparent focus:border-teal-500 disabled:opacity-50"
                                     >
                                         {fontOptions.map(f => <option key={f.value} value={f.value} className="bg-gray-900">{f.label}</option>)}
                                     </select>
-                                    <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
                                         <ChevronDownIcon />
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between bg-[#22252a] p-3 rounded-lg mt-3">
-                                <label className="text-xs text-gray-300 font-medium">Font Size</label>
-                                <div className="flex items-center bg-[#1a1d21] rounded border border-gray-700 w-24">
-                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size - 1}px`); } }} disabled={!activeElement} className="px-2 text-teal-500 hover:text-teal-400 font-bold disabled:opacity-50">-</button>
-                                    <span className="w-full bg-transparent text-center text-xs font-bold text-white py-1">{parseInt(activeElementStyles.fontSize) || '--'}</span>
-                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size + 1}px`); } }} disabled={!activeElement} className="px-2 text-teal-500 hover:text-teal-400 font-bold disabled:opacity-50">+</button>
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-gray-400">Font Size</span>
+                                <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
+                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size - 1}px`); } }} disabled={!activeElement} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33] disabled:opacity-50">-</button>
+                                    <span className="w-10 text-center text-xs font-bold text-gray-300">{parseInt(activeElementStyles.fontSize) || '--'}</span>
+                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size + 1}px`); } }} disabled={!activeElement} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33] disabled:opacity-50">+</button>
                                 </div>
                             </div>
                         </ControlGroup>
 
                         <ControlGroup label="Formatting">
                             <div className="flex gap-2 mb-3">
-                                <button onClick={() => onExecCmd('bold')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.Bold /></button>
-                                <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.Italic /></button>
+                                <button onClick={() => onExecCmd('bold')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.Bold /></button>
+                                <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.Italic /></button>
                             </div>
                             <div className="flex gap-2">
-                                <button onClick={() => onApplyStyle('textAlign', 'left')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.AlignLeft /></button>
-                                <button onClick={() => onApplyStyle('textAlign', 'center')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.AlignCenter /></button>
-                                <button onClick={() => onApplyStyle('textAlign', 'right')} disabled={!activeElement} className="flex-1 py-2 bg-[#22252a] border border-gray-700 rounded text-gray-300 hover:text-white hover:bg-gray-700 disabled:opacity-50 flex justify-center"><Icons.AlignRight /></button>
+                                <button onClick={() => onApplyStyle('textAlign', 'left')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.AlignLeft /></button>
+                                <button onClick={() => onApplyStyle('textAlign', 'center')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.AlignCenter /></button>
+                                <button onClick={() => onApplyStyle('textAlign', 'right')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.AlignRight /></button>
                             </div>
                         </ControlGroup>
 
@@ -661,7 +628,7 @@ const SettingsSidebar: React.FC<{
                             <ManualColorInput label="Background" value={activeElementStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? activeElementStyles.backgroundColor : '#ffffff'} onChange={(val: string) => onExecCmd('hiliteColor', val)} />
                         </ControlGroup>
 
-                        <button onClick={() => onExecCmd('removeFormat')} disabled={!activeElement} className="w-full py-2 bg-red-900/30 border border-red-900/50 text-red-400 rounded hover:bg-red-900/50 flex items-center justify-center gap-2 disabled:opacity-50 text-xs font-bold mt-4">
+                        <button onClick={() => onExecCmd('removeFormat')} disabled={!activeElement} className="w-full py-2 bg-red-900/30 border border-red-900/50 text-red-400 rounded-full hover:bg-red-900/50 flex items-center justify-center gap-2 disabled:opacity-50 text-xs font-bold mt-4 transition-colors">
                             <Icons.Eraser /> Clear Formatting
                         </button>
                     </>
@@ -669,10 +636,10 @@ const SettingsSidebar: React.FC<{
             </div>
 
             <div className="p-4 border-t border-gray-800 bg-[#1a1d21] flex gap-2">
-                 <button onClick={resetToDefaults} className="flex-1 py-2 text-xs font-bold text-gray-400 bg-[#22252a] border border-gray-700 rounded hover:bg-gray-700 hover:text-white transition">
+                 <button onClick={resetToDefaults} className="flex-1 py-2 text-xs font-bold text-gray-400 bg-[#22252a] border border-gray-700 rounded-full hover:bg-gray-700 hover:text-white transition-colors">
                      <div className="flex items-center justify-center gap-1"><Icons.Reset /> Reset</div>
                  </button>
-                 <button onClick={handleSave} className="flex-1 py-2 text-xs font-bold text-white bg-teal-600 rounded hover:bg-teal-700 transition shadow-lg">
+                 <button onClick={handleSave} className="flex-1 py-2 text-xs font-bold text-white bg-teal-600 rounded-full hover:bg-teal-700 transition-colors shadow-lg">
                      <div className="flex items-center justify-center gap-1">{isSaving ? <Icons.Check /> : null} {isSaving ? 'Saved' : 'Save'}</div>
                  </button>
             </div>
@@ -1042,15 +1009,6 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               </head>
               <body>
                   ${allPagesHtml}
-                  <script>
-                      // Wait for fonts to load
-                      document.fonts.ready.then(() => {
-                          setTimeout(() => {
-                              window.focus();
-                              window.print();
-                          }, 500);
-                      });
-                  </script>
               </body>
               </html>
           `);
@@ -1058,6 +1016,14 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
 
           // Restore selection highlighting if needed
           if (wasSelected) wasSelected.setAttribute('data-selected', 'true');
+
+          // Wait for fonts to load before printing
+          iframe.contentWindow?.document.fonts.ready.then(() => {
+              setTimeout(() => {
+                  iframe.contentWindow?.focus();
+                  iframe.contentWindow?.print();
+              }, 500);
+          });
       }
   }, [title, activeElement, history, historyIndex]);
 
@@ -1072,7 +1038,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
         {/* Top/Left Sidebar */}
         <div className={`transition-all duration-300 z-50 bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col ${
             isSidebarOpen 
-            ? 'h-1/2 md:h-full w-full md:w-80' 
+            ? 'h-1/2 md:h-full w-full md:w-[300px]' 
             : 'h-0 md:h-full w-full md:w-0 overflow-hidden'
         }`}>
             <div className={`overflow-hidden flex flex-col h-full ${!isSidebarOpen && 'invisible md:invisible'}`}>
@@ -1091,17 +1057,20 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 bg-gray-800 relative">
-            {/* Sidebar Toggle */}
-            <div className="absolute top-2 left-2 z-50">
+            {/* Sidebar Toggle Handle */}
+            <div className={`absolute top-4 z-50 transition-all duration-300 left-0`}>
                 <button 
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-                    className={`p-2 rounded-lg border shadow-lg transition-colors ${
+                    className={`flex items-center justify-center w-8 h-10 rounded-r-xl border-y border-r shadow-lg backdrop-blur-md transition-all hover:w-10 ${
                         isSidebarOpen 
-                        ? 'bg-red-900/20 border-red-800 text-red-500 hover:text-red-400' 
-                        : 'bg-gray-800 border-gray-700 text-teal-500 hover:text-teal-400'
+                        ? 'bg-[#111315]/80 border-gray-800 text-gray-400 hover:text-white' 
+                        : 'bg-teal-600/90 border-teal-500 text-white hover:bg-teal-500'
                     }`}
+                    title={isSidebarOpen ? "Close Settings" : "Open Settings"}
                 >
-                    <Icons.Settings className="w-5 h-5" />
+                    <div className={`transform transition-transform duration-300 ${isSidebarOpen ? 'rotate-180' : ''}`}>
+                        <ChevronRightIcon />
+                    </div>
                 </button>
             </div>
             

@@ -1028,7 +1028,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
       if (!teacherTimetableData) return map;
 
       Object.values(teacherTimetableData).forEach(daySlots => {
-          daySlots.forEach(slot => {
+          (daySlots as any[]).forEach(slot => {
               slot.forEach(p => {
                   const key = `${p.classId}-${p.subjectId}`;
                   if (!map.has(key)) {

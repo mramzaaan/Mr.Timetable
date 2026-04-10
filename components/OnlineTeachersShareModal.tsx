@@ -161,7 +161,7 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
                                 {Array.from(selectedTeacherIds).map(id => {
                                     const teacher = teachers.find(t => t.id === id);
                                     if (!teacher) return null;
-                                    const { schedule } = getTeacherScheduleForToday(id);
+                                    const { schedule } = getTeacherScheduleForToday(id as string);
                                     
                                     return (
                                         <div key={id} className="relative pl-4 border-l-4 border-blue-500">
