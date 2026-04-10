@@ -179,7 +179,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                         }
                     });
                     
-                    tempContainer.removeChild(styleEl);
+                    styleEl.remove();
 
                     if (!isFirstPage) pdf.addPage(undefined, orientation);
                     isFirstPage = false;
@@ -221,7 +221,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                     }
                 });
                 
-                tempContainer.removeChild(styleEl);
+                styleEl.remove();
 
                 if (i > 0) pdf.addPage(undefined, orientation);
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
@@ -288,7 +288,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                 }
             });
             
-            tempContainer.removeChild(styleEl);
+            styleEl.remove();
 
             const imgProps = pdf.getImageProperties(imgData);
             const aspectRatio = imgProps.height / imgProps.width;

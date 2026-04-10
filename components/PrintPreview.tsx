@@ -804,6 +804,10 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
   const handleShare = async () => {
       if (!contentRef.current) return;
       setIsGenerating(true);
+      
+      // Wait for React to flush the state update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       try {
           // Remove selection before capture
           if (activeElement) activeElement.removeAttribute('data-selected');
@@ -825,7 +829,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               }
           });
           
-          contentRef.current.removeChild(styleEl);
+          styleEl.remove();
           
           // Restore selection if needed (optional)
           if (activeElement) activeElement.setAttribute('data-selected', 'true');
@@ -914,6 +918,8 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                       zoom: options.contentScale ? options.contentScale.toString() : '1'
                   }
               });
+              
+              styleEl.remove();
 
               if (i > 0) pdf.addPage(undefined, orientation);
               pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
