@@ -1,9 +1,10 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { toBlob } from 'html-to-image';
 import type { SchoolClass, Teacher, Subject, SchoolConfig, CardStyle, TriangleCorner } from '../types';
 import { allDays } from '../types';
 
-declare const html2canvas: any;
+
 
 interface ClassCommunicationModalProps {
   t: any;
@@ -705,35 +706,18 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
         await new Promise(resolve => setTimeout(resolve, 800));
 
         const targetElement = tempContainer.children[0] as HTMLElement;
-        const canvas = await html2canvas(targetElement, { 
-            scale: 2, 
-            useCORS: true, 
+        const blob = await toBlob(targetElement, { 
+            pixelRatio: 2, 
             backgroundColor: '#ffffff',
-            logging: false,
             width: width,
             height: height,
-            windowWidth: width, 
-            windowHeight: height,
-            onclone: (clonedDoc: Document) => {
-                const style = clonedDoc.createElement('style');
-                style.innerHTML = `
-                    * {
-                        text-rendering: geometricPrecision !important;
-                        -webkit-font-smoothing: antialiased !important;
-                        -moz-osx-font-smoothing: grayscale !important;
-                    }
-                `;
-                clonedDoc.head.appendChild(style);
-
-                const container = clonedDoc.querySelector('.timetable-image-container') as HTMLElement;
-                if (container) {
-                    container.style.webkitTextSizeAdjust = 'none';
-                    (container.style as any).textSizeAdjust = 'none';
-                }
+            style: {
+                margin: '0',
+                padding: '30px'
             }
         });
         
-        return await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+        return blob;
     } catch (error) {
         console.error("Canvas generation failed", error);
         return null;
