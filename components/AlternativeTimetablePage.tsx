@@ -6,9 +6,7 @@ import { translations } from '../i18n';
 import { generateAdjustmentsExcel, generateAdjustmentsReportHtml } from './reportUtils';
 import { generateUniqueId, allDays } from '../types';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
-
-// Declaring html2canvas for image generation
-declare const html2canvas: any;
+import { toBlob } from 'html-to-image';
 
 // Icons
 const ImportExportIcon = () => (
@@ -584,23 +582,10 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
       if (multiTeacherSlipRef.current) {
           try {
-              const canvas = await html2canvas(multiTeacherSlipRef.current, { 
-                  scale: 2, 
-                  backgroundColor: '#ffffff',
-                  onclone: (clonedDoc: Document) => {
-                      const style = clonedDoc.createElement('style');
-                      style.innerHTML = `
-                          * {
-                              text-rendering: geometricPrecision !important;
-                              -webkit-font-smoothing: antialiased !important;
-                              -moz-osx-font-smoothing: grayscale !important;
-                              line-height: 1.2 !important;
-                          }
-                      `;
-                      clonedDoc.head.appendChild(style);
-                  }
+              const blob = await toBlob(multiTeacherSlipRef.current, { 
+                  pixelRatio: 2, 
+                  backgroundColor: '#ffffff'
               });
-              const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
               if (blob) {
                   try {
                       await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
@@ -1030,23 +1015,10 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       
       if (slipRef.current) {
           try {
-              const canvas = await html2canvas(slipRef.current, { 
-                  scale: 2, 
-                  backgroundColor: '#ffffff',
-                  onclone: (clonedDoc) => {
-                      const style = clonedDoc.createElement('style');
-                      style.innerHTML = `
-                          * {
-                              text-rendering: geometricPrecision !important;
-                              -webkit-font-smoothing: antialiased !important;
-                              -moz-osx-font-smoothing: grayscale !important;
-                              line-height: 1.2 !important;
-                          }
-                      `;
-                      clonedDoc.head.appendChild(style);
-                  }
+              const blob = await toBlob(slipRef.current, { 
+                  pixelRatio: 2, 
+                  backgroundColor: '#ffffff'
               });
-              const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
               if (blob) {
                   try {
                       await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
@@ -1222,23 +1194,10 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       
       if (teacherShareRef.current) {
           try {
-              const canvas = await html2canvas(teacherShareRef.current, { 
-                  scale: 2, 
-                  backgroundColor: '#ffffff',
-                  onclone: (clonedDoc: Document) => {
-                      const style = clonedDoc.createElement('style');
-                      style.innerHTML = `
-                          * {
-                              text-rendering: geometricPrecision !important;
-                              -webkit-font-smoothing: antialiased !important;
-                              -moz-osx-font-smoothing: grayscale !important;
-                              line-height: 1.2 !important;
-                          }
-                      `;
-                      clonedDoc.head.appendChild(style);
-                  }
+              const blob = await toBlob(teacherShareRef.current, { 
+                  pixelRatio: 2, 
+                  backgroundColor: '#ffffff'
               });
-              const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
               if (blob) {
                   try {
                       await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);

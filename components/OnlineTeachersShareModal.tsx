@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Teacher, SchoolClass, Subject, SchoolConfig, TimetableGridData, allDays } from '../types';
-import html2canvas from 'html2canvas';
+import { toBlob } from 'html-to-image';
 
 interface OnlineTeachersShareModalProps {
     isOpen: boolean;
@@ -75,13 +75,11 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
         setIsGenerating(true);
 
         try {
-            const canvas = await html2canvas(contentRef.current, {
-                scale: 2,
-                backgroundColor: '#ffffff',
-                useCORS: true
+            const blob = await toBlob(contentRef.current, {
+                pixelRatio: 2,
+                backgroundColor: '#ffffff'
             });
 
-            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
             if (blob) {
                 const file = new File([blob], `Teachers_Schedule_${new Date().toISOString().split('T')[0]}.png`, { type: 'image/png' });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -90,10 +88,12 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
                         title: 'Teachers Schedule',
                     });
                 } else {
+                    const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
-                    link.href = canvas.toDataURL('image/png');
+                    link.href = url;
                     link.download = `Teachers_Schedule_${new Date().toISOString().split('T')[0]}.png`;
                     link.click();
+                    URL.revokeObjectURL(url);
                 }
             }
         } catch (error) {

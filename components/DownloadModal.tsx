@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { toJpeg } from 'html-to-image';
 import type { DownloadFormat, DownloadLanguage, SchoolClass, Teacher, DownloadDesignConfig } from '../types';
 
-declare const html2canvas: any;
 declare const jspdf: any;
 
 interface DownloadModalProps {
@@ -162,20 +162,25 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                     await document.fonts.ready;
                     await new Promise(r => setTimeout(r, 400));
 
-                    const canvas = await html2canvas(tempContainer, { 
-                        scale: 1.5, 
+                    // Temporarily apply visibility styles
+                    const styleEl = document.createElement('style');
+                    styleEl.innerHTML = `
+                        ${designConfig.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
+                        ${designConfig.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
+                        ${designConfig.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
+                    `;
+                    tempContainer.appendChild(styleEl);
+
+                    const imgData = await toJpeg(tempContainer, { 
+                        pixelRatio: 1.5, 
                         backgroundColor: '#ffffff',
-                        width: parseFloat(widthPx),
-                        height: parseFloat(heightPx),
-                        windowWidth: parseFloat(widthPx),
-                        windowHeight: parseFloat(heightPx),
-                        scrollX: 0,
-                        scrollY: 0,
-                        x: 0,
-                        y: 0,
-                        onclone: onCloneHandler
+                        style: {
+                            zoom: designConfig.contentScale ? designConfig.contentScale.toString() : '1'
+                        }
                     });
-                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    
+                    tempContainer.removeChild(styleEl);
+
                     if (!isFirstPage) pdf.addPage(undefined, orientation);
                     isFirstPage = false;
                     pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
@@ -199,20 +204,25 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                 await document.fonts.ready;
                 await new Promise(r => setTimeout(r, 400));
 
-                const canvas = await html2canvas(tempContainer, { 
-                    scale: 1.5, 
+                // Temporarily apply visibility styles
+                const styleEl = document.createElement('style');
+                styleEl.innerHTML = `
+                    ${designConfig.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
+                    ${designConfig.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
+                    ${designConfig.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
+                `;
+                tempContainer.appendChild(styleEl);
+
+                const imgData = await toJpeg(tempContainer, { 
+                    pixelRatio: 1.5, 
                     backgroundColor: '#ffffff',
-                    width: parseFloat(widthPx),
-                    height: parseFloat(heightPx),
-                    windowWidth: parseFloat(widthPx),
-                    windowHeight: parseFloat(heightPx),
-                    scrollX: 0,
-                    scrollY: 0,
-                    x: 0,
-                    y: 0,
-                    onclone: onCloneHandler
+                    style: {
+                        zoom: designConfig.contentScale ? designConfig.contentScale.toString() : '1'
+                    }
                 });
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                
+                tempContainer.removeChild(styleEl);
+
                 if (i > 0) pdf.addPage(undefined, orientation);
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
               }
@@ -261,21 +271,25 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
             await document.fonts.ready;
             await new Promise(r => setTimeout(r, 400));
 
-            const canvas = await html2canvas(tempContainer, { 
-                scale: 1.5, 
-                backgroundColor: '#ffffff', 
-                useCORS: true,
-                width: parseFloat(widthPx),
-                height: parseFloat(heightPx),
-                windowWidth: parseFloat(widthPx),
-                windowHeight: parseFloat(heightPx),
-                scrollX: 0,
-                scrollY: 0,
-                x: 0,
-                y: 0,
-                onclone: onCloneHandler
+            // Temporarily apply visibility styles
+            const styleEl = document.createElement('style');
+            styleEl.innerHTML = `
+                ${designConfig.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
+                ${designConfig.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
+                ${designConfig.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
+            `;
+            tempContainer.appendChild(styleEl);
+
+            const imgData = await toJpeg(tempContainer, { 
+                pixelRatio: 1.5, 
+                backgroundColor: '#ffffff',
+                style: {
+                    zoom: designConfig.contentScale ? designConfig.contentScale.toString() : '1'
+                }
             });
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            
+            tempContainer.removeChild(styleEl);
+
             const imgProps = pdf.getImageProperties(imgData);
             const aspectRatio = imgProps.height / imgProps.width;
             let finalWidth = pdfWidth;

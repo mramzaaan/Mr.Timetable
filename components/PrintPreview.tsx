@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { toBlob, toJpeg } from 'html-to-image';
 import type { DownloadLanguage, DownloadDesignConfig, FontFamily, CardStyle, TriangleCorner } from '../types';
 
-declare const html2canvas: any;
 declare const jspdf: any;
 
 interface PrintPreviewProps {
@@ -808,34 +808,28 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
           // Remove selection before capture
           if (activeElement) activeElement.removeAttribute('data-selected');
 
-          const canvas = await html2canvas(contentRef.current, {
-              scale: 2,
-              useCORS: true,
+          // Temporarily apply visibility styles for capture
+          const styleEl = document.createElement('style');
+          styleEl.innerHTML = `
+              ${options.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
+              ${options.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
+              ${options.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
+          `;
+          contentRef.current.appendChild(styleEl);
+
+          const blob = await toBlob(contentRef.current, {
+              pixelRatio: 2,
               backgroundColor: '#ffffff',
-              onclone: (clonedDoc) => {
-                  const style = clonedDoc.createElement('style');
-                  style.innerHTML = `
-                      * {
-                          text-rendering: geometricPrecision !important;
-                          -webkit-font-smoothing: antialiased !important;
-                          -moz-osx-font-smoothing: grayscale !important;
-                          line-height: 1.2 !important;
-                      }
-                      /* Visibility Styles */
-                      ${options.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
-                      ${options.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
-                      ${options.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
-                      /* Scale */
-                      .page { zoom: ${options.contentScale || 1}; }
-                  `;
-                  clonedDoc.head.appendChild(style);
+              style: {
+                  zoom: options.contentScale ? options.contentScale.toString() : '1'
               }
           });
+          
+          contentRef.current.removeChild(styleEl);
           
           // Restore selection if needed (optional)
           if (activeElement) activeElement.setAttribute('data-selected', 'true');
 
-          const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
           if (blob) {
               const file = new File([blob], `${fileNameBase}.png`, { type: 'image/png' });
               if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -845,10 +839,12 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                   });
               } else {
                   // Fallback download
+                  const url = URL.createObjectURL(blob);
                   const link = document.createElement('a');
-                  link.href = canvas.toDataURL('image/png');
+                  link.href = url;
                   link.download = `${fileNameBase}.png`;
                   link.click();
+                  URL.revokeObjectURL(url);
               }
           }
       } catch (e: any) {
@@ -902,39 +898,23 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               await document.fonts.ready;
               await new Promise(r => setTimeout(r, 200));
 
-              const canvas = await html2canvas(tempContainer, {
-                  scale: 1.5,
+              // Temporarily apply visibility styles
+              const styleEl = document.createElement('style');
+              styleEl.innerHTML = `
+                  ${options.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
+                  ${options.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
+                  ${options.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
+              `;
+              tempContainer.appendChild(styleEl);
+
+              const imgData = await toJpeg(tempContainer, {
+                  pixelRatio: 1.5,
                   backgroundColor: '#ffffff',
-                  width: parseFloat(widthPx),
-                  height: parseFloat(heightPx),
-                  windowWidth: parseFloat(widthPx),
-                  windowHeight: parseFloat(heightPx),
-                  scrollX: 0,
-                  scrollY: 0,
-                  x: 0,
-                  y: 0,
-                  useCORS: true,
-                  onclone: (clonedDoc) => {
-                      const style = clonedDoc.createElement('style');
-                      style.innerHTML = `
-                          * {
-                              text-rendering: geometricPrecision !important;
-                              -webkit-font-smoothing: antialiased !important;
-                              -moz-osx-font-smoothing: grayscale !important;
-                              line-height: 1.2 !important;
-                          }
-                          /* Visibility Styles */
-                          ${options.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
-                          ${options.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
-                          ${options.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
-                          /* Scale */
-                          .page { zoom: ${options.contentScale || 1}; }
-                      `;
-                      clonedDoc.head.appendChild(style);
+                  style: {
+                      zoom: options.contentScale ? options.contentScale.toString() : '1'
                   }
               });
 
-              const imgData = canvas.toDataURL('image/jpeg', 0.95);
               if (i > 0) pdf.addPage(undefined, orientation);
               pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
           }
@@ -992,6 +972,11 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                           .page-break { page-break-after: always; }
                           .print-container { width: 100% !important; height: auto !important; }
                           .page { width: 100% !important; height: 100% !important; margin: 0 !important; box-shadow: none !important; }
+                          /* Prevent flexbox collapsing in print which hides cell content */
+                          td { height: auto !important; }
+                          .cell-wrapper, .cell-content { height: auto !important; min-height: 100% !important; display: block !important; }
+                          .period-card-img { height: auto !important; min-height: 50px !important; display: block !important; }
+                          .period-content-spread { height: auto !important; min-height: 50px !important; display: flex !important; }
                       }
                       /* Ensure iframe content is visible when printing */
                       html, body { height: 100%; width: 100%; background: #ffffff; }
