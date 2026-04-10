@@ -198,7 +198,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             box-sizing: border-box !important; 
             -webkit-text-size-adjust: none !important; 
             text-size-adjust: none !important; 
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
             text-rendering: geometricPrecision !important;
             font-variant-ligatures: none !important;
           }
@@ -249,7 +249,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           }
 
           .img-school-name { 
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
             font-weight: 900;
             font-size: 44px; 
             color: ${themeColors.accent}; 
@@ -378,11 +378,9 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
 
           .period-subject { 
             /* Holds Class Name now based on data mapping below */
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            display: block;
+            max-height: 2.4em;
             overflow: hidden;
-            text-overflow: ellipsis;
             font-weight: 900; 
             font-size: 18px; /* Reduced Size */
             text-transform: none; 
@@ -394,11 +392,9 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           }
           .period-class { 
             /* Holds Subject Name now based on data mapping below */
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            display: block;
+            max-height: 2.4em;
             overflow: hidden;
-            text-overflow: ellipsis;
             font-weight: 800; 
             opacity: 0.95; 
             font-size: 14px; /* Reduced Size */
