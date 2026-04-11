@@ -228,18 +228,18 @@ const FeatureCard: React.FC<{
             {/* Right Side Tab */}
             <div className={`absolute top-1/4 bottom-1/4 right-0 w-4 rounded-l-lg ${color.bg}`}></div>
 
-            <div className="h-full flex flex-col items-center justify-center p-6 relative z-10">
+            <div className="h-full flex flex-col items-center justify-center p-2 sm:p-6 relative z-10">
                 {/* Icon */}
-                <div className={`mb-6 ${color.text} transform group-hover:scale-110 transition-transform duration-300`}>
-                    <IconComponent className="h-16 w-16 sm:h-20 sm:w-20" />
+                <div className={`mb-2 sm:mb-6 ${color.text} transform group-hover:scale-110 transition-transform duration-300`}>
+                    <IconComponent className="h-8 w-8 sm:h-20 sm:w-20" />
                 </div>
 
                 {/* Text */}
                 <div className="text-center">
-                    <h3 className={`text-sm sm:text-base font-bold text-gray-800 dark:text-white uppercase tracking-tight mb-2`}>
+                    <h3 className={`text-[10px] sm:text-base font-bold text-gray-800 dark:text-white uppercase tracking-tight mb-1 sm:mb-2`}>
                         {label}
                     </h3>
-                    <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
+                    <p className="hidden sm:block text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
                         {description}
                     </p>
                 </div>
@@ -561,8 +561,6 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   
   const [isBasicInfoSelectionOpen, setIsBasicInfoSelectionOpen] = useState(false);
   const [selectedBasicInfoCategories, setSelectedBasicInfoCategories] = useState<string[]>(['Primary', 'Middle', 'High', 'Extra Rooms']);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-
   const [isClassSelectionForPrintOpen, setIsClassSelectionForPrintOpen] = useState(false);
   const [selectedClassIdsForPrint, setSelectedClassIdsForPrint] = useState<string[]>([]);
   const [isClassTimetablePreviewOpen, setIsClassTimetablePreviewOpen] = useState(false);
@@ -654,50 +652,15 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   };
 
   const navigationModules = [
-      { id: 'reports', label: t.printAndReports, description: 'Reports', icon: DesignIcon, theme: 'blue', dotColor: 'bg-blue-500', action: () => setIsReportsModalOpen(true) },
-      { id: 'adjustments', label: t.adjustments, description: 'Substitutions', icon: AdjustmentsIcon, theme: 'orange', dotColor: 'bg-orange-500', action: () => setCurrentPage('alternativeTimetable') },
       { id: 'dataEntry', label: t.dataEntry, description: 'Classes & Staff', icon: DataEntryIcon, theme: 'amber', dotColor: 'bg-amber-500', action: () => setCurrentPage('dataEntry') },
-      { id: 'classTimetable', label: t.classTimetable, description: 'Class Schedules', icon: ClassTimetableIcon, theme: 'cyan', dotColor: 'bg-cyan-500', action: () => setCurrentPage('classTimetable') },
-      { id: 'teacherTimetable', label: t.teacherTimetable, description: 'Teacher Schedules', icon: TeacherTimetableIcon, theme: 'indigo', dotColor: 'bg-indigo-500', action: () => setCurrentPage('teacherTimetable') },
+      { id: 'classTimetable', label: t.class, description: 'Class Schedules', icon: ClassTimetableIcon, theme: 'cyan', dotColor: 'bg-cyan-500', action: () => setCurrentPage('classTimetable') },
+      { id: 'teacherTimetable', label: t.teacher, description: 'Teacher Schedules', icon: TeacherTimetableIcon, theme: 'indigo', dotColor: 'bg-indigo-500', action: () => setCurrentPage('teacherTimetable') },
+      { id: 'adjustments', label: t.adjustments, description: 'Substitutions', icon: AdjustmentsIcon, theme: 'orange', dotColor: 'bg-orange-500', action: () => setCurrentPage('alternativeTimetable') },
+      { id: 'reports', label: t.printAndReports, description: 'Reports', icon: DesignIcon, theme: 'blue', dotColor: 'bg-blue-500', action: () => setIsReportsModalOpen(true) },
       { id: 'attendance', label: t.attendance, description: 'Daily Presence', icon: AttendanceIcon, theme: 'teal', dotColor: 'bg-teal-500', action: () => setCurrentPage('attendance') },
       { id: 'csv', label: t.manageDataCsv, description: 'Import/Export', icon: CsvIcon, theme: 'rose', dotColor: 'bg-rose-500', action: () => setIsCsvModalOpen(true) },
       { id: 'settings', label: t.settings, description: 'System Config', icon: SettingsIcon, theme: 'slate', dotColor: 'bg-slate-500', action: () => setCurrentPage('settings') },
   ];
-
-  const getStackStyle = (index: number, activeIndex: number, total: number): React.CSSProperties => {
-    const dist = (index - activeIndex + total) % total;
-    if (dist === 0) return { transform: 'translateX(0) translateY(0) scale(1)', opacity: 1, zIndex: 50, pointerEvents: 'auto' };
-    if (dist === total - 1) return { transform: 'translateX(-120%) translateY(10px) rotate(-15deg) scale(0.8)', opacity: 0, zIndex: 40, pointerEvents: 'none' };
-    if (dist > 0 && dist <= 3) return { transform: `translateX(${dist * 20}px) translateY(${-dist * 10}px) scale(${1 - dist * 0.05})`, opacity: 1 - dist * 0.2, zIndex: 50 - dist, filter: `blur(${dist * 2}px)`, pointerEvents: 'none' };
-    return { transform: 'translateX(60px) translateY(-30px) scale(0.8)', opacity: 0, zIndex: 0, pointerEvents: 'none' };
-  };
-
-  const nextCard = () => setCurrentCardIndex(prev => (prev + 1) % navigationModules.length);
-  const prevCard = () => setCurrentCardIndex(prev => (prev - 1 + navigationModules.length) % navigationModules.length);
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartRef.current = e.targetTouches[0].clientX; };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartRef.current === null) return;
-    const touchEnd = e.changedTouches[0].clientX;
-    const diff = touchStartRef.current - touchEnd;
-    if (diff > 50) nextCard(); else if (diff < -50) prevCard();
-    touchStartRef.current = null;
-  };
-
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    const now = Date.now();
-    if (now - lastWheelTime.current < 250) return;
-
-    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-    
-    if (Math.abs(delta) > 15) {
-        if (delta > 0) {
-            nextCard();
-        } else {
-            prevCard();
-        }
-        lastWheelTime.current = now;
-    }
-  }, []);
 
   const scrollToFeatures = () => featuresSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -907,39 +870,24 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 
                 {/* Active Session Card */}
                 {currentTimetableSession ? (
-                    <div className="mb-12 relative group max-w-3xl mx-auto w-full px-4">
+                    <div className="mb-8 relative group max-w-sm mx-auto w-full px-4">
                         <div 
                           onClick={() => setIsSelectSessionModalOpen(true)}
-                          className="relative cursor-pointer group/card rounded-[2.5rem] p-4 sm:p-6 shadow-[0_30px_60px_-10px_rgba(0,0,0,0.3),inset_0_-5px_20px_rgba(0,0,0,0.05)] border-2 border-white/60 bg-white/20 dark:bg-white/5 backdrop-blur-[40px] overflow-hidden transform transition-all duration-700 hover:scale-[1.02] active:scale-[0.98] text-center"
+                          className="relative cursor-pointer group/card rounded-full py-3 px-4 shadow-sm border-2 border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
                         >
-                            <div className="crystal-reflection"></div>
-                            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                                <div className="absolute top-[-20%] left-[-10%] w-[120%] h-[140%] bg-gradient-to-br from-white/30 via-transparent to-transparent rotate-12 mix-blend-overlay"></div>
-                                <div className="absolute bottom-[-30%] right-[-10%] w-[100%] h-[100%] bg-gradient-to-tl from-[var(--accent-primary)]/10 via-transparent to-transparent mix-blend-screen animate-pulse"></div>
-                                <div className="absolute top-[10%] right-[5%] w-60 h-60 bg-[var(--accent-primary)]/15 rounded-full blur-[80px] animate-float-light"></div>
-                                <div className="absolute inset-0 shadow-[inset_0_10px_30px_rgba(0,0,0,0.02),inset_0_-10px_30px_rgba(255,255,255,0.2)] dark:shadow-[inset_0_10px_30px_rgba(255,255,255,0.02),inset_0_-10px_30px_rgba(0,0,0,0.2)]"></div>
+                            <div className="w-14 h-14 rounded-2xl bg-[var(--accent-primary)] flex items-center justify-center text-white font-black text-2xl shadow-md shrink-0">
+                                {currentTimetableSession.name ? currentTimetableSession.name.charAt(0).toUpperCase() : '?'}
                             </div>
-
-                            <div className="relative z-10 space-y-3">
-                                <div className="inline-flex px-3 py-0.5 rounded-full bg-white/40 dark:bg-black/20 border border-white/60 text-[7px] sm:text-[9px] font-black uppercase tracking-[0.4em] text-[var(--accent-primary)] animate-pulse">
-                                    {t.selectActiveTimetable}
-                                </div>
-                                <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight drop-shadow-[0_2px_8px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)] group-hover/card:scale-105 transition-transform duration-500">
+                            <div className="flex flex-col items-start justify-center flex-grow">
+                                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1">
                                   {currentTimetableSession.name || 'Untitled Session'}
                                 </h2>
-                                <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 text-[9px] sm:text-base font-black text-gray-700 dark:text-gray-200 uppercase tracking-[0.15em]">
-                                    <div className="px-3 py-1.5 rounded-xl bg-white/40 dark:bg-black/20 border border-white/60 shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-white/60 dark:hover:bg-black/40">
-                                      {new Date(currentTimetableSession.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK' : 'en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="text-[var(--accent-primary)] font-black text-lg sm:text-xl animate-bounce-short">➔</span>
-                                    </div>
-                                    <div className="px-3 py-1.5 rounded-xl bg-white/40 dark:bg-black/20 border border-white/60 shadow-sm backdrop-blur-md transition-all duration-300 hover:bg-white/60 dark:hover:bg-black/40">
-                                      {new Date(currentTimetableSession.endDate).toLocaleDateString(language === 'ur' ? 'ur-PK' : 'en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
-                                    </div>
+                                <div className="text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-200">
+                                    {new Date(currentTimetableSession.startDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' }).replace(/ /g, '/')}
+                                    {' to '}
+                                    {new Date(currentTimetableSession.endDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' }).replace(/ /g, '/')}
                                 </div>
                             </div>
-                            <div className="absolute inset-0 rounded-[2.5rem] shadow-[inset_0_1px_2px_rgba(255,255,255,0.7),inset_0_-1px_2px_rgba(0,0,0,0.15)] pointer-events-none border border-white/40"></div>
                         </div>
                     </div>
                 ) : (
@@ -965,9 +913,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
 
                 <div 
                     ref={featuresSectionRef} 
-                    className="w-full relative mt-4 flex flex-col items-center min-h-[400px] touch-none"
-                    onTouchStart={handleTouchStart}
-                    onTouchEnd={handleTouchEnd}
+                    className="w-full relative mt-4 flex flex-col items-center min-h-[400px]"
                 >
                     <button 
                         onClick={scrollToFeatures}
@@ -979,28 +925,8 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                         </svg>
                     </button>
 
-                    {/* Mobile/Tablet: Deck View */}
-                    <div 
-                        className="lg:hidden relative w-full max-w-[200px] sm:max-w-[240px] h-[300px] sm:h-[350px] mb-12 flex items-center justify-center deck-container"
-                        onWheel={handleWheel}
-                    >
-                        {navigationModules.map((module, idx) => (
-                            <FeatureCard 
-                                key={module.id}
-                                label={module.label}
-                                description={module.description}
-                                icon={module.icon}
-                                onClick={currentCardIndex === idx ? module.action : () => setCurrentCardIndex(idx)}
-                                theme={module.theme}
-                                index={idx}
-                                isActive={currentCardIndex === idx}
-                                style={getStackStyle(idx, currentCardIndex, navigationModules.length)}
-                            />
-                        ))}
-                    </div>
-
-                    {/* Desktop: Grid View */}
-                    <div className="hidden lg:grid lg:grid-cols-4 lg:gap-5 lg:w-full lg:max-w-4xl lg:mx-auto mb-12 px-4">
+                    {/* Grid View */}
+                    <div className="grid grid-cols-4 gap-2 sm:gap-5 w-full max-w-4xl mx-auto mb-12 px-2 sm:px-4">
                         {navigationModules.map((module, idx) => (
                             <FeatureCard 
                                 key={module.id}
@@ -1011,23 +937,9 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                                 theme={module.theme}
                                 index={idx}
                                 isActive={true}
-                                className="relative w-full aspect-[4/5] hover:scale-105 hover:-translate-y-2 cursor-pointer transition-all duration-300 rounded-[2rem]"
+                                className="relative w-full aspect-[4/5] hover:scale-105 hover:-translate-y-2 cursor-pointer transition-all duration-300 rounded-xl sm:rounded-[2rem]"
                             />
                         ))}
-                    </div>
-                    
-                    {/* Deck Controls (Only Visible on Mobile/Tablet) */}
-                    <div className="lg:hidden flex items-center gap-6 mb-8">
-                        <div className="flex items-center gap-3">
-                            {navigationModules.map((module, i) => (
-                                <button 
-                                    key={i} 
-                                    aria-label={`Go to module ${i + 1}`}
-                                    className={`h-2 transition-all duration-500 rounded-full shadow-sm border ${currentCardIndex === i ? `w-10 ${module.dotColor} border-white scale-110 opacity-100` : `w-2 ${module.dotColor} border-transparent opacity-20 hover:opacity-50`}`}
-                                    onClick={() => setCurrentCardIndex(i)}
-                                ></button>
-                            ))}
-                        </div>
                     </div>
                 </div>
             </div>
