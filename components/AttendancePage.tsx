@@ -204,9 +204,9 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
                 currentTimetableSession.attendance || {}
             );
         }} 
-        onGenerateExcel={(lang) => {
+        onGenerateExcel={(lang, design) => {
             generateAttendanceReportExcel(
-                t, lang, classes, currentTimetableSession.teachers, selectedDate,
+                t, lang, design, schoolConfig, classes, currentTimetableSession.teachers, selectedDate,
                 currentTimetableSession.adjustments, 
                 currentTimetableSession.leaveDetails || {}, 
                 currentTimetableSession.attendance || {}

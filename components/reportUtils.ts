@@ -52,33 +52,47 @@ const downloadCsv = (content: string, filename: string) => {
 export const addExcelHeaderFooter = (
     rows: (string | number)[][],
     schoolConfig: SchoolConfig,
-    design: DownloadDesignConfig,
+    design: DownloadDesignConfig | undefined,
     title: string,
     lang: DownloadLanguage,
     dateStr?: string
 ) => {
     const isUrdu = lang === 'ur';
-    const schoolName = isUrdu ? schoolConfig.schoolNameUr : schoolConfig.schoolNameEn;
+    const schoolName = isUrdu ? schoolConfig?.schoolNameUr : schoolConfig?.schoolNameEn;
+    
+    // Find max columns
+    let maxCols = 0;
+    rows.forEach(row => {
+        if (row.length > maxCols) maxCols = row.length;
+    });
+    
+    const padRow = (row: (string | number)[]) => {
+        const padded = [...row];
+        while (padded.length < maxCols) {
+            padded.push('');
+        }
+        return padded;
+    };
     
     const headerRows: (string | number)[][] = [];
-    if (design.header?.showSchoolName !== false) {
-        headerRows.push([schoolName]);
+    if (design?.header?.showSchoolName !== false) {
+        headerRows.push(padRow([schoolName || '']));
     }
-    if (design.header?.showTitle !== false) {
-        headerRows.push([title]);
+    if (design?.header?.showTitle !== false) {
+        headerRows.push(padRow([title]));
     }
-    if (design.header?.showDate !== false && dateStr) {
-        headerRows.push([dateStr]);
+    if (design?.header?.showDate !== false && dateStr) {
+        headerRows.push(padRow([dateStr]));
     }
-    if (design.header?.details?.text) {
-        headerRows.push([design.header.details.text]);
+    if (design?.header?.details?.text) {
+        headerRows.push(padRow([design.header.details.text]));
     }
-    headerRows.push([]); // Empty row
+    headerRows.push(padRow([])); // Empty row
     
     const footerRows: (string | number)[][] = [];
-    footerRows.push([]); // Empty row
-    if (design.footer?.text) {
-        footerRows.push([design.footer.text]);
+    footerRows.push(padRow([])); // Empty row
+    if (design?.footer?.text) {
+        footerRows.push(padRow([design.footer.text]));
     }
     
     return [...headerRows, ...rows, ...footerRows];
@@ -86,7 +100,7 @@ export const addExcelHeaderFooter = (
 
 const toCsvRow = (cells: any[]) => cells.map(c => {
     const str = String(c === undefined || c === null ? '' : c);
-    if (str.search(/("|,|\n)/g) >= 0) {
+    if (str.search(/("|,|\n|\r)/g) >= 0) {
         return `"${str.replace(/"/g, '""')}"`;
     }
     return str;
@@ -1474,21 +1488,34 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
     downloadCsv(finalRows.map(toCsvRow).join('\n'), 'Basic_Information.csv');
 };
 
-export const generateByPeriodExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[]) => { 
+export const generateByPeriodExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig | undefined, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[]) => { 
     const { en: enT, ur: urT } = translations; 
+    const trLocal = (en: string, ur: string) => lang === 'ur' ? ur : en;
     const activeDays = allDays.filter(day => schoolConfig.daysConfig?.[day]?.active ?? true); 
     const sortedTeachers = [...teachers].sort((a, b) => (a.serialNumber ?? 9999) - (b.serialNumber ?? 9999)); 
-    const header = ['Day', 'Period', 'Free Teachers']; 
+    
+    const header = ['Pd.', ...activeDays.map(day => trLocal(day, (urT as any)[day.toLowerCase()]))];
     const rows: (string | number)[][] = [header]; 
-    activeDays.forEach(day => { 
-        const dayName = lang === 'ur' ? (urT as any)[day.toLowerCase()] : day; 
-        const count = schoolConfig.daysConfig?.[day as keyof TimetableGridData]?.periodCount ?? 8; 
-        for(let i=0; i<count; i++){ 
-            const busyIds = new Set<string>(); classes.forEach(c => c.timetable[day as keyof TimetableGridData]?.[i]?.forEach(p => busyIds.add(p.teacherId))); 
-            const freeText = sortedTeachers.filter(t => !busyIds.has(t.id)).map(tea => lang === 'ur' ? tea.nameUr : tea.nameEn).join(', '); 
-            rows.push([dayName, i + 1, freeText]); 
-        } 
-    }); 
+    
+    const maxPeriods = Math.max(...activeDays.map(day => schoolConfig.daysConfig?.[day]?.periodCount ?? 8));
+    
+    for(let i=0; i<maxPeriods; i++) {
+        const row: (string | number)[] = [i + 1];
+        activeDays.forEach(day => {
+            const count = schoolConfig.daysConfig?.[day as keyof TimetableGridData]?.periodCount ?? 8;
+            if (i >= count) {
+                row.push('');
+            } else {
+                const busyIds = new Set<string>(); 
+                classes.forEach(c => c.timetable[day as keyof TimetableGridData]?.[i]?.forEach(p => busyIds.add(p.teacherId)));
+                const freeTeachers = sortedTeachers.filter(t => !busyIds.has(t.id));
+                const freeText = freeTeachers.map(tea => lang === 'ur' ? tea.nameUr : tea.nameEn).join(', ');
+                row.push(freeText);
+            }
+        });
+        rows.push(row);
+    }
+    
     const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, lang === 'ur' ? 'فارغ اساتذہ' : 'Free Teachers', lang);
     downloadCsv(finalRows.map(toCsvRow).join('\n'), 'Free_Teachers_Report.csv'); 
 };
@@ -1707,7 +1734,7 @@ export const generateAttendanceReportHtml = (
     const urduStyle = `font-family: ${URDU_FONT_STACK} !important; direction: rtl; unicode-bidi: embed; line-height: 1.8; font-weight: normal;`;
     const trLocal = (en: string, ur: string) => { const urSpan = `<span class="font-urdu" style="${urduStyle}">${ur}</span>`; if (lang === 'en') return en; if (lang === 'ur') return urSpan; return `${en} / ${urSpan}`; };
     
-    const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties');
+    const visibleClasses = classes.filter(c => c.id !== 'non-teaching-duties' && !c.isExtraRoom);
     const rowsPerPage = customDesign.rowsPerPage || 50;
     const rowsPerFirstPage = customDesign.rowsPerFirstPage || rowsPerPage;
     const totalItems = visibleClasses.length;
@@ -1855,14 +1882,14 @@ export const generateAttendanceReportHtml = (
 export const generateAttendanceReportExcel = (
     t: any,
     lang: DownloadLanguage,
+    design: DownloadDesignConfig | undefined,
+    schoolConfig: SchoolConfig | undefined,
     classes: SchoolClass[],
     teachers: Teacher[],
     date: string,
     adjustments: Record<string, Adjustment[]>,
     leaveDetails: Record<string, Record<string, LeaveDetails>>,
-    attendance: Record<string, Record<string, AttendanceData>> = {},
-    schoolConfig?: SchoolConfig,
-    design?: DownloadDesignConfig
+    attendance: Record<string, Record<string, AttendanceData>> = {}
 ) => {
     const { en: enT, ur: urT } = translations;
     // Updated tr definition to be consistent (1 argument key)

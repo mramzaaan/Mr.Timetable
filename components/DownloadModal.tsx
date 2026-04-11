@@ -131,13 +131,14 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
 
         const tempContainer = document.createElement('div');
         Object.assign(tempContainer.style, {
-            position: 'absolute',
-            left: '-9999px',
+            position: 'fixed',
+            left: '0',
             top: '0',
             width: widthPx,
             height: heightPx,
             overflow: 'hidden',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            zIndex: '-9999'
         });
         document.body.appendChild(tempContainer);
 
@@ -175,7 +176,8 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                         pixelRatio: 1.5, 
                         backgroundColor: '#ffffff',
                         style: {
-                            zoom: designConfig.contentScale ? designConfig.contentScale.toString() : '1'
+                            transform: designConfig.contentScale ? `scale(${designConfig.contentScale})` : 'none',
+                            transformOrigin: 'top left'
                         }
                     });
                     
@@ -217,7 +219,8 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                     pixelRatio: 1.5, 
                     backgroundColor: '#ffffff',
                     style: {
-                        zoom: designConfig.contentScale ? designConfig.contentScale.toString() : '1'
+                        transform: designConfig.contentScale ? `scale(${designConfig.contentScale})` : 'none',
+                        transformOrigin: 'top left'
                     }
                 });
                 
@@ -249,13 +252,14 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
 
         const tempContainer = document.createElement('div');
         Object.assign(tempContainer.style, {
-            position: 'absolute',
-            left: '-9999px',
+            position: 'fixed',
+            left: '0',
             top: '0',
             width: widthPx,
             height: heightPx,
             overflow: 'hidden',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            zIndex: '-9999'
         });
         document.body.appendChild(tempContainer);
 
@@ -284,7 +288,8 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                 pixelRatio: 1.5, 
                 backgroundColor: '#ffffff',
                 style: {
-                    zoom: designConfig.contentScale ? designConfig.contentScale.toString() : '1'
+                    transform: designConfig.contentScale ? `scale(${designConfig.contentScale})` : 'none',
+                    transformOrigin: 'top left'
                 }
             });
             

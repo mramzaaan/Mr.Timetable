@@ -808,47 +808,71 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       // Wait for React to flush the state update
       await new Promise(resolve => setTimeout(resolve, 100));
 
+      const orientation = options.page.orientation || 'portrait';
+      const widthPx = orientation === 'portrait' ? '794px' : '1123px';
+      const heightPx = orientation === 'portrait' ? '1123px' : '794px';
+
+      const tempContainer = document.createElement('div');
+      Object.assign(tempContainer.style, {
+          position: 'fixed',
+          left: '0',
+          top: '0',
+          width: widthPx,
+          height: heightPx,
+          overflow: 'hidden',
+          backgroundColor: '#ffffff',
+          zIndex: '-9999'
+      });
+      document.body.appendChild(tempContainer);
+
       try {
-          // Remove selection before capture
-          if (activeElement) activeElement.removeAttribute('data-selected');
-
-          // Temporarily apply visibility styles for capture
-          const styleEl = document.createElement('style');
-          styleEl.innerHTML = `
-              ${options.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
-              ${options.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
-              ${options.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
-          `;
-          contentRef.current.appendChild(styleEl);
-
-          const blob = await toBlob(contentRef.current, {
-              pixelRatio: 2,
-              backgroundColor: '#ffffff',
-              style: {
-                  zoom: options.contentScale ? options.contentScale.toString() : '1'
-              }
-          });
+          const currentRender = history[historyIndex] || { options: designConfig, pages: [] };
+          tempContainer.innerHTML = currentRender.pages[currentPage] || '';
+          const pageContent = tempContainer.children[0] as HTMLElement;
           
-          styleEl.remove();
-          
-          // Restore selection if needed (optional)
-          if (activeElement) activeElement.setAttribute('data-selected', 'true');
+          if (pageContent) {
+              pageContent.style.width = '100%';
+              pageContent.style.height = '100%';
+              pageContent.style.margin = '0';
 
-          if (blob) {
-              const file = new File([blob], `${fileNameBase}.png`, { type: 'image/png' });
-              if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                  await navigator.share({
-                      files: [file],
-                      // Removed 'title' and 'text' to ensure only file is shared (prevents text+link sharing issues)
-                  });
-              } else {
-                  // Fallback download
-                  const url = URL.createObjectURL(blob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = `${fileNameBase}.png`;
-                  link.click();
-                  URL.revokeObjectURL(url);
+              // Temporarily apply visibility styles for capture
+              const styleEl = document.createElement('style');
+              styleEl.innerHTML = `
+                  ${options.visibleElements?.teacherName === false ? '.period-teacher, .teacher-text { display: none !important; }' : ''}
+                  ${options.visibleElements?.subjectName === false ? '.period-subject, .subject-text { display: none !important; }' : ''}
+                  ${options.visibleElements?.roomNumber === false ? '.header-details > div > div:nth-child(3) { display: none !important; }' : ''}
+              `;
+              tempContainer.appendChild(styleEl);
+
+              await document.fonts.ready;
+              await new Promise(r => setTimeout(r, 400));
+
+              const blob = await toBlob(tempContainer, {
+                  pixelRatio: 2,
+                  backgroundColor: '#ffffff',
+                  style: {
+                      transform: options.contentScale ? `scale(${options.contentScale})` : 'none',
+                      transformOrigin: 'top left',
+                      boxShadow: 'none',
+                      margin: '0'
+                  }
+              });
+              
+              if (blob) {
+                  const file = new File([blob], `${fileNameBase}.png`, { type: 'image/png' });
+                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                      await navigator.share({
+                          files: [file],
+                      });
+                  } else {
+                      // Fallback download
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = `${fileNameBase}.png`;
+                      link.click();
+                      URL.revokeObjectURL(url);
+                  }
               }
           }
       } catch (e: any) {
@@ -857,6 +881,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               alert("Failed to share.");
           }
       } finally {
+          document.body.removeChild(tempContainer);
           setIsGenerating(false);
       }
   };
@@ -874,13 +899,14 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
 
       const tempContainer = document.createElement('div');
       Object.assign(tempContainer.style, {
-          position: 'absolute',
-          left: '-9999px',
+          position: 'fixed',
+          left: '0',
           top: '0',
           width: widthPx,
           height: heightPx,
           overflow: 'hidden',
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          zIndex: '-9999'
       });
       document.body.appendChild(tempContainer);
 
@@ -915,7 +941,8 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                   pixelRatio: 1.5,
                   backgroundColor: '#ffffff',
                   style: {
-                      zoom: options.contentScale ? options.contentScale.toString() : '1'
+                      transform: options.contentScale ? `scale(${options.contentScale})` : 'none',
+                      transformOrigin: 'top left'
                   }
               });
               
@@ -1124,7 +1151,14 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
 
                         {onGenerateExcel && (
                             <button 
-                                onClick={() => onGenerateExcel(lang, options)} 
+                                onClick={() => {
+                                    try {
+                                        onGenerateExcel(lang, options);
+                                    } catch (e) {
+                                        console.error("Excel generation failed:", e);
+                                        alert("Failed to generate Excel file.");
+                                    }
+                                }} 
                                 className="flex-shrink-0 p-2 text-green-400 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition shadow-sm" 
                                 title="Export Excel"
                             >

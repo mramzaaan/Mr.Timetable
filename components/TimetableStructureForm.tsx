@@ -280,6 +280,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
             title="School Timings"
             fileNameBase="School_Timings"
             generateHtml={(lang, options) => generateSchoolTimingsHtml(t, lang, options, previewConfig)}
+            onGenerateExcel={(lang, design) => generateSchoolTimingsExcel(t, lang, design, previewConfig)}
             designConfig={schoolConfig.downloadDesigns.schoolTimings}
             onSaveDesign={handleSavePrintDesign}
         />

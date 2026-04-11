@@ -108,19 +108,6 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
               );
           })}
       </nav>
-      
-      {/* Add New Lesson Button */}
-      <div className="p-6 mt-auto">
-          <button 
-              onClick={() => setCurrentPage('dataEntry')}
-              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-full font-bold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-1"
-          >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-              Add New Lesson
-          </button>
-      </div>
     </aside>
   );
 };
