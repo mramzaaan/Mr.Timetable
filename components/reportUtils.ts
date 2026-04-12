@@ -643,7 +643,7 @@ const generateReportHTML = (
     const pageNumHtml = showPageNum ? `<span>Page ${pageNumber} of ${totalPages}</span>` : '';
     
     const dateToUse = reportDate ? new Date(reportDate) : new Date();
-    const dateHtml = design.footer.includeDate ? `<span style="font-size: ${design.footer.dateFontSize || 10}px;">${dateToUse.toLocaleDateString()}</span>` : '';
+    const dateHtml = design.footer.includeDate ? `<span style="font-size: ${design.footer.dateFontSize || 10}px;">${dateToUse.toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>` : '';
     const timeHtml = design.footer.includeTimestamp ? `<span style="font-size: ${design.footer.timeFontSize || 10}px;">${new Date().toLocaleTimeString()}</span>` : '';
 
     const leftItems: string[] = [];
@@ -1584,7 +1584,7 @@ export const generateAdjustmentsExcel = (t: any, lang: DownloadLanguage, design:
         const conflict = adj.conflictDetails ? `Busy in ${adj.conflictDetails.classNameEn}` : ''; 
         rows.push([orig?.nameEn || '', adj.periodIndex + 1, cls?.nameEn || '', sbj?.nameEn || '', sub?.nameEn || '', conflict]); 
     }); 
-    const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, lang === 'ur' ? 'تبدیلیاں' : 'Adjustments', lang, new Date(date).toLocaleDateString());
+    const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, lang === 'ur' ? 'تبدیلیاں' : 'Adjustments', lang, new Date(date).toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }));
     downloadCsv(finalRows.map(toCsvRow).join('\n'), `Adjustments_${date}.csv`); 
 };
 
@@ -1656,7 +1656,7 @@ export const generateWorkloadSummaryHtml = (
     }
 
     let baseHeaders = [trLocal('Teacher', 'استاد')]; 
-    const formatDate = (dateStr: string | undefined) => { if (!dateStr) return ''; const date = new Date(dateStr); const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' }; if (lang === 'ur') return date.toLocaleDateString('ur-PK-u-nu-latn', options); return date.toLocaleDateString('en-GB', options); };
+    const formatDate = (dateStr: string | undefined) => { if (!dateStr) return ''; const date = new Date(dateStr); const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' }; if (lang === 'ur') return date.toLocaleDateString('ur-PK-u-nu-latn', options); return date.toLocaleDateString('en-GB', options); };
     const formattedStartDate = formatDate(startDate); const formattedEndDate = formatDate(endDate);
     
     let statsData: { teacher: Teacher, stats: WorkloadStats }[] = [];
@@ -1954,7 +1954,7 @@ export const generateAttendanceReportExcel = (
 
     let finalRows = rows;
     if (schoolConfig && design) {
-        finalRows = addExcelHeaderFooter(rows, schoolConfig, design, trLocal('Attendance Report') || 'Attendance Report', lang, new Date(date).toLocaleDateString());
+        finalRows = addExcelHeaderFooter(rows, schoolConfig, design, trLocal('Attendance Report') || 'Attendance Report', lang, new Date(date).toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }));
     }
 
     downloadCsv(finalRows.map(toCsvRow).join('\n'), `Attendance_Report_${date}.csv`);

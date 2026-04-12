@@ -931,7 +931,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                         {log.type}
                                     </span>
                                     <span className="text-[10px] font-bold opacity-50">
-                                        {new Date(log.timestamp).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                        {new Date(log.timestamp).toLocaleString([], { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
                                 <p className="text-xs font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>

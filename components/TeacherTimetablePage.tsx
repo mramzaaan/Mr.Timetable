@@ -1497,7 +1497,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                                     {log.type}
                                                 </span>
                                                 <span className="text-[10px] font-bold opacity-50 text-[var(--text-secondary)]">
-                                                    {new Date(log.timestamp).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                    {new Date(log.timestamp).toLocaleString([], { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
                                             <p className="text-xs font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>
@@ -1533,7 +1533,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                                     {sortedHistory.leaves.map((item, idx) => (
                                                         <tr key={`l-${idx}`} className="hover:bg-[var(--bg-tertiary)]/50 transition-colors">
                                                             <td className="px-4 py-3 font-mono font-medium text-[var(--text-primary)]">
-                                                                {new Date(item.date).toLocaleDateString()}
+                                                                {new Date(item.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}
                                                             </td>
                                                             <td className="px-4 py-3 text-[var(--text-secondary)]">{item.dayName}</td>
                                                             <td className="px-4 py-3">
@@ -1591,7 +1591,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                                     {sortedHistory.substitutions.map((item, idx) => (
                                                         <tr key={`s-${idx}`} className="hover:bg-[var(--bg-tertiary)]/50 transition-colors">
                                                             <td className="px-4 py-3 font-mono font-medium text-[var(--text-primary)]">
-                                                                {new Date(item.date).toLocaleDateString()}
+                                                                {new Date(item.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}
                                                                 <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold">{item.dayName}</div>
                                                             </td>
                                                             <td className="px-4 py-3 text-center font-bold text-[var(--text-primary)] bg-[var(--bg-tertiary)]/30">{item.period}</td>

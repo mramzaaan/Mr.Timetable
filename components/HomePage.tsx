@@ -105,19 +105,19 @@ interface HomePageProps {
 }
 
 // Icons
-const DataEntryIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
-const ClassTimetableIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
-const TeacherTimetableIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
-const AdjustmentsIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4h4v4h-4z" /><path d="M14 4h4v4h-4z" /><path d="M4 14h4v4h-4z" /><path d="M14 14h4v4h-4z" /></svg>;
-const AttendanceIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>;
+const DataEntryIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-2.825.908a.375.375 0 01-.467-.467l.908-2.825a4.5 4.5 0 011.146-1.89l13.158-13.158z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.125L16.875 4.5" /></svg>;
+const ClassTimetableIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><rect x="3" y="4" width="18" height="10" rx="1" /><path strokeLinecap="round" strokeLinejoin="round" d="M2 16h20M5 16v5M19 16v5M8 14v-3l4-1 4 1v3" /></svg>;
+const TeacherTimetableIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 12a4 4 0 100-8 4 4 0 000 8z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 10c-1 2-1 4 0 5M18 10c1 2 1 4 0 5" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>;
+const AdjustmentsIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6.5a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M8.5 2.5v1M8.5 9.5v1M5 6.5H4M13 6.5h-1M11 4l-1 1M6 9l-1 1M11 9l-1-1M6 4l-1-1" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 17.5a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M17.5 13.5v1M17.5 20.5v1M14 17.5h-1M22 17.5h-1M20 15l-1 1M15 20l-1 1M20 20l-1-1M15 15l-1-1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /></svg>;
+const AttendanceIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12l2 2 4-4M8 17l2 2 4-4" /></svg>;
 const SettingsIcon = ({ className = "h-12 w-12" }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924-1.756-3.35 0a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
 );
-const DesignIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>;
-const CsvIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79-8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>;
+const DesignIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" /><path strokeLinecap="round" strokeLinejoin="round" d="M14 2v6h6M8 13h8M8 17h8" /></svg>;
+const CsvIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><ellipse cx="12" cy="6" rx="8" ry="3" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 6v6c0 1.657 3.582 3 8 3s8-1.343 8-3V6" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 12v6c0 1.657 3.582 3 8 3s8-1.343 8-3v-6" /></svg>;
 const CloseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>;
 const SchoolIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>;
 
@@ -191,6 +191,44 @@ const DocumentCard: React.FC<{
     );
 };
 
+const Fireflies = ({ colorClass, isMixed }: { colorClass: string, isMixed?: boolean }) => {
+    const mixedColors = ['text-teal-300', 'text-orange-300', 'text-emerald-300', 'text-cyan-300', 'text-amber-300', 'text-rose-300'];
+    
+    const fireflies = useMemo(() => Array.from({ length: 8 }).map((_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 50 + 50}%`,
+        animationDelay: `${Math.random() * 5}s`,
+        animationDuration: `${3 + Math.random() * 4}s`,
+        tx1: `${Math.random() * 30 - 15}px`,
+        ty1: `-${Math.random() * 30 + 10}px`,
+        tx2: `${Math.random() * 40 - 20}px`,
+        ty2: `-${Math.random() * 40 + 40}px`,
+        color: isMixed ? mixedColors[Math.floor(Math.random() * mixedColors.length)] : colorClass,
+    })), [isMixed, colorClass]);
+
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-[inherit]">
+            {fireflies.map((ff) => (
+                <div
+                    key={ff.id}
+                    className={`absolute w-1 h-1 rounded-full bg-white ${ff.color} opacity-0`}
+                    style={{
+                        left: ff.left,
+                        top: ff.top,
+                        animation: `firefly-float ${ff.animationDuration} ease-in-out ${ff.animationDelay} infinite alternate`,
+                        boxShadow: `0 0 8px 3px currentColor`,
+                        '--tx1': ff.tx1,
+                        '--ty1': ff.ty1,
+                        '--tx2': ff.tx2,
+                        '--ty2': ff.ty2,
+                    } as React.CSSProperties}
+                />
+            ))}
+        </div>
+    );
+};
+
 const FeatureCard: React.FC<{
     label: string;
     description: string;
@@ -202,17 +240,17 @@ const FeatureCard: React.FC<{
     style?: React.CSSProperties;
     className?: string;
 }> = ({ label, description, icon: IconComponent, onClick, theme, index, isActive, style, className }) => {
-    const colors: Record<string, { text: string, bg: string, border: string }> = {
-        teal: { text: 'text-teal-600', bg: 'bg-teal-500', border: 'border-teal-500' },
-        orange: { text: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-500' },
-        emerald: { text: 'text-emerald-600', bg: 'bg-emerald-500', border: 'border-emerald-500' },
-        blue: { text: 'text-blue-600', bg: 'bg-blue-500', border: 'border-blue-500' },
-        violet: { text: 'text-violet-600', bg: 'bg-violet-500', border: 'border-violet-500' },
-        indigo: { text: 'text-indigo-600', bg: 'bg-indigo-500', border: 'border-indigo-500' },
-        slate: { text: 'text-slate-600', bg: 'bg-slate-500', border: 'border-slate-500' },
-        cyan: { text: 'text-cyan-600', bg: 'bg-cyan-500', border: 'border-cyan-500' },
-        amber: { text: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-500' },
-        rose: { text: 'text-rose-600', bg: 'bg-rose-500', border: 'border-rose-500' },
+    const colors: Record<string, { text: string, bg: string, border: string, shadow: string, glow: string, firefly: string, isMixed?: boolean }> = {
+        teal: { text: 'text-teal-600 dark:text-teal-400', bg: 'bg-teal-500', border: 'border-teal-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(20,184,166,0.4)]', firefly: 'text-teal-300' },
+        orange: { text: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-500', border: 'border-orange-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(249,115,22,0.4)]', firefly: 'text-orange-300' },
+        emerald: { text: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500', border: 'border-emerald-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(16,185,129,0.4)]', firefly: 'text-emerald-300' },
+        blue: { text: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500', border: 'border-blue-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(59,130,246,0.4)]', firefly: 'text-blue-300' },
+        violet: { text: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-500', border: 'border-violet-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(139,92,246,0.4)]', firefly: '', isMixed: true },
+        indigo: { text: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-500', border: 'border-indigo-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(99,102,241,0.4)]', firefly: '', isMixed: true },
+        slate: { text: 'text-slate-600 dark:text-slate-400', bg: 'bg-slate-500', border: 'border-slate-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(100,116,139,0.4)]', firefly: '', isMixed: true },
+        cyan: { text: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-500', border: 'border-cyan-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(6,182,212,0.4)]', firefly: 'text-cyan-300' },
+        amber: { text: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500', border: 'border-amber-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(245,158,11,0.4)]', firefly: 'text-amber-300' },
+        rose: { text: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500', border: 'border-rose-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(244,63,94,0.4)]', firefly: 'text-rose-300' },
     };
     
     const color = colors[theme] || colors.blue;
@@ -221,25 +259,23 @@ const FeatureCard: React.FC<{
         <button
             onClick={onClick}
             style={style}
-            className={`${className || 'absolute w-[140px] sm:w-[180px]'} flex-shrink-0 aspect-[4/5] bg-white dark:bg-white/5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group overflow-hidden border border-white/20
+            className={`${className || 'absolute w-[140px] sm:w-[180px] aspect-[4/5]'} flex-shrink-0 bg-white/40 dark:bg-white/10 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] ${color.shadow} ${color.glow} hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.7)] transition-all duration-300 group overflow-hidden border ${color.border} hover:bg-white/50 dark:hover:bg-white/15
             ${isActive ? 'cursor-pointer scale-100 opacity-100' : 'cursor-default scale-95 opacity-70'}
             `}
         >
-            {/* Right Side Tab */}
-            <div className={`absolute top-1/4 bottom-1/4 right-0 w-4 rounded-l-lg ${color.bg}`}></div>
-
-            <div className="h-full flex flex-col items-center justify-center p-2 sm:p-6 relative z-10">
+            <Fireflies colorClass={color.firefly} isMixed={color.isMixed} />
+            <div className="h-full flex flex-col items-center justify-center p-2 sm:p-4 relative z-10">
                 {/* Icon */}
-                <div className={`mb-2 sm:mb-6 ${color.text} transform group-hover:scale-110 transition-transform duration-300`}>
-                    <IconComponent className="h-8 w-8 sm:h-20 sm:w-20" />
+                <div className={`mb-2 sm:mb-4 ${color.text} transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`}>
+                    <IconComponent className="h-12 w-12 sm:h-16 sm:w-16" />
                 </div>
 
                 {/* Text */}
                 <div className="text-center">
-                    <h3 className={`text-[10px] sm:text-base font-bold text-gray-800 dark:text-white uppercase tracking-tight mb-1 sm:mb-2`}>
+                    <h3 className={`text-sm sm:text-lg font-medium text-gray-800 dark:text-white/90 tracking-wide mb-0.5 sm:mb-1`}>
                         {label}
                     </h3>
-                    <p className="hidden sm:block text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
+                    <p className="hidden sm:block text-[10px] sm:text-xs text-gray-500 dark:text-white/50 font-light leading-relaxed line-clamp-1">
                         {description}
                     </p>
                 </div>
@@ -393,9 +429,9 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
     }).replace(/,/g, '');
 
     const formattedDateOnly = time.toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', {
-        year: 'numeric',
-        month: 'long',
         day: 'numeric',
+        month: 'long',
+        year: 'numeric',
     }).replace(/,/g, '');
 
     const cardData = useMemo(() => {
@@ -672,6 +708,12 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
         .deck-container { perspective: 1000px; }
         @keyframes float-light { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(10px, -20px) scale(1.1); } }
         @keyframes rotating-glow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes firefly-float {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+            30% { opacity: 1; scale: 1.2; }
+            70% { transform: translate(var(--tx1), var(--ty1)) scale(0.8); opacity: 0.8; }
+            100% { transform: translate(var(--tx2), var(--ty2)) scale(0.5); opacity: 0; }
+        }
         .crystal-reflection { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.4) 30%, transparent 35%, transparent 50%, rgba(255, 255, 255, 0.1) 55%, transparent 60%); background-size: 200% 100%; animation: shimmer 4s infinite linear; pointer-events: none; z-index: 1; }
       `}</style>
 
@@ -819,9 +861,9 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                                     <div>
                                         <h4 className="font-black text-xl text-[var(--text-primary)] uppercase tracking-tight leading-none mb-2">{session.name}</h4>
                                         <div className="flex items-center gap-3 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest opacity-70">
-                                            <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-lg">{new Date(session.startDate).toLocaleDateString()}</span>
+                                            <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-lg">{new Date(session.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                             <span className="text-[var(--accent-primary)]">➔</span>
-                                            <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-lg">{new Date(session.endDate).toLocaleDateString()}</span>
+                                            <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-lg">{new Date(session.endDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -870,43 +912,43 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 
                 {/* Active Session Card */}
                 {currentTimetableSession ? (
-                    <div className="mb-8 relative group max-w-sm mx-auto w-full px-4">
+                    <div className="mb-8 relative group max-w-lg mx-auto w-full px-4">
                         <div 
                           onClick={() => setIsSelectSessionModalOpen(true)}
-                          className="relative cursor-pointer group/card rounded-full py-3 px-4 shadow-sm border-2 border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
+                          className="relative cursor-pointer group/card rounded-[2rem] py-2 px-4 shadow-sm border-2 border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-[var(--accent-primary)] flex items-center justify-center text-white font-black text-2xl shadow-md shrink-0">
+                            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)] flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
                                 {currentTimetableSession.name ? currentTimetableSession.name.charAt(0).toUpperCase() : '?'}
                             </div>
                             <div className="flex flex-col items-start justify-center flex-grow">
-                                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1">
+                                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1">
                                   {currentTimetableSession.name || 'Untitled Session'}
                                 </h2>
-                                <div className="text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-200">
-                                    {new Date(currentTimetableSession.startDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' }).replace(/ /g, '/')}
+                                <div className="text-xs font-medium text-gray-800 dark:text-gray-200">
+                                    {new Date(currentTimetableSession.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                                     {' to '}
-                                    {new Date(currentTimetableSession.endDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' }).replace(/ /g, '/')}
+                                    {new Date(currentTimetableSession.endDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </div>
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="mb-12 text-center rounded-[3rem] p-10 shadow-2xl border border-white/40 max-w-2xl mx-auto relative overflow-hidden bg-white/50 dark:bg-white/5 backdrop-blur-2xl group">
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
-                        <div className="relative z-10 flex flex-col items-center">
-                            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tighter leading-none">{t.welcomeToMrTimetable}</h1>
-                            <p className="text-xs font-bold text-gray-400 mb-8 uppercase tracking-[0.2em] leading-relaxed max-w-sm mx-auto">{t.selectOrCreateDescription}</p>
-                            <button onClick={() => setIsSelectSessionModalOpen(true)} className="w-full max-w-xs px-10 py-4.5 text-[10px] font-black uppercase tracking-[0.3em] bg-indigo-600 text-white rounded-2xl shadow-2xl hover:bg-indigo-700 transition-all hover:-translate-y-1 active:scale-[0.98] border border-indigo-400/30">
-                                {t.selectTimetable}
-                            </button>
-                            <button 
-                                onClick={() => setIsSelectSessionModalOpen(true)}
-                                className="mt-8 w-16 h-16 bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/20 rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-110 active:scale-95 duration-500"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                            </button>
+                    <div className="mb-8 relative group max-w-lg mx-auto w-full px-4">
+                        <div 
+                          onClick={() => setIsSelectSessionModalOpen(true)}
+                          className="relative cursor-pointer group/card rounded-[2rem] py-2 px-4 shadow-sm border-2 border-dashed border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
+                        >
+                            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)]/20 flex items-center justify-center text-[var(--accent-primary)] font-black text-2xl shadow-sm shrink-0">
+                                +
+                            </div>
+                            <div className="flex flex-col items-start justify-center flex-grow">
+                                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1">
+                                  Create/Upload Session
+                                </h2>
+                                <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                                    Click here to get started
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -926,7 +968,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                     </button>
 
                     {/* Grid View */}
-                    <div className="grid grid-cols-4 gap-2 sm:gap-5 w-full max-w-4xl mx-auto mb-12 px-2 sm:px-4">
+                    <div className="grid grid-cols-4 gap-2 sm:gap-4 w-full max-w-4xl mx-auto mb-12 px-2 sm:px-4">
                         {navigationModules.map((module, idx) => (
                             <FeatureCard 
                                 key={module.id}
@@ -937,7 +979,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                                 theme={module.theme}
                                 index={idx}
                                 isActive={true}
-                                className="relative w-full aspect-[4/5] hover:scale-105 hover:-translate-y-2 cursor-pointer transition-all duration-300 rounded-xl sm:rounded-[2rem]"
+                                className="relative w-full aspect-[4/4.8] hover:scale-105 hover:-translate-y-1 cursor-pointer transition-all duration-300"
                             />
                         ))}
                     </div>

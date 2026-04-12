@@ -624,8 +624,8 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
       }
 
       const currentTimestamp = new Date().toLocaleString('en-GB', { 
-        day: '2-digit', 
-        month: 'short', 
+        day: 'numeric', 
+        month: 'long', 
         year: 'numeric', 
         hour: '2-digit', 
         minute: '2-digit',

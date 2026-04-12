@@ -1306,7 +1306,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                         <div className="text-center mb-10">
                             <p className="text-xl font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Date</p>
                             <h3 className="text-5xl font-black text-slate-800">
-                                {new Date(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                {new Date(selectedDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </h3>
                         </div>
 
@@ -1372,7 +1372,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                         {teacherShareData.teacherName}
                     </h2>
                     <p className="text-xl text-slate-500 font-medium">
-                        {new Date(teacherShareData.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {new Date(teacherShareData.date).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                     <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-2">Substitution Report</p>
                 </div>
@@ -1492,7 +1492,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                 <div className="text-center mb-8 border-b-2 border-slate-100 pb-6">
                     <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">{schoolConfig.schoolNameEn}</h2>
                     <p className="text-xl text-slate-500 font-medium">
-                        {new Date(multiTeacherSlipData.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {new Date(multiTeacherSlipData.date).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                     <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-2">Daily Substitution Report</p>
                 </div>
