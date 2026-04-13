@@ -1959,3 +1959,148 @@ export const generateAttendanceReportExcel = (
 
     downloadCsv(finalRows.map(toCsvRow).join('\n'), `Attendance_Report_${date}.csv`);
 };
+
+export const generateTeachersTimetableSummaryHtml = (
+    session: TimetableSession,
+    schoolConfig: SchoolConfig,
+    language: string,
+    summaryType: 'allDays' | 'byDays',
+    selectedDays: string[],
+    design: DownloadDesignConfig
+): string | string[] => {
+    const isUrdu = language === 'ur';
+    const title = "Summary Timetable Of Teachers";
+
+    const allDaysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+    let activeDays = allDaysList.filter(day => schoolConfig.daysConfig?.[day]?.active);
+    
+    if (summaryType === 'byDays') {
+        activeDays = activeDays.filter(day => selectedDays.includes(day));
+    }
+
+    const dayPeriods: { day: string, maxPeriods: number }[] = activeDays.map(day => {
+        return {
+            day,
+            maxPeriods: schoolConfig.daysConfig?.[day]?.periodCount || 8
+        };
+    });
+
+    const tableStyles = `width: 100%; border-collapse: collapse; table-layout: fixed; font-family: ${design.table.fontFamily}; font-size: ${design.table.fontSize}px; line-height: ${design.table.lineHeight};`;
+    const thStyles = `border: ${design.table.borderWidth}px ${design.table.gridStyle} ${design.table.borderColor}; padding: ${design.table.cellPadding}px; text-align: center; background-color: ${design.table.headerBgColor}; color: ${design.table.headerColor}; font-size: ${design.table.headerFontSize}px; font-weight: bold;`;
+    const tdStyles = `border: ${design.table.borderWidth}px ${design.table.gridStyle} ${design.table.borderColor}; padding: ${design.table.cellPadding}px; text-align: center; color: ${design.table.bodyColor}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;`;
+    const teacherColStyles = `width: ${design.table.periodColumnWidth * 2}px; text-align: left; padding-left: 5px; font-weight: bold;`;
+
+    const rowsPerPage = design.rowsPerPage || (summaryType === 'allDays' ? 25 : 40);
+    const rowsPerFirstPage = design.rowsPerFirstPage || rowsPerPage;
+    const totalItems = session.teachers.length;
+    let totalPagesCount = 1;
+    if (totalItems > rowsPerFirstPage) {
+        totalPagesCount = 1 + Math.ceil((totalItems - rowsPerFirstPage) / rowsPerPage);
+    }
+
+    const pages: string[] = [];
+
+    if (summaryType === 'allDays') {
+        let currentIdx = 0;
+        for (let i = 0; i < totalPagesCount; i++) {
+            const limit = i === 0 ? rowsPerFirstPage : rowsPerPage;
+            const pageTeachers = session.teachers.slice(currentIdx, currentIdx + limit);
+            currentIdx += limit;
+
+            let tableHtml = `<table style="${tableStyles}">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="${thStyles} ${teacherColStyles}">Teacher</th>
+                        ${dayPeriods.map(dp => `<th colspan="${dp.maxPeriods}" style="${thStyles}">${dp.day}</th>`).join('')}
+                    </tr>
+                    <tr>
+                        ${dayPeriods.map(dp => {
+                            let periodsHtml = '';
+                            for (let p = 1; p <= dp.maxPeriods; p++) {
+                                periodsHtml += `<th style="${thStyles}">${p}</th>`;
+                            }
+                            return periodsHtml;
+                        }).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            pageTeachers.forEach((teacher, index) => {
+                const rowBg = index % 2 === 0 ? 'transparent' : (design.table.altRowColor || 'transparent');
+                tableHtml += `<tr style="background-color: ${rowBg}"><td style="${tdStyles} ${teacherColStyles}">${isUrdu ? teacher.nameUr || teacher.nameEn : teacher.nameEn}</td>`;
+                
+                dayPeriods.forEach(dp => {
+                    for (let periodIndex = 0; periodIndex < dp.maxPeriods; periodIndex++) {
+                        let assignedClass = '';
+                        for (const cls of session.classes) {
+                            const dayData = cls.timetable[dp.day as keyof TimetableGridData];
+                            if (dayData && dayData[periodIndex]) {
+                                const slot = dayData[periodIndex];
+                                if (slot.some(p => p.teacherId === teacher.id)) {
+                                    assignedClass = isUrdu ? cls.nameUr || cls.nameEn : cls.nameEn;
+                                    break;
+                                }
+                            }
+                        }
+                        tableHtml += `<td style="${tdStyles}">${assignedClass}</td>`;
+                    }
+                });
+                tableHtml += `</tr>`;
+            });
+
+            tableHtml += `
+                </tbody>
+            </table>`;
+
+            pages.push(generateReportHTML(schoolConfig, design, title, language, tableHtml, '', i + 1, totalPagesCount));
+        }
+    } else {
+        dayPeriods.forEach((dp) => {
+            let currentIdx = 0;
+            for (let i = 0; i < totalPagesCount; i++) {
+                const limit = i === 0 ? rowsPerFirstPage : rowsPerPage;
+                const pageTeachers = session.teachers.slice(currentIdx, currentIdx + limit);
+                currentIdx += limit;
+
+                let tableHtml = `<table style="${tableStyles}">
+                    <thead>
+                        <tr>
+                            <th style="${thStyles} ${teacherColStyles}">Teacher</th>
+                            ${Array.from({length: dp.maxPeriods}, (_, p) => `<th style="${thStyles}">Period ${p + 1}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+
+                pageTeachers.forEach((teacher, index) => {
+                    const rowBg = index % 2 === 0 ? 'transparent' : (design.table.altRowColor || 'transparent');
+                    tableHtml += `<tr style="background-color: ${rowBg}"><td style="${tdStyles} ${teacherColStyles}">${isUrdu ? teacher.nameUr || teacher.nameEn : teacher.nameEn}</td>`;
+                    for (let periodIndex = 0; periodIndex < dp.maxPeriods; periodIndex++) {
+                        let assignedClass = '';
+                        for (const cls of session.classes) {
+                            const dayData = cls.timetable[dp.day as keyof TimetableGridData];
+                            if (dayData && dayData[periodIndex]) {
+                                const slot = dayData[periodIndex];
+                                if (slot.some(p => p.teacherId === teacher.id)) {
+                                    assignedClass = isUrdu ? cls.nameUr || cls.nameEn : cls.nameEn;
+                                    break;
+                                }
+                            }
+                        }
+                        tableHtml += `<td style="${tdStyles}">${assignedClass}</td>`;
+                    }
+                    tableHtml += `</tr>`;
+                });
+
+                tableHtml += `
+                    </tbody>
+                </table>`;
+
+                pages.push(generateReportHTML(schoolConfig, design, title, language, tableHtml, dp.day, i + 1, totalPagesCount));
+            }
+        });
+    }
+
+    return pages.length === 1 ? pages[0] : pages;
+};

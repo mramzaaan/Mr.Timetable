@@ -19,7 +19,8 @@ import {
   generateAttendanceReportHtml,
   generateAttendanceReportExcel,
   generateClassTimetableHtml,
-  generateTeacherTimetableHtml
+  generateTeacherTimetableHtml,
+  generateTeachersTimetableSummaryHtml
 } from './reportUtils';
 
 interface SelectionModalProps {
@@ -606,6 +607,11 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const [isTeacherTimetablePreviewOpen, setIsTeacherTimetablePreviewOpen] = useState(false);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
 
+  const [isTeachersTimetableSummarySelectionOpen, setIsTeachersTimetableSummarySelectionOpen] = useState(false);
+  const [isTeachersTimetableSummaryPreviewOpen, setIsTeachersTimetableSummaryPreviewOpen] = useState(false);
+  const [teachersTimetableSummaryType, setTeachersTimetableSummaryType] = useState<'allDays' | 'byDays'>('allDays');
+  const [selectedDaysForSummary, setSelectedDaysForSummary] = useState<string[]>(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
+
   const touchStartRef = useRef<number | null>(null);
   const lastWheelTime = useRef<number>(0);
 
@@ -744,6 +750,8 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                         <DocumentCard index={6} title={t.alternative} subtitle="SUBSTITUTION REGISTERS" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>} colorTheme="indigo" onClick={() => setIsAlternativePreviewOpen(true)} />
                         
                         <DocumentCard index={7} title={t.attendanceReport} subtitle="ENROLLMENT DATA" icon={<AttendanceIcon className="h-6 w-6" />} colorTheme="teal" onClick={() => setIsAttendanceReportPreviewOpen(true)} />
+                        
+                        <DocumentCard index={8} title="Teachers Timetable Summary" subtitle="SUMMARY" icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>} colorTheme="amber" onClick={() => setIsTeachersTimetableSummarySelectionOpen(true)} />
                     </div>
                 </div>
             </div>
@@ -778,6 +786,73 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                     <button onClick={() => {
                         setIsBasicInfoSelectionOpen(false);
                         setIsBasicInfoPreviewOpen(true);
+                    }} className="px-4 py-2 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-lg transition-colors shadow-md">Generate Report</button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {isTeachersTimetableSummarySelectionOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4" onClick={() => setIsTeachersTimetableSummarySelectionOpen(false)}>
+            <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl max-w-md w-full p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">Teachers Timetable Summary</h3>
+                <div className="space-y-3 mb-6">
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                        <input 
+                            type="radio" 
+                            name="teachersTimetableSummaryType"
+                            checked={teachersTimetableSummaryType === 'allDays'}
+                            onChange={() => setTeachersTimetableSummaryType('allDays')}
+                            className="h-5 w-5 text-[var(--accent-primary)] border-gray-300 focus:ring-[var(--accent-primary)]"
+                        />
+                        <span className="text-[var(--text-primary)] font-medium">All Days</span>
+                    </label>
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                        <input 
+                            type="radio" 
+                            name="teachersTimetableSummaryType"
+                            checked={teachersTimetableSummaryType === 'byDays'}
+                            onChange={() => setTeachersTimetableSummaryType('byDays')}
+                            className="h-5 w-5 text-[var(--accent-primary)] border-gray-300 focus:ring-[var(--accent-primary)]"
+                        />
+                        <span className="text-[var(--text-primary)] font-medium">By Days</span>
+                    </label>
+                </div>
+
+                {teachersTimetableSummaryType === 'byDays' && (
+                    <div className="mb-6 p-4 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border-secondary)]">
+                        <h4 className="text-sm font-bold text-[var(--text-primary)] mb-3">Select Days</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => {
+                                const isActive = schoolConfig?.daysConfig?.[day as keyof TimetableGridData]?.active;
+                                if (!isActive) return null;
+                                return (
+                                    <label key={day} className="flex items-center space-x-2 cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={selectedDaysForSummary.includes(day)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedDaysForSummary(prev => [...prev, day]);
+                                                } else {
+                                                    setSelectedDaysForSummary(prev => prev.filter(d => d !== day));
+                                                }
+                                            }}
+                                            className="h-4 w-4 text-[var(--accent-primary)] rounded border-gray-300 focus:ring-[var(--accent-primary)]"
+                                        />
+                                        <span className="text-sm text-[var(--text-secondary)]">{day}</span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex justify-end space-x-3">
+                    <button onClick={() => setIsTeachersTimetableSummarySelectionOpen(false)} className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors">Cancel</button>
+                    <button onClick={() => {
+                        setIsTeachersTimetableSummarySelectionOpen(false);
+                        setIsTeachersTimetableSummaryPreviewOpen(true);
                     }} className="px-4 py-2 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-lg transition-colors shadow-md">Generate Report</button>
                 </div>
             </div>
@@ -999,6 +1074,27 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
               currentSession={currentTimetableSession}
               onUpdateSession={onUpdateCurrentSession}
           />
+      )}
+
+      {isTeachersTimetableSummaryPreviewOpen && currentTimetableSession && schoolConfig && (
+        <PrintPreview
+          t={t}
+          isOpen={isTeachersTimetableSummaryPreviewOpen}
+          onClose={() => setIsTeachersTimetableSummaryPreviewOpen(false)}
+          title="Teachers Timetable Summary"
+          fileNameBase="Teachers_Timetable_Summary"
+          generateHtml={(lang, options) => generateTeachersTimetableSummaryHtml(currentTimetableSession, schoolConfig, lang, teachersTimetableSummaryType, selectedDaysForSummary, options)}
+          designConfig={{
+              ...schoolConfig.downloadDesigns.basicInfo,
+              page: {
+                  ...schoolConfig.downloadDesigns.basicInfo.page,
+                  orientation: teachersTimetableSummaryType === 'allDays' ? 'landscape' : 'portrait'
+              }
+          }}
+          onSaveDesign={(newDesign) => {
+              // We don't have a specific save slot for this yet, but we can just update basicInfo or ignore
+          }}
+        />
       )}
     </>
   );

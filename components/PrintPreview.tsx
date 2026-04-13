@@ -825,6 +825,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       });
       document.body.appendChild(tempContainer);
 
+      let generatedBlob: Blob | null = null;
       try {
           const currentRender = history[historyIndex] || { options: designConfig, pages: [] };
           tempContainer.innerHTML = currentRender.pages[currentPage] || '';
@@ -847,7 +848,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               await document.fonts.ready;
               await new Promise(r => setTimeout(r, 400));
 
-              const blob = await toBlob(tempContainer, {
+              generatedBlob = await toBlob(tempContainer, {
                   pixelRatio: 2,
                   backgroundColor: '#ffffff',
                   style: {
@@ -858,15 +859,15 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                   }
               });
               
-              if (blob) {
-                  const file = new File([blob], `${fileNameBase}.png`, { type: 'image/png' });
+              if (generatedBlob) {
+                  const file = new File([generatedBlob], `${fileNameBase}.png`, { type: 'image/png' });
                   if (navigator.canShare && navigator.canShare({ files: [file] })) {
                       await navigator.share({
                           files: [file],
                       });
                   } else {
                       // Fallback download
-                      const url = URL.createObjectURL(blob);
+                      const url = URL.createObjectURL(generatedBlob);
                       const link = document.createElement('a');
                       link.href = url;
                       link.download = `${fileNameBase}.png`;
@@ -877,8 +878,19 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
           }
       } catch (e: any) {
           if (e.name !== 'AbortError') {
-              console.error("Share failed", e);
-              alert("Failed to share.");
+              if (generatedBlob && (e.name === 'NotAllowedError' || e.message?.includes('user gesture'))) {
+                  // Fallback download if share fails due to user gesture timeout
+                  console.warn("Share required user gesture, falling back to download.");
+                  const url = URL.createObjectURL(generatedBlob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `${fileNameBase}.png`;
+                  link.click();
+                  URL.revokeObjectURL(url);
+              } else {
+                  console.error("Share failed", e);
+                  alert("Failed to share.");
+              }
           }
       } finally {
           document.body.removeChild(tempContainer);

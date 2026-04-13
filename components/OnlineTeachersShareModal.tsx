@@ -74,21 +74,22 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
         if (!contentRef.current || selectedTeacherIds.size === 0) return;
         setIsGenerating(true);
 
+        let generatedBlob: Blob | null = null;
         try {
-            const blob = await toBlob(contentRef.current, {
+            generatedBlob = await toBlob(contentRef.current, {
                 pixelRatio: 2,
                 backgroundColor: '#ffffff'
             });
 
-            if (blob) {
-                const file = new File([blob], `Teachers_Schedule_${new Date().toISOString().split('T')[0]}.png`, { type: 'image/png' });
+            if (generatedBlob) {
+                const file = new File([generatedBlob], `Teachers_Schedule_${new Date().toISOString().split('T')[0]}.png`, { type: 'image/png' });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
                         title: 'Teachers Schedule',
                     });
                 } else {
-                    const url = URL.createObjectURL(blob);
+                    const url = URL.createObjectURL(generatedBlob);
                     const link = document.createElement('a');
                     link.href = url;
                     link.download = `Teachers_Schedule_${new Date().toISOString().split('T')[0]}.png`;
@@ -96,9 +97,20 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
                     URL.revokeObjectURL(url);
                 }
             }
-        } catch (error) {
-            console.error('Sharing failed:', error);
-            alert('Failed to share image.');
+        } catch (error: any) {
+            if (generatedBlob && (error.name === 'NotAllowedError' || error.message?.includes('user gesture'))) {
+                // Fallback download if share fails due to user gesture timeout
+                console.warn("Share required user gesture, falling back to download.");
+                const url = URL.createObjectURL(generatedBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Teachers_Schedule_${new Date().toISOString().split('T')[0]}.png`;
+                link.click();
+                URL.revokeObjectURL(url);
+            } else {
+                console.error('Sharing failed:', error);
+                alert('Failed to share image.');
+            }
         } finally {
             setIsGenerating(false);
         }
