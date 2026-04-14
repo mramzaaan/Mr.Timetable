@@ -20,7 +20,7 @@ export interface WorkloadStats {
 }
 
 // Updated Robust Urdu Font Stack using System Fonts
-const URDU_FONT_STACK = "sans-serif";
+const URDU_FONT_STACK = "'Gulzar', 'Noto Nastaliq Urdu', sans-serif";
 
 const teacherColorNames = [
   'subject-sky', 'subject-green', 'subject-yellow', 'subject-red',
@@ -520,7 +520,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
       height: 100%;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
-      font-family: sans-serif; 
+      font-family: '${table.fontFamily}', sans-serif; 
     }
 
     .print-container .font-urdu, 
@@ -572,7 +572,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         border-top: 1px solid #000; 
         display: flex; 
         align-items: flex-end; 
-        font-family: sans-serif;
+        font-family: '${footer.fontFamily}', sans-serif;
         font-size: ${footer.fontSize}px; 
         color: ${footer.color};
         flex-shrink: 0;
@@ -586,8 +586,8 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
         text-align: center; 
         font-size: ${table.fontSize}px;
         color: ${table.bodyColor || '#000000'};
-        font-family: sans-serif;
-        line-height: 1.1; /* Tighter line height for better canvas centering */
+        font-family: '${table.fontFamily}', sans-serif;
+        line-height: ${table.lineHeight || 1.1}; /* Tighter line height for better canvas centering */
         box-sizing: border-box;
         overflow: visible !important;
         position: relative;
@@ -639,7 +639,7 @@ const generateReportHTML = (
         ? `<img src="${schoolConfig.schoolLogoBase64}" class="header-logo" style="height: ${design.header.logoSize}px" />`
         : '';
     
-    const showPageNum = design.footer.includePageNumber && pageNumber !== undefined && totalPages !== undefined;
+    const showPageNum = (design.footer.includePageNumber || (totalPages !== undefined && totalPages > 1)) && pageNumber !== undefined && totalPages !== undefined;
     const pageNumHtml = showPageNum ? `<span>Page ${pageNumber} of ${totalPages}</span>` : '';
     
     const dateToUse = reportDate ? new Date(reportDate) : new Date();
@@ -679,12 +679,12 @@ const generateReportHTML = (
                     <header class="header-container" style="justify-content: ${design.header.logoPosition === 'center' ? 'center' : design.header.logoPosition === 'right' ? 'flex-end' : 'flex-start'}">
                         ${design.header.logoPosition === 'left' ? logoHtml : ''}
                         <div class="header-text" style="text-align: ${design.header.schoolName.align}">
-                            <h1 class="header-school-name" style="font-family: sans-serif; font-size: ${design.header.schoolName.fontSize}px; font-weight: ${design.header.schoolName.fontWeight}; color: ${design.header.schoolName.color}">
+                            <h1 class="header-school-name" style="font-family: '${design.header.schoolName.fontFamily}', sans-serif; font-size: ${design.header.schoolName.fontSize}px; font-weight: ${design.header.schoolName.fontWeight}; color: ${design.header.schoolName.color}">
                                 ${lang === 'ur' ? schoolConfig.schoolNameUr : schoolConfig.schoolNameEn}
                             </h1>
-                            ${design.header.showTitle ? `<h2 class="header-title" style="font-family: sans-serif; font-size: ${design.header.title.fontSize}px; font-weight: ${design.header.title.fontWeight}; color: ${design.header.title.color}; text-align: ${design.header.title.align}">${title}</h2>` : ''}
-                            ${design.header.showDate ? `<div class="header-date" style="font-family: sans-serif; font-size: ${design.header.dateFontSize || 12}px; font-weight: normal; color: #666; text-align: ${design.header.title.align}; margin-top: 4px;">${dateToUse.toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>` : ''}
-                            ${details ? `<div class="header-details" style="font-family: sans-serif; font-size: ${design.header.details.fontSize}px; font-weight: ${design.header.details.fontWeight}; color: ${design.header.details.color}; text-align: ${design.header.details.align}">${details}</div>` : ''}
+                            ${design.header.showTitle ? `<h2 class="header-title" style="font-family: '${design.header.title.fontFamily}', sans-serif; font-size: ${design.header.title.fontSize}px; font-weight: ${design.header.title.fontWeight}; color: ${design.header.title.color}; text-align: ${design.header.title.align}">${title}</h2>` : ''}
+                            ${design.header.showDate ? `<div class="header-date" style="font-family: '${design.header.details.fontFamily}', sans-serif; font-size: ${design.header.dateFontSize || 12}px; font-weight: normal; color: #666; text-align: ${design.header.title.align}; margin-top: 4px;">${dateToUse.toLocaleDateString(lang === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>` : ''}
+                            ${details ? `<div class="header-details" style="font-family: '${design.header.details.fontFamily}', sans-serif; font-size: ${design.header.details.fontSize}px; font-weight: ${design.header.details.fontWeight}; color: ${design.header.details.color}; text-align: ${design.header.details.align}">${details}</div>` : ''}
                         </div>
                         ${design.header.logoPosition === 'right' ? logoHtml : ''}
                     </header>
@@ -838,7 +838,7 @@ export const generateSchoolTimingsHtml = (t: any, lang: DownloadLanguage, design
     const minText = isUrdu ? 'منٹ' : 'Min';
 
     const maxRows = isFridayActive ? Math.max(colA_Items.length, colB_Items.length) : colA_Items.length; let tableRows = ''; let colBMergeStarted = false; const signatureText = trLocal('Principal Signature', 'دستخط پرنسپل');
-    for (let i = 0; i < maxRows; i++) { const itemA = colA_Items[i]; const itemB = colB_Items[i]; let rowHtml = ''; if (itemA) { const isPeriod = itemA.type === 'period'; const bgClass = isPeriod ? 'bg-white' : 'bg-green'; const textClass = 'text-black'; const nameFontSize = isPeriod ? periodNameFontSize : specialNameFontSize; rowHtml += `<td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize} !important; vertical-align: middle;">${itemA.name}</td><td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${timeFontSize} !important; vertical-align: top;"><div style="display: flex; flex-direction: column; align-items: center; justify-content: ${flexAlign}; height: 100%; line-height: 1.1;">${itemA.duration > 0 ? `<div style="font-size: ${durationFontSize} !important; width: 100%; text-align: center; font-weight: normal; margin-bottom: 2px; color: #666;">${itemA.duration} ${minText}</div>` : ''}<div style="unicode-bidi: embed;">${itemA.time}</div></div></td>`; } else { rowHtml += '<td></td><td></td>'; } if (isFridayActive) { if (itemB) { const isPeriod = itemB.type === 'period'; const bgClass = itemB.type === 'period' ? 'bg-white' : 'bg-green'; const textClass = 'text-black'; const nameFontSize = isPeriod ? periodNameFontSize : specialNameFontSize; rowHtml += `<td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize} !important; vertical-align: middle;">${itemB.name}</td><td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${timeFontSize} !important; vertical-align: top;"><div style="display: flex; flex-direction: column; align-items: center; justify-content: ${flexAlign}; height: 100%; line-height: 1.1;">${itemB.duration > 0 ? `<div style="font-size: ${durationFontSize} !important; width: 100%; text-align: center; font-weight: normal; margin-bottom: 2px; color: #666;">${itemB.duration} ${minText}</div>` : ''}<div style="unicode-bidi: embed;">${itemB.time}</div></div></td>`; } else { if (!colBMergeStarted) { const rowSpan = maxRows - i; rowHtml += `<td colspan="2" rowspan="${rowSpan}" style="border: ${customDesign.table.borderWidth || 3}px solid ${customDesign.table.borderColor}; vertical-align: bottom; text-align: center; padding-bottom: 5px;"><div style="display: inline-block; border-top: 1px solid ${customDesign.table.borderColor}; padding-top: 5px; min-width: 180px; font-size: 1.1em; font-weight: bold; text-align: center; margin-bottom: 5px;">${signatureText}</div></td>`; colBMergeStarted = true; } } } tableRows += `<tr>${rowHtml}</tr>`; }
+    for (let i = 0; i < maxRows; i++) { const itemA = colA_Items[i]; const itemB = colB_Items[i]; let rowHtml = ''; if (itemA) { const isPeriod = itemA.type === 'period'; const bgClass = isPeriod ? 'bg-white' : 'bg-green'; const textClass = 'text-black'; const nameFontSize = isPeriod ? periodNameFontSize : specialNameFontSize; rowHtml += `<td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize} !important; vertical-align: middle;">${itemA.name}</td><td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${timeFontSize} !important; vertical-align: top;"><div style="display: flex; flex-direction: column; align-items: center; justify-content: ${flexAlign}; height: 100%; line-height: ${customDesign.table.lineHeight || 1.1};">${itemA.duration > 0 ? `<div style="font-size: ${durationFontSize} !important; width: 100%; text-align: center; font-weight: normal; margin-bottom: 2px; color: #666;">${itemA.duration} ${minText}</div>` : ''}<div style="unicode-bidi: embed;">${itemA.time}</div></div></td>`; } else { rowHtml += '<td></td><td></td>'; } if (isFridayActive) { if (itemB) { const isPeriod = itemB.type === 'period'; const bgClass = itemB.type === 'period' ? 'bg-white' : 'bg-green'; const textClass = 'text-black'; const nameFontSize = isPeriod ? periodNameFontSize : specialNameFontSize; rowHtml += `<td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${nameFontSize} !important; vertical-align: middle;">${itemB.name}</td><td class="${bgClass} ${textClass}" style="font-weight: bold; font-size: ${timeFontSize} !important; vertical-align: top;"><div style="display: flex; flex-direction: column; align-items: center; justify-content: ${flexAlign}; height: 100%; line-height: ${customDesign.table.lineHeight || 1.1};">${itemB.duration > 0 ? `<div style="font-size: ${durationFontSize} !important; width: 100%; text-align: center; font-weight: normal; margin-bottom: 2px; color: #666;">${itemB.duration} ${minText}</div>` : ''}<div style="unicode-bidi: embed;">${itemB.time}</div></div></td>`; } else { if (!colBMergeStarted) { const rowSpan = maxRows - i; rowHtml += `<td colspan="2" rowspan="${rowSpan}" style="border: ${customDesign.table.borderWidth || 3}px solid ${customDesign.table.borderColor}; vertical-align: bottom; text-align: center; padding-bottom: 5px;"><div style="display: inline-block; border-top: 1px solid ${customDesign.table.borderColor}; padding-top: 5px; min-width: 180px; font-size: 1.1em; font-weight: bold; text-align: center; margin-bottom: 5px;">${signatureText}</div></td>`; colBMergeStarted = true; } } } tableRows += `<tr>${rowHtml}</tr>`; }
     const customStyles = `<style> .school-timings-table { width: 100%; border-collapse: collapse; text-align: center; font-size: ${customDesign.table.fontSize}px; } .school-timings-table th, .school-timings-table td { border: ${customDesign.table.borderWidth || 3}px solid ${customDesign.table.borderColor}; padding: ${customDesign.table.cellPadding}px; color: ${customDesign.table.bodyColor || '#000000'}; } .main-header { background-color: ${customDesign.table.headerBgColor}; color: ${customDesign.table.headerColor} !important; font-size: ${mainHeaderFontSize}px !important; font-weight: 900; padding: 12px; text-transform: uppercase; } .sub-header { background-color: #E9D5FF; color: #000000; font-weight: bold; font-size: ${subHeaderFontSize}px !important; } .bg-green { background-color: ${customDesign.table.periodColumnBgColor !== '#F3F4F6' ? customDesign.table.periodColumnBgColor : '#86efac'}; } .bg-white { background-color: ${customDesign.table.bodyBgColor}; } .text-black { color: ${customDesign.table.bodyColor || '#000000'}; } </style>`;
     const subHeaderRow = isFridayActive ? `<tr><th class="sub-header" style="width: 12%">${trLocal('Period', 'پیریڈ')}</th><th class="sub-header" style="width: 38%">${trLocal('Time', 'وقت')}</th><th class="sub-header" style="width: 12%">${trLocal('Period', 'پیریڈ')}</th><th class="sub-header" style="width: 38%">${trLocal('Time', 'وقت')}</th></tr>` : `<tr><th class="sub-header" style="width: 25%">${trLocal('Period', 'پیریڈ')}</th><th class="sub-header" style="width: 75%">${trLocal('Time', 'وقت')}</th></tr>`;
     const tableHtml = isFridayActive ? `${customStyles}<table class="school-timings-table"><thead><tr><th colspan="2" class="main-header">${colA_Title}</th><th colspan="2" class="main-header">${colB_Title}</th></tr>${subHeaderRow}</thead><tbody>${tableRows}</tbody></table>` : `${customStyles}<table class="school-timings-table"><thead>${subHeaderRow}</thead><tbody>${tableRows}</tbody></table>`;
@@ -1274,7 +1274,7 @@ export const generateAdjustmentsReportHtml = (
 
     const alignMap: Record<string, string> = { 'top': 'flex-start', 'middle': 'center', 'bottom': 'flex-end', 'center': 'center' };
     const flexAlign = alignMap[customDesign.table.verticalAlign || 'middle'] || 'center';
-    const customStyles = `<style> table td { padding: ${customDesign.table.cellPadding}px !important; } .adj-cell-wrapper { display: flex; flex-direction: column; justify-content: ${flexAlign}; align-items: center; width: 100%; height: 100%; min-height: 1.2em; box-sizing: border-box; line-height: 1.1; } .rowspan-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; line-height: 1.1; } </style>`;
+    const customStyles = `<style> table td { padding: ${customDesign.table.cellPadding}px !important; } .adj-cell-wrapper { display: flex; flex-direction: column; justify-content: ${flexAlign}; align-items: center; width: 100%; height: 100%; min-height: 1.2em; box-sizing: border-box; line-height: ${customDesign.table.lineHeight || 1.1}; } .rowspan-wrapper { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; line-height: ${customDesign.table.lineHeight || 1.1}; } </style>`;
     const wrap = (content: string) => `<div class="adj-cell-wrapper">${content}</div>`;
     for (let i = 0; i < totalPages; i++) {
       const limit = i === 0 ? rowsPerFirstPage : rowsPerPage; const pageRows = mergedRows.slice(currentIndex, currentIndex + limit); currentIndex += limit;
@@ -1402,7 +1402,7 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
             summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th style="width: 25%;">${h}</th>`).join('')}</tr></thead><tbody><tr>${summaryValues.map(v => `<td style="font-weight: bold; font-size: 1.2em;">${v}</td>`).join('')}</tr></tbody></table></div>`;
         }
 
-        let customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; white-space: nowrap; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } td.comments-col, th.comments-col { white-space: normal; width: 100%; text-align: left; }</style>`;
+        let customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: ${customDesign?.table?.lineHeight || 1.1}; white-space: nowrap; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } td.comments-col, th.comments-col { white-space: normal; width: 100%; text-align: left; }</style>`;
 
         const tableHtml = `${customStyles}<table><thead><tr>${headers.map((h, idx) => `<th${(includesExtraRooms && idx === 4) || (!includesExtraRooms && idx === 5) ? ' class="comments-col"' : ''}>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
         pages.push(generateReportHTML(schoolConfig, customDesign, trLocal('Basic Information', 'بنیادی معلومات'), lang, tableHtml, '', i + 1, totalPagesCount));
@@ -1618,7 +1618,7 @@ export const generateByPeriodHtml = (t: any, lang: DownloadLanguage, design: Dow
         });
         tableRows += `</tr>`;
     }
-    const customStyles = `<style> table { width: 100%; border-collapse: collapse; table-layout: fixed; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; word-wrap: break-word; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } </style>`;
+    const customStyles = `<style> table { width: 100%; border-collapse: collapse; table-layout: fixed; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; word-wrap: break-word; line-height: ${customDesign?.table?.lineHeight || 1.1}; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } </style>`;
     const tableHtml = `${customStyles}<table><thead><tr>${headers.map((h, idx) => `<th ${idx === 0 ? 'style="width: 35px;"' : ''}>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>`;
     return generateReportHTML(schoolConfig, customDesign, trLocal('Available Teachers', 'دستیاب اساتذہ'), lang, tableHtml);
 };
@@ -1701,7 +1701,7 @@ export const generateWorkloadSummaryHtml = (
             tableRows += `<tr><td style="text-align: left; font-weight: bold;">${name}</td>${rowCells}</tr>`;
         });
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: ${customDesign?.table?.lineHeight || 1.1}; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${baseHeaders.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>`;
         const titlePrefix = startDate && endDate ? (lang === 'ur' ? `${formattedStartDate} تا ${formattedEndDate}` : `${formattedStartDate} to ${formattedEndDate}`) : '';
         const reportTitle = `${trLocal('Workload Summary', 'ورک لوڈ کا خلاصہ')} ${titlePrefix ? `(${titlePrefix})` : ''}`;
@@ -1870,7 +1870,7 @@ export const generateAttendanceReportHtml = (
             summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><h3 style="font-size: 1.1em; font-weight: bold; margin-bottom: 5px;">${trLocal('Summary', 'خلاصہ')}</h3><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${summaryRows}${grandTotalRow}</tbody></table></div>`;
         }
 
-        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: 1.1; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
+        const customStyles = `<style>table { width: 100%; border-collapse: collapse; font-size: ${customDesign?.table?.fontSize || 14}px; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: ${customDesign?.table?.lineHeight || 1.1}; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; }</style>`;
         const tableHtml = `${customStyles}<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${tableRows}</tbody></table>${summaryTable}`;
         const reportTitle = `${trLocal('Attendance Report', 'رپورٹ حاضری')}`;
         pages.push(generateReportHTML(schoolConfig, customDesign, reportTitle, lang, tableHtml, '', i + 1, totalPagesCount, date));
@@ -1960,6 +1960,22 @@ export const generateAttendanceReportExcel = (
     downloadCsv(finalRows.map(toCsvRow).join('\n'), `Attendance_Report_${date}.csv`);
 };
 
+export const formatClassName = (name: string, format?: 'default' | 'compact' | 'hyphenated'): string => {
+    if (!format || format === 'default') return name;
+    
+    // Remove ordinal suffixes (st, nd, rd, th) if they follow a number
+    let formatted = name.replace(/(\d+)(st|nd|rd|th)/gi, '$1');
+    
+    if (format === 'compact') {
+        return formatted.replace(/\s+/g, ''); // "10 A" -> "10A"
+    } else if (format === 'hyphenated') {
+        // Replace spaces with hyphens
+        return formatted.trim().replace(/\s+/g, '-'); // "10 A" -> "10-A"
+    }
+    
+    return name;
+};
+
 export const generateTeachersTimetableSummaryHtml = (
     session: TimetableSession,
     schoolConfig: SchoolConfig,
@@ -1985,10 +2001,10 @@ export const generateTeachersTimetableSummaryHtml = (
         };
     });
 
-    const tableStyles = `width: 100%; border-collapse: collapse; table-layout: fixed; font-family: ${design.table.fontFamily}; font-size: ${design.table.fontSize}px; line-height: ${design.table.lineHeight};`;
-    const thStyles = `border: ${design.table.borderWidth}px ${design.table.gridStyle} ${design.table.borderColor}; padding: ${design.table.cellPadding}px; text-align: center; background-color: ${design.table.headerBgColor}; color: ${design.table.headerColor}; font-size: ${design.table.headerFontSize}px; font-weight: bold;`;
-    const tdStyles = `border: ${design.table.borderWidth}px ${design.table.gridStyle} ${design.table.borderColor}; padding: ${design.table.cellPadding}px; text-align: center; color: ${design.table.bodyColor}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;`;
-    const teacherColStyles = `width: ${design.table.periodColumnWidth * 2}px; text-align: left; padding-left: 5px; font-weight: bold;`;
+    const tableStyles = `width: 100%; border-collapse: collapse; table-layout: fixed; font-family: '${design.table.fontFamily}', sans-serif; font-size: ${design.table.fontSize}px; line-height: ${design.table.lineHeight || 1.2};`;
+    const thStyles = `border: ${design.table.borderWidth}px ${design.table.gridStyle} ${design.table.borderColor}; padding: ${design.table.cellPadding}px; text-align: center; background-color: ${design.table.headerBgColor}; color: ${design.table.headerColor}; font-size: ${design.table.headerFontSize}px; font-weight: bold; line-height: ${design.table.lineHeight || 1.2};`;
+    const tdStyles = `border: ${design.table.borderWidth}px ${design.table.gridStyle} ${design.table.borderColor}; padding: ${design.table.cellPadding}px; text-align: center; color: ${design.table.bodyColor}; font-size: ${design.table.fontSize}px; overflow: hidden; word-wrap: break-word; white-space: normal; line-height: ${design.table.lineHeight || 1.2};`;
+    const teacherColStyles = `width: ${design.table.periodColumnWidth * 2.5}px; text-align: left; padding-left: 5px; font-weight: bold;`;
 
     const rowsPerPage = design.rowsPerPage || (summaryType === 'allDays' ? 25 : 40);
     const rowsPerFirstPage = design.rowsPerFirstPage || rowsPerPage;
@@ -2032,18 +2048,19 @@ export const generateTeachersTimetableSummaryHtml = (
                 
                 dayPeriods.forEach(dp => {
                     for (let periodIndex = 0; periodIndex < dp.maxPeriods; periodIndex++) {
-                        let assignedClass = '';
+                        let assignedClasses: string[] = [];
                         for (const cls of session.classes) {
                             const dayData = cls.timetable[dp.day as keyof TimetableGridData];
                             if (dayData && dayData[periodIndex]) {
                                 const slot = dayData[periodIndex];
                                 if (slot.some(p => p.teacherId === teacher.id)) {
-                                    assignedClass = isUrdu ? cls.nameUr || cls.nameEn : cls.nameEn;
-                                    break;
+                                    let cName = isUrdu ? cls.nameUr || cls.nameEn : cls.nameEn;
+                                    assignedClasses.push(formatClassName(cName, design.table.classNameFormat));
                                 }
                             }
                         }
-                        tableHtml += `<td style="${tdStyles}">${assignedClass}</td>`;
+                        const assignedClassText = assignedClasses.join(', ');
+                        tableHtml += `<td style="${tdStyles}">${assignedClassText}</td>`;
                     }
                 });
                 tableHtml += `</tr>`;
@@ -2077,18 +2094,19 @@ export const generateTeachersTimetableSummaryHtml = (
                     const rowBg = index % 2 === 0 ? 'transparent' : (design.table.altRowColor || 'transparent');
                     tableHtml += `<tr style="background-color: ${rowBg}"><td style="${tdStyles} ${teacherColStyles}">${isUrdu ? teacher.nameUr || teacher.nameEn : teacher.nameEn}</td>`;
                     for (let periodIndex = 0; periodIndex < dp.maxPeriods; periodIndex++) {
-                        let assignedClass = '';
+                        let assignedClasses: string[] = [];
                         for (const cls of session.classes) {
                             const dayData = cls.timetable[dp.day as keyof TimetableGridData];
                             if (dayData && dayData[periodIndex]) {
                                 const slot = dayData[periodIndex];
                                 if (slot.some(p => p.teacherId === teacher.id)) {
-                                    assignedClass = isUrdu ? cls.nameUr || cls.nameEn : cls.nameEn;
-                                    break;
+                                    let cName = isUrdu ? cls.nameUr || cls.nameEn : cls.nameEn;
+                                    assignedClasses.push(formatClassName(cName, design.table.classNameFormat));
                                 }
                             }
                         }
-                        tableHtml += `<td style="${tdStyles}">${assignedClass}</td>`;
+                        const assignedClassText = assignedClasses.join(', ');
+                        tableHtml += `<td style="${tdStyles}">${assignedClassText}</td>`;
                     }
                     tableHtml += `</tr>`;
                 });

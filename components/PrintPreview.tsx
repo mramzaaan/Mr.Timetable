@@ -64,6 +64,20 @@ const fontOptions: { label: string, value: FontFamily }[] = [
     { label: 'System Default', value: 'sans-serif' as FontFamily },
     { label: 'Serif', value: 'serif' as FontFamily },
     { label: 'Monospace', value: 'monospace' as FontFamily },
+    { label: 'Bebas Neue', value: 'Bebas Neue' as FontFamily },
+    { label: 'Fjalla One', value: 'Fjalla One' as FontFamily },
+    { label: 'Oswald', value: 'Oswald' as FontFamily },
+    { label: 'Playfair Display', value: 'Playfair Display' as FontFamily },
+    { label: 'Zeyada', value: 'Zeyada' as FontFamily },
+    { label: 'League Gothic', value: 'League Gothic' as FontFamily },
+    { label: 'Amatic SC', value: 'Amatic SC' as FontFamily },
+    { label: 'Yellowtail', value: 'Yellowtail' as FontFamily },
+    { label: 'Instrument Serif', value: 'Instrument Serif' as FontFamily },
+    { label: 'Gulzar', value: 'Gulzar' as FontFamily },
+    { label: 'Noto Nastaliq Urdu', value: 'Noto Nastaliq Urdu' as FontFamily },
+    { label: 'Pinyon Script', value: 'Pinyon Script' as FontFamily },
+    { label: 'Italianno', value: 'Italianno' as FontFamily },
+    { label: 'Alex Brush', value: 'Alex Brush' as FontFamily },
 ];
 
 const cardStyleOptions: { label: string, value: CardStyle }[] = [
@@ -226,10 +240,11 @@ const SettingsSidebar: React.FC<{
     onSaveDesign: (options: DownloadDesignConfig) => void,
     resetToDefaults: () => void,
     activeElement: HTMLElement | null,
-    activeElementStyles: { fontSize: string, fontFamily: string, color: string, backgroundColor: string, textAlign: string },
+    activeElementStyles: { fontSize: string, fontFamily: string, color: string, backgroundColor: string, textAlign: string, fontWeight: string },
     onApplyStyle: (property: string, value: string) => void,
     onExecCmd: (cmd: string, val?: string) => void,
-}> = ({ options, onUpdate, onSaveDesign, resetToDefaults, activeElement, activeElementStyles, onApplyStyle, onExecCmd }) => {
+    onToggleBold: () => void,
+}> = ({ options, onUpdate, onSaveDesign, resetToDefaults, activeElement, activeElementStyles, onApplyStyle, onExecCmd, onToggleBold }) => {
     const [activeSection, setActiveSection] = useState<'page' | 'header' | 'table' | 'footer' | 'edit' | 'visibility' | 'presets' | null>('page');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -502,6 +517,7 @@ const SettingsSidebar: React.FC<{
                             <SelectInput label="Grid Style" path="table.gridStyle" value={options.table.gridStyle} options={[{value:'solid', label:'Solid'}, {value:'dashed', label:'Dashed'}, {value:'dotted', label:'Dotted'}]} onChange={handleValueChange} />
                             <SelectInput label="Vertical Align" path="table.verticalAlign" value={options.table.verticalAlign} options={[{value:'top', label:'Top'}, {value:'middle', label:'Middle'}, {value:'bottom', label:'Bottom'}]} onChange={handleValueChange} />
                             <ToggleInput label="Merge Identical" path="table.mergeIdenticalPeriods" value={options.table.mergeIdenticalPeriods ?? true} onChange={handleValueChange} />
+                            <SelectInput label="Class Name Format" path="table.classNameFormat" value={options.table.classNameFormat || 'default'} options={[{value: 'default', label: 'Default (10th A)'}, {value: 'compact', label: 'Compact (10A)'}, {value: 'hyphenated', label: 'Hyphenated (10-A)'}]} onChange={handleValueChange} />
                             <NumberInput label="Period Font Size" path="table.periodFontSize" value={options.table.periodFontSize || 12} min={6} max={36} onChange={handleValueChange} />
                             <ToggleInput label="Show Period Time" path="table.showPeriodTime" value={options.table.showPeriodTime ?? false} onChange={handleValueChange} />
                             {options.table.showPeriodTime && (
@@ -613,7 +629,7 @@ const SettingsSidebar: React.FC<{
 
                         <ControlGroup label="Formatting">
                             <div className="flex gap-2 mb-3">
-                                <button onClick={() => onExecCmd('bold')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.Bold /></button>
+                                <button onClick={onToggleBold} disabled={!activeElement} className={`flex-1 py-2 rounded-full flex justify-center transition-colors disabled:opacity-50 ${activeElementStyles.fontWeight === 'bold' || parseInt(activeElementStyles.fontWeight) >= 600 ? 'bg-teal-600 text-white' : 'bg-[#1a1d21] text-gray-300 hover:text-white hover:bg-[#2a2d33]'}`}><Icons.Bold /></button>
                                 <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.Italic /></button>
                             </div>
                             <div className="flex gap-2">
@@ -660,7 +676,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeElement, setActiveElement] = useState<HTMLElement | null>(null);
   const [activeElementStyles, setActiveElementStyles] = useState({
-      fontSize: '', fontFamily: '', color: '', backgroundColor: '', textAlign: ''
+      fontSize: '', fontFamily: '', color: '', backgroundColor: '', textAlign: '', fontWeight: ''
   });
   
   // State for collapsible panels - Default closed
@@ -774,7 +790,8 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               fontFamily: computed.fontFamily,
               color: computed.color,
               backgroundColor: computed.backgroundColor,
-              textAlign: computed.textAlign
+              textAlign: computed.textAlign,
+              fontWeight: computed.fontWeight
           });
           e.stopPropagation();
       } else {
@@ -797,6 +814,19 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       if (cmd === 'foreColor' && val) setActiveElementStyles(prev => ({...prev, color: val}));
       if (cmd === 'hiliteColor' && val) setActiveElementStyles(prev => ({...prev, backgroundColor: val}));
       saveManualEdit();
+  };
+
+  const toggleBold = () => {
+      if (activeElement) {
+          const currentWeight = window.getComputedStyle(activeElement).fontWeight;
+          const isBold = currentWeight === 'bold' || parseInt(currentWeight) >= 600;
+          const newWeight = isBold ? 'normal' : 'bold';
+          activeElement.style.fontWeight = newWeight;
+          setActiveElementStyles(prev => ({ ...prev, fontWeight: newWeight }));
+          saveManualEdit();
+      } else {
+          execCmd('bold');
+      }
   };
 
   const resetToDefaults = () => { handleDesignUpdate(designConfig); };
@@ -846,10 +876,11 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               tempContainer.appendChild(styleEl);
 
               await document.fonts.ready;
-              await new Promise(r => setTimeout(r, 400));
+              // Reduced timeout to prevent user gesture expiration for navigator.share
+              await new Promise(r => setTimeout(r, 50));
 
               generatedBlob = await toBlob(tempContainer, {
-                  pixelRatio: 2,
+                  pixelRatio: 1.5, // Reduced from 2 to speed up generation
                   backgroundColor: '#ffffff',
                   style: {
                       transform: options.contentScale ? `scale(${options.contentScale})` : 'none',
@@ -938,7 +969,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               
               // Ensure fonts are loaded
               await document.fonts.ready;
-              await new Promise(r => setTimeout(r, 200));
+              await new Promise(r => setTimeout(r, 50));
 
               // Temporarily apply visibility styles
               const styleEl = document.createElement('style');
@@ -950,7 +981,8 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               tempContainer.appendChild(styleEl);
 
               const imgData = await toJpeg(tempContainer, {
-                  pixelRatio: 1.5,
+                  pixelRatio: 1.2, // Reduced from 1.5 to reduce PDF size
+                  quality: 0.8, // Added quality parameter to compress JPEG
                   backgroundColor: '#ffffff',
                   style: {
                       transform: options.contentScale ? `scale(${options.contentScale})` : 'none',
@@ -1081,6 +1113,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                     activeElementStyles={activeElementStyles}
                     onApplyStyle={applyStyle}
                     onExecCmd={execCmd}
+                    onToggleBold={toggleBold}
                 />
             </div>
         </div>

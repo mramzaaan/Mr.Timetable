@@ -204,7 +204,7 @@ export interface SchoolClass {
 
 export type DownloadFormat = 'pdf-full' | 'pdf-summary' | 'excel';
 export type DownloadLanguage = 'en' | 'ur' | 'both';
-export type FontFamily = 'sans-serif' | 'serif' | 'monospace';
+export type FontFamily = 'sans-serif' | 'serif' | 'monospace' | 'Bebas Neue' | 'Fjalla One' | 'Oswald' | 'Playfair Display' | 'Zeyada' | 'League Gothic' | 'Amatic SC' | 'Yellowtail' | 'Instrument Serif' | 'Gulzar' | 'Noto Nastaliq Urdu' | 'Pinyon Script' | 'Italianno' | 'Alex Brush';
 
 export type CardStyle = 'full' | 'outline' | 'text' | 'triangle' | 'glass' | 'gradient' | 'minimal-left' | 'badge';
 export type TriangleCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -278,6 +278,7 @@ export interface DownloadDesignConfig {
         periodTimePosition?: 'above' | 'below' | 'left' | 'right';
         periodTimeRotation?: '0' | '90' | '180' | '270';
         periodTimeFontSize?: number;
+        classNameFormat?: 'default' | 'compact' | 'hyphenated';
     };
     footer: {
         show: boolean;
@@ -319,12 +320,14 @@ export interface DownloadDesigns {
     basicInfo: DownloadDesignConfig;
     attendance: DownloadDesignConfig; // New key for Attendance Report
     schoolTimings: DownloadDesignConfig;
+    teachersTimetableSummary: DownloadDesignConfig;
 }
 
 export interface SchoolConfig {
   schoolNameEn: string;
   schoolNameUr: string;
   schoolLogoBase64: string | null;
+  appFontFamily?: FontFamily;
   downloadDesigns: DownloadDesigns;
   daysConfig: Record<keyof TimetableGridData, DayConfig>;
   periodTimings: {

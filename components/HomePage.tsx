@@ -1085,14 +1085,18 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
           fileNameBase="Teachers_Timetable_Summary"
           generateHtml={(lang, options) => generateTeachersTimetableSummaryHtml(currentTimetableSession, schoolConfig, lang, teachersTimetableSummaryType, selectedDaysForSummary, options)}
           designConfig={{
-              ...schoolConfig.downloadDesigns.basicInfo,
+              ...(schoolConfig.downloadDesigns.teachersTimetableSummary || {
+                  ...schoolConfig.downloadDesigns.basicInfo,
+                  header: { ...schoolConfig.downloadDesigns.basicInfo.header, showDate: false },
+                  table: { ...schoolConfig.downloadDesigns.basicInfo.table, fontSize: 10, headerFontSize: 12 }
+              }),
               page: {
-                  ...schoolConfig.downloadDesigns.basicInfo.page,
+                  ...(schoolConfig.downloadDesigns.teachersTimetableSummary?.page || schoolConfig.downloadDesigns.basicInfo.page),
                   orientation: teachersTimetableSummaryType === 'allDays' ? 'landscape' : 'portrait'
               }
           }}
           onSaveDesign={(newDesign) => {
-              // We don't have a specific save slot for this yet, but we can just update basicInfo or ignore
+              onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, teachersTimetableSummary: newDesign } });
           }}
         />
       )}

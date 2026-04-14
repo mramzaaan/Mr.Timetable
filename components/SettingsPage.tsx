@@ -73,6 +73,20 @@ const appFontOptions = [
     { label: 'Sans-Serif', value: 'sans-serif' },
     { label: 'Serif', value: 'serif' },
     { label: 'Monospace', value: 'monospace' },
+    { label: 'Bebas Neue', value: 'Bebas Neue' },
+    { label: 'Fjalla One', value: 'Fjalla One' },
+    { label: 'Oswald', value: 'Oswald' },
+    { label: 'Playfair Display', value: 'Playfair Display' },
+    { label: 'Zeyada', value: 'Zeyada' },
+    { label: 'League Gothic', value: 'League Gothic' },
+    { label: 'Amatic SC', value: 'Amatic SC' },
+    { label: 'Yellowtail', value: 'Yellowtail' },
+    { label: 'Instrument Serif', value: 'Instrument Serif' },
+    { label: 'Gulzar', value: 'Gulzar' },
+    { label: 'Noto Nastaliq Urdu', value: 'Noto Nastaliq Urdu' },
+    { label: 'Pinyon Script', value: 'Pinyon Script' },
+    { label: 'Italianno', value: 'Italianno' },
+    { label: 'Alex Brush', value: 'Alex Brush' },
 ];
 
 const AboutIcon = () => (
@@ -504,6 +518,30 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                         >
                                             اردو
                                         </button>
+                                    </div>
+                                </div>
+
+                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
+                                    <div>
+                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">App Font</h5>
+                                        <p className="text-xs text-[var(--text-secondary)]">Select the global font for the application</p>
+                                    </div>
+                                    <div className="relative">
+                                        <select
+                                            value={appFont}
+                                            onChange={(e) => setAppFont(e.target.value)}
+                                            className="appearance-none bg-[var(--bg-primary)] border border-[var(--border-secondary)] text-[var(--text-primary)] text-sm rounded-lg focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] block w-48 p-2.5 pr-8"
+                                            style={{ fontFamily: appFont || 'inherit' }}
+                                        >
+                                            {appFontOptions.map(font => (
+                                                <option key={font.value} value={font.value} style={{ fontFamily: font.value || 'inherit' }}>
+                                                    {font.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[var(--text-secondary)]">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
                                     </div>
                                 </div>
 

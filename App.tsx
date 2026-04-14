@@ -66,21 +66,22 @@ const hexToRgba = (hex: string, alpha: number) => {
 
 const defaultDesignV3: DownloadDesignConfig = {
     version: 3,
-    page: { size: 'a4', orientation: 'portrait', margins: { top: 4, right: 4, bottom: 4, left: 4 }, watermarkOpacity: 0.07 },
+    page: { size: 'a4', orientation: 'portrait', margins: { top: 3, right: 3, bottom: 3, left: 3 }, watermarkOpacity: 0.07 },
     header: { showLogo: true, logoSize: 80, logoPosition: 'left', schoolName: { fontFamily: 'sans-serif', fontSize: 24, fontWeight: 'bold', align: 'left', color: '#000000' }, showTitle: true, title: { fontFamily: 'sans-serif', fontSize: 18, fontWeight: 'bold', align: 'left', color: '#444444' }, details: { fontFamily: 'sans-serif', fontSize: 14, fontWeight: 'normal', align: 'left', color: '#000000' }, divider: true, bgColor: '#FFFFFF' },
     table: { fontFamily: 'sans-serif', fontSize: 14, cellPadding: 8, headerBgColor: '#1e293b', headerColor: '#FFFFFF', bodyBgColor: '#FFFFFF', bodyColor: '#000000', borderColor: '#000000', periodColumnWidth: 40, periodColumnBgColor: '#f1f5f9', periodColumnColor: '#000000', altRowColor: '#FFFFFF', gridStyle: 'solid', borderWidth: 1, headerFontSize: 14, cardStyle: 'minimal-left', triangleCorner: 'bottom-left', outlineWidth: 2 },
-    footer: { show: false, text: 'Mr.🇵🇰', fontFamily: 'sans-serif', fontSize: 12, align: 'center', includePageNumber: false, color: '#4b5563', includeTimestamp: false, includeDate: false, appNamePlacement: 'center', datePlacement: 'hidden', pageNumberPlacement: 'right' },
+    footer: { show: true, text: 'Mr.🇵🇰', fontFamily: 'sans-serif', fontSize: 12, align: 'center', includePageNumber: false, color: '#4b5563', includeTimestamp: false, includeDate: true, appNamePlacement: 'left', datePlacement: 'right', pageNumberPlacement: 'center' },
     colorMode: 'color', rowsPerPage: 50, rowsPerFirstPage: 50, daysPerPage: 7, watermarkText: '', compactMode: false,
     visibleElements: { teacherName: true, subjectName: true, roomNumber: true }, contentScale: 1,
 };
 const defaultDownloadDesigns: DownloadDesigns = { 
-    class: { ...defaultDesignV3, page: { ...defaultDesignV3.page, orientation: 'landscape' } }, 
+    class: { ...defaultDesignV3, page: { ...defaultDesignV3.page, orientation: 'landscape', size: 'legal' } }, 
     teacher: { ...defaultDesignV3, page: { ...defaultDesignV3.page, orientation: 'landscape' } }, 
     workload: { ...defaultDesignV3, page: { ...defaultDesignV3.page, orientation: 'portrait' }, table: { ...defaultDesignV3.table, cellPadding: 1 } },
     alternative: { ...defaultDesignV3, table: { ...defaultDesignV3.table, cellPadding: 0, fontSize: 13, fontFamily: 'sans-serif', verticalAlign: 'middle' } }, 
     adjustments: { ...defaultDesignV3, table: { ...defaultDesignV3.table, fontFamily: 'sans-serif', fontSize: 13, cellPadding: 0, altRowColor: '#f5f5f5' } },
     basicInfo: { ...defaultDesignV3, table: { ...defaultDesignV3.table, cellPadding: 2, fontSize: 16 } }, 
     attendance: { ...defaultDesignV3, table: { ...defaultDesignV3.table, cellPadding: 4, fontSize: 14 } }, 
+    teachersTimetableSummary: { ...defaultDesignV3, header: { ...defaultDesignV3.header, showDate: false }, table: { ...defaultDesignV3.table, cellPadding: 2, fontSize: 10, headerFontSize: 12 }, page: { ...defaultDesignV3.page, orientation: 'landscape' } },
     schoolTimings: { 
         ...defaultDesignV3, 
         header: {
@@ -165,7 +166,7 @@ const App: React.FC = () => {
     const [navBarColor, setNavBarColor] = useState<string>(() => (localStorage.getItem('mrtimetable_navBarColor') || ''));
 
     const [fontSize, setFontSize] = useState<number>(() => { const saved = localStorage.getItem('mrtimetable_fontSize'); return saved ? parseInt(saved, 10) : 13; });
-    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || ''));
+    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || 'Gulzar'));
     const [isSchoolInfoModalOpen, setIsSchoolInfoModalOpen] = useState(false);
 
     const [history, setHistory] = useState<UserData[]>(() => {
@@ -335,12 +336,12 @@ const App: React.FC = () => {
     useEffect(() => { localStorage.setItem('mrtimetable_fontSize', fontSize.toString()); document.documentElement.style.fontSize = `${fontSize}px`; }, [fontSize]);
     useEffect(() => { localStorage.removeItem('mrtimetable_customFontData'); }, []);
     useEffect(() => {
-        localStorage.setItem('mrtimetable_appFont', 'sans-serif');
+        localStorage.setItem('mrtimetable_appFont', appFont);
         const styleId = 'global-app-font-style';
         let style = document.getElementById(styleId);
         if (!style) { style = document.createElement('style'); style.id = styleId; document.head.appendChild(style); }
         
-        style.innerHTML = `:root { --font-app-primary: sans-serif; } body { font-family: var(--font-app-primary); } button, input, select, textarea { font-family: var(--font-app-primary); }`;
+        style.innerHTML = `:root { --font-app-primary: ${appFont ? `'${appFont}', sans-serif` : 'sans-serif'}; } body { font-family: var(--font-app-primary); } button, input, select, textarea { font-family: var(--font-app-primary); }`;
     }, [appFont]);
     
     useEffect(() => { localStorage.setItem('mrtimetable_userData', JSON.stringify(userData)); }, [userData]);

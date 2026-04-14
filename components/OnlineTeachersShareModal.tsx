@@ -77,7 +77,7 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
         let generatedBlob: Blob | null = null;
         try {
             generatedBlob = await toBlob(contentRef.current, {
-                pixelRatio: 2,
+                pixelRatio: 1.5, // Reduced from 2 to speed up generation
                 backgroundColor: '#ffffff'
             });
 
