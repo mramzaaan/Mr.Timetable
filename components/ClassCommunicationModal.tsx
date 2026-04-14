@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { toBlob } from 'html-to-image';
 import type { SchoolClass, Teacher, Subject, SchoolConfig, CardStyle, TriangleCorner } from '../types';
 import { allDays } from '../types';
+import { translations } from '../i18n';
 
 
 
@@ -105,6 +106,12 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
   const [selectedCardStyle, setSelectedCardStyle] = useState<CardStyle>('minimal-left');
   const [selectedTriangleCorner, setSelectedTriangleCorner] = useState<TriangleCorner>(schoolConfig.downloadDesigns.class.table.triangleCorner || 'bottom-left');
   const [badgeTarget, setBadgeTarget] = useState<'subject' | 'teacher'>('subject');
+  
+  const [headerTextScale, setHeaderTextScale] = useState(1.0);
+  const [footerTextScale, setFooterTextScale] = useState(1.0);
+  const [subjectTextScale, setSubjectTextScale] = useState(1.0);
+  const [periodTextScale, setPeriodTextScale] = useState(1.0);
+  const [isUrdu, setIsUrdu] = useState(false);
 
   // State for preview HTML
   const [previewHtml, setPreviewHtml] = useState<string>('');
@@ -193,6 +200,11 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
            headerStyleCss = `color: ${themeColors.text}; padding: 10px 0;`;
       }
 
+      const schoolName = isUrdu && schoolConfig.schoolNameUr ? schoolConfig.schoolNameUr : schoolConfig.schoolNameEn;
+      const className = isUrdu && selectedClass.nameUr ? selectedClass.nameUr : selectedClass.nameEn;
+      const inChargeName = inChargeTeacher ? (isUrdu && inChargeTeacher.nameUr ? inChargeTeacher.nameUr : inChargeTeacher.nameEn) : '-';
+      const roomLabel = isUrdu ? 'کمرہ:' : 'Rm:';
+
       const styles = `
         <style>
           * { 
@@ -206,7 +218,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           body { margin: 0; padding: 0; overflow: hidden; background: #fff; }
           .timetable-image-container {
             background: #ffffff;
-            padding: 30px;
+            padding: 20px;
             width: ${width}px;
             height: ${height}px;
             color: #000000;
@@ -244,21 +256,21 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           
           .img-header {
             flex-shrink: 0;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border-bottom: 3px solid ${themeColors.accent};
-            padding-bottom: 15px;
+            padding-bottom: 10px;
           }
 
           .img-school-name { 
             font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
             font-weight: 900;
-            font-size: 44px; 
+            font-size: ${44 * headerTextScale}px; 
             color: ${themeColors.accent}; 
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 1px;
             line-height: 1.2;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             white-space: nowrap;
             overflow: visible;
             width: 100%;
@@ -269,11 +281,11 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             justify-content: space-between;
             align-items: flex-end;
             padding: 0 10px;
-            margin-top: 10px;
+            margin-top: 5px;
           }
           
           .info-class-name { 
-            font-size: 36px; 
+            font-size: ${36 * headerTextScale}px; 
             font-weight: 900; 
             text-transform: uppercase; 
             line-height: 1.2;
@@ -281,7 +293,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           }
           
           .info-stats-side { 
-            font-size: 22px;
+            font-size: ${22 * headerTextScale}px;
             font-weight: 700;
             color: #64748b;
             text-transform: uppercase;
@@ -289,12 +301,12 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             padding-bottom: 5px;
           }
 
-          .compact-val { color: #1e293b; font-weight: 900; font-size: 24px; }
+          .compact-val { color: #1e293b; font-weight: 900; font-size: ${24 * headerTextScale}px; }
 
           .img-table-wrapper {
             width: 100%;
             border: 2px solid ${themeColors.accent};
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -312,13 +324,13 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             color: ${themeColors.accent}; 
             font-weight: 900; 
             text-transform: uppercase;
-            padding: 8px 4px;
-            font-size: 20px;
+            padding: 6px 4px;
+            font-size: ${20 * periodTextScale}px;
             line-height: 1.2;
             letter-spacing: 0.025em;
             border: 1px solid ${themeColors.accent}; 
             height: auto;
-            min-height: 40px;
+            min-height: 30px;
           }
           .img-table th:first-child { width: 45px; background: #ffffff; }
           
@@ -326,7 +338,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             background-color: #f8fafc; 
             color: ${themeColors.accent}; 
             font-weight: 900; 
-            font-size: 40px;
+            font-size: ${40 * periodTextScale}px;
             text-align: center;
             vertical-align: middle;
             line-height: 1.2;
@@ -337,10 +349,10 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
 
           .period-time-label {
              display: block;
-             font-size: 14px;
+             font-size: ${14 * periodTextScale}px;
              font-weight: 800;
              color: #000000;
-             margin-bottom: 4px;
+             margin-bottom: 2px;
              line-height: 1.2;
              white-space: pre;
           }
@@ -382,7 +394,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             max-height: 2.4em;
             overflow: hidden;
             font-weight: 900; 
-            font-size: 18px;
+            font-size: ${14 * 1.2 * subjectTextScale}px;
             text-transform: none; 
             line-height: 1.2;
             text-align: left;
@@ -396,7 +408,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             overflow: hidden;
             font-weight: 800; 
             opacity: 0.95; 
-            font-size: 14px;
+            font-size: ${14 * subjectTextScale}px;
             line-height: 1.2;
             text-align: right;
             margin: 0;
@@ -454,7 +466,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
              display: flex;
              justify-content: space-between;
              align-items: center;
-             font-size: 12px; 
+             font-size: ${12 * footerTextScale}px; 
              color: #000000; 
              font-weight: 700; 
              text-transform: uppercase;
@@ -486,12 +498,12 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                   // Aggregate data for merged card
                   const subjectNames = sortedPeriods.map(p => {
                       const sub = subjects.find(s => s.id === p.subjectId);
-                      return abbreviateName(sub?.nameEn);
+                      return abbreviateName(isUrdu && sub?.nameUr ? sub.nameUr : sub?.nameEn);
                   }).join(' / ');
 
                   const teacherNames = sortedPeriods.map(p => {
                       const tea = teachers.find(t => t.id === p.teacherId);
-                      return abbreviateName(tea?.nameEn);
+                      return abbreviateName(isUrdu && tea?.nameUr ? tea.nameUr : tea?.nameEn);
                   }).join(' / ');
 
                   // Use color of the first period's teacher
@@ -626,17 +638,17 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
       });
 
       return `
-        <div class="timetable-image-container">
+        <div class="timetable-image-container ${isUrdu ? 'font-urdu' : ''}" dir="${isUrdu ? 'rtl' : 'ltr'}">
           ${styles}
           <div class="img-header">
-            <div class="img-school-name">${schoolConfig.schoolNameEn}</div>
+            <div class="img-school-name">${schoolName}</div>
             <div class="header-info-row">
-                <div class="info-stats-side" style="text-align: left;">
-                    Rm: <span class="compact-val">${selectedClass.roomNumber || '-'}</span>
+                <div class="info-stats-side" style="text-align: ${isUrdu ? 'right' : 'left'};">
+                    ${roomLabel} <span class="compact-val">${selectedClass.roomNumber || '-'}</span>
                 </div>
-                <div class="info-class-name">${selectedClass.nameEn}</div>
-                <div class="info-stats-side" style="text-align: right;">
-                    IC: <span class="compact-val">${inChargeTeacher?.nameEn || '-'}</span>
+                <div class="info-class-name">${className}</div>
+                <div class="info-stats-side" style="text-align: ${isUrdu ? 'left' : 'right'};">
+                    <span class="compact-val">${inChargeName}</span>
                 </div>
             </div>
           </div>
@@ -645,15 +657,15 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                 <thead>
                 <tr>
                     <th style="width: 45px"></th>
-                    ${activeDays.map(day => `<th>${t[day.toLowerCase()].substring(0,3)}</th>`).join('')}
+                    ${activeDays.map(day => `<th>${isUrdu ? (translations.ur as any)[day.toLowerCase()] : t[day.toLowerCase()].substring(0,3)}</th>`).join('')}
                 </tr>
                 </thead>
                 <tbody>${tableRows}</tbody>
             </table>
           </div>
           <div class="footer-watermark">
-            <span>OFFICIAL CLASS SCHEDULE</span>
-            <span style="font-weight: 900; color: ${themeColors.accent}; font-size: 14px;">Generated by Mr. 🇵🇰</span>
+            <span>${isUrdu ? 'آفیشل کلاس ٹائم ٹیبل' : 'OFFICIAL CLASS SCHEDULE'}</span>
+            <span style="font-weight: 900; color: ${themeColors.accent}; font-size: ${14 * footerTextScale}px;">${isUrdu ? 'Mr. 🇵🇰 کی طرف سے تیار کردہ' : 'Generated by Mr. 🇵🇰'}</span>
             <span>${currentTimestamp}</span>
           </div>
         </div>
@@ -666,7 +678,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
         const html = generateTimetableImageHtml();
         setPreviewHtml(html);
     }
-  }, [isOpen, selectedCardStyle, selectedTriangleCorner, badgeTarget, mergePatterns, showStartTimes, selectedClass, themeColors]);
+  }, [isOpen, selectedCardStyle, selectedTriangleCorner, badgeTarget, mergePatterns, showStartTimes, selectedClass, themeColors, headerTextScale, footerTextScale, subjectTextScale, periodTextScale, isUrdu]);
 
   // Adjust scale based on container width
   useEffect(() => {
@@ -818,7 +830,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[101] p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-[#1a2333] rounded-xl shadow-2xl w-full max-w-[95vw] md:max-w-[90vw] lg:max-w-4xl xl:max-w-5xl flex flex-col border border-white/10 max-h-[95vh] overflow-hidden transition-all" onClick={e => e.stopPropagation()}>
+      <div className="bg-[#1a2333] rounded-xl shadow-2xl w-full max-w-[95vw] md:max-w-2xl lg:max-w-3xl flex flex-col border border-white/10 max-h-[95vh] overflow-hidden transition-all" onClick={e => e.stopPropagation()}>
         
         {/* Header */}
         <div className="p-5 border-b border-white/10 bg-[#252f44] flex-shrink-0 flex justify-between items-center">
@@ -830,6 +842,15 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             </div>
             
             <div className="flex items-center gap-3">
+                 <div className="flex items-center gap-2 bg-[#1a2333] px-3 py-1.5 rounded-lg border border-white/5 shadow-inner">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Urdu</span>
+                    <button 
+                        onClick={() => setIsUrdu(!isUrdu)}
+                        className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isUrdu ? 'bg-blue-600' : 'bg-gray-600'}`}
+                    >
+                        <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isUrdu ? 'translate-x-3' : 'translate-x-0'}`} />
+                    </button>
+                </div>
                  <div className="flex items-center gap-2 bg-[#1a2333] px-3 py-1.5 rounded-lg border border-white/5 shadow-inner">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Time</span>
                     <button 
@@ -886,6 +907,42 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             {/* Controls Section - Moved below Preview */}
             <div className="max-w-2xl mx-auto space-y-6 pb-4">
                 
+                {/* Text Size Section */}
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400">Header Size</label>
+                        <div className="flex items-center gap-2 bg-[#0f172a] rounded-lg border border-white/10 p-1">
+                            <button onClick={() => setHeaderTextScale(s => Math.max(0.5, s - 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold">-</button>
+                            <div className="flex-1 text-center text-white text-xs font-bold">{Math.round(headerTextScale * 100)}%</div>
+                            <button onClick={() => setHeaderTextScale(s => Math.min(2.0, s + 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold">+</button>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400">Footer Size</label>
+                        <div className="flex items-center gap-2 bg-[#0f172a] rounded-lg border border-white/10 p-1">
+                            <button onClick={() => setFooterTextScale(s => Math.max(0.5, s - 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold">-</button>
+                            <div className="flex-1 text-center text-white text-xs font-bold">{Math.round(footerTextScale * 100)}%</div>
+                            <button onClick={() => setFooterTextScale(s => Math.min(2.0, s + 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold">+</button>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400">Subject/Teacher Size</label>
+                        <div className="flex items-center gap-2 bg-[#0f172a] rounded-lg border border-white/10 p-1">
+                            <button onClick={() => setSubjectTextScale(s => Math.max(0.5, s - 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold">-</button>
+                            <div className="flex-1 text-center text-white text-xs font-bold">{Math.round(subjectTextScale * 100)}%</div>
+                            <button onClick={() => setSubjectTextScale(s => Math.min(2.0, s + 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold">+</button>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400">Period/Time Size</label>
+                        <div className="flex items-center gap-2 bg-[#0f172a] rounded-lg border border-white/10 p-1">
+                            <button onClick={() => setPeriodTextScale(s => Math.max(0.5, s - 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold">-</button>
+                            <div className="flex-1 text-center text-white text-xs font-bold">{Math.round(periodTextScale * 100)}%</div>
+                            <button onClick={() => setPeriodTextScale(s => Math.min(2.0, s + 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold">+</button>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Card Design Section */}
                 <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Card Design</label>
@@ -926,20 +983,20 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                 </div>
 
                 {/* Buttons */}
-                <div className="flex gap-3 w-full">
-                    <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-14 flex items-center justify-center gap-2 px-2 text-sm font-black uppercase tracking-wider bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 shadow-lg transition-all transform active:scale-95 hover:-translate-y-0.5">
+                <div className="flex gap-2 w-full mt-2">
+                    <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[10px] font-black uppercase tracking-wider bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
                         {isGenerating ? (
-                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         ) : (
                             <>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
                             <span>Send Picture</span>
                             </>
                         )}
                     </button>
-                    <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-14 flex items-center justify-center gap-2 px-2 text-sm font-black uppercase tracking-wider bg-[#128C7E] text-white rounded-xl hover:bg-[#075e54] disabled:opacity-50 shadow-lg transition-all transform active:scale-95 hover:-translate-y-0.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>
-                        <span>SEND VIA WHATSAPP</span>
+                    <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[10px] font-black uppercase tracking-wider bg-[#128C7E] text-white rounded-md hover:bg-[#075e54] disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>
+                        <span>WhatsApp</span>
                     </button>
                 </div>
             </div>
