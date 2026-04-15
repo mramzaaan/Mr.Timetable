@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { toBlob } from 'html-to-image';
 import type { Teacher, Subject, SchoolClass, SchoolConfig, TimetableGridData, Period, CardStyle, TriangleCorner } from '../types';
 import { allDays } from '../types';
+import { translations } from '../i18n';
 
 
 
@@ -101,6 +102,11 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
   const [selectedCardStyle, setSelectedCardStyle] = useState<CardStyle>('minimal-left');
   const [selectedTriangleCorner, setSelectedTriangleCorner] = useState<TriangleCorner>(schoolConfig.downloadDesigns.teacher.table.triangleCorner || 'bottom-left');
   const [badgeTarget, setBadgeTarget] = useState<'subject' | 'class'>('subject');
+  const [headerTextScale, setHeaderTextScale] = useState(1);
+  const [footerTextScale, setFooterTextScale] = useState(1);
+  const [subjectTextScale, setSubjectTextScale] = useState(1);
+  const [periodTextScale, setPeriodTextScale] = useState(1);
+  const [isUrdu, setIsUrdu] = useState(false);
 
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [previewScale, setPreviewScale] = useState(1);
@@ -147,6 +153,9 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
       } else { 
           triangleStyles = `bottom: 0; left: 0; border-bottom: ${triangleSize}px solid currentColor; border-right: ${triangleSize}px solid transparent;`;
       }
+
+      const schoolName = isUrdu && schoolConfig.schoolNameUr ? schoolConfig.schoolNameUr : schoolConfig.schoolNameEn;
+      const teacherName = isUrdu && selectedTeacher.nameUr ? selectedTeacher.nameUr : selectedTeacher.nameEn;
 
       let cardStyleCss = '';
       let separatorHtml = '';
@@ -199,14 +208,13 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             box-sizing: border-box !important; 
             -webkit-text-size-adjust: none !important; 
             text-size-adjust: none !important; 
-            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
             text-rendering: geometricPrecision !important;
             font-variant-ligatures: none !important;
           }
           body { margin: 0; padding: 0; overflow: hidden; background: #fff; }
           .timetable-image-container {
             background: #ffffff;
-            padding: 30px;
+            padding: 20px;
             width: ${width}px;
             height: ${height}px;
             color: #000000;
@@ -215,6 +223,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             position: relative;
             display: flex;
             flex-direction: column;
+            font-family: ${schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           }
           
           .timetable-image-container::before {
@@ -240,25 +249,28 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             pointer-events: none;
           }
 
-          .font-urdu { font-family: sans-serif !important; }
+          .font-urdu { font-family: ${schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}'Gulzar', 'Noto Nastaliq Urdu', sans-serif !important; }
           
           .img-header {
             flex-shrink: 0;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border-bottom: 3px solid ${themeColors.accent};
-            padding-bottom: 15px;
+            padding-bottom: 10px;
           }
 
           .img-school-name { 
-            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
+            font-family: ${schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}"Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
             font-weight: 900;
-            font-size: 44px; 
+            font-size: ${isUrdu ? 44 * 1.3 * headerTextScale : 44 * headerTextScale}px; 
             color: ${themeColors.accent}; 
             text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             text-transform: uppercase;
             letter-spacing: 1px;
-            line-height: 1.2;
-            margin-bottom: 10px;
+            line-height: ${isUrdu ? 1.5 : 1.2};
+            margin-bottom: 5px;
             white-space: nowrap;
             overflow: visible;
             width: 100%;
@@ -269,19 +281,19 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             justify-content: space-between;
             align-items: flex-end;
             padding: 0 10px;
-            margin-top: 10px;
+            margin-top: 5px;
           }
           
           .info-teacher-name { 
-            font-size: 36px; 
+            font-size: ${36 * headerTextScale}px; 
             font-weight: 900; 
             text-transform: uppercase; 
-            line-height: 1.2;
+            line-height: ${isUrdu ? 1.5 : 1.2};
             ${headerStyleCss}
           }
           
           .info-stats-side { 
-            font-size: 22px;
+            font-size: ${22 * headerTextScale}px;
             font-weight: 700;
             color: #64748b;
             text-transform: uppercase;
@@ -289,12 +301,12 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             padding-bottom: 5px;
           }
 
-          .compact-val { color: #1e293b; font-weight: 900; font-size: 24px; }
+          .compact-val { color: #1e293b; font-weight: 900; font-size: ${24 * headerTextScale}px; }
 
           .img-table-wrapper {
             width: 100%;
             border: 2px solid ${themeColors.accent};
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -313,7 +325,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             font-weight: 900; 
             text-transform: uppercase;
             padding: 8px 4px;
-            font-size: 20px;
+            font-size: ${24 * periodTextScale}px;
             line-height: 1.2;
             letter-spacing: 0.025em;
             border: 1px solid ${themeColors.accent}; 
@@ -326,18 +338,19 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             background-color: #f8fafc; 
             color: ${themeColors.accent}; 
             font-weight: 900; 
-            font-size: 40px;
+            font-size: ${40 * periodTextScale}px;
             text-align: center;
             vertical-align: middle;
             line-height: 1.2;
             border: 1px solid ${themeColors.accent};
             position: relative; 
             height: 1px;
+            padding: ${isUrdu ? '24px 0' : '0'};
           }
 
           .period-time-label {
              display: block;
-             font-size: 14px;
+             font-size: ${14 * periodTextScale}px;
              font-weight: 800;
              color: #000000;
              margin-bottom: 4px;
@@ -352,9 +365,12 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             border: 1px solid ${themeColors.accent}; 
             vertical-align: top;
             height: 1px;
+            position: relative;
           }
           
           .card-wrapper {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             display: flex;
             flex-direction: column;
             width: 100%;
@@ -363,51 +379,50 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
 
           .period-card-img { 
             width: 100%;
-            flex-grow: 1;
+            flex: 1;
             min-height: 0;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             text-align: center;
-            overflow: hidden;
+            overflow: ${isUrdu ? 'visible' : 'hidden'};
             ${cardStyleCss}
             position: relative;
-            padding: 6px;
+            padding: 0;
             border-bottom: 1px solid ${themeColors.accent};
             box-sizing: border-box;
+            gap: ${isUrdu ? '4px' : '2px'};
           }
           .period-card-img:last-child { border-bottom: none; }
 
           .period-subject { 
             /* Holds Class Name now based on data mapping below */
             display: block;
-            max-height: 2.4em;
-            overflow: hidden;
             font-weight: 900; 
-            font-size: 18px; /* Reduced Size */
+            font-size: ${isUrdu ? 20 * 1.3 * 1.2 * subjectTextScale : 20 * 1.3 * subjectTextScale}px;
             text-transform: none; 
-            line-height: 1.2;
-            text-align: left; /* Top Left */
+            line-height: ${isUrdu ? 'normal' : 1.2};
+            text-align: ${isUrdu ? 'right' : 'left'};
             margin: 0;
             color: inherit;
-            word-break: break-word;
+            white-space: nowrap;
+            overflow: ${isUrdu ? 'visible' : 'hidden'};
+            text-overflow: ${isUrdu ? 'clip' : 'ellipsis'};
           }
           .period-class { 
             /* Holds Subject Name now based on data mapping below */
             display: block;
-            max-height: 2.4em;
-            overflow: hidden;
             font-weight: 800; 
             opacity: 0.95; 
-            font-size: 14px; /* Reduced Size */
-            line-height: 1.2;
-            text-align: right; /* Bottom Right */
+            font-size: ${isUrdu ? 20 * 1.2 * subjectTextScale : 20 * subjectTextScale}px;
+            line-height: ${isUrdu ? 'normal' : 1.2};
+            text-align: ${isUrdu ? 'left' : 'right'};
             margin: 0;
-            position: absolute;
-            bottom: 6px;
-            right: 6px;
             color: inherit;
-            word-break: break-word;
-            max-width: calc(100% - 12px);
+            white-space: nowrap;
+            overflow: ${isUrdu ? 'visible' : 'hidden'};
+            text-overflow: ${isUrdu ? 'clip' : 'ellipsis'};
+            max-width: 100%;
           }
 
           .card-triangle {
@@ -456,7 +471,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
              display: flex;
              justify-content: space-between;
              align-items: center;
-             font-size: 12px; 
+             font-size: ${12 * footerTextScale}px; 
              color: #000000; 
              font-weight: 700; 
              text-transform: uppercase;
@@ -486,15 +501,16 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
                   const key = sortedPeriods.map(p => `${p.subjectId}:${p.classId}`).join('|');
                   
                   // Aggregate data for merged card
+                  const isGroupPeriod = sortedPeriods.length > 1;
                   const subjectNames = sortedPeriods.map(p => {
                       const sub = subjects.find(s => s.id === p.subjectId);
-                      return abbreviateName(sub?.nameEn);
-                  }).join(' / ');
+                      return isUrdu && sub?.nameUr ? sub.nameUr : sub?.nameEn;
+                  }).filter(Boolean).join(' / ');
 
                   const classNames = sortedPeriods.map(p => {
                       const cls = classes.find(c => c.id === p.classId);
-                      return abbreviateName(cls?.nameEn);
-                  }).join(', ');
+                      return isUrdu && cls?.nameUr ? cls.nameUr : cls?.nameEn;
+                  }).filter(Boolean).join(', ');
 
                   const firstPeriod = sortedPeriods[0];
                   // Use combination key for color
@@ -512,8 +528,8 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
                       </div>`;
                   }
 
-                  let subjectBadgeStyle = '';
-                  let classBadgeStyle = '';
+                  let classBadgeStyle = isGroupPeriod ? `font-size: ${isUrdu ? 20 * 1.3 * 1.2 * 0.8 * subjectTextScale : 20 * 1.3 * 0.8 * subjectTextScale}px;` : '';
+                  let subjectBadgeStyle = isGroupPeriod ? `font-size: ${isUrdu ? 20 * 1.2 * 0.8 * subjectTextScale : 20 * 0.8 * subjectTextScale}px;` : '';
                   if (cardStyle === 'badge') {
                       // Badge style: Capsule
                       const badgeCss = `background-color: ${TEXT_HEX_MAP[colorName] || '#000'}; color: #fff !important; padding: 4px 12px; border-radius: 999px; display: inline-block; width: fit-content; max-width: 100%; text-align: center; box-sizing: border-box; margin-bottom: 2px;`;
@@ -623,7 +639,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           tableRows += `<tr style="height: calc((100% - 40px) / ${maxPeriods});">${rowHtml}</tr>`;
       }
 
-      const currentTimestamp = new Date().toLocaleString('en-GB', { 
+      const currentTimestamp = new Date().toLocaleString(isUrdu ? 'ur-PK' : 'en-GB', { 
         day: 'numeric', 
         month: 'long', 
         year: 'numeric', 
@@ -633,17 +649,17 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
       });
 
       return `
-        <div class="timetable-image-container">
+        <div class="timetable-image-container ${isUrdu ? 'font-urdu' : ''}" dir="${isUrdu ? 'rtl' : 'ltr'}">
           ${styles}
           <div class="img-header">
-            <div class="img-school-name">${schoolConfig.schoolNameEn}</div>
+            <div class="img-school-name">${schoolName}</div>
             <div class="header-info-row">
-                <div class="info-stats-side" style="text-align: left;">
-                    # <span class="compact-val">${selectedTeacher.serialNumber || '-'}</span>
+                <div class="info-stats-side" style="text-align: ${isUrdu ? 'right' : 'left'};">
+                    ${isUrdu ? 'سیریل نمبر:' : '#'} <span class="compact-val">${selectedTeacher.serialNumber || '-'}</span>
                 </div>
-                <div class="info-teacher-name">${selectedTeacher.nameEn}</div>
-                <div class="info-stats-side" style="text-align: right;">
-                    Periods <span class="compact-val">${totalPeriods}</span>
+                <div class="info-teacher-name">${teacherName}</div>
+                <div class="info-stats-side" style="text-align: ${isUrdu ? 'left' : 'right'};">
+                    ${isUrdu ? 'کل پیریڈز:' : 'WORKLOAD:'} <span class="compact-val">${totalPeriods}</span>
                 </div>
             </div>
           </div>
@@ -652,15 +668,15 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
                 <thead>
                 <tr>
                     <th style="width: 45px"></th>
-                    ${activeDays.map(day => `<th>${t[day.toLowerCase()].substring(0,3)}</th>`).join('')}
+                    ${activeDays.map(day => `<th>${isUrdu ? (translations.ur as any)[day.toLowerCase()] : t[day.toLowerCase()].substring(0,3)}</th>`).join('')}
                 </tr>
                 </thead>
                 <tbody>${tableRows}</tbody>
             </table>
           </div>
           <div class="footer-watermark">
-            <span>OFFICIAL TEACHER SCHEDULE</span>
-            <span style="font-weight: 900; color: ${themeColors.accent}; font-size: 14px;">Generated by Mr. 🇵🇰</span>
+            <span>${isUrdu ? 'آفیشل ٹیچر ٹائم ٹیبل' : 'OFFICIAL TEACHER SCHEDULE'}</span>
+            <span style="font-weight: 900; color: ${themeColors.accent}; font-size: ${14 * footerTextScale}px;">Mr. 🇵🇰</span>
             <span>${currentTimestamp}</span>
           </div>
         </div>
@@ -672,7 +688,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
         const html = generateTimetableImageHtml();
         setPreviewHtml(html);
     }
-  }, [isOpen, selectedCardStyle, selectedTriangleCorner, badgeTarget, mergePatterns, showStartTimes, selectedTeacher, themeColors]);
+  }, [isOpen, selectedCardStyle, selectedTriangleCorner, badgeTarget, mergePatterns, showStartTimes, selectedTeacher, themeColors, isUrdu, headerTextScale, footerTextScale, subjectTextScale, periodTextScale]);
 
   useEffect(() => {
     if (previewContainerRef.current) {
@@ -825,34 +841,15 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[101] p-4 backdrop-blur-sm" onClick={onClose}>
       <div className="bg-[#1a2333] rounded-xl shadow-2xl w-full max-w-[95vw] md:max-w-[90vw] lg:max-w-4xl xl:max-w-5xl flex flex-col border border-white/10 max-h-[95vh] overflow-hidden transition-all" onClick={e => e.stopPropagation()}>
         
-        <div className="p-5 border-b border-white/10 bg-[#252f44] flex-shrink-0 flex justify-between items-center">
-            <div>
-                <h3 className="text-xl font-black text-white uppercase tracking-tight">
-                    SEND TO TEACHER
+        <div className="p-3 border-b border-white/10 bg-[#252f44] flex-shrink-0 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+                <h3 className="text-lg font-black text-white uppercase tracking-tight">
+                    SEND TO TEACHER:
                 </h3>
-                <p className="text-xs text-gray-400 mt-1">{selectedTeacher.nameEn}</p>
+                <span className="text-sm text-gray-300 font-bold">{selectedTeacher.nameEn}</span>
             </div>
             
             <div className="flex items-center gap-3">
-                 <div className="flex items-center gap-2 bg-[#1a2333] px-3 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Time</span>
-                    <button 
-                        onClick={() => setShowStartTimes(!showStartTimes)}
-                        className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showStartTimes ? 'bg-blue-600' : 'bg-gray-600'}`}
-                    >
-                        <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showStartTimes ? 'translate-x-3' : 'translate-x-0'}`} />
-                    </button>
-                </div>
-                 <div className="flex items-center gap-2 bg-[#1a2333] px-3 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Merge</span>
-                    <button 
-                        onClick={() => setMergePatterns(!mergePatterns)}
-                        className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${mergePatterns ? 'bg-blue-600' : 'bg-gray-600'}`}
-                    >
-                        <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${mergePatterns ? 'translate-x-3' : 'translate-x-0'}`} />
-                    </button>
-                </div>
-                
                 <button onClick={onClose} className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10">
                     <XIcon />
                 </button>
@@ -861,8 +858,8 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
         
         <div className="flex-grow overflow-y-auto p-2 custom-scrollbar bg-[#1a2333]">
 
-            <div className="flex flex-col items-center w-full mb-8" ref={previewContainerRef}>
-                <div className="mb-3 px-3 py-1 bg-[#0f172a] rounded-full">
+            <div className="flex flex-col items-center w-full mb-4" ref={previewContainerRef}>
+                <div className="mb-3 px-3 py-1 bg-[#0f172a] rounded-full hidden">
                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Preview Mode</span>
                 </div>
                 <div 
@@ -887,23 +884,60 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
 
             <div className="max-w-2xl mx-auto space-y-6 pb-4">
                 
-                <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Card Design</label>
-                    <select 
-                        value={selectedCardStyle} 
-                        onChange={(e) => setSelectedCardStyle(e.target.value as CardStyle)}
-                        className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-lg border border-white/10 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
-                    >
-                        {cardStyles.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                    </select>
+                <div className="grid grid-cols-4 gap-2">
+                    <div className="space-y-1">
+                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Header</label>
+                        <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
+                            <button onClick={() => setHeaderTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
+                            <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(headerTextScale * 100)}%</div>
+                            <button onClick={() => setHeaderTextScale(s => Math.min(2.0, s + 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Footer</label>
+                        <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
+                            <button onClick={() => setFooterTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
+                            <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(footerTextScale * 100)}%</div>
+                            <button onClick={() => setFooterTextScale(s => Math.min(2.0, s + 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Sub/Class</label>
+                        <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
+                            <button onClick={() => setSubjectTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
+                            <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(subjectTextScale * 100)}%</div>
+                            <button onClick={() => setSubjectTextScale(s => Math.min(2.0, s + 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Period</label>
+                        <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
+                            <button onClick={() => setPeriodTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
+                            <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(periodTextScale * 100)}%</div>
+                            <button onClick={() => setPeriodTextScale(s => Math.min(2.0, s + 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Card Design</label>
+                        <select 
+                            value={selectedCardStyle} 
+                            onChange={(e) => setSelectedCardStyle(e.target.value as CardStyle)}
+                            className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-lg border border-white/10 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
+                        >
+                            {cardStyles.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                        </select>
+                    </div>
                     
                     {selectedCardStyle === 'triangle' && (
-                    <div className="flex flex-col gap-2 animate-scale-in">
+                    <div className="space-y-1 animate-scale-in">
                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Triangle Corner</label>
                         <select 
                             value={selectedTriangleCorner} 
                             onChange={(e) => setSelectedTriangleCorner(e.target.value as TriangleCorner)}
-                            className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-lg border border-white/10 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
+                            className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-lg border border-white/10 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
                         >
                             {triangleCorners.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                         </select>
@@ -911,12 +945,12 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
                     )}
                     
                     {selectedCardStyle === 'badge' && (
-                    <div className="flex flex-col gap-2 animate-scale-in">
+                    <div className="space-y-1 animate-scale-in">
                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Badge Target</label>
                         <select 
                             value={badgeTarget} 
                             onChange={(e) => setBadgeTarget(e.target.value as any)}
-                            className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-lg border border-white/10 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
+                            className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-lg border border-white/10 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
                         >
                             <option value="subject">Subject</option>
                             <option value="class">Class</option>
@@ -925,20 +959,44 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
                     )}
                 </div>
 
-                <div className="flex gap-3 w-full">
-                    <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-14 flex items-center justify-center gap-2 px-2 text-sm font-black uppercase tracking-wider bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 shadow-lg transition-all transform active:scale-95 hover:-translate-y-0.5">
+                <div className="flex gap-2 w-full mt-2 items-center">
+                    <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Urdu</span>
+                        <button 
+                            onClick={() => setIsUrdu(!isUrdu)}
+                            className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isUrdu ? 'bg-blue-600' : 'bg-gray-600'}`}
+                        >
+                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isUrdu ? 'translate-x-3' : 'translate-x-0'}`} />
+                        </button>
+                    </div>
+                    <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Time</span>
+                        <button 
+                            onClick={() => setShowStartTimes(!showStartTimes)}
+                            className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showStartTimes ? 'bg-blue-600' : 'bg-gray-600'}`}
+                        >
+                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showStartTimes ? 'translate-x-3' : 'translate-x-0'}`} />
+                        </button>
+                    </div>
+                    <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Merge</span>
+                        <button 
+                            onClick={() => setMergePatterns(!mergePatterns)}
+                            className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${mergePatterns ? 'bg-blue-600' : 'bg-gray-600'}`}
+                        >
+                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${mergePatterns ? 'translate-x-3' : 'translate-x-0'}`} />
+                        </button>
+                    </div>
+
+                    <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[10px] font-black uppercase tracking-wider bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
                         {isGenerating ? (
-                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         ) : (
-                            <>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
-                            <span>Send Picture</span>
-                            </>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
                         )}
                     </button>
-                    <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-14 flex items-center justify-center gap-2 px-2 text-sm font-black uppercase tracking-wider bg-[#128C7E] text-white rounded-xl hover:bg-[#075e54] disabled:opacity-50 shadow-lg transition-all transform active:scale-95 hover:-translate-y-0.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>
-                        <span>SEND VIA WHATSAPP</span>
+                    <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[10px] font-black uppercase tracking-wider bg-[#128C7E] text-white rounded-md hover:bg-[#075e54] disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>
                     </button>
                 </div>
             </div>
