@@ -17,6 +17,7 @@ interface ClassCommunicationModalProps {
   teachers: Teacher[];
   schoolConfig: SchoolConfig;
   subjectColorMap: Map<string, string>;
+  appFont?: string;
 }
 
 const subjectColorNames = [
@@ -34,6 +35,7 @@ const cardStyles: { label: string; value: CardStyle }[] = [
     { label: 'Glass', value: 'glass' },
     { label: 'Gradient', value: 'gradient' },
     { label: 'Minimal', value: 'minimal-left' },
+    { label: 'Smooth Left', value: 'smooth-left' },
     { label: 'Badge', value: 'badge' }
 ];
 
@@ -97,7 +99,8 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
   subjects,
   teachers,
   schoolConfig,
-  subjectColorMap
+  subjectColorMap,
+  appFont
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   // Default merge OFF, time ON
@@ -111,6 +114,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
   const [footerTextScale, setFooterTextScale] = useState(1.0);
   const [subjectTextScale, setSubjectTextScale] = useState(1.0);
   const [periodTextScale, setPeriodTextScale] = useState(1.0);
+  const [outlineInset, setOutlineInset] = useState(0);
   const [isUrdu, setIsUrdu] = useState(false);
 
   // State for preview HTML
@@ -161,7 +165,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
       if (cardStyle === 'full') {
           cardStyleCss = '';
       } else if (cardStyle === 'outline') {
-          cardStyleCss = `background-color: #ffffff !important; border: ${outlineWidth}px solid currentColor !important; border-radius: 8px !important; color: inherit !important; margin: 2px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);`;
+          cardStyleCss = `background-color: #ffffff !important; border: none !important; border-radius: 8px !important; color: inherit !important; margin: 2px;`;
       } else if (cardStyle === 'text' || cardStyle === 'triangle') {
           cardStyleCss = 'background-color: #ffffff !important; border: 1px solid transparent !important; color: inherit !important;';
       } else if (cardStyle === 'glass') {
@@ -178,6 +182,8 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                 <div style="width: 8px; height: 8px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></div>
             </div>
           `;
+      } else if (cardStyle === 'smooth-left') {
+          cardStyleCss = 'border-top: none !important; border-right: none !important; border-bottom: none !important; border-radius: 24px !important; margin: 4px !important; overflow: hidden !important;';
       } else if (cardStyle === 'badge') {
           cardStyleCss = 'background-color: transparent !important; border: none !important; box-shadow: none !important;';
       }
@@ -194,6 +200,8 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           headerStyleCss = `background: linear-gradient(135deg, ${themeColors.accent} 0%, ${themeColors.accent}dd 100%); color: #ffffff; border-radius: 12px; padding: 10px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);`;
       } else if (cardStyle === 'minimal-left') {
           headerStyleCss = `border-left: 10px solid ${themeColors.accent}; background-color: #f1f5f9; color: ${themeColors.text}; padding: 10px 30px; border-radius: 4px;`;
+      } else if (cardStyle === 'smooth-left') {
+          headerStyleCss = `border-left: 16px solid ${themeColors.accent}; background-color: ${themeColors.accent}15; color: ${themeColors.text}; padding: 10px 30px; border-radius: 24px;`;
       } else if (cardStyle === 'badge') {
           headerStyleCss = `background-color: ${themeColors.accent}; color: #ffffff; border-radius: 999px; padding: 10px 40px;`;
       } else {
@@ -226,7 +234,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             position: relative;
             display: flex;
             flex-direction: column;
-            font-family: ${schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: ${appFont ? `'${appFont}', ` : schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           }
           
           .timetable-image-container::before {
@@ -252,7 +260,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             pointer-events: none;
           }
 
-          .font-urdu { font-family: ${schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}'Gulzar', 'Noto Nastaliq Urdu', sans-serif !important; }
+          .font-urdu { font-family: ${appFont ? `'${appFont}', ` : schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}'Gulzar', 'Noto Nastaliq Urdu', sans-serif !important; }
           
           .img-header {
             flex-shrink: 0;
@@ -262,7 +270,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           }
 
           .img-school-name { 
-            font-family: ${schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}"Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
+            font-family: ${appFont ? `'${appFont}', ` : schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}"Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; 
             font-weight: 900;
             font-size: ${isUrdu ? 44 * 1.3 * headerTextScale : 44 * headerTextScale}px; 
             color: ${themeColors.accent}; 
@@ -313,6 +321,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
           }
 
           .img-table { 
@@ -328,7 +337,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             font-weight: 900; 
             text-transform: uppercase;
             padding: 6px 4px;
-            font-size: ${24 * periodTextScale}px;
+            font-size: 24px;
             line-height: 1.2;
             letter-spacing: 0.025em;
             border: 1px solid ${themeColors.accent}; 
@@ -341,14 +350,14 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             background-color: #f8fafc; 
             color: ${themeColors.accent}; 
             font-weight: 900; 
-            font-size: ${40 * periodTextScale}px;
+            font-size: 40px;
             text-align: center;
             vertical-align: middle;
             line-height: 1.2;
             border: 1px solid ${themeColors.accent};
             position: relative; 
             height: 1px;
-            padding: ${isUrdu ? '24px 0' : '0'};
+            padding: 0;
           }
 
           .period-time-label {
@@ -394,29 +403,31 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             padding: 0;
             border-bottom: 1px solid ${themeColors.accent};
             box-sizing: border-box;
-            gap: ${isUrdu ? '4px' : '2px'};
+            gap: ${isUrdu ? '4px' : '6px'};
           }
           .period-card-img:last-child { border-bottom: none; }
 
           .period-subject { 
             display: block;
             font-weight: 900; 
-            font-size: ${isUrdu ? 18 * 1.3 * 1.2 * subjectTextScale : 18 * 1.3 * subjectTextScale}px;
+            font-size: ${isUrdu ? 18 * 1.1 * subjectTextScale : 18 * 1.3 * subjectTextScale}px;
             text-transform: none; 
-            line-height: ${isUrdu ? 'normal' : 1.2};
+            line-height: normal;
             text-align: ${isUrdu ? 'right' : 'left'};
             margin: 0;
             color: inherit;
             white-space: nowrap;
             overflow: ${isUrdu ? 'visible' : 'hidden'};
             text-overflow: ${isUrdu ? 'clip' : 'ellipsis'};
+            padding: 2px 4px;
+            ${!isUrdu ? 'transform: translateY(-2px);' : ''}
           }
           .period-teacher { 
             display: block;
             font-weight: 800; 
             opacity: 0.95; 
-            font-size: ${isUrdu ? 18 * 1.2 * subjectTextScale : 18 * subjectTextScale}px;
-            line-height: ${isUrdu ? 'normal' : 1.2};
+            font-size: ${isUrdu ? 18 * 1.0 * subjectTextScale : 18 * subjectTextScale}px;
+            line-height: normal;
             text-align: ${isUrdu ? 'left' : 'right'};
             margin: 0;
             color: inherit;
@@ -424,6 +435,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             overflow: ${isUrdu ? 'visible' : 'hidden'};
             text-overflow: ${isUrdu ? 'clip' : 'ellipsis'};
             max-width: 100%;
+            padding: 2px 4px;
           }
 
           .card-triangle {
@@ -453,7 +465,10 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
           
           ${allColorClasses.map(name => `
               .${name} { 
-                  ${cardStyle === 'full' ? `background-color: ${TEXT_HEX_MAP[name]}; color: #ffffff;` : `background-color: #ffffff; color: ${TEXT_HEX_MAP[name]};`}
+                  ${cardStyle === 'full' ? `background-color: ${TEXT_HEX_MAP[name]}; color: #ffffff;` : 
+                    cardStyle === 'smooth-left' ? `background-color: ${(COLOR_HEX_MAP[name] || '#f3f4f6')}4D !important; color: ${TEXT_HEX_MAP[name]}; border-left: 16px solid ${TEXT_HEX_MAP[name]} !important;` :
+                    cardStyle === 'outline' ? `background-color: #ffffff; color: ${TEXT_HEX_MAP[name]}; outline: 2px solid ${TEXT_HEX_MAP[name]}; outline-offset: -${outlineInset + 2}px;` :
+                    `background-color: #ffffff; color: ${TEXT_HEX_MAP[name]};`}
               }
               .${name} .period-subject, .${name} .period-teacher { color: ${cardStyle === 'full' ? '#ffffff' : TEXT_HEX_MAP[name]} !important; }
               .${name} .card-triangle { 
@@ -910,7 +925,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Time/Per</label>
+                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Period Time</label>
                         <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
                             <button onClick={() => setPeriodTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
                             <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(periodTextScale * 100)}%</div>
@@ -956,6 +971,19 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                             <option value="subject">Subject</option>
                             <option value="teacher">Teacher</option>
                         </select>
+                    </div>
+                    )}
+
+                    {selectedCardStyle === 'outline' && (
+                    <div className="space-y-1 animate-scale-in">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Outline Inset</label>
+                        <input 
+                            type="range" 
+                            min="0" max="10" step="1"
+                            value={outlineInset} 
+                            onChange={(e) => setOutlineInset(parseFloat(e.target.value))}
+                            className="w-full accent-blue-500"
+                        />
                     </div>
                     )}
                 </div>

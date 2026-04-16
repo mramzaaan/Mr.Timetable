@@ -206,7 +206,7 @@ export type DownloadFormat = 'pdf-full' | 'pdf-summary' | 'excel';
 export type DownloadLanguage = 'en' | 'ur' | 'both';
 export type FontFamily = 'sans-serif' | 'serif' | 'monospace' | 'Bebas Neue' | 'Fjalla One' | 'Oswald' | 'Playfair Display' | 'Zeyada' | 'League Gothic' | 'Amatic SC' | 'Yellowtail' | 'Instrument Serif' | 'Gulzar' | 'Noto Nastaliq Urdu' | 'Pinyon Script' | 'Italianno' | 'Alex Brush';
 
-export type CardStyle = 'full' | 'outline' | 'text' | 'triangle' | 'glass' | 'gradient' | 'minimal-left' | 'badge';
+export type CardStyle = 'full' | 'outline' | 'text' | 'triangle' | 'glass' | 'gradient' | 'minimal-left' | 'badge' | 'smooth-left';
 export type TriangleCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
 export interface DownloadDesignConfig {
