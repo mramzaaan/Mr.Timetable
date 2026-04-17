@@ -6,7 +6,7 @@ import { translations } from '../i18n';
 import { generateAdjustmentsExcel, generateAdjustmentsReportHtml } from './reportUtils';
 import { generateUniqueId, allDays } from '../types';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
-import { toBlob } from 'html-to-image';
+import { toJpeg, toBlob } from 'html-to-image';
 
 // Icons
 const ImportExportIcon = () => (
@@ -548,60 +548,78 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
   // Multi-teacher slip state
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isGeneratingShare, setIsGeneratingShare] = useState(false);
+  const [generatedShareBlob, setGeneratedShareBlob] = useState<Blob | null>(null);
   const [selectedTeachersForSlip, setSelectedTeachersForSlip] = useState<string[]>([]);
-  const [multiTeacherSlipData, setMultiTeacherSlipData] = useState<{
-      date: string;
-      teachers: {
-          id: string;
-          nameEn: string;
-          nameUr: string;
-          substitutions: SubstitutionGroup[];
-      }[];
-  } | null>(null);
   const multiTeacherSlipRef = useRef<HTMLDivElement>(null);
 
   const handleGenerateMultiSlip = async () => {
-      const selected = teachers.filter(t => selectedTeachersForSlip.includes(t.id));
-      if (selected.length === 0) return;
+      if (!multiTeacherSlipRef.current) return;
 
-      const data = {
-          date: selectedDate,
-          teachers: selected.map(t => ({
-              id: t.id,
-              nameEn: t.nameEn,
-              nameUr: t.nameUr,
-              substitutions: substitutionGroups.filter(g => g.absentEntity.id === t.id)
-          }))
-      };
+      setIsGeneratingShare(true);
 
-      setMultiTeacherSlipData(data);
-      setIsShareModalOpen(false);
+      try {
+          const dataUrl = await toJpeg(multiTeacherSlipRef.current, { 
+              quality: 1.0,
+              pixelRatio: 2, 
+              backgroundColor: '#ffffff'
+          });
+          const blob = await (await fetch(dataUrl)).blob();
+          
+          if (!blob) throw new Error("Could not generate image blob");
+          setGeneratedShareBlob(blob);
+      } catch (err) {
+          console.error("Image generation failed", err);
+          alert("Failed to generate image.");
+      } finally {
+          setIsGeneratingShare(false);
+      }
+  };
 
-      // Wait for render
-      await new Promise(resolve => setTimeout(resolve, 800));
+  const handleShareClick = async () => {
+      if (!generatedShareBlob) return;
+      
+      let shared = false;
+      const file = new File([generatedShareBlob], `Substitution_Report_${selectedDate}.jpg`, { type: generatedShareBlob.type });
 
-      if (multiTeacherSlipRef.current) {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
-              const blob = await toBlob(multiTeacherSlipRef.current, { 
-                  pixelRatio: 2, 
-                  backgroundColor: '#ffffff'
+              await navigator.share({
+                  title: 'Substitution Report',
+                  files: [file]
               });
-              if (blob) {
-                  try {
-                      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-                      alert("Substitution slip copied to clipboard!");
-                  } catch (err) {
-                      console.error("Clipboard write failed", err);
-                      alert("Could not auto-copy image. Please use screenshot.");
-                  }
+              shared = true;
+          } catch (shareErr: any) {
+              if (shareErr.name === 'AbortError') {
+                  shared = true; // User intentionally cancelled, no further fallback needed
+              } else {
+                  console.error("Web share failed", shareErr);
               }
-          } catch (err) {
-              console.error("Image generation failed", err);
-              alert("Failed to generate image.");
           }
       }
+
+      if (!shared) {
+          try {
+              const item = new ClipboardItem({ [generatedShareBlob.type]: generatedShareBlob });
+              await navigator.clipboard.write([item]);
+              alert("Substitution slip copied to clipboard!");
+              shared = true;
+          } catch (clipErr) {
+              console.error("Clipboard copy failed", clipErr);
+          }
+      }
+
+      if (!shared) {
+          const url = URL.createObjectURL(generatedShareBlob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `Substitution_Report_${selectedDate}.jpg`;
+          link.click();
+          URL.revokeObjectURL(url);
+      }
       
-      setTimeout(() => setMultiTeacherSlipData(null), 1000);
+      setIsShareModalOpen(false);
+      setTimeout(() => setGeneratedShareBlob(null), 1000);
   };
 
   const [modalState, setModalState] = useState<{
@@ -879,6 +897,20 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       return groups.sort((a, b) => a.periodIndex - b.periodIndex);
   }, [dayOfWeek, absentTeachers, absentClasses, classes, jointPeriods, subjects, dailyAdjustments, absentTeacherIds, absenteeDetails]);
 
+  const computedMultiTeacherSlipData = useMemo(() => {
+      if (selectedTeachersForSlip.length === 0) return null;
+      const selected = teachers.filter(t => selectedTeachersForSlip.includes(t.id));
+      return {
+          date: selectedDate,
+          teachers: selected.map(t => ({
+              id: t.id,
+              nameEn: t.nameEn,
+              nameUr: t.nameUr,
+              substitutions: substitutionGroups.filter(g => g.absentEntity.id === t.id)
+          }))
+      };
+  }, [selectedTeachersForSlip, teachers, substitutionGroups, selectedDate]);
+
   const allAbsentEntities = useMemo(() => {
       const entities = new Map<string, { id: string, nameEn: string, nameUr: string, type: 'teacher' | 'class' }>();
       substitutionGroups.forEach(g => {
@@ -893,6 +925,44 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       return Array.from(entities.values());
   }, [substitutionGroups, absentTeachers, absentClasses]);
 
+  const getTeacherConflict = (teacherId: string, periodIndex: number, currentAdjId?: string) => {
+      const subAdjs = dailyAdjustments.filter(adj => adj.substituteTeacherId === teacherId && adj.periodIndex === periodIndex && adj.id !== currentAdjId);
+      if (subAdjs.length > 0) {
+          const cls = classes.find(c => c.id === subAdjs[0].classId);
+          return {
+              classNameEn: cls ? `${cls.nameEn} (Alt)` : 'Substitution',
+              classNameUr: cls ? `${cls.nameUr} (متبادل)` : 'Substitution'
+          };
+      }
+      if (dayOfWeek) {
+          for (const c of classes) {
+              let isClassOnLeave = false;
+              const classLeave = absenteeDetails[`CLASS_${c.id}`];
+              if (classLeave) {
+                  if (classLeave.leaveType === 'full') {
+                      isClassOnLeave = true;
+                  } else if (classLeave.leaveType === 'half') {
+                      const pNum = periodIndex + 1;
+                      if (classLeave.periods && classLeave.periods.length > 0) {
+                          if (classLeave.periods.includes(pNum)) isClassOnLeave = true;
+                      } else if (classLeave.startPeriod && pNum >= classLeave.startPeriod) {
+                          isClassOnLeave = true;
+                      }
+                  }
+              }
+              if (isClassOnLeave) continue;
+              const daySlots = c.timetable[dayOfWeek];
+              if (daySlots && daySlots[periodIndex]) {
+                  const p = daySlots[periodIndex].find(p => p.teacherId === teacherId);
+                  if (p) {
+                      return { classNameEn: c.nameEn, classNameUr: c.nameUr };
+                  }
+              }
+          }
+      }
+      return undefined;
+  };
+
   const findAvailableTeachers = (periodIndex: number, period: Period, classIds: string[]): TeacherWithStatus[] => {
       if (!dayOfWeek) return [];
       const relevantClasses = classes.filter(c => classIds.includes(c.id));
@@ -901,46 +971,10 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
           if (absentTeacherIds.includes(t.id)) return null;
 
           let status: SubstituteStatus = { type: 'AVAILABLE' };
-          const isSub = dailyAdjustments.some(adj => adj.substituteTeacherId === t.id && adj.periodIndex === periodIndex);
+          const conflict = getTeacherConflict(t.id, periodIndex);
           
-          if (isSub) {
-              status = { type: 'UNAVAILABLE', reason: 'SUBSTITUTION' };
-          } else {
-              let isTeaching = false;
-              let conflictClass: { classNameEn: string, classNameUr: string } | undefined;
-              
-              for (const c of classes) {
-                  let isClassOnLeave = false;
-                  const classLeave = absenteeDetails[`CLASS_${c.id}`];
-                  if (classLeave) {
-                      if (classLeave.leaveType === 'full') {
-                          isClassOnLeave = true;
-                      } else if (classLeave.leaveType === 'half') {
-                          const pNum = periodIndex + 1;
-                          if (classLeave.periods && classLeave.periods.length > 0) {
-                              if (classLeave.periods.includes(pNum)) isClassOnLeave = true;
-                          } else if (classLeave.startPeriod && pNum >= classLeave.startPeriod) {
-                              isClassOnLeave = true;
-                          }
-                      }
-                  }
-
-                  if (isClassOnLeave) continue;
-
-                  const daySlots = c.timetable[dayOfWeek];
-                  if (daySlots && daySlots[periodIndex]) {
-                      const p = daySlots[periodIndex].find(p => p.teacherId === t.id);
-                      if (p) {
-                          isTeaching = true;
-                          conflictClass = { classNameEn: c.nameEn, classNameUr: c.nameUr };
-                          break;
-                      }
-                  }
-              }
-              
-              if (isTeaching && conflictClass) {
-                  status = { type: 'UNAVAILABLE', reason: 'DOUBLE_BOOK', conflictClass };
-              }
+          if (conflict) {
+              status = { type: 'UNAVAILABLE', reason: 'DOUBLE_BOOK', conflictClass: conflict };
           }
 
           if (status.type === 'AVAILABLE') {
@@ -1059,7 +1093,10 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
           .replace('{roomNumber}', cls?.roomNumber || '-')
           .replace('{originalTeacherName}', origName);
 
-      if (adjustment.conflictDetails) {
+      const activeConflict = getTeacherConflict(teacher.id, adjustment.periodIndex, adjustment.id);
+      const conflictData = activeConflict || adjustment.conflictDetails;
+
+      if (conflictData) {
           message = t.substituteNotificationMessageDoubleBook
             .replace('{teacherName}', language === 'ur' ? teacher.nameUr : teacher.nameEn)
             .replace('{date}', selectedDate)
@@ -1070,7 +1107,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
             .replace('{subjectName}', subjectName)
             .replace('{roomNumber}', cls?.roomNumber || '-')
             .replace('{originalTeacherName}', origName)
-            .replace('{conflictClassName}', language === 'ur' ? adjustment.conflictDetails.classNameUr : adjustment.conflictDetails.classNameEn);
+            .replace('{conflictClassName}', language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn);
       }
 
       const url = `https://wa.me/${teacher.contactNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
@@ -1384,9 +1421,12 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                              const assignedAdj = dailyAdjustments.find(a => a.periodIndex === group.periodIndex && a.originalTeacherId === group.absentEntity.id);
                              const subTeacher = teachers.find(t => t.id === assignedAdj?.substituteTeacherId);
                              const subName = subTeacher ? (language === 'ur' ? subTeacher.nameUr : subTeacher.nameEn) : 'Unassigned';
+                             
+                             const activeConflict = subTeacher ? getTeacherConflict(subTeacher.id, group.periodIndex, assignedAdj?.id) : undefined;
+                             const conflictData = activeConflict || assignedAdj?.conflictDetails;
 
                             return (
-                                <div key={idx} className="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <div key={idx} className="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 relative">
                                     <div className="flex flex-col items-center justify-center bg-white rounded-xl w-12 h-12 border border-slate-200 mr-4 shadow-sm flex-shrink-0">
                                         <span className="text-[10px] font-bold text-slate-400 uppercase">PD</span>
                                         <span className="text-xl font-black text-slate-700">{group.periodIndex + 1}</span>
@@ -1395,11 +1435,16 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                         <h4 className="text-lg font-bold text-slate-800 truncate">{group.combinedClassNames.en}</h4>
                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">{group.subjectInfo.en}</p>
                                     </div>
-                                    <div className="text-right ml-4 flex-shrink-0">
+                                    <div className="text-right flex flex-col items-end ml-4 flex-shrink-0">
                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Substitute</p>
                                         <p className={`text-lg font-black ${subTeacher ? 'text-emerald-600' : 'text-red-400'}`}>
                                             {subName}
                                         </p>
+                                        {conflictData && (
+                                            <div className="flex items-center text-[10px] font-bold uppercase tracking-wider bg-[#d93025] text-white px-2 py-0.5 rounded-full mt-1 flex-shrink-0">
+                                                <span className="truncate">Conflict: {language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -1437,7 +1482,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
             <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl w-full max-w-md border border-[var(--border-primary)] overflow-hidden animate-scale-in" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-[var(--border-secondary)] bg-[var(--bg-tertiary)] flex justify-between items-center">
                     <h3 className="font-bold text-lg text-[var(--text-primary)]">Generate Substitution Slip</h3>
-                    <button onClick={() => setIsShareModalOpen(false)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                    <button onClick={() => { setIsShareModalOpen(false); setGeneratedShareBlob(null); }} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
@@ -1446,6 +1491,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                         <span className="text-xs font-bold text-[var(--text-secondary)] uppercase">Select Teachers</span>
                         <button 
                             onClick={() => {
+                                setGeneratedShareBlob(null);
                                 if (selectedTeachersForSlip.length === absentTeachers.length) setSelectedTeachersForSlip([]);
                                 else setSelectedTeachersForSlip(absentTeachers.map(t => t.id));
                             }}
@@ -1461,6 +1507,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                     type="checkbox" 
                                     checked={selectedTeachersForSlip.includes(teacher.id)}
                                     onChange={(e) => {
+                                        setGeneratedShareBlob(null);
                                         if (e.target.checked) setSelectedTeachersForSlip(prev => [...prev, teacher.id]);
                                         else setSelectedTeachersForSlip(prev => prev.filter(id => id !== teacher.id));
                                     }}
@@ -1473,13 +1520,32 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     </div>
                 </div>
                 <div className="p-4 border-t border-[var(--border-secondary)] bg-[var(--bg-tertiary)]">
-                    <button 
-                        onClick={handleGenerateMultiSlip}
-                        disabled={selectedTeachersForSlip.length === 0}
-                        className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:-translate-y-1 active:scale-[0.98]"
-                    >
-                        Generate & Copy Image
-                    </button>
+                    {!generatedShareBlob ? (
+                        <button 
+                            onClick={handleGenerateMultiSlip}
+                            disabled={selectedTeachersForSlip.length === 0 || isGeneratingShare}
+                            className="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:shadow-teal-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2 text-lg relative"
+                        >
+                            {isGeneratingShare ? (
+                                <>
+                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span>Preparing Image...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <ShareIcon /> Generate Slip
+                                </>
+                            )}
+                        </button>
+                    ) : (
+                        <button 
+                            onClick={handleShareClick}
+                            className="w-full py-3 relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2 text-lg"
+                        >
+                            <span className="absolute inset-0 w-full h-full bg-gradient-to-tr from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></span>
+                            <ShareIcon /> Share Image Now!
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
@@ -1487,52 +1553,126 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
       {/* Hidden Multi-Teacher Slip */}
       <div style={{ position: 'fixed', top: 0, left: 0, zIndex: -50, pointerEvents: 'none', opacity: 0 }}>
-        {multiTeacherSlipData && (
-            <div ref={multiTeacherSlipRef} className="w-[800px] bg-white font-sans text-slate-800 p-8 border border-slate-200">
-                <div className="text-center mb-8 border-b-2 border-slate-100 pb-6">
-                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">{schoolConfig.schoolNameEn}</h2>
-                    <p className="text-xl text-slate-500 font-medium">
-                        {new Date(multiTeacherSlipData.date).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+        {computedMultiTeacherSlipData && (
+            <div ref={multiTeacherSlipRef} className="w-[900px] bg-white font-sans text-slate-800 p-6 pt-8 rounded-2xl">
+                <style dangerouslySetInnerHTML={{__html: `
+                    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap');
+                    .oswald-font { font-family: 'Oswald', sans-serif; }
+                `}} />
+                
+                <div className="text-center mb-4">
+                    <h2 className="text-[36px] leading-tight font-black uppercase tracking-wide text-[#b01e51] oswald-font mb-1 pb-1">{schoolConfig.schoolNameEn}</h2>
+                    <p className="text-[20px] text-[#6b5270] oswald-font font-medium uppercase tracking-wider mb-0.5">DAILY SUBSTITUTION REPORT</p>
+                    <p className="text-[20px] text-[#52446a] font-medium oswald-font">
+                        {new Date(computedMultiTeacherSlipData.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
-                    <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-2">Daily Substitution Report</p>
                 </div>
                 
-                <div className="flex flex-col gap-8">
-                    {multiTeacherSlipData.teachers.map((teacher, idx) => (
+                <div className="flex flex-col gap-4">
+                    {computedMultiTeacherSlipData.teachers.map((teacher, idx) => (
                         <div key={idx} className="break-inside-avoid">
-                            <h3 className="text-xl font-black text-slate-800 mb-4 border-l-4 border-indigo-500 pl-3 uppercase">
-                                {teacher.nameEn} <span className="text-slate-400 text-sm font-medium ml-2 normal-case">({language === 'ur' ? teacher.nameUr : ''})</span>
-                            </h3>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex items-center mb-1.5">
+                                <div className="w-1.5 h-6 bg-[#64b5f6] mr-2"></div>
+                                <h3 className="text-[22px] font-bold text-[#374151] oswald-font">
+                                    Teacher on Leave: <span className="text-[#a41a4a] font-black">{teacher.nameEn.toUpperCase()}</span> <span className="text-[#a41a4a]">({teacher.substitutions.length})</span>
+                                </h3>
+                            </div>
+                            
+                            <div className="flex flex-col gap-0.5 w-full border border-gray-100 rounded-xl overflow-hidden p-1 shadow-sm">
+                                {/* Table Header */}
+                                <div className="flex w-full">
+                                    <div className="w-1/4 bg-[#5c7bc0] text-white py-1.5 px-2 text-center font-bold text-base rounded-t-lg mx-0.5 oswald-font tracking-wider">PERIOD & TIME</div>
+                                    <div className="w-1/4 bg-[#5c7bc0] text-white py-1.5 px-2 text-center font-bold text-base rounded-t-lg mx-0.5 oswald-font tracking-wider">CLASS & ROOM</div>
+                                    <div className="w-1/4 bg-[#5c7bc0] text-white py-1.5 px-2 text-center font-bold text-base rounded-t-lg mx-0.5 oswald-font tracking-wider">SUBJECT</div>
+                                    <div className="w-1/4 bg-[#5c7bc0] text-white py-1.5 px-2 text-center font-bold text-base rounded-t-lg mx-0.5 oswald-font tracking-wider">SUBSTITUTE</div>
+                                </div>
+
                                 {teacher.substitutions.length > 0 ? teacher.substitutions.map((sub, sIdx) => {
                                     const assignedAdj = dailyAdjustments.find(a => a.periodIndex === sub.periodIndex && a.originalTeacherId === sub.absentEntity.id);
                                     const subTeacher = teachers.find(t => t.id === assignedAdj?.substituteTeacherId);
+                                    const activeConflict = subTeacher ? getTeacherConflict(subTeacher.id, sub.periodIndex, assignedAdj?.id) : undefined;
+                                    const conflictData = activeConflict || assignedAdj?.conflictDetails;
+                                    
+                                    // Row styles
+                                    const rowColors = [
+                                        { bg: 'bg-[#5b7cce]', text: 'text-white' }, // Period 1
+                                        { bg: 'bg-[#a35dd8]', text: 'text-white' }, // Period 2
+                                        { bg: 'bg-[#e237db]', text: 'text-white' }, // Period 3
+                                        { bg: 'bg-[#7fd924]', text: 'text-black' }, // Period 4
+                                        { bg: 'bg-[#21d6b0]', text: 'text-black' }, // Period 5
+                                        { bg: 'bg-[#29cfb9]', text: 'text-black' }, // Period 6
+                                        { bg: 'bg-[#fdb018]', text: 'text-black' }, // Period 7
+                                        { bg: 'bg-[#6ad1e7]', text: 'text-black' }, // Period 8
+                                        { bg: 'bg-[#3b82f6]', text: 'text-white' }, // Period 9+
+                                    ];
+                                    const style = rowColors[sub.periodIndex % rowColors.length];
+                                    
+                                    // Timing
+                                    const isFriday = new Date(selectedDate).getUTCDay() === 5;
+                                    const timings = schoolConfig.periodTimings[isFriday ? 'friday' : 'default'];
+                                    const timeStr = timings && timings[sub.periodIndex] ? timings[sub.periodIndex].start : '--:--';
+                                    
+                                    // Condense classes
+                                    const classObjs = sub.combinedClassIds.map(id => classes.find(c => c.id === id)).filter(Boolean);
+                                    const grouped: Record<string, { sections: string[], rooms: string[] }> = {};
+                                    classObjs.forEach(c => {
+                                        const parts = c.nameEn.split(' ');
+                                        const section = parts.length > 1 ? parts[parts.length - 1] : '';
+                                        const base = parts.length > 1 ? parts.slice(0, -1).join(' ') : c.nameEn;
+                                        if (!grouped[base]) grouped[base] = { sections: [], rooms: [] };
+                                        if (section) grouped[base].sections.push(section);
+                                        if (c.roomNumber) grouped[base].rooms.push(c.roomNumber);
+                                    });
+                                    const classRoomStr = Object.entries(grouped).map(([base, data]) => {
+                                        const sectionsStr = data.sections.length > 0 ? ` ${data.sections.join(', ')}` : '';
+                                        const uniqRooms = Array.from(new Set(data.rooms));
+                                        const roomStr = uniqRooms.length > 0 ? ` - (${uniqRooms.join(', ')})` : '';
+                                        return `${base}${sectionsStr}${roomStr}`;
+                                    }).join(' | ');
+
                                     return (
-                                        <div key={sIdx} className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-                                            <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-slate-200 font-black text-slate-600 mr-4 shadow-sm">
-                                                {sub.periodIndex + 1}
+                                        <div key={sIdx} className="flex w-full">
+                                            <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex items-center justify-center whitespace-nowrap overflow-hidden`}>
+                                                <span className="text-[26px] overflow-hidden text-ellipsis font-black">{sub.periodIndex + 1}</span>
+                                                <span className="text-[20px] overflow-hidden text-ellipsis font-bold ml-2">- ({timeStr})</span>
                                             </div>
-                                            <div className="flex-grow">
-                                                <p className="font-bold text-slate-800 text-sm">{sub.combinedClassNames.en}</p>
-                                                <p className="text-xs text-slate-500 uppercase tracking-wider">{sub.subjectInfo.en}</p>
+                                            <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center overflow-hidden`}>
+                                                <span className="text-[20px] font-bold leading-tight text-center line-clamp-2 break-words w-full">{classRoomStr || '-'}</span>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Substitute</p>
-                                                <p className={`font-bold ${subTeacher ? 'text-emerald-600' : 'text-red-400'}`}>
-                                                    {subTeacher ? (language === 'ur' ? subTeacher.nameUr : subTeacher.nameEn) : 'Unassigned'}
-                                                </p>
+                                            <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center overflow-hidden`}>
+                                                <span className="text-[20px] font-bold uppercase leading-tight text-center line-clamp-2 break-words w-full">{sub.subjectInfo.en}</span>
+                                            </div>
+                                            <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center relative overflow-hidden`}>
+                                                {subTeacher ? (
+                                                    <>
+                                                        <span className="text-[20px] font-black uppercase leading-tight text-center line-clamp-2 break-words w-full">{subTeacher.nameEn}</span>
+                                                        {conflictData && (
+                                                            <div className="w-full mt-0.5 flex justify-center">
+                                                                <div className="flex items-center text-[13px] font-bold uppercase tracking-wider bg-[#d93025] text-white px-2.5 py-0.5 rounded-full shadow-sm leading-none animate-pulse gap-1.5">
+                                                                    <span>Conflict: {language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn}</span>
+                                                                    <span className="text-yellow-300 flex items-center"><DoubleBookedWarningIcon /></span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <span className="text-[20px] font-bold w-full text-center">Unassigned ⚠️</span>
+                                                )}
                                             </div>
                                         </div>
                                     );
-                                }) : <p className="text-slate-400 italic text-sm pl-4">No periods found.</p>}
+                                }) : <div className="p-4 text-center text-slate-400 italic">No periods found.</div>}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
-                    <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">Generated by MR. TMS</span>
+                <div className="mt-6 pt-3 flex justify-center items-center">
+                    <span className="text-slate-700 text-xs font-medium oswald-font tracking-wider">Generated by Mr. TMS |</span>
                 </div>
+                
+                {/* Rainbow bottom border */}
+                <div className="h-1.5 w-1/3 mx-auto mt-2 rounded-full bg-gradient-to-r from-purple-500 via-yellow-400 to-blue-500"></div>
             </div>
         )}
       </div>

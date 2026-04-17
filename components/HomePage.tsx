@@ -4,6 +4,7 @@ import type { Language, Page, TimetableSession, SchoolConfig, TimetableGridData,
 import TimetableSessionModal from './TimetableSessionModal';
 import GlobalSearch from './GlobalSearch';
 import PrintPreview from './PrintPreview';
+import LivePeriodTracker from './LivePeriodTracker';
 import CsvManagementModal from './CsvManagementModal';
 import { 
   generateBasicInformationHtml, 
@@ -1027,6 +1028,8 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                         </div>
                     </div>
                 )}
+
+                <LivePeriodTracker session={currentTimetableSession} schoolConfig={schoolConfig} language={language} />
 
                 <div 
                     ref={featuresSectionRef} 
