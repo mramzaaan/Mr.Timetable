@@ -38,6 +38,8 @@ interface ClassTimetablePageProps {
   onDeleteJointPeriod: (jpId: string) => void;
   onUpdateTimetableSession: (updater: (session: TimetableSession) => TimetableSession) => void;
   changeLogs?: TimetableChangeLog[];
+  appFont?: string;
+  theme?: string;
 }
 
 // Helper to create log
@@ -68,7 +70,7 @@ const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5
 const WhatsAppIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>);
 const PrintIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2v4h10z" /></svg>;
 
-const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, classes, subjects, teachers, jointPeriods, adjustments, onSetClasses, schoolConfig, onUpdateSchoolConfig, selection, onSelectionChange, openConfirmation, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs, appFont }) => {
+const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, classes, subjects, teachers, jointPeriods, adjustments, onSetClasses, schoolConfig, onUpdateSchoolConfig, selection, onSelectionChange, openConfirmation, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs, appFont, theme }) => {
   const { classId: selectedClassId, highlightedTeacherId } = selection;
   const [draggedData, setDraggedData] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const [moveSource, setMoveSource] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
@@ -83,10 +85,12 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   
   // Custom Dropdown State
   const [isClassDropdownOpen, setIsClassDropdownOpen] = useState(false);
+  const [isHeaderMoreOpen, setIsHeaderMoreOpen] = useState(false);
   const [classSortBy, setClassSortBy] = useState<'serial' | 'room' | 'name'>('serial');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [classSearchQuery, setClassSearchQuery] = useState('');
   const classDropdownRef = useRef<HTMLDivElement>(null);
+  const headerMoreRef = useRef<HTMLDivElement>(null);
 
   // Ref for detecting clicks outside
   const tableRef = useRef<HTMLDivElement>(null);
@@ -119,6 +123,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
       const handleClickOutsideDropdown = (event: MouseEvent) => {
           if (classDropdownRef.current && !classDropdownRef.current.contains(event.target as Node)) {
               setIsClassDropdownOpen(false);
+          }
+          if (headerMoreRef.current && !headerMoreRef.current.contains(event.target as Node)) {
+              setIsHeaderMoreOpen(false);
           }
       };
       document.addEventListener('mousedown', handleClickOutsideDropdown);
@@ -510,365 +517,430 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
       
       <DownloadModal t={t} isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} title={t.downloadTimetable} fileNameBase="Class_Timetables" items={visibleClasses} itemType="class" generateFullPageHtml={(item, lang, design) => generateClassTimetableHtml(item, lang, design, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} />
 
-      <div className="mb-8 flex flex-col lg:flex-row items-center justify-between gap-6">
+      <div className="mb-6 flex items-center justify-between gap-4 w-full max-w-7xl mx-auto px-2 lg:px-0 mt-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         
-        {/* Class Selector */}
-        <div className="flex items-center gap-4">
-             {/* Previous Button */}
-             <button 
-                 onClick={handlePreviousClass} 
-                 disabled={currentClassIndex <= 0}
-                 className="w-12 h-12 rounded-full bg-[var(--bg-secondary)] shadow-sm border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-30 transition-all flex items-center justify-center"
-             >
-                 <ChevronLeftIcon />
-             </button>
-
-             {/* Main Pill Dropdown */}
-             <div className="relative z-20" ref={classDropdownRef}>
-                 <button
-                     onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}
-                     className="flex items-center gap-4 bg-[var(--bg-secondary)] rounded-full pl-2 pr-6 py-2 shadow-md border border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:shadow-lg transition-all min-w-[260px] sm:min-w-[300px]"
+        {/* Class Selector Header - Modern Design */}
+        <div className="flex items-center justify-start flex-grow relative" ref={classDropdownRef}>
+             <div className="flex items-center gap-1 sm:gap-2 mr-2 sm:mr-4">
+                 <button 
+                     onClick={handlePreviousClass} 
+                     disabled={currentClassIndex <= 0}
+                     className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
-                     {selectedClass ? (
-                         <>
-                             {/* Serial Circle */}
-                             <div className="w-10 h-10 rounded-full bg-[var(--accent-primary)] text-white flex items-center justify-center font-bold text-lg shadow-sm flex-shrink-0">
-                                 {selectedClass.serialNumber ?? '-'}
-                             </div>
-                             
-                             {/* Text Stack */}
-                             <div className="flex flex-col items-start mr-auto overflow-hidden">
-                                 <span className="font-black text-lg text-[var(--text-primary)] leading-none truncate w-full text-left">
-                                     {language === 'ur' ? selectedClass.nameUr : selectedClass.nameEn}
-                                 </span>
-                                 <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-0.5 truncate w-full text-left">
-                                     {selectedClass.roomNumber ? `ROOM ${selectedClass.roomNumber}` : 'NO ROOM'}
-                                     {selectedClass.inCharge && (() => {
-                                         const inChargeTeacher = teachers.find(t => t.id === selectedClass.inCharge);
-                                         return inChargeTeacher ? ` • Inc. ${language === 'ur' ? inChargeTeacher.nameUr : inChargeTeacher.nameEn}` : '';
-                                     })()}
-                                 </span>
-                             </div>
-                         </>
-                     ) : (
-                         <span className="text-[var(--text-secondary)] font-medium pl-4">{t.selectAClass}</span>
-                     )}
-                     
-                     <div className="text-[var(--text-secondary)]">
-                         <ChevronDownIcon />
-                     </div>
+                     <ChevronLeftIcon />
                  </button>
-
-                 {isClassDropdownOpen && (
-                     <div className="absolute top-full left-0 mt-2 w-full min-w-[320px] bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl p-3 animate-scale-in origin-top-left z-50">
-                         {/* Search */}
-                         <div className="relative mb-3">
-                             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-placeholder)] pointer-events-none">
-                                 <SearchIcon />
-                             </div>
-                             <input
-                                 type="text"
-                                 placeholder="Search classes..."
-                                 value={classSearchQuery}
-                                 onChange={(e) => setClassSearchQuery(e.target.value)}
-                                 className="w-full pl-10 pr-10 py-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
-                                 autoFocus
-                             />
-                              {classSearchQuery && (
-                                <button 
-                                    onClick={() => setClassSearchQuery('')}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)] hover:text-red-500 transition-colors p-1 rounded-full hover:bg-[var(--bg-secondary)]"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                    </svg>
-                                </button>
-                            )}
-                         </div>
-                         
-                         {/* Sort Controls */}
-                         <div className="flex gap-1 mb-2 bg-[var(--bg-tertiary)] p-1 rounded-lg">
-                            {(['serial', 'name', 'room'] as const).map(key => (
-                                <button
-                                    key={key}
-                                    onClick={() => {
-                                        if (classSortBy === key) {
-                                            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-                                        } else {
-                                            setClassSortBy(key);
-                                            setSortDirection('asc');
-                                        }
-                                    }}
-                                    className={`flex-1 text-[10px] font-bold uppercase py-1 rounded-md transition-colors flex items-center justify-center gap-1 ${classSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]'}`}
-                                >
-                                    {key === 'serial' ? '#' : key}
-                                    {classSortBy === key && (
-                                        <span className="text-[8px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
-                                    )}
-                                </button>
-                            ))}
-                         </div>
-
-                         {/* List */}
-                         <div className="max-h-60 overflow-y-auto custom-scrollbar flex flex-col gap-1">
-                             {sortedClasses.length === 0 ? (
-                                 <div className="p-3 text-center text-xs text-[var(--text-secondary)] italic">No classes found</div>
-                             ) : (
-                                 sortedClasses.map(c => (
-                                     <button
-                                         key={c.id}
-                                         onClick={() => {
-                                             onSelectionChange(prev => ({ ...prev, classId: c.id }));
-                                             setIsClassDropdownOpen(false);
-                                         }}
-                                         className={`w-full text-left px-3 py-2.5 rounded-lg text-sm flex items-center gap-3 transition-colors ${selectedClassId === c.id ? 'bg-[var(--accent-secondary)] text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]' : 'hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
-                                     >
-                                         <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-0.5 rounded ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/10' : 'bg-[var(--bg-primary)]'}`}>#{c.serialNumber ?? '-'}</span>
-                                         <span className="font-bold flex-grow text-base break-words text-left leading-tight">{language === 'ur' ? c.nameUr : c.nameEn}</span>
-                                         {c.roomNumber && <span className={`text-[10px] opacity-70 whitespace-nowrap px-1.5 py-0.5 rounded border border-[var(--border-secondary)] ${selectedClassId === c.id ? 'bg-white/50 text-[var(--accent-primary)]' : 'bg-[var(--bg-secondary)]'}`}>Rm {c.roomNumber}</span>}
-                                         {selectedClassId === c.id && <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] flex-shrink-0"></div>}
-                                     </button>
-                                 ))
-                             )}
-                         </div>
-                     </div>
-                 )}
+                 <button 
+                     onClick={handleNextClass} 
+                     disabled={currentClassIndex >= sortedClasses.length - 1}
+                     className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                 >
+                     <ChevronRightIcon />
+                 </button>
              </div>
 
-             {/* Next Button */}
-             <button 
-                 onClick={handleNextClass} 
-                 disabled={currentClassIndex >= sortedClasses.length - 1}
-                 className="w-12 h-12 rounded-full bg-[var(--bg-secondary)] shadow-sm border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-30 transition-all flex items-center justify-center"
-             >
-                 <ChevronRightIcon />
-             </button>
+             {selectedClass ? (
+                 <div className="flex items-center gap-2 sm:gap-4 cursor-pointer whitespace-nowrap" onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}>
+                     <div className="w-10 h-10 md:w-14 md:h-14 rounded-full border-2 md:border-4 border-[#bed730] flex items-center justify-center flex-shrink-0">
+                         <span className="text-[#bed730] font-black text-lg md:text-xl">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
+                     </div>
+                     <div className="flex flex-col items-start leading-none -space-y-0.5 md:-space-y-1">
+                         <span className="font-black text-2xl md:text-4xl text-[#2e5ef2] uppercase tracking-tighter">
+                             {language === 'ur' ? selectedClass.nameUr : selectedClass.nameEn}
+                         </span>
+                         {selectedClass.inCharge && (() => {
+                             const inChargeTeacher = teachers.find(t => t.id === selectedClass.inCharge);
+                             return inChargeTeacher ? (
+                                 <span className="text-[#2e5ef2] text-xs md:text-lg font-bold uppercase tracking-widest pl-1">
+                                     {language === 'ur' ? inChargeTeacher.nameUr : inChargeTeacher.nameEn}
+                                 </span>
+                             ) : null;
+                         })()}
+                     </div>
+                     
+                     <div className="flex items-center gap-2 ml-2 md:ml-4">
+                         <div className="flex flex-col items-center justify-center relative w-8 h-8 md:w-10 md:h-10 rounded-full border-[1.5px] border-dashed border-[#bed730] text-[#bed730] flex-shrink-0">
+                             <span className="text-[6px] md:text-[8px] font-bold uppercase absolute top-1 md:top-1.5 opacity-80">RM</span>
+                             <span className="text-[10px] md:text-xs font-black mt-1.5 md:mt-2">{selectedClass.roomNumber || '-'}</span>
+                         </div>
+                         <div className="text-gray-300 flex flex-col -gap-2 hidden md:flex">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+                         </div>
+                     </div>
+                 </div>
+             ) : (
+                 <span className="text-gray-400 font-medium text-base md:text-lg whitespace-nowrap">{t.selectAClass}</span>
+             )}
+
+             {isClassDropdownOpen && (
+                 <div className="absolute top-[100%] mt-4 w-full min-w-[280px] md:min-w-[320px] max-w-md bg-white dark:bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-3xl shadow-2xl p-4 animate-scale-in z-50">
+                     {/* Search */}
+                     <div className="relative mb-3 w-full">
+                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5">
+                             <SearchIcon />
+                         </div>
+                         <input
+                             type="text"
+                             placeholder="Search classes..."
+                             value={classSearchQuery}
+                             onChange={(e) => setClassSearchQuery(e.target.value)}
+                             className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] border border-gray-200 dark:border-[var(--border-secondary)] rounded-2xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#2e5ef2] transition-all"
+                             autoFocus
+                         />
+                     </div>
+                     
+                     <div className="flex gap-2 mb-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] p-1.5 rounded-xl">
+                        {(['serial', 'name', 'room'] as const).map(key => (
+                            <button
+                                key={key}
+                                onClick={() => {
+                                    if (classSortBy === key) {
+                                        setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+                                    } else {
+                                        setClassSortBy(key);
+                                        setSortDirection('asc');
+                                    }
+                                }}
+                                className={`flex-1 text-xs font-bold uppercase py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 ${classSortBy === key ? 'bg-[#2e5ef2] text-white shadow-sm' : 'text-gray-500 hover:text-black dark:text-gray-400 hover:bg-white dark:hover:bg-[var(--bg-secondary)]'}`}
+                            >
+                                {key === 'serial' ? '#' : key}
+                                {classSortBy === key && (
+                                    <span className="text-[10px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                                )}
+                            </button>
+                        ))}
+                     </div>
+
+                     <div className="max-h-64 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1">
+                         {sortedClasses.length === 0 ? (
+                             <div className="p-4 text-center text-sm text-gray-400 italic">No classes found</div>
+                         ) : (
+                             sortedClasses.map(c => (
+                                 <button
+                                     key={c.id}
+                                     onClick={() => {
+                                         onSelectionChange(prev => ({ ...prev, classId: c.id }));
+                                         setIsClassDropdownOpen(false);
+                                     }}
+                                     className={`w-full text-left px-4 py-3 rounded-xl text-sm flex items-center gap-3 transition-colors ${selectedClassId === c.id ? 'bg-[#2e5ef2]/10 text-[#2e5ef2]' : 'hover:bg-gray-50 dark:hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
+                                 >
+                                     <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-md ${selectedClassId === c.id ? 'bg-[#2e5ef2]/20' : 'bg-gray-100 dark:bg-[var(--bg-secondary)]'}`}>#{c.serialNumber ?? '-'}</span>
+                                     <span className="font-bold flex-grow text-base break-words text-left">{language === 'ur' ? c.nameUr : c.nameEn}</span>
+                                     {c.roomNumber && <span className="text-[10px] opacity-70 whitespace-nowrap px-2 py-1 rounded-md bg-white border border-gray-200 dark:bg-[var(--bg-secondary)] dark:border-[var(--border-secondary)]">Rm {c.roomNumber}</span>}
+                                 </button>
+                             ))
+                         )}
+                     </div>
+                 </div>
+             )}
         </div>
         
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3 flex-wrap justify-center">
-            {onUndo && (
-              <button onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><UndoIcon /></button>
-            )}
-            {onRedo && (
-              <button onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><RedoIcon /></button>
-            )}
-            {onSave && (
-              <button onClick={onSave} title="Save (Ctrl+S)" className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] transition-colors"><SaveIcon /></button>
-            )}
-            <div className="w-px h-6 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
-            <button onClick={() => selectedClass && onSetClasses(classes.map(c => c.id === selectedClass.id ? { ...c, timetable: { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [] } as any } : c))} disabled={!selectedClass} className="p-2 text-sm font-medium text-red-600 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-red-50 hover:border-red-200 disabled:opacity-50 transition-colors" title={t.clearTimetable}><ClearIcon /></button>
-            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="p-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg shadow-sm hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><WhatsAppIcon /></button>
-            <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedClass} className="p-2 text-sm font-medium bg-[var(--accent-primary)] text-[var(--accent-text)] border border-[var(--accent-primary)] rounded-lg shadow-sm hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 transition-colors" title={t.printViewAction}><PrintIcon /></button>
+        {/* Actions - Right */}
+        <div className="flex items-center justify-end gap-2 md:gap-4 flex-shrink-0">
+            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 md:w-8 md:h-8"><path d="M12.031 0C5.385 0 0 5.385 0 12.033c0 2.651.848 5.129 2.316 7.21l-1.579 5.765 5.922-1.554a11.966 11.966 0 005.372 1.28c6.645 0 12.031-5.385 12.031-12.033S18.677 0 12.031 0zm3.847 17.585c-.198.549-1.189 1.054-1.636 1.111-.409.052-.937.106-2.911-.703-2.366-.967-3.896-3.376-4.01-3.529-.115-.152-.958-1.272-.958-2.428 0-1.156.6-1.728.814-1.936.213-.207.468-.258.623-.258s.308 0 .445.006c.14.007.327-.052.511.393.184.444.622 1.52.678 1.636.056.115.093.251.018.397-.075.146-.115.236-.226.353-.115.116-.242.261-.345.358-.112.106-.231.222-.102.443.129.222.576.953 1.233 1.536.847.75 1.564.978 1.785 1.085.222.106.353.088.484-.06.13-.146.562-.647.712-.871.149-.222.3-.186.505-.11.205.076 1.284.606 1.503.716.222.111.371.165.426.257.054.093.054.538-.144 1.087z"/></svg>
+            </button>
+            <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedClass} className="bg-white dark:bg-[var(--bg-tertiary)] rounded-full px-3 md:px-5 py-1.5 md:py-2 flex items-center gap-1.5 shadow-sm border border-gray-100 dark:border-[var(--border-secondary)] text-black dark:text-white font-bold text-xs md:text-sm hover:shadow-md transition-shadow whitespace-nowrap">
+                <PrintIcon className="text-[#00c5ff] w-4 h-4 md:w-5 md:h-5" /> Print
+            </button>
+            
+            <div className="relative" ref={headerMoreRef}>
+                <button 
+                  onClick={() => setIsHeaderMoreOpen(!isHeaderMoreOpen)} 
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-[var(--bg-tertiary)] flex border border-gray-200 dark:border-[var(--border-secondary)] text-gray-400 hover:text-gray-600 dark:text-white hover:bg-gray-50 items-center justify-center transition-all shadow-sm flex-shrink-0"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                </button>
+                
+                {isHeaderMoreOpen && (
+                    <div className="absolute right-0 top-[100%] mt-2 w-48 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl py-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
+                        {onUndo && (
+                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
+                                <UndoIcon /> {t.undo || 'Undo'}
+                            </button>
+                        )}
+                        {onRedo && (
+                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
+                                <RedoIcon /> {t.redo || 'Redo'}
+                            </button>
+                        )}
+                        {onSave && (
+                            <button onClick={() => { onSave(); setIsHeaderMoreOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 text-blue-600">
+                                <SaveIcon /> {t.save || 'Save'}
+                            </button>
+                        )}
+                        <hr className="my-2 border-gray-100 dark:border-gray-800" />
+                        <button onClick={() => { openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { /* Logic to clear class timetable */ }); setIsHeaderMoreOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-3 text-red-600">
+                            <ClearIcon /> Clear
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
       </div>
 
       {!selectedClass ? (
         <p className="text-center text-[var(--text-secondary)] py-10">{t.selectAClass}</p>
       ) : (
-        <div className="relative flex flex-col gap-6 items-start w-full">
-          {/* Timetable Grid */}
-          <div className="w-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto">
-            <div className="bg-[var(--bg-secondary)] shadow-lg rounded-lg overflow-hidden border border-[var(--border-primary)]" ref={tableRef}>
-              <table className="w-full text-center border-collapse table-fixed">
-                <thead>
-                  <tr className="bg-[var(--accent-primary)] text-[var(--accent-text)]">
-                    <th className="border border-[var(--border-secondary)] p-1 w-10"></th>
-                    {activeDays.map(day => (
-                      <th key={day} className="border border-[var(--border-secondary)] p-1 font-bold uppercase text-xs">{t[day.toLowerCase()]}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {periodLabels.map((label, periodIndex) => (
-                    <tr key={label}>
-                      <td className="border border-[var(--border-secondary)] font-black text-lg bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-sans">{label}</td>
-                      {activeDays.map(day => {
-                        const periodLimit = schoolConfig.daysConfig?.[day]?.periodCount ?? 8;
-                        const isDisabled = periodIndex >= periodLimit;
-                        const slotPeriods = selectedClass.timetable[day]?.[periodIndex] || [];
-                        
-                        const groupedSlotPeriods: Period[][] = [];
-                        const processedJPs = new Set<string>();
-                        
-                        slotPeriods.forEach(p => {
-                            if (p.jointPeriodId) {
-                                if (!processedJPs.has(p.jointPeriodId)) {
-                                    processedJPs.add(p.jointPeriodId);
-                                    groupedSlotPeriods.push([p]); 
-                                }
-                            } else {
-                                groupedSlotPeriods.push([p]);
-                            }
-                        });
+        <div className="relative flex flex-col gap-6 items-start w-full mt-4">
+          {/* Timetable Grid - Modern Styled */}
+          <div className="w-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] rounded-[20px] sm:rounded-[32px] p-4 sm:p-6 lg:p-8 shadow-inner overflow-hidden border border-[#c5d3df] dark:border-[var(--border-primary)]" ref={tableRef}>
+                <div className="min-w-max flex flex-col gap-3">
+                    {/* Header Row */}
+                    <div className="flex gap-2">
+                        <div className="w-10 sm:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[10px] sm:text-xs tracking-widest uppercase py-1 flex items-center justify-center">
+                            TIME
+                        </div>
+                        {activeDays.map(day => {
+                            // Compute Date relative to current week
+                            const today = new Date();
+                            const currentDayIdx = today.getDay(); // 0 is Sunday
+                            const daysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                            const targetIdx = daysArr.indexOf(day);
+                            const diff = targetIdx - currentDayIdx;
+                            const targetDate = new Date(today);
+                            targetDate.setDate(today.getDate() + diff);
+                            const dateStr = targetDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 
-                        const isTarget = moveSource && !isDisabled;
-                        const statusClass = (!isDisabled && isSelectionActive) ? 'drop-target-available' : '';
+                            return (
+                                <div key={day} className="w-[72px] sm:w-[80px] md:w-[90px] flex-shrink-0 flex flex-col items-center justify-center py-1">
+                                    <span className="text-[9px] sm:text-[10px] font-bold text-[#2e5ef2] dark:text-blue-400 mb-0.5">{dateStr}</span>
+                                    <span className="font-black text-[#0c2340] dark:text-white text-xs sm:text-sm tracking-widest uppercase">{t[day.toLowerCase()].substring(0, 3)}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
 
-                        let cellBackgroundClass = '';
-                        let conflictText = null;
+                    {/* Periods */}
+                    {periodLabels.map((label, periodIndex) => {
                         
-                        if (teacherAvailabilityMap && !isDisabled) {
-                            const data = teacherAvailabilityMap.get(`${day}-${periodIndex}`);
-                            if (data && data.status === 'elsewhere') {
-                                // Unavailable
-                                cellBackgroundClass = 'bg-red-100/80 dark:bg-red-900/50 ring-inset ring-4 ring-red-500 dark:ring-red-400'; 
-                                conflictText = data.conflictClass;
-                            } else if (data && data.status === 'here') {
-                                // Current Class (already has card, just background)
-                                cellBackgroundClass = 'bg-[var(--slot-available-bg)]'; 
-                            } else {
-                                // Available (Free)
-                                cellBackgroundClass = 'bg-emerald-100/80 dark:bg-emerald-900/50 ring-inset ring-4 ring-emerald-500 dark:ring-emerald-400 border-dashed';
-                            }
-                        } else if (!isDisabled) {
-                            cellBackgroundClass = slotPeriods.length === 0 ? 'bg-[var(--slot-available-bg)] opacity-70 border-dashed' : 'bg-[var(--slot-available-bg)]'; 
-                        } else {
-                            cellBackgroundClass = 'bg-[var(--slot-disabled-bg)] cursor-not-allowed';
-                        }
-
                         return (
-                          <td key={day} 
-                            className={`timetable-slot border border-[var(--border-secondary)] h-16 p-1 align-top ${cellBackgroundClass} transition-colors duration-300 ${statusClass} ${isTarget ? 'hover:bg-[var(--accent-secondary)] cursor-pointer ring-inset ring-2 ring-[var(--accent-primary)]/30' : ''} relative group`}
-                            onDragOver={(e) => !isDisabled && handleDragOver(e)}
-                            onDrop={(e) => !isDisabled && handleDrop(e, day, periodIndex)}
-                            onClick={() => !isDisabled && moveSource && handleExecuteMove(day, periodIndex)}
-                          >
-                            {/* Availability Overlay */}
-                            {!isDisabled && teacherAvailabilityMap && (
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                                    {conflictText ? (
-                                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100/95 dark:bg-red-900/95 rounded-lg border-2 border-red-500/50 dark:border-red-400/50 shadow-md animate-pulse z-20 backdrop-blur-sm">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-700 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                            </svg>
-                                            <span className="text-xs font-black text-red-800 dark:text-red-100 whitespace-nowrap">{conflictText}</span>
-                                        </div>
-                                    ) : (
-                                        // Only show 'Available' if slot is empty (no cards) and status is not 'here'
-                                        slotPeriods.length === 0 && (
-                                            <div className="flex flex-col items-center">
-                                                <span className="text-xs font-black uppercase text-emerald-700 dark:text-emerald-300 opacity-80 tracking-widest">AVAILABLE</span>
+                            <React.Fragment key={label}>
+                            <div className="flex gap-2 relative z-10 w-max">
+                                {/* Time Cell */}
+                                <div className="w-10 sm:w-12 lg:w-14 flex-shrink-0 flex flex-col items-center justify-center -space-y-0.5">
+                                    <span className="text-base sm:text-lg lg:text-xl font-black text-[#2e5ef2]">P{label}</span>
+                                    <span className="text-[7px] sm:text-[8px] font-bold text-gray-800 dark:text-gray-400 whitespace-nowrap">
+                                         08:00
+                                    </span> 
+                                </div>
+                                
+                                {/* Days Cells */}
+                                {activeDays.map(day => {
+                                    const periodLimit = schoolConfig.daysConfig?.[day]?.periodCount ?? 8;
+                                    const isDisabled = periodIndex >= periodLimit;
+                                    const slotPeriods = selectedClass.timetable[day]?.[periodIndex] || [];
+                                    
+                                    const groupedSlotPeriods: Period[][] = [];
+                                    const processedJPs = new Set<string>();
+                                    
+                                    slotPeriods.forEach(p => {
+                                        if (p.jointPeriodId) {
+                                            if (!processedJPs.has(p.jointPeriodId)) {
+                                                processedJPs.add(p.jointPeriodId);
+                                                groupedSlotPeriods.push([p]); 
+                                            }
+                                        } else {
+                                            groupedSlotPeriods.push([p]);
+                                        }
+                                    });
+
+                                    const isTarget = moveSource && !isDisabled;
+                                    
+                                    let content = null;
+
+                                    if (isDisabled) {
+                                        content = <div className="w-[72px] sm:w-[80px] md:w-[90px] h-[36px] sm:h-[40px] rounded-[16px] bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed flex-shrink-0"></div>;
+                                    } else {
+                                        let outerClasses = `w-[72px] sm:w-[80px] md:w-[90px] h-[36px] sm:h-[40px] rounded-[16px] relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent flex-shrink-0`;
+                                        if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl cursor-pointer ring-inset ring-2 ring-[#2e5ef2]/50 hover:bg-white/50 z-20';
+
+                                        if (teacherAvailabilityMap) {
+                                            const data = teacherAvailabilityMap.get(`${day}-${periodIndex}`);
+                                            if (data && data.status === 'elsewhere') {
+                                                outerClasses += ' bg-red-100/80 dark:bg-red-900/50 ring-2 ring-red-500/50'; 
+                                            } else if (data && data.status === 'here') {
+                                                 // normal
+                                            } else if (slotPeriods.length === 0) {
+                                                outerClasses += ' bg-emerald-100/50 dark:bg-emerald-900/30 border-dashed border-[#50c878]';
+                                            }
+                                        } 
+
+                                        if (slotPeriods.length === 0 && !teacherAvailabilityMap) {
+                                             outerClasses += ' bg-white/40 dark:bg-[#1e293b]/40 border-dashed border-[#a6b8ca] dark:border-gray-600';
+                                        } else if (slotPeriods.length > 0) {
+                                             outerClasses += ' shadow-sm';
+                                        }
+
+                                        content = (
+                                            <div 
+                                                className={outerClasses}
+                                                onDragOver={(e) => !isDisabled && handleDragOver(e)}
+                                                onDrop={(e) => !isDisabled && handleDrop(e, day, periodIndex)}
+                                                onClick={() => !isDisabled && moveSource && handleExecuteMove(day, periodIndex)}
+                                            >
+                                                {/* Card Content or Stack */}
+                                                <div className="h-full flex flex-col relative z-10 w-full rounded-[16px] overflow-hidden">
+                                                    {groupedSlotPeriods.map((group, groupIndex) => {
+                                                        const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
+                                                        const colorData = getColorForId(group[0].classId + group[0].subjectId, theme === 'dark' || theme === 'amoled');
+                                                        const subject = subjects.find(s => s.id === group[0].subjectId);
+                                                        const teacher = teachers.find(t => t.id === group[0].teacherId);
+                                                        
+                                                        const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
+                                                        const highlightTeacher = highlightedTeacherId === group[0].teacherId;
+                                                        const isDimmed = highlightedTeacherId && !highlightTeacher;
+
+                                                        const subjectName = subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown');
+                                                        const teacherName = teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher';
+                                                        
+                                                        const trmSubj = subjectName.length > 7 ? subjectName.substring(0, 7) + '.' : subjectName;
+                                                        const trmTeach = teacherName.length > 7 ? teacherName.substring(0, 7) + '.' : teacherName;
+
+                                                        return (
+                                                            <div 
+                                                                key={`${group[0].id}-${groupIndex}`}
+                                                                draggable
+                                                                onDragStart={(e) => { e.stopPropagation(); handleDragStart(group, day, periodIndex); }}
+                                                                onDragEnd={handleDragEnd}
+                                                                onClick={(e) => { e.stopPropagation(); handleStackClick(group, day, periodIndex); }}
+                                                                className={`absolute inset-0 flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[4px] sm:border-l-[6px] rounded-[16px] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-grab active:cursor-grabbing ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-30' : ''}`}
+                                                                style={{ 
+                                                                    borderLeftColor: colorData.hex, 
+                                                                    backgroundColor: isSelected ? `${colorData.hex}40` : `${colorData.hex}15`,
+                                                                    boxShadow: isSelected ? `inset 0 0 0 2px ${colorData.hex}90` : 'none'
+                                                                }}
+                                                            >
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className="text-[11px] sm:text-[12px] font-bold uppercase whitespace-nowrap tracking-tight leading-none pt-[2px]" style={{ color: colorData.hex }}>
+                                                                        {trmSubj}
+                                                                    </span>
+                                                                    {/* Delete button */}
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); handlePeriodDelete(group[0].id, group[0].classId, day, periodIndex, group[0].jointPeriodId); }}
+                                                                        className="opacity-0 group-hover:opacity-100 p-0.5 bg-red-100/80 hover:bg-red-200 text-red-600 rounded-full transition-opacity absolute top-0.5 right-0.5 z-20"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-[8px] w-[8px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                    </button>
+                                                                </div>
+                                                                <span className="text-[9px] sm:text-[10px] font-medium uppercase whitespace-nowrap mt-0.5 leading-none pb-[2px]" style={{ color: colorData.hex, opacity: 0.85 }}>
+                                                                    {trmTeach}
+                                                                </span>
+                                                                {/* Combined/Multiple Indicator */}
+                                                                {group.length > 1 && (
+                                                                    <div className="absolute right-1 bottom-1 w-3 h-3 bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[7px] font-bold shadow-sm">
+                                                                        {group.length}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
                                             </div>
-                                        )
-                                    )}
-                                </div>
-                            )}
-
-                            {!isDisabled && (
-                                <div className="h-full flex flex-col gap-1 period-stack-clickable relative z-10">
-                                    {groupedSlotPeriods.map((group, groupIndex) => {
-                                        const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
-                                        const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
-                                        const highlightTeacher = highlightedTeacherId === group[0].teacherId;
-                                        const isDimmed = highlightedTeacherId && !highlightTeacher;
-
-                                        return (
-                                            <PeriodStack 
-                                                key={`${group[0].id}-${groupIndex}`}
-                                                periods={group}
-                                                onDragStart={(draggedPeriods) => handleDragStart(draggedPeriods, day, periodIndex)}
-                                                onDragEnd={handleDragEnd}
-                                                onClick={(p) => handleStackClick(p, day, periodIndex)}
-                                                onDeleteStack={() => handlePeriodDelete(group[0].id, group[0].classId, day, periodIndex, group[0].jointPeriodId)}
-                                                colorName={getColorForId(group[0].classId + group[0].subjectId).name}
-                                                language={language}
-                                                subjects={subjects}
-                                                teachers={teachers}
-                                                classes={classes}
-                                                jointPeriods={jointPeriods}
-                                                displayContext="teacher"
-                                                jointPeriodName={jp?.name}
-                                                className="w-full hover:scale-105 hover:shadow-lg transition-transform duration-200"
-                                                isSelected={!!isSelected}
-                                                isHighlighted={highlightTeacher}
-                                                isDimmed={!!isDimmed}
-                                            />
                                         );
-                                    })}
-                                </div>
-                            )}
-                          </td>
+                                    }
+
+                                    return (
+                                        <React.Fragment key={day}>
+                                            {content}
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </div>
+                            </React.Fragment>
                         );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    })}
+                </div>
             </div>
           </div>
 
-          {/* Unscheduled Periods Wrapper */}
-          <div className="w-full">
-            <div 
-                className={`bg-[var(--bg-secondary)] rounded-2xl shadow-xl border border-[var(--border-primary)] transition-all duration-300 overflow-hidden ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'unscheduled-drop-target cursor-pointer ring-2 ring-red-400' : ''} ${isLessonListOpen ? 'max-h-[2000px]' : 'max-h-16'}`}
-                onDragOver={handleDragOver}
-                onDrop={handleSidebarDrop}
-                onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
-            >
-            <div 
-                className="flex justify-between items-center p-4 bg-gradient-to-b from-[var(--bg-tertiary)]/50 to-transparent border-b border-[var(--border-secondary)] cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors"
-                onClick={(e) => {
-                    // Prevent toggling if we are dropping something
-                    if (moveSource?.sourceDay) return;
-                    setIsLessonListOpen(!isLessonListOpen);
-                }}
-            >
-                <h3 className="text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
-                    {t.unscheduledPeriods}
-                    <span className="bg-[var(--accent-primary)] text-white text-xs px-2 py-0.5 rounded-full shadow-sm">{Object.keys(groupedUnscheduled).length}</span>
-                </h3>
-                <div className={`text-[var(--text-secondary)] transform transition-transform duration-200 ${isLessonListOpen ? 'rotate-180' : ''}`}>
-                   <ChevronDownIcon /> 
-                </div>
-            </div>
-            
-            <div className={`p-4 pt-2 transition-opacity duration-300 ${isLessonListOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            {moveSource && moveSource.sourceDay && (
-                <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-center animate-pulse cursor-pointer">
-                    <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
-                </div>
-            )}
+          {/* Bottom Section -> Unscheduled */}
+          <div className="w-full flex-col mt-6">
+              
+              {/* Unscheduled */}
+              <div className="w-full flex flex-col">
+                  <div className="flex items-center gap-3 mb-4 px-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-1 cursor-pointer transition-colors" onClick={() => setIsLessonListOpen(!isLessonListOpen)}>
+                      <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white flex items-center gap-2">
+                          Unscheduled 
+                          <span className="bg-[#8b0000] text-white rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center font-bold text-sm sm:text-base">
+                              {Object.keys(groupedUnscheduled).length}
+                          </span>
+                      </h2>
+                      <div className={`text-gray-400 transform transition-transform duration-200 ml-auto ${isLessonListOpen ? 'rotate-180' : ''}`}>
+                         <ChevronDownIcon /> 
+                      </div>
+                  </div>
+                  
+                  <div className={`transition-all duration-500 overflow-hidden ${isLessonListOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                      <div 
+                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-dashed border-[#a6b8ca] dark:border-gray-600 rounded-[24px] p-4 flex flex-col gap-3 min-h-[150px] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                          onDragOver={handleDragOver}
+                          onDrop={handleSidebarDrop}
+                          onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
+                      >
+                          {moveSource && moveSource.sourceDay && (
+                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-center animate-pulse cursor-pointer shadow-sm">
+                                  <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
+                              </div>
+                          )}
 
-            {Object.keys(groupedUnscheduled).length === 0 ? (
-                <div className="text-center py-8 opacity-50">
-                    <div className="mb-2 mx-auto w-12 h-12 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    </div>
-                    <p className="text-sm text-[var(--text-secondary)] font-medium">{t.allLessonsScheduled}</p>
-                </div>
-            ) : (
-                <div className="flex flex-wrap gap-3 max-h-[calc(100vh-250px)] overflow-y-auto pr-1 custom-scrollbar period-stack-clickable p-1">
-                {Object.values(groupedUnscheduled).map((group, index) => {
-                    const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
-                    const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
-                    const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
-                    
-                    return (
-                        <div key={`unscheduled-${groupKey}-${index}`} className="transform transition-transform hover:scale-[1.02]">
-                            <PeriodStack 
-                                periods={group} 
-                                onDragStart={handleDragStart} 
-                                onDragEnd={handleDragEnd}
-                                onClick={(p) => handleStackClick(p)}
-                                colorName={teacherColorMap.get(group[0].teacherId)}
-                                language={language}
-                                subjects={subjects}
-                                teachers={teachers}
-                                classes={classes}
-                                jointPeriods={jointPeriods}
-                                displayContext="teacher"
-                                jointPeriodName={jp?.name}
-                                isSelected={!!isSelected}
-                                className="w-full min-w-[180px] max-w-[220px] shadow-sm hover:shadow-md hover:scale-105 transition-transform duration-200"
-                            />
-                        </div>
-                    );
-                })}
-                </div>
-            )}
-            </div>
-            </div>
+                          {Object.keys(groupedUnscheduled).length === 0 ? (
+                              <div className="text-center py-12 px-4 opacity-60 m-auto">
+                                  <span className="block text-3xl mb-2">✨</span>
+                                  <p className="text-sm text-[#1f4061] dark:text-gray-400 font-bold">{t.allLessonsScheduled}</p>
+                              </div>
+                          ) : (
+                              <div className="flex flex-col gap-3 period-stack-clickable">
+                                  {Object.values(groupedUnscheduled).map((group, index) => {
+                                      const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
+                                      const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
+                                      const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
+                                      const colorData = getColorForId(group[0].classId + group[0].subjectId);
+                                      const subject = subjects.find(s => s.id === group[0].subjectId);
+                                      const teacher = teachers.find(t => t.id === group[0].teacherId);
+                                      
+                                      // Only show max 4, then +Show More 
+                                      if (index >= 4) return null;
+
+                                      return (
+                                          <div 
+                                              key={`unscheduled-${groupKey}-${index}`} 
+                                              draggable
+                                              onDragStart={() => handleDragStart(group)}
+                                              onDragEnd={handleDragEnd}
+                                              onClick={() => handleStackClick(group)}
+                                              className={`bg-white dark:bg-[#1e293b] rounded-[16px] px-4 py-3 flex items-center justify-between shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
+                                              style={{ borderLeftColor: colorData.hex }}
+                                          >
+                                              <div className="flex flex-col">
+                                                  <span className="text-xs font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight">
+                                                      {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
+                                                  </span>
+                                                  <span className="text-sm font-black text-black dark:text-white">
+                                                      {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
+                                                  </span>
+                                              </div>
+                                              <div className="flex items-center gap-3">
+                                                  {group.length > 1 && (
+                                                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold">x{group.length}</span>
+                                                  )}
+                                                  <svg width="12" height="18" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60 group-hover:opacity-100 transition-opacity"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                                  {Object.values(groupedUnscheduled).length > 4 && (
+                                      <div className="mt-2 text-center">
+                                          <button className="text-sm font-bold text-[#1f4061] dark:text-gray-300 hover:text-blue-600 transition-colors py-2 flex items-center justify-center gap-1 w-full border-t border-[#a6b8ca] dark:border-gray-600 border-dashed pt-4">
+                                              <ChevronDownIcon /> Show {Object.values(groupedUnscheduled).length - 4} More
+                                          </button>
+                                      </div>
+                                  )}
+                              </div>
+                          )}
+                      </div>
+                  </div>
+              </div>
           </div>
         </div>
       )}
@@ -895,46 +967,46 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
 
       {/* History Section (Logs) */}
       {selectedClass && hasActiveSession && (
-        <div className={`mt-8 bg-[var(--bg-secondary)] rounded-2xl shadow-xl border border-[var(--border-primary)] overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[500px]' : 'max-h-16'}`}>
-            <div className="w-full flex items-center justify-between p-4 bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
-                <h3 className="text-lg font-black text-[var(--text-primary)] flex items-center gap-2">
+        <div className={`mt-8 mb-24 bg-white dark:bg-[#1e293b] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[500px]' : 'max-h-16 sm:max-h-[72px]'}`}>
+            <div className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
+                <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                     History / Logs
-                    <span className="bg-[var(--accent-primary)] text-white text-xs px-2 py-0.5 rounded-full">{classLogs.length}</span>
+                    <span className="bg-[#2e5ef2] text-white text-xs px-2.5 py-0.5 rounded-full">{classLogs.length}</span>
                 </h3>
-                <div className={`text-[var(--text-secondary)] transform transition-transform duration-200 ${isHistoryExpanded ? 'rotate-180' : ''}`}>
+                <div className={`text-gray-400 transform transition-transform duration-200 ${isHistoryExpanded ? 'rotate-180' : ''}`}>
                    <ChevronDownIcon /> 
                 </div>
             </div>
             
-            <div className="p-4 bg-[var(--bg-secondary)] overflow-y-auto custom-scrollbar max-h-[400px]">
+            <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 overflow-y-auto custom-scrollbar max-h-[400px]">
                 {classLogs.length === 0 ? (
                     <div className="text-center py-8 opacity-50">
-                         <div className="mb-2 mx-auto w-12 h-12 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center">
+                         <div className="mb-3 mx-auto w-12 h-12 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-sm">
                             <HistoryIcon />
                         </div>
-                        <p className="text-sm text-[var(--text-secondary)] font-medium">No recent changes.</p>
+                        <p className="text-sm text-gray-500 font-bold">No recent changes.</p>
                     </div>
                 ) : (
-                    <ul className="space-y-2">
+                    <ul className="space-y-3">
                         {classLogs.map((log) => (
-                            <li key={log.id} className={`p-3 rounded-xl border shadow-sm hover:shadow-md transition-all ${
-                                log.type === 'delete' ? 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50' :
-                                log.type === 'add' ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50' :
-                                'bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/50'
+                            <li key={log.id} className={`p-4 rounded-[16px] border shadow-sm transition-all ${
+                                log.type === 'delete' ? 'bg-red-50/80 dark:bg-red-900/10 border-red-100 dark:border-red-800/50' :
+                                log.type === 'add' ? 'bg-emerald-50/80 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/50' :
+                                'bg-blue-50/80 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/50'
                             }`}>
-                                <div className="flex justify-between items-center mb-1.5">
-                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
                                         log.type === 'delete' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 
                                         log.type === 'add' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 
                                         'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                                     }`}>
                                         {log.type}
                                     </span>
-                                    <span className="text-[10px] font-bold opacity-50">
+                                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">
                                         {new Date(log.timestamp).toLocaleString([], { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
-                                <p className="text-xs font-bold text-[var(--text-primary)] leading-tight opacity-90">{log.details}</p>
+                                <p className="text-sm font-bold text-gray-800 dark:text-gray-200 leading-tight">{log.details}</p>
                             </li>
                         ))}
                     </ul>

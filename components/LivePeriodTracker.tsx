@@ -198,7 +198,7 @@ const LivePeriodTracker: React.FC<LivePeriodTrackerProps> = ({ session, schoolCo
     }
 
     return (
-        <div className="w-full max-w-4xl mx-auto px-4 mb-20 flex flex-col items-center relative z-10 pt-2 pb-6">
+        <div className="w-full max-w-4xl mx-auto px-4 mb-10 md:mb-16 lg:mb-20 flex flex-col items-center relative z-10 pt-2 pb-6">
             
             {/* Current/Next Period Cards (Blue Single Auto-Rotating) */}
             {(targetPeriodIndex !== -1 || specialMessage) && (

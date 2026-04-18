@@ -566,38 +566,38 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
 
       <div className="space-y-4">
           {sortedList.map(entity => (
-              <div key={entity.id} className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+              <div key={entity.id} className="bg-white dark:bg-[#1e293b] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                   <button 
                     onClick={() => setExpandedId(expandedId === entity.id ? null : entity.id)} 
-                    className="w-full flex items-center justify-between p-5 bg-slate-50/50 hover:bg-slate-100 transition-colors focus:outline-none group"
+                    className="w-full flex items-center justify-between p-5 bg-gray-50/50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none group"
                   >
                       <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-bold shadow-sm group-hover:bg-blue-200 transition-colors">
+                        <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-lg text-sm font-bold shadow-sm group-hover:bg-blue-200 dark:group-hover:bg-blue-900/60 transition-colors">
                             {entity.label}
                         </span>
-                        <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shadow-sm">
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-xs font-bold shadow-sm">
                             {entity.items.length}
                         </div>
-                        {entity.subLabel && <span className="text-lg font-urdu text-slate-600">{entity.subLabel}</span>}
+                        {entity.subLabel && <span className="text-lg font-urdu text-gray-500 dark:text-gray-400">{entity.subLabel}</span>}
                       </div>
                       
-                      <div className="text-slate-400 group-hover:text-slate-600 transition-colors transform duration-200" style={{ transform: expandedId === entity.id ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                      <div className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors transform duration-200" style={{ transform: expandedId === entity.id ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                       </div>
                   </button>
                   
                   {expandedId === entity.id && (
-                      <div className="p-4 bg-slate-50/30 animate-fade-in">
+                      <div className="p-4 bg-gray-50/30 dark:bg-gray-800/30 animate-fade-in">
                           {entity.items.length === 0 ? (
-                              <p className="p-8 text-center text-slate-400 italic">No lessons found for this class.</p>
+                              <p className="p-8 text-center text-gray-400 italic">No lessons found for this class.</p>
                           ) : (
                               <div className="space-y-3">
                                   {entity.items.map((item: any, index: number) => {
                                       const periodsCount = item.type === 'single' ? item.subject.periodsPerWeek : item.jointPeriod.periodsPerWeek;
-                                      const borderColorClass = getColorForId(item.displaySubject?.id || item.key).border;
+                                      const colorData = getColorForId(item.displaySubject?.id || item.key);
                                       
                                       return (
-                                          <div key={item.key} className={`relative bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex justify-between items-start border-l-[6px] ${borderColorClass} hover:shadow-md transition-shadow`}>
+                                          <div key={item.key} className="relative bg-white dark:bg-[#1a2332] rounded-[20px] shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex justify-between items-start border-l-[6px] hover:shadow-md transition-shadow" style={{ borderLeftColor: colorData.hex }}>
                                               {/* Left Content */}
                                               <div className="space-y-4">
                                                   <div>
@@ -607,8 +607,8 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                                                   <div>
                                                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">PERIODS</p>
                                                       <div className="flex items-center gap-2">
-                                                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 font-black text-sm shadow-sm border border-indigo-100">
-                                                              {periodsCount}
+                                                          <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                                              {periodsCount} {periodsCount === 1 ? 'PERIOD' : 'PERIODS'}
                                                           </span>
                                                           {item.type === 'joint' && !item.isDuty && sortBy === 'class' && (
                                                               <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md border border-orange-100 uppercase tracking-wide">Joint</span>

@@ -354,25 +354,25 @@ export const generateUniqueId = (): string => {
 };
 
 export const colorSchemes = [
-    { name: 'subject-sky', border: 'border-l-sky-500' },
-    { name: 'subject-green', border: 'border-l-green-500' },
-    { name: 'subject-yellow', border: 'border-l-yellow-500' },
-    { name: 'subject-red', border: 'border-l-red-500' },
-    { name: 'subject-purple', border: 'border-l-purple-500' },
-    { name: 'subject-pink', border: 'border-l-pink-500' },
-    { name: 'subject-orange', border: 'border-l-orange-500' },
-    { name: 'subject-teal', border: 'border-l-teal-500' },
-    { name: 'subject-lime', border: 'border-l-lime-500' },
-    { name: 'subject-cyan', border: 'border-l-cyan-500' },
-    { name: 'subject-emerald', border: 'border-l-emerald-500' },
-    { name: 'subject-fuchsia', border: 'border-l-fuchsia-500' },
-    { name: 'subject-rose', border: 'border-l-rose-500' },
-    { name: 'subject-amber', border: 'border-l-amber-500' },
-    { name: 'subject-blue', border: 'border-l-blue-500' },
-    { name: 'subject-indigo', border: 'border-l-indigo-500' },
+    { name: 'subject-sky', border: 'border-l-sky-500', hex: '#0ea5e9' },
+    { name: 'subject-green', border: 'border-l-green-500', hex: '#22c55e' },
+    { name: 'subject-yellow', border: 'border-l-yellow-500', hex: '#eab308' },
+    { name: 'subject-red', border: 'border-l-red-500', hex: '#ef4444' },
+    { name: 'subject-purple', border: 'border-l-purple-500', hex: '#a855f7' },
+    { name: 'subject-pink', border: 'border-l-pink-500', hex: '#ec4899' },
+    { name: 'subject-orange', border: 'border-l-orange-500', hex: '#f97316' },
+    { name: 'subject-teal', border: 'border-l-teal-500', hex: '#14b8a6' },
+    { name: 'subject-lime', border: 'border-l-lime-500', hex: '#84cc16' },
+    { name: 'subject-cyan', border: 'border-l-cyan-500', hex: '#06b6d4' },
+    { name: 'subject-emerald', border: 'border-l-emerald-500', hex: '#10b981' },
+    { name: 'subject-fuchsia', border: 'border-l-fuchsia-500', hex: '#d946ef' },
+    { name: 'subject-rose', border: 'border-l-rose-500', hex: '#f43f5e' },
+    { name: 'subject-amber', border: 'border-l-amber-500', hex: '#f59e0b' },
+    { name: 'subject-blue', border: 'border-l-blue-500', hex: '#3b82f6' },
+    { name: 'subject-indigo', border: 'border-l-indigo-500', hex: '#6366f1' },
 ];
 
-export const getColorForId = (id: string): { name: string, border: string } => {
+export const getColorForId = (id: string, isDark?: boolean): { name: string, border: string, hex: string } => {
     let hash = 0;
     for (let i = 0; i < id.length; i++) {
         hash = id.charCodeAt(i) + ((hash << 5) - hash);
