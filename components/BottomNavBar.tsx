@@ -84,7 +84,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
   };
 
   return (
-    <div className={`xl:hidden fixed bottom-6 left-4 right-4 z-50 transition-transform duration-300 ${isCollapsed ? 'translate-y-[200%]' : 'translate-y-0'}`}>
+    <div className={`block md:landscape:hidden lg:hidden fixed bottom-6 left-4 right-4 z-50 transition-transform duration-300 ${isCollapsed ? 'translate-y-[200%]' : 'translate-y-0'}`}>
       <div className="w-full bg-[var(--bg-secondary)]/95 backdrop-blur-md h-16 rounded-full shadow-2xl border border-[var(--border-secondary)] flex items-center justify-between px-2 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         
         {navItems.map((item) => {

@@ -69,6 +69,8 @@ const NavButton: React.FC<{
 };
 
 const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage, schoolConfig }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   
   const navItems: { page: Page; labelKey: string; icon: React.ReactNode; theme: string }[] = [
     { page: 'home', labelKey: 'home', icon: <HomeIcon />, theme: 'blue' },
@@ -81,34 +83,135 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
   ];
 
   return (
-    <aside className="hidden xl:flex flex-col fixed top-0 left-0 bottom-0 w-64 z-40 bg-[#f0f4f8] dark:bg-[var(--bg-secondary)] border-r border-[var(--border-secondary)] shadow-sm">
-      {/* Logo Section */}
-      <div className="flex items-center gap-3 px-6 h-24 flex-shrink-0">
-          {schoolConfig.schoolLogoBase64 && (
-              <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-8 w-8 object-contain rounded-full shadow-sm" />
-          )}
-          <h1 className="text-xl font-black text-blue-700 dark:text-blue-400 tracking-tight line-clamp-1">
-              {schoolConfig.schoolNameEn || 'Mr. TimeTable'}
-          </h1>
-      </div>
+    <>
+      {/* Tablet Landscape Hamburger Toggle */}
+      <button 
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="fixed top-4 left-4 z-50 p-2 bg-[var(--bg-secondary)] rounded-md shadow-md border border-[var(--border-secondary)] hidden md:landscape:flex lg:hidden text-[var(--text-primary)]"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
 
-      {/* Nav Items */}
-      <nav className="flex-1 overflow-y-auto py-4 flex flex-col gap-1">
-          {navItems.map(item => {
-              const isActive = currentPage === item.page;
-              return (
-              <NavButton
-                  key={item.page}
-                  label={t[item.labelKey]}
-                  icon={item.icon}
-                  isActive={isActive}
-                  onClick={() => setCurrentPage(item.page)}
-                  theme={item.theme}
-              />
-              );
-          })}
-      </nav>
-    </aside>
+      {/* SideNavBar Container */}
+      <aside 
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`fixed top-0 left-0 bottom-0 z-40 bg-[#f0f4f8] dark:bg-[var(--bg-secondary)] border-r border-[var(--border-secondary)] shadow-sm transition-all duration-300 ease-in-out flex flex-col
+          ${isHovered ? 'w-64' : 'w-[72px]'} 
+          hidden lg:flex
+        `}
+      >
+        {/* Logo Section */}
+        <div className={`flex items-center px-4 h-24 flex-shrink-0 relative overflow-hidden transition-all duration-300 ${isHovered ? 'gap-3' : 'justify-center gap-0'}`}>
+            {schoolConfig.schoolLogoBase64 && (
+                <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-8 w-8 min-w-[32px] object-contain rounded-full shadow-sm" />
+            )}
+            <h1 className={`text-xl font-black text-blue-700 dark:text-blue-400 tracking-tight whitespace-nowrap transition-opacity duration-300 ${isHovered ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+                {schoolConfig.schoolNameEn || 'Mr. TimeTable'}
+            </h1>
+        </div>
+
+        {/* Nav Items */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 flex flex-col gap-1 w-full">
+            {navItems.map(item => {
+                const isActive = currentPage === item.page;
+                
+                const colors: Record<string, { bg: string, text: string, activeText: string }> = {
+                    blue: { bg: 'bg-blue-500/10', text: 'text-gray-500', activeText: 'text-blue-600' },
+                    emerald: { bg: 'bg-emerald-500/10', text: 'text-gray-500', activeText: 'text-emerald-600' },
+                    indigo: { bg: 'bg-indigo-500/10', text: 'text-gray-500', activeText: 'text-indigo-600' },
+                    violet: { bg: 'bg-violet-500/10', text: 'text-gray-500', activeText: 'text-violet-600' },
+                    orange: { bg: 'bg-orange-500/10', text: 'text-gray-500', activeText: 'text-orange-600' },
+                    teal: { bg: 'bg-teal-500/10', text: 'text-gray-500', activeText: 'text-teal-600' },
+                    slate: { bg: 'bg-slate-500/10', text: 'text-gray-500', activeText: 'text-slate-600' },
+                };
+                const color = colors[item.theme] || colors.blue;
+
+                return (
+                    <button
+                        key={item.page}
+                        onClick={() => setCurrentPage(item.page)}
+                        className={`relative flex items-center h-12 transition-all duration-300 focus:outline-none group ${isActive ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'hover:bg-[var(--bg-tertiary)]'} ${isHovered ? 'px-6 w-full' : 'px-0 w-[72px] justify-center'}`}
+                        title={t[item.labelKey]}
+                    >
+                        {isActive && (
+                            <motion.div
+                                layoutId="side-desktop-active-indicator"
+                                className={`absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full`}
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
+                        )}
+                        
+                        <div className={`flex items-center z-10 w-full ${isHovered ? 'justify-start' : 'justify-center'}`}>
+                            <span className={`transition-colors duration-300 flex-shrink-0 ${isActive ? 'text-blue-600' : `${color.text} group-hover:text-[var(--text-primary)]`}`}>
+                                {item.icon}
+                            </span>
+                            
+                            <span className={`text-sm font-semibold whitespace-nowrap transition-all duration-300 overflow-hidden ${isActive ? 'text-blue-600' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'} ${isHovered ? 'ml-4 opacity-100 max-w-[200px]' : 'ml-0 opacity-0 max-w-0'}`}>
+                                {t[item.labelKey]}
+                            </span>
+                        </div>
+                    </button>
+                );
+            })}
+        </nav>
+      </aside>
+
+      {/* Tablet Landscape Over Drawer */}
+      <div className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${isMobileOpen ? 'opacity-100 visible' : 'opacity-0 invisible'} hidden md:landscape:block lg:hidden`} onClick={() => setIsMobileOpen(false)} />
+      <aside className={`fixed top-0 left-0 bottom-0 z-50 bg-[#f0f4f8] dark:bg-[var(--bg-secondary)] border-r border-[var(--border-secondary)] shadow-xl w-64 transition-transform duration-300 ease-in-out transform ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} hidden md:landscape:flex lg:hidden flex-col`}>
+        {/* Same content for tablet drawer */}
+        <div className="flex items-center gap-3 px-6 h-24 flex-shrink-0 border-b border-[var(--border-secondary)]">
+            {schoolConfig.schoolLogoBase64 && (
+                <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-8 w-8 object-contain rounded-full shadow-sm" />
+            )}
+            <h1 className="text-xl font-black text-blue-700 dark:text-blue-400 tracking-tight line-clamp-1">
+                {schoolConfig.schoolNameEn || 'Mr. TimeTable'}
+            </h1>
+        </div>
+        <nav className="flex-1 overflow-y-auto py-4 flex flex-col gap-1 w-full">
+            {navItems.map(item => {
+                const isActive = currentPage === item.page;
+                const colors: Record<string, { bg: string, text: string, activeText: string }> = {
+                    blue: { bg: 'bg-blue-500/10', text: 'text-gray-500', activeText: 'text-blue-600' },
+                    emerald: { bg: 'bg-emerald-500/10', text: 'text-gray-500', activeText: 'text-emerald-600' },
+                    indigo: { bg: 'bg-indigo-500/10', text: 'text-gray-500', activeText: 'text-indigo-600' },
+                    violet: { bg: 'bg-violet-500/10', text: 'text-gray-500', activeText: 'text-violet-600' },
+                    orange: { bg: 'bg-orange-500/10', text: 'text-gray-500', activeText: 'text-orange-600' },
+                    teal: { bg: 'bg-teal-500/10', text: 'text-gray-500', activeText: 'text-teal-600' },
+                    slate: { bg: 'bg-slate-500/10', text: 'text-gray-500', activeText: 'text-slate-600' },
+                };
+                const color = colors[item.theme] || colors.blue;
+
+                return (
+                    <button
+                        key={item.page}
+                        onClick={() => { setCurrentPage(item.page); setIsMobileOpen(false); }}
+                        className={`relative flex items-center h-12 px-6 w-full transition-all duration-300 focus:outline-none group ${isActive ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'hover:bg-[var(--bg-tertiary)]'}`}
+                    >
+                        {isActive && (
+                            <motion.div
+                                layoutId="side-tablet-active-indicator"
+                                className={`absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full`}
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
+                        )}
+                        <div className="flex items-center z-10 w-full justify-start">
+                            <span className={`transition-colors duration-300 flex-shrink-0 ${isActive ? 'text-blue-600' : `${color.text} group-hover:text-[var(--text-primary)]`}`}>
+                                {item.icon}
+                            </span>
+                            <span className={`ml-4 text-sm font-semibold whitespace-nowrap transition-colors duration-300 ${isActive ? 'text-blue-600' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`}>
+                                {t[item.labelKey]}
+                            </span>
+                        </div>
+                    </button>
+                );
+            })}
+        </nav>
+      </aside>
+    </>
   );
 };
 
