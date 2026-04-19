@@ -74,6 +74,12 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   const { classId: selectedClassId, highlightedTeacherId } = selection;
   const [draggedData, setDraggedData] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const [moveSource, setMoveSource] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
+  const [pendingMove, setPendingMove] = useState<{
+      targetDay: keyof TimetableGridData,
+      targetIndex: number,
+      source: { periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number },
+      conflicts: { type: 'occupancy' | 'teacher', classId: string, periodsToUnschedule: Period[], message: string }[]
+  } | null>(null);
   
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
@@ -184,32 +190,40 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   // Calculate teacher availability across the grid if a teacher is selected
   const teacherAvailabilityMap = useMemo(() => {
     if (!highlightedTeacherId) return null;
-    const map = new Map<string, { status: 'here' | 'elsewhere', conflictClass?: string }>();
+    const map = new Map<string, { status: 'here' | 'elsewhere', conflictClass?: string, conflictSubject?: string, conflictTeacher?: string }>();
     
     activeDays.forEach(day => {
         for (let pIdx = 0; pIdx < maxPeriods; pIdx++) {
             let status: 'here' | 'elsewhere' | null = null;
             let conflictClass = '';
+            let conflictSubject = '';
+            let conflictTeacher = '';
             
             for (const cls of classes) {
                 const periods = cls.timetable[day]?.[pIdx];
                 if (periods) {
-                    if (periods.some(p => p.teacherId === highlightedTeacherId)) {
+                    const matchingPeriod = periods.find(p => p.teacherId === highlightedTeacherId);
+                    if (matchingPeriod) {
                         if (cls.id === selectedClassId) {
                             status = 'here';
                         } else {
                             status = 'elsewhere'; 
                             conflictClass = language === 'ur' ? cls.nameUr : cls.nameEn;
+                            const sub = subjects.find(s => s.id === matchingPeriod.subjectId);
+                            const jp = matchingPeriod.jointPeriodId ? jointPeriods.find(j => j.id === matchingPeriod.jointPeriodId) : undefined;
+                            conflictSubject = sub ? (language === 'ur' ? sub.nameUr : sub.nameEn) : (jp?.name || 'Unknown');
+                            const tea = teachers.find(t => t.id === matchingPeriod.teacherId);
+                            conflictTeacher = tea ? (language === 'ur' ? tea.nameUr : tea.nameEn) : 'No Teacher';
                         }
                         if (status === 'here') break; 
                     }
                 }
             }
-            if (status) map.set(`${day}-${pIdx}`, { status, conflictClass });
+            if (status) map.set(`${day}-${pIdx}`, { status, conflictClass, conflictSubject, conflictTeacher });
         }
     });
     return map;
-  }, [highlightedTeacherId, classes, activeDays, maxPeriods, selectedClassId, language]);
+  }, [highlightedTeacherId, classes, activeDays, maxPeriods, selectedClassId, language, subjects, jointPeriods, teachers]);
 
   const teacherColorMap = useMemo(() => {
       const map = new Map<string, string>();
@@ -252,92 +266,168 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         if (targetGroupSetId === incomingGroupSetId) isCompatibleGroup = true;
       }
 
-      let needsReplacement = isTargetOccupied && !isCompatibleGroup;
+      const conflicts: { type: 'occupancy' | 'teacher', classId: string, periodsToUnschedule: Period[], message: string }[] = [];
 
-      const performUpdate = (doOverwrite: boolean = false) => {
-        onUpdateTimetableSession((session) => {
-            let newClasses = session.classes.map(c => ({...c, timetable: {...c.timetable}}));
-            let currentLogs = session.changeLogs || [];
-            
-            const jointPeriodId = periods[0].jointPeriodId;
-            const jointPeriodDef = jointPeriodId ? jointPeriods.find(jp => jp.id === jointPeriodId) : null;
-            const logDetails: string[] = [];
+      // 1. Occupancy check
+      if (isTargetOccupied && !isCompatibleGroup) {
+          const occSubId = targetPeriods[0].subjectId;
+          const occSub = subjects.find(s => s.id === occSubId);
+          conflicts.push({
+              type: 'occupancy',
+              classId: selectedClass.id,
+              periodsToUnschedule: targetPeriods,
+              message: `This slot is already occupied by ${occSub ? (language === 'ur' ? occSub.nameUr : occSub.nameEn) : 'another class'}.`
+          });
+      }
 
-            if (jointPeriodDef) {
-                const linkedClassIds = jointPeriodDef.assignments.map(a => a.classId);
-                // Remove from source if needed
-                if (sourceDay && sourcePeriodIndex !== undefined) {
-                    newClasses = newClasses.map(c => {
-                        if (linkedClassIds.includes(c.id)) {
-                            const updatedC = { ...c, timetable: { ...c.timetable } };
-                            const dayPeriods = [...updatedC.timetable[sourceDay]];
-                            dayPeriods[sourcePeriodIndex] = dayPeriods[sourcePeriodIndex].filter(p => p.jointPeriodId !== jointPeriodDef.id);
-                            updatedC.timetable[sourceDay] = dayPeriods;
-                            return updatedC;
-                        }
-                        return c;
-                    });
-                }
-                
-                // Add to target
-                newClasses = newClasses.map(c => {
-                    if (linkedClassIds.includes(c.id)) {
-                        const updatedC = { ...c, timetable: { ...c.timetable } };
-                        if (!updatedC.timetable[targetDay]) updatedC.timetable[targetDay] = [];
-                        const dayPeriods = [...updatedC.timetable[targetDay]];
-                        const targetSlot = dayPeriods[targetPeriodIndex] || [];
-                        const assignment = jointPeriodDef.assignments.find(a => a.classId === c.id);
-                        if (assignment) {
-                            const newPeriod: Period = { id: generateUniqueId(), classId: c.id, subjectId: assignment.subjectId, teacherId: jointPeriodDef.teacherId, jointPeriodId: jointPeriodDef.id };
-                            if (doOverwrite && c.id === selectedClassId) { dayPeriods[targetPeriodIndex] = [newPeriod]; } else { dayPeriods[targetPeriodIndex] = [...targetSlot, newPeriod]; }
-                            updatedC.timetable[targetDay] = dayPeriods;
-                            return updatedC;
-                        }
-                    }
-                    return c;
-                });
-                
-                logDetails.push(`Moved Joint Period ${jointPeriodDef.name} to ${targetDay} P${targetPeriodIndex + 1}`);
-            } else {
-                const updatedClass = { ...selectedClass };
-                const newTimetable = { ...updatedClass.timetable };
-                
-                if (sourceDay && sourcePeriodIndex !== undefined) {
-                     const sourceDayPeriods = [...newTimetable[sourceDay]];
-                     const sourceSlot = sourceDayPeriods[sourcePeriodIndex] || [];
-                     const idsToRemove = new Set(periods.map(p => p.id));
-                     sourceDayPeriods[sourcePeriodIndex] = sourceSlot.filter(p => !idsToRemove.has(p.id));
-                     newTimetable[sourceDay] = sourceDayPeriods;
-                }
-                if(!newTimetable[targetDay]) newTimetable[targetDay] = [];
-                const targetDayPeriods = (sourceDay === targetDay) ? newTimetable[sourceDay] : [...newTimetable[targetDay]];
-                const targetSlot = targetDayPeriods[targetPeriodIndex] || [];
-                
-                if (doOverwrite) { targetDayPeriods[targetPeriodIndex] = periods; } else { targetDayPeriods[targetPeriodIndex] = [...targetSlot, ...periods]; }
-                newTimetable[targetDay] = targetDayPeriods;
-                updatedClass.timetable = newTimetable;
-                
-                const idx = newClasses.findIndex(c => c.id === updatedClass.id);
-                if(idx !== -1) newClasses[idx] = updatedClass;
-                
-                const sub = subjects.find(s => s.id === periods[0].subjectId);
-                const tea = teachers.find(t => t.id === periods[0].teacherId);
-                logDetails.push(`Moved ${sub?.nameEn || '?'} (${tea?.nameEn || '?'}) to ${targetDay} P${targetPeriodIndex + 1}`);
-            }
-            
-            // Add logs
-            logDetails.forEach(d => currentLogs.push(createLog('move', d, 'class', selectedClassId!)));
-            
-            return { ...session, classes: newClasses, changeLogs: currentLogs };
-        });
+      // 2. Teacher Availability check
+      const teacherId = periods[0].teacherId;
+      if (teacherId) {
+          for (const cls of classes) {
+              const slot = cls.timetable[targetDay]?.[targetPeriodIndex];
+              if (slot && slot.some(p => p.teacherId === teacherId)) {
+                  // Only consider it a conflict if it's NOT the class we are dropping into, OR if it's the class we are dropping into but we didn't already flag it as occupancy.
+                  // Actually, if it's the class we're dropping into, we already handled it via occupancy/compatibility.
+                  if (cls.id !== selectedClass.id) {
+                      const teacher = teachers.find(t => t.id === teacherId);
+                      const teacherName = teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'This teacher';
+                      const clsName = language === 'ur' ? cls.nameUr : cls.nameEn;
+                      conflicts.push({
+                          type: 'teacher',
+                          classId: cls.id,
+                          periodsToUnschedule: slot.filter(p => p.teacherId === teacherId),
+                          message: `${teacherName} is busy in class ${clsName} during this period.`
+                      });
+                  }
+              }
+          }
+      }
 
-        setDraggedData(null);
-        setMoveSource(null);
-        onSelectionChange(prev => ({ ...prev, highlightedTeacherId: '' }));
-      };
-      
-      // Availability check omitted for brevity in this snippet, assumes valid or forced
-      performUpdate(needsReplacement);
+      if (conflicts.length > 0) {
+          setPendingMove({
+              targetDay,
+              targetIndex: targetPeriodIndex,
+              source: { periods, sourceDay, sourcePeriodIndex },
+              conflicts
+          });
+          return; // Wait for modal
+      }
+
+      // If no conflict, perform update directly.
+      executePendingMove(false, [], { targetDay, targetIndex: targetPeriodIndex, source: { periods, sourceDay, sourcePeriodIndex } });
+  };
+
+  const executePendingMove = (doOverwrite: boolean, explicitConflicts: {classId: string, periodsToUnschedule: Period[]}[] = [], overrideMoveData?: any) => {
+      const moveData = overrideMoveData || pendingMove;
+      if (!moveData || !selectedClass) return;
+
+      const { targetDay, targetIndex: targetPeriodIndex, source } = moveData;
+      const { periods, sourceDay, sourcePeriodIndex } = source;
+
+      onUpdateTimetableSession((session) => {
+          let newClasses = session.classes.map(c => ({...c, timetable: {...c.timetable}}));
+          let currentLogs = session.changeLogs || [];
+          
+          const jointPeriodId = periods[0].jointPeriodId;
+          const jointPeriodDef = jointPeriodId ? jointPeriods.find(jp => jp.id === jointPeriodId) : null;
+          const logDetails: string[] = [];
+
+          // Remove conflicts first
+          if (doOverwrite && explicitConflicts.length > 0) {
+              explicitConflicts.forEach(conflict => {
+                  const classIdx = newClasses.findIndex(c => c.id === conflict.classId);
+                  if (classIdx !== -1) {
+                      const c = newClasses[classIdx];
+                      const updatedC = { ...c, timetable: { ...c.timetable } };
+                      if (updatedC.timetable[targetDay]) {
+                          const dayPeriods = [...updatedC.timetable[targetDay]];
+                          if (dayPeriods[targetPeriodIndex]) {
+                              const idsToRemove = new Set(conflict.periodsToUnschedule.map(p => p.id));
+                              dayPeriods[targetPeriodIndex] = dayPeriods[targetPeriodIndex].filter(p => !idsToRemove.has(p.id));
+                              updatedC.timetable[targetDay] = dayPeriods;
+                              newClasses[classIdx] = updatedC;
+                          }
+                      }
+                  }
+              });
+          }
+
+          if (jointPeriodDef) {
+              const linkedClassIds = jointPeriodDef.assignments.map(a => a.classId);
+              // Remove from source if needed
+              if (sourceDay && sourcePeriodIndex !== undefined) {
+                  newClasses = newClasses.map(c => {
+                      if (linkedClassIds.includes(c.id)) {
+                          const updatedC = { ...c, timetable: { ...c.timetable } };
+                          const dayPeriods = [...updatedC.timetable[sourceDay]];
+                          dayPeriods[sourcePeriodIndex] = dayPeriods[sourcePeriodIndex].filter(p => p.jointPeriodId !== jointPeriodDef.id);
+                          updatedC.timetable[sourceDay] = dayPeriods;
+                          return updatedC;
+                      }
+                      return c;
+                  });
+              }
+              
+              // Add to target
+              newClasses = newClasses.map(c => {
+                  if (linkedClassIds.includes(c.id)) {
+                      const updatedC = { ...c, timetable: { ...c.timetable } };
+                      if (!updatedC.timetable[targetDay]) updatedC.timetable[targetDay] = [];
+                      const dayPeriods = [...updatedC.timetable[targetDay]];
+                      const targetSlot = dayPeriods[targetPeriodIndex] || [];
+                      const assignment = jointPeriodDef.assignments.find(a => a.classId === c.id);
+                      if (assignment) {
+                          const newPeriod: Period = { id: generateUniqueId(), classId: c.id, subjectId: assignment.subjectId, teacherId: jointPeriodDef.teacherId, jointPeriodId: jointPeriodDef.id };
+                          // If overwrite we append anyway since we manually removed explicit conflicts just above
+                          dayPeriods[targetPeriodIndex] = [...targetSlot, newPeriod];
+                          updatedC.timetable[targetDay] = dayPeriods;
+                          return updatedC;
+                      }
+                  }
+                  return c;
+              });
+              
+              logDetails.push(`Moved Joint Period ${jointPeriodDef.name} to ${targetDay} P${targetPeriodIndex + 1}`);
+          } else {
+              const classIdx = newClasses.findIndex(c => c.id === selectedClass.id);
+              if (classIdx !== -1) {
+                  const updatedClass = { ...newClasses[classIdx] };
+                  const newTimetable = { ...updatedClass.timetable };
+                  
+                  if (sourceDay && sourcePeriodIndex !== undefined) {
+                      if (newTimetable[sourceDay]) {
+                          const sourceDayPeriods = [...newTimetable[sourceDay]];
+                          const sourceSlot = sourceDayPeriods[sourcePeriodIndex] || [];
+                          const idsToRemove = new Set(periods.map(p => p.id));
+                          sourceDayPeriods[sourcePeriodIndex] = sourceSlot.filter(p => !idsToRemove.has(p.id));
+                          newTimetable[sourceDay] = sourceDayPeriods;
+                      }
+                  }
+                  if(!newTimetable[targetDay]) newTimetable[targetDay] = [];
+                  const targetDayPeriods = (sourceDay === targetDay) ? newTimetable[sourceDay] : [...newTimetable[targetDay]];
+                  const targetSlot = targetDayPeriods[targetPeriodIndex] || [];
+                  
+                  targetDayPeriods[targetPeriodIndex] = [...targetSlot, ...periods];
+                  newTimetable[targetDay] = targetDayPeriods;
+                  updatedClass.timetable = newTimetable;
+                  newClasses[classIdx] = updatedClass;
+                  
+                  const sub = subjects.find(s => s.id === periods[0].subjectId);
+                  const tea = teachers.find(t => t.id === periods[0].teacherId);
+                  logDetails.push(`Moved ${sub?.nameEn || '?'} (${tea?.nameEn || '?'}) to ${targetDay} P${targetPeriodIndex + 1}`);
+              }
+          }
+          
+          // Add logs
+          logDetails.forEach(d => currentLogs.push(createLog('move', d, 'class', selectedClassId!)));
+          
+          return { ...session, classes: newClasses, changeLogs: currentLogs };
+      });
+
+      setPendingMove(null);
+      setDraggedData(null);
+      setMoveSource(null);
+      onSelectionChange(prev => ({ ...prev, highlightedTeacherId: '' }));
   };
 
   const handleUnschedule = () => { 
@@ -503,8 +593,10 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
     return <NoSessionPlaceholder t={t} />;
   }
 
+  const contentScale = schoolConfig.contentScale || 1;
+
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="container mx-auto p-1 sm:p-2 lg:p-4" style={{ '--content-scale': contentScale } as React.CSSProperties}>
       {selectedClass && (<PrintPreview t={t} isOpen={isPrintPreviewOpen} onClose={() => setIsPrintPreviewOpen(false)} title={`${t.classTimetable}: ${selectedClass.nameEn}`} fileNameBase={`Timetable_${selectedClass.nameEn.replace(' ', '_')}`} generateHtml={(lang, options) => generateClassTimetableHtml(selectedClass, lang, options, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} onSaveDesign={handleSavePrintDesign} />)}
       {selectedClass && <CopyTimetableModal t={t} isOpen={isCopyModalOpen} onClose={() => setIsCopyModalOpen(false)} classes={visibleClasses} subjects={subjects} teachers={teachers} onUpdateClasses={(updatedClasses) => { 
         const newClasses = classes.map(c => {
@@ -517,58 +609,88 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
       
       <DownloadModal t={t} isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} title={t.downloadTimetable} fileNameBase="Class_Timetables" items={visibleClasses} itemType="class" generateFullPageHtml={(item, lang, design) => generateClassTimetableHtml(item, lang, design, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} />
 
-      <div className="mb-6 flex items-center justify-between gap-4 w-full max-w-7xl mx-auto px-2 lg:px-0 mt-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {pendingMove && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={(e) => { e.stopPropagation(); setPendingMove(null); setDraggedData(null); setMoveSource(null); }}>
+              <div className="bg-white dark:bg-[var(--bg-secondary)] rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scale-in" onClick={e => e.stopPropagation()}>
+                  <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+                      <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                      </div>
+                      <h3 className="text-xl font-black text-center text-gray-900 dark:text-white uppercase tracking-tight">Schedule Conflict</h3>
+                  </div>
+                  <div className="p-6 bg-gray-50 dark:bg-[var(--bg-tertiary)]">
+                      <div className="flex flex-col gap-3 mb-6">
+                          {pendingMove.conflicts.map((conflict, i) => (
+                              <div key={i} className="flex items-start gap-3 p-3 bg-white dark:bg-[var(--bg-secondary)] rounded-xl border border-red-200 dark:border-red-800/30 shadow-sm">
+                                  <div className="mt-0.5 text-red-500"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg></div>
+                                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{conflict.message}</p>
+                              </div>
+                          ))}
+                      </div>
+                      <p className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 mb-6">
+                          Would you like to replace the existing card(s)? The currently scheduled card(s) will be unscheduled dynamically and placed back into the queue.
+                      </p>
+                      <div className="flex items-center gap-3">
+                          <button onClick={() => { setPendingMove(null); setDraggedData(null); setMoveSource(null); }} className="flex-1 py-3 px-4 bg-white dark:bg-[var(--bg-primary)] border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm">Cancel</button>
+                          <button onClick={() => executePendingMove(true, pendingMove.conflicts)} className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-lg shadow-red-600/20">Yes, Replace</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      <div className="mb-4 flex flex-nowrap items-center justify-start gap-4 w-full max-w-7xl mx-auto px-1 lg:px-0 mt-2 relative z-[60]">
         
         {/* Class Selector Header - Modern Design */}
-        <div className="flex items-center justify-start flex-grow relative" ref={classDropdownRef}>
-             <div className="flex items-center gap-1 sm:gap-2 mr-2 sm:mr-4">
+        <div className="flex items-center justify-start flex-shrink-0 relative" ref={classDropdownRef}>
+             <div className="flex items-center gap-1 sm:gap-2 mr-2">
                  <button 
                      onClick={handlePreviousClass} 
                      disabled={currentClassIndex <= 0}
-                     className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                     className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
                      <ChevronLeftIcon />
                  </button>
                  <button 
                      onClick={handleNextClass} 
                      disabled={currentClassIndex >= sortedClasses.length - 1}
-                     className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                     className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
                      <ChevronRightIcon />
                  </button>
              </div>
 
              {selectedClass ? (
-                 <div className="flex items-center gap-2 sm:gap-4 cursor-pointer whitespace-nowrap" onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}>
-                     <div className="w-10 h-10 md:w-14 md:h-14 rounded-full border-2 md:border-4 border-[#bed730] flex items-center justify-center flex-shrink-0">
-                         <span className="text-[#bed730] font-black text-lg md:text-xl">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
+                 <div className="flex items-center gap-2 sm:gap-3 cursor-pointer whitespace-nowrap" onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}>
+                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-[1.5px] md:border-2 border-[#bed730] flex items-center justify-center flex-shrink-0">
+                         <span className="text-[#bed730] font-black text-sm md:text-base">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
                      </div>
                      <div className="flex flex-col items-start leading-none -space-y-0.5 md:-space-y-1">
-                         <span className="font-black text-2xl md:text-4xl text-[#2e5ef2] uppercase tracking-tighter">
+                         <span className="font-black text-lg md:text-xl text-[#2e5ef2] uppercase tracking-tighter">
                              {language === 'ur' ? selectedClass.nameUr : selectedClass.nameEn}
                          </span>
                          {selectedClass.inCharge && (() => {
                              const inChargeTeacher = teachers.find(t => t.id === selectedClass.inCharge);
                              return inChargeTeacher ? (
-                                 <span className="text-[#2e5ef2] text-xs md:text-lg font-bold uppercase tracking-widest pl-1">
+                                 <span className="text-[#2e5ef2] text-[10px] md:text-[11px] font-bold uppercase tracking-widest pl-1">
                                      {language === 'ur' ? inChargeTeacher.nameUr : inChargeTeacher.nameEn}
                                  </span>
                              ) : null;
                          })()}
                      </div>
                      
-                     <div className="flex items-center gap-2 ml-2 md:ml-4">
-                         <div className="flex flex-col items-center justify-center relative w-8 h-8 md:w-10 md:h-10 rounded-full border-[1.5px] border-dashed border-[#bed730] text-[#bed730] flex-shrink-0">
-                             <span className="text-[6px] md:text-[8px] font-bold uppercase absolute top-1 md:top-1.5 opacity-80">RM</span>
-                             <span className="text-[10px] md:text-xs font-black mt-1.5 md:mt-2">{selectedClass.roomNumber || '-'}</span>
+                     <div className="flex items-center gap-1 ml-1 md:ml-2">
+                         <div className="flex flex-col items-center justify-center relative w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-dashed border-[#bed730] text-[#bed730] flex-shrink-0">
+                             <span className="text-[5px] md:text-[6px] font-bold uppercase absolute top-1 md:top-1 opacity-80">RM</span>
+                             <span className="text-[8px] md:text-[10px] font-black mt-1.5 md:mt-2">{selectedClass.roomNumber || '-'}</span>
                          </div>
                          <div className="text-gray-300 flex flex-col -gap-2 hidden md:flex">
-                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
                          </div>
                      </div>
                  </div>
              ) : (
-                 <span className="text-gray-400 font-medium text-base md:text-lg whitespace-nowrap">{t.selectAClass}</span>
+                 <span className="text-gray-400 font-medium text-sm md:text-base whitespace-nowrap">{t.selectAClass}</span>
              )}
 
              {isClassDropdownOpen && (
@@ -635,24 +757,23 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         </div>
         
         {/* Actions - Right */}
-        <div className="flex items-center justify-end gap-2 md:gap-4 flex-shrink-0">
-            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 md:w-8 md:h-8"><path d="M12.031 0C5.385 0 0 5.385 0 12.033c0 2.651.848 5.129 2.316 7.21l-1.579 5.765 5.922-1.554a11.966 11.966 0 005.372 1.28c6.645 0 12.031-5.385 12.031-12.033S18.677 0 12.031 0zm3.847 17.585c-.198.549-1.189 1.054-1.636 1.111-.409.052-.937.106-2.911-.703-2.366-.967-3.896-3.376-4.01-3.529-.115-.152-.958-1.272-.958-2.428 0-1.156.6-1.728.814-1.936.213-.207.468-.258.623-.258s.308 0 .445.006c.14.007.327-.052.511.393.184.444.622 1.52.678 1.636.056.115.093.251.018.397-.075.146-.115.236-.226.353-.115.116-.242.261-.345.358-.112.106-.231.222-.102.443.129.222.576.953 1.233 1.536.847.75 1.564.978 1.785 1.085.222.106.353.088.484-.06.13-.146.562-.647.712-.871.149-.222.3-.186.505-.11.205.076 1.284.606 1.503.716.222.111.371.165.426.257.054.093.054.538-.144 1.087z"/></svg>
+        <div className="flex items-center justify-start gap-2 flex-shrink-0">
+            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-white dark:bg-[var(--bg-tertiary)] rounded-full shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-4 h-4 md:w-5 md:h-5"><path d="M12.031 0C5.385 0 0 5.385 0 12.033c0 2.651.848 5.129 2.316 7.21l-1.579 5.765 5.922-1.554a11.966 11.966 0 005.372 1.28c6.645 0 12.031-5.385 12.031-12.033S18.677 0 12.031 0zm3.847 17.585c-.198.549-1.189 1.054-1.636 1.111-.409.052-.937.106-2.911-.703-2.366-.967-3.896-3.376-4.01-3.529-.115-.152-.958-1.272-.958-2.428 0-1.156.6-1.728.814-1.936.213-.207.468-.258.623-.258s.308 0 .445.006c.14.007.327-.052.511.393.184.444.622 1.52.678 1.636.056.115.093.251.018.397-.075.146-.115.236-.226.353-.115.116-.242.261-.345.358-.112.106-.231.222-.102.443.129.222.576.953 1.233 1.536.847.75 1.564.978 1.785 1.085.222.106.353.088.484-.06.13-.146.562-.647.712-.871.149-.222.3-.186.505-.11.205.076 1.284.606 1.503.716.222.111.371.165.426.257.054.093.054.538-.144 1.087z"/></svg>
             </button>
-            <button onClick={() => setIsPrintPreviewOpen(true)} disabled={!selectedClass} className="bg-white dark:bg-[var(--bg-tertiary)] rounded-full px-3 md:px-5 py-1.5 md:py-2 flex items-center gap-1.5 shadow-sm border border-gray-100 dark:border-[var(--border-secondary)] text-black dark:text-white font-bold text-xs md:text-sm hover:shadow-md transition-shadow whitespace-nowrap">
-                <PrintIcon className="text-[#00c5ff] w-4 h-4 md:w-5 md:h-5" /> Print
-            </button>
-            
             <div className="relative" ref={headerMoreRef}>
                 <button 
                   onClick={() => setIsHeaderMoreOpen(!isHeaderMoreOpen)} 
-                  className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-[var(--bg-tertiary)] flex border border-gray-200 dark:border-[var(--border-secondary)] text-gray-400 hover:text-gray-600 dark:text-white hover:bg-gray-50 items-center justify-center transition-all shadow-sm flex-shrink-0"
+                  className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white dark:bg-[var(--bg-tertiary)] flex border border-gray-200 dark:border-[var(--border-secondary)] text-gray-400 hover:text-gray-600 dark:text-white hover:bg-gray-50 items-center justify-center transition-all shadow-sm flex-shrink-0"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                 </button>
                 
                 {isHeaderMoreOpen && (
                     <div className="absolute right-0 top-[100%] mt-2 w-48 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl py-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
+                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
+                            <PrintIcon /> {t.printViewAction || 'Print'}
+                        </button>
                         {onUndo && (
                             <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
                                 <UndoIcon /> {t.undo || 'Undo'}
@@ -681,14 +802,15 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
       {!selectedClass ? (
         <p className="text-center text-[var(--text-secondary)] py-10">{t.selectAClass}</p>
       ) : (
-        <div className="relative flex flex-col gap-6 items-start w-full mt-4">
+        <div className="relative flex flex-col lg:flex-row gap-6 items-start w-full mt-4">
+          
           {/* Timetable Grid - Modern Styled */}
-          <div className="w-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] rounded-[20px] sm:rounded-[32px] p-4 sm:p-6 lg:p-8 shadow-inner overflow-hidden border border-[#c5d3df] dark:border-[var(--border-primary)]" ref={tableRef}>
-                <div className="min-w-max flex flex-col gap-3">
+          <div className="w-full lg:w-[75%] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] rounded-[20px] sm:rounded-[32px] p-2 sm:p-4 shadow-inner overflow-visible border border-[#c5d3df] dark:border-[var(--border-primary)] pb-4 md:pb-6" ref={tableRef}>
+                <div className="w-full min-w-[320px] flex flex-col gap-2 md:gap-3">
                     {/* Header Row */}
-                    <div className="flex gap-2">
-                        <div className="w-10 sm:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[10px] sm:text-xs tracking-widest uppercase py-1 flex items-center justify-center">
+                    <div className="flex gap-1 sm:gap-2 w-full">
+                        <div className="w-9 sm:w-10 md:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[9px] sm:text-[10px] md:text-xs tracking-widest uppercase py-1 flex items-center justify-center">
                             TIME
                         </div>
                         {activeDays.map(day => {
@@ -703,9 +825,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                             const dateStr = targetDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 
                             return (
-                                <div key={day} className="w-[72px] sm:w-[80px] md:w-[90px] flex-shrink-0 flex flex-col items-center justify-center py-1">
-                                    <span className="text-[9px] sm:text-[10px] font-bold text-[#2e5ef2] dark:text-blue-400 mb-0.5">{dateStr}</span>
-                                    <span className="font-black text-[#0c2340] dark:text-white text-xs sm:text-sm tracking-widest uppercase">{t[day.toLowerCase()].substring(0, 3)}</span>
+                                <div key={day} className="flex-1 min-w-0 flex flex-col items-center justify-center py-1" style={{ transform: `scale(${contentScale})`, transformOrigin: 'bottom center' }}>
+                                    <span className="text-[8px] sm:text-[10px] font-bold text-[#2e5ef2] dark:text-blue-400 mb-0.5">{dateStr}</span>
+                                    <span className="font-black text-[#0c2340] dark:text-white text-[10px] sm:text-xs md:text-sm tracking-widest uppercase">{t[day.toLowerCase()].substring(0, 3)}</span>
                                 </div>
                             );
                         })}
@@ -716,11 +838,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                         
                         return (
                             <React.Fragment key={label}>
-                            <div className="flex gap-2 relative z-10 w-max">
+                            <div className="flex gap-1 sm:gap-2 items-center w-full">
                                 {/* Time Cell */}
-                                <div className="w-10 sm:w-12 lg:w-14 flex-shrink-0 flex flex-col items-center justify-center -space-y-0.5">
-                                    <span className="text-base sm:text-lg lg:text-xl font-black text-[#2e5ef2]">P{label}</span>
-                                    <span className="text-[7px] sm:text-[8px] font-bold text-gray-800 dark:text-gray-400 whitespace-nowrap">
+                                <div className="w-9 sm:w-10 md:w-12 lg:w-14 flex-shrink-0 flex flex-col items-center justify-center -space-y-0.5">
+                                    <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-[#2e5ef2]">P{label}</span>
+                                    <span className="text-[6px] sm:text-[7px] md:text-[8px] font-bold text-gray-800 dark:text-gray-400 whitespace-nowrap">
                                          08:00
                                     </span> 
                                 </div>
@@ -750,25 +872,29 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                     let content = null;
 
                                     if (isDisabled) {
-                                        content = <div className="w-[72px] sm:w-[80px] md:w-[90px] h-[36px] sm:h-[40px] rounded-[16px] bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed flex-shrink-0"></div>;
+                                        content = <div className="flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[48px] rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
                                     } else {
-                                        let outerClasses = `w-[72px] sm:w-[80px] md:w-[90px] h-[36px] sm:h-[40px] rounded-[16px] relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent flex-shrink-0`;
-                                        if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl cursor-pointer ring-inset ring-2 ring-[#2e5ef2]/50 hover:bg-white/50 z-20';
+                                        let outerClasses = `flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[48px] rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent cursor-pointer z-10`;
+                                        if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[#2e5ef2]/50 hover:bg-white/50 z-30';
 
+                                        let availData;
                                         if (teacherAvailabilityMap) {
-                                            const data = teacherAvailabilityMap.get(`${day}-${periodIndex}`);
-                                            if (data && data.status === 'elsewhere') {
-                                                outerClasses += ' bg-red-100/80 dark:bg-red-900/50 ring-2 ring-red-500/50'; 
-                                            } else if (data && data.status === 'here') {
-                                                 // normal
+                                            availData = teacherAvailabilityMap.get(`${day}-${periodIndex}`);
+                                            if (availData && availData.status === 'elsewhere') {
+                                                outerClasses += ' bg-red-100/90 dark:bg-red-900/40 border-red-500 ring-2 ring-red-500/80 z-20'; 
+                                            } else if (availData && availData.status === 'here') {
+                                                 outerClasses += ' ring-2 ring-blue-500 border-blue-400 bg-blue-50/50 dark:bg-blue-900/20 z-20';
                                             } else if (slotPeriods.length === 0) {
-                                                outerClasses += ' bg-emerald-100/50 dark:bg-emerald-900/30 border-dashed border-[#50c878]';
+                                                outerClasses += ' bg-[#f9f5e8] dark:bg-yellow-900/20 border-[#22c55e] border-[2px] border-dashed';
+                                            } else {
+                                                // Grey out the slots taking place that don't belong to the highlight teacher without breaking design explicitly
+                                                outerClasses += ' opacity-50 grayscale border-gray-200/50';
                                             }
                                         } 
 
                                         if (slotPeriods.length === 0 && !teacherAvailabilityMap) {
                                              outerClasses += ' bg-white/40 dark:bg-[#1e293b]/40 border-dashed border-[#a6b8ca] dark:border-gray-600';
-                                        } else if (slotPeriods.length > 0) {
+                                        } else if (slotPeriods.length > 0 && !teacherAvailabilityMap) {
                                              outerClasses += ' shadow-sm';
                                         }
 
@@ -778,9 +904,28 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                 onDragOver={(e) => !isDisabled && handleDragOver(e)}
                                                 onDrop={(e) => !isDisabled && handleDrop(e, day, periodIndex)}
                                                 onClick={() => !isDisabled && moveSource && handleExecuteMove(day, periodIndex)}
+                                                style={{ transform: `scale(${contentScale})`, transformOrigin: 'top left' }}
                                             >
+                                                {/* Status overlay when teacher selected */}
+                                                {teacherAvailabilityMap && (
+                                                    <>
+                                                        {availData?.status === 'elsewhere' && (
+                                                            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl z-[40] overflow-hidden bg-red-100/95 dark:bg-red-900/95 border-2 border-red-500 shadow-xl backdrop-blur-[1px] p-0.5 pointer-events-none">
+                                                                <span className="text-[7px] sm:text-[8px] md:text-[9.5px] font-bold text-red-900 dark:text-red-100 uppercase leading-none text-center truncate w-[95%]">{availData.conflictSubject}</span>
+                                                                <span className="text-[6px] sm:text-[6.5px] md:text-[7.5px] font-black text-white bg-red-600 rounded px-1 py-0.5 my-0.5 leading-none text-center break-words line-clamp-2 max-w-[95%] shadow-sm w-full">{availData.conflictClass}</span>
+                                                                <span className="text-[5px] sm:text-[6px] md:text-[7px] font-semibold text-red-800 dark:text-red-200 uppercase leading-none text-center truncate w-[95%] opacity-90">{availData.conflictTeacher}</span>
+                                                            </div>
+                                                        )}
+                                                        {availData?.status !== 'elsewhere' && slotPeriods.length === 0 && (
+                                                            <div className="absolute inset-0 flex items-center justify-center rounded-xl z-20 overflow-hidden bg-[#f9f5e8]/90 border border-dashed border-green-500 pointer-events-none">
+                                                                <span className="text-[7.5px] font-bold text-green-700 uppercase tracking-widest bg-white/80 px-1 py-0.5 rounded shadow-sm border border-green-200 truncate max-w-[90%]">Avail</span>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
+                                                
                                                 {/* Card Content or Stack */}
-                                                <div className="h-full flex flex-col relative z-10 w-full rounded-[16px] overflow-hidden">
+                                                <div className="h-full flex flex-col relative z-10 w-full rounded-xl overflow-visible">
                                                     {groupedSlotPeriods.map((group, groupIndex) => {
                                                         const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                                         const colorData = getColorForId(group[0].classId + group[0].subjectId, theme === 'dark' || theme === 'amoled');
@@ -789,13 +934,18 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                         
                                                         const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
                                                         const highlightTeacher = highlightedTeacherId === group[0].teacherId;
-                                                        const isDimmed = highlightedTeacherId && !highlightTeacher;
+                                                        
+                                                        // Determine rendering mode (normal vs conflict view)
+                                                        let isDimmed = false;
+                                                                                                                
+                                                        if (teacherAvailabilityMap) {
+                                                            if (!highlightTeacher) {
+                                                                isDimmed = true;
+                                                            }
+                                                        }
 
                                                         const subjectName = subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown');
                                                         const teacherName = teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher';
-                                                        
-                                                        const trmSubj = subjectName.length > 7 ? subjectName.substring(0, 7) + '.' : subjectName;
-                                                        const trmTeach = teacherName.length > 7 ? teacherName.substring(0, 7) + '.' : teacherName;
 
                                                         return (
                                                             <div 
@@ -804,34 +954,41 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                                 onDragStart={(e) => { e.stopPropagation(); handleDragStart(group, day, periodIndex); }}
                                                                 onDragEnd={handleDragEnd}
                                                                 onClick={(e) => { e.stopPropagation(); handleStackClick(group, day, periodIndex); }}
-                                                                className={`absolute inset-0 flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[4px] sm:border-l-[6px] rounded-[16px] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-grab active:cursor-grabbing ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-30' : ''}`}
+                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[3px] sm:border-l-[4px] rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-grab active:cursor-grabbing overflow-hidden shadow-sm ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
                                                                 style={{ 
                                                                     borderLeftColor: colorData.hex, 
                                                                     backgroundColor: isSelected ? `${colorData.hex}40` : `${colorData.hex}15`,
-                                                                    boxShadow: isSelected ? `inset 0 0 0 2px ${colorData.hex}90` : 'none'
+                                                                    boxShadow: isSelected ? `inset 0 0 0 2px ${colorData.hex}90` : 'none',
+                                                                    top: groupedSlotPeriods.length > 1 ? `${(groupIndex / groupedSlotPeriods.length) * 100}%` : '0px',
+                                                                    height: groupedSlotPeriods.length > 1 ? `${100 / groupedSlotPeriods.length}%` : '100%',
+                                                                    left: '0px',
+                                                                    right: '0px',
+                                                                    zIndex: 10 + groupIndex
                                                                 }}
                                                             >
-                                                                <div className="flex justify-between items-start">
-                                                                    <span className="text-[11px] sm:text-[12px] font-bold uppercase whitespace-nowrap tracking-tight leading-none pt-[2px]" style={{ color: colorData.hex }}>
-                                                                        {trmSubj}
-                                                                    </span>
-                                                                    {/* Delete button */}
-                                                                    <button 
-                                                                        onClick={(e) => { e.stopPropagation(); handlePeriodDelete(group[0].id, group[0].classId, day, periodIndex, group[0].jointPeriodId); }}
-                                                                        className="opacity-0 group-hover:opacity-100 p-0.5 bg-red-100/80 hover:bg-red-200 text-red-600 rounded-full transition-opacity absolute top-0.5 right-0.5 z-20"
-                                                                    >
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-[8px] w-[8px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
-                                                                    </button>
-                                                                </div>
-                                                                <span className="text-[9px] sm:text-[10px] font-medium uppercase whitespace-nowrap mt-0.5 leading-none pb-[2px]" style={{ color: colorData.hex, opacity: 0.85 }}>
-                                                                    {trmTeach}
-                                                                </span>
-                                                                {/* Combined/Multiple Indicator */}
-                                                                {group.length > 1 && (
-                                                                    <div className="absolute right-1 bottom-1 w-3 h-3 bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[7px] font-bold shadow-sm">
-                                                                        {group.length}
+                                                                    <div className="flex flex-col justify-center h-full w-full">
+                                                                        <div className="flex justify-between items-start w-full relative">
+                                                                            <span className="font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight leading-none pt-[1px] pr-2 sm:pr-3 block max-w-[8ch]" style={{ color: colorData.hex, fontSize: `calc(13px * var(--content-scale))` }}>
+                                                                                {subjectName}
+                                                                            </span>
+                                                                            {/* Delete button */}
+                                                                            <button 
+                                                                                onClick={(e) => { e.stopPropagation(); handlePeriodDelete(group[0].id, group[0].classId, day, periodIndex, group[0].jointPeriodId); }}
+                                                                                className="opacity-0 group-hover:opacity-100 p-0.5 bg-red-100/80 hover:bg-red-200 text-red-600 rounded-full transition-opacity absolute top-[1px] right-0 z-20"
+                                                                            >
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-[8px] w-[8px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                            </button>
+                                                                        </div>
+                                                                        <span className="font-medium uppercase overflow-hidden whitespace-nowrap text-ellipsis mt-[1px] leading-none block max-w-[8ch]" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(10.5px * var(--content-scale))` }}>
+                                                                            {teacherName}
+                                                                        </span>
+                                                                        {/* Combined/Multiple Indicator */}
+                                                                        {group.length > 1 && (
+                                                                            <div className="absolute right-0.5 bottom-0.5 w-[10px] h-[10px] sm:w-[12px] sm:h-[12px] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-bold shadow-sm">
+                                                                                {group.length}
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                )}
                                                             </div>
                                                         );
                                                     })}
@@ -854,14 +1011,89 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
             </div>
           </div>
 
-          {/* Bottom Section -> Unscheduled */}
-          <div className="w-full flex-col mt-6">
+          {/* Right Section / Bottom Section -> Unscheduled */}
+          <div className="w-full lg:w-[25%] flex-shrink-0 flex-col mt-2 lg:mt-0 lg:sticky lg:top-4 lg:self-start z-10 hidden lg:flex">
+              {/* PC View Unscheduled */}
+              <div className="w-full flex flex-col">
+                  <div className="flex items-center gap-3 mb-4 px-2 tracking-tight">
+                      <h2 className="text-xl font-black text-[#1f4061] dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                          UNSCHEDULED 
+                          <span className="bg-[#8b0000] text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">
+                              {Object.keys(groupedUnscheduled).length}
+                          </span>
+                      </h2>
+                  </div>
+                  
+                  <div className="w-full">
+                      <div 
+                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-[#c5d3df] dark:border-gray-700 rounded-[24px] p-3 flex flex-col gap-2 min-h-[400px] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
+                          onDragOver={handleDragOver}
+                          onDrop={handleSidebarDrop}
+                          onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
+                      >
+                          {moveSource && moveSource.sourceDay && (
+                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-xl text-center animate-pulse cursor-pointer shadow-sm">
+                                  <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
+                              </div>
+                          )}
+
+                          {Object.keys(groupedUnscheduled).length === 0 ? (
+                              <div className="text-center py-12 px-4 opacity-60 m-auto">
+                                  <span className="block text-3xl mb-2">✨</span>
+                                  <p className="text-sm text-[#1f4061] dark:text-gray-400 font-bold">{t.allLessonsScheduled}</p>
+                              </div>
+                          ) : (
+                              <div className="flex flex-row flex-wrap gap-2 period-stack-clickable overflow-y-auto custom-scrollbar pr-1 max-h-[60vh]">
+                                  {Object.values(groupedUnscheduled).map((group, index) => {
+                                      const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
+                                      const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
+                                      const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
+                                      const colorData = getColorForId(group[0].classId + group[0].subjectId, theme === 'dark' || theme === 'amoled');
+                                      const subject = subjects.find(s => s.id === group[0].subjectId);
+                                      const teacher = teachers.find(t => t.id === group[0].teacherId);
+
+                                      return (
+                                          <div 
+                                              key={`unscheduled-pc-${groupKey}-${index}`} 
+                                              draggable
+                                              onDragStart={() => handleDragStart(group)}
+                                              onDragEnd={handleDragEnd}
+                                              onClick={() => handleStackClick(group)}
+                                              className={`w-fit max-w-full bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                              style={{ borderLeftColor: colorData.hex }}
+                                          >
+                                              <div className="flex flex-col">
+                                                  <span className="text-[11px] font-bold uppercase tracking-tight block max-w-[8ch] overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                                      {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
+                                                  </span>
+                                                  <span className="text-[10px] font-medium text-black dark:text-white opacity-80 block max-w-[8ch] overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                                      {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
+                                                  </span>
+                                              </div>
+                                              <div className="flex items-center ml-1">
+                                                  {group.length > 1 && (
+                                                      <span className="bg-blue-500/10 text-blue-800 dark:text-blue-200 w-4 h-4 mr-1 rounded-full flex items-center justify-center text-[8px] font-bold">x{group.length}</span>
+                                                  )}
+                                                  <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          )}
+                      </div>
+                  </div>
+              </div>
+          </div>
+          
+          {/* Mobile/Tablet Unscheduled (Hidden on lg screens) */}
+          <div className="w-full flex-col mt-2 lg:hidden flex">
               
               {/* Unscheduled */}
               <div className="w-full flex flex-col">
                   <div className="flex items-center gap-3 mb-4 px-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-1 cursor-pointer transition-colors" onClick={() => setIsLessonListOpen(!isLessonListOpen)}>
-                      <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white flex items-center gap-2">
-                          Unscheduled 
+                      <h2 className="text-xl sm:text-2xl font-black text-[#1f4061] dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                          UNSCHEDULED 
                           <span className="bg-[#8b0000] text-white rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center font-bold text-sm sm:text-base">
                               {Object.keys(groupedUnscheduled).length}
                           </span>
@@ -890,7 +1122,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                   <p className="text-sm text-[#1f4061] dark:text-gray-400 font-bold">{t.allLessonsScheduled}</p>
                               </div>
                           ) : (
-                              <div className="flex flex-col gap-3 period-stack-clickable">
+                              <div className="flex flex-row flex-wrap gap-2 sm:gap-3 period-stack-clickable">
                                   {Object.values(groupedUnscheduled).map((group, index) => {
                                       const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                       const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
@@ -899,8 +1131,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                       const subject = subjects.find(s => s.id === group[0].subjectId);
                                       const teacher = teachers.find(t => t.id === group[0].teacherId);
                                       
-                                      // Only show max 4, then +Show More 
-                                      if (index >= 4) return null;
+                                      // Only show max 8, then +Show More 
+                                      if (index >= 8) return null;
 
                                       return (
                                           <div 
@@ -909,14 +1141,14 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`bg-white dark:bg-[#1e293b] rounded-[16px] px-4 py-3 flex items-center justify-between shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
+                                              className={`w-fit max-w-full bg-white dark:bg-[#1e293b] rounded-[16px] px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
                                               <div className="flex flex-col">
-                                                  <span className="text-xs font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight">
+                                                  <span className="text-xs font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight block max-w-[8ch] overflow-hidden whitespace-nowrap text-ellipsis">
                                                       {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
                                                   </span>
-                                                  <span className="text-sm font-black text-black dark:text-white">
+                                                  <span className="text-[10px] sm:text-sm font-black text-black dark:text-white block max-w-[8ch] overflow-hidden whitespace-nowrap text-ellipsis">
                                                       {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
                                                   </span>
                                               </div>
@@ -1015,51 +1247,6 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         </div>
       )}
 
-      {/* Floating Action Buttons */}
-      <div className="fixed top-24 right-6 z-50 flex flex-col items-end gap-3">
-          {/* Main Toggle Button */}
-          <div className="flex flex-col items-center gap-3">
-              {/* WhatsApp Button - Always visible */}
-              <button 
-                  onClick={() => setIsCommModalOpen(true)}
-                  disabled={!selectedClass}
-                  className="w-12 h-12 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:bg-[#128C7E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={t.sendViaWhatsApp}
-              >
-                  <WhatsAppIcon />
-              </button>
-
-              {/* Toggle FAB */}
-              <button 
-                  onClick={() => setIsFabOpen(!isFabOpen)}
-                  className={`w-12 h-12 rounded-full bg-[var(--accent-primary)] text-[var(--accent-text)] flex items-center justify-center shadow-lg hover:bg-[var(--accent-primary-hover)] transition-transform duration-300 ${isFabOpen ? 'rotate-90' : ''}`}
-              >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-              </button>
-          </div>
-
-          {/* Collapsible Buttons */}
-          <div className={`flex flex-col gap-3 transition-all duration-300 origin-top ${isFabOpen ? 'scale-100 opacity-100 mt-2' : 'scale-0 opacity-0 h-0 pointer-events-none'}`}>
-              <button onClick={() => { setIsPrintPreviewOpen(true); setIsFabOpen(false); }} disabled={!selectedClass} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title={t.printViewAction}>
-                  <PrintIcon />
-              </button>
-              {onSave && (
-                  <button onClick={() => { onSave(); setIsFabOpen(false); }} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors" title="Save (Ctrl+S)">
-                      <SaveIcon />
-                  </button>
-              )}
-              {onRedo && (
-                  <button onClick={() => { onRedo(); setIsFabOpen(false); }} disabled={!canRedo} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Redo (Ctrl+Y)">
-                      <RedoIcon />
-                  </button>
-              )}
-              {onUndo && (
-                  <button onClick={() => { onUndo(); setIsFabOpen(false); }} disabled={!canUndo} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Undo (Ctrl+Z)">
-                      <UndoIcon />
-                  </button>
-              )}
-          </div>
-      </div>
     </div>
   );
 };
