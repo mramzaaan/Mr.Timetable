@@ -62,9 +62,9 @@ const CopyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-
 const UndoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>;
 const RedoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>;
 const SaveIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 011-1h3.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V6a1 1 0 01-1 1h-1a1 1 0 01-1-1V4z" /></svg>;
-const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
-const ChevronLeftIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>;
-const ChevronRightIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>;
+const ChevronDownIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
+const ChevronLeftIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>;
+const ChevronRightIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>;
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
 const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const WhatsAppIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>);
@@ -647,42 +647,42 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                  <button 
                      onClick={handlePreviousClass} 
                      disabled={currentClassIndex <= 0}
-                     className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                     className="w-8 h-8 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
-                     <ChevronLeftIcon />
+                     <ChevronLeftIcon className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10" />
                  </button>
                  <button 
                      onClick={handleNextClass} 
                      disabled={currentClassIndex >= sortedClasses.length - 1}
-                     className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                     className="w-8 h-8 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
-                     <ChevronRightIcon />
+                     <ChevronRightIcon className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10" />
                  </button>
              </div>
 
-             {selectedClass ? (
+              {selectedClass ? (
                  <div className="flex items-center gap-2 sm:gap-3 cursor-pointer whitespace-nowrap" onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}>
-                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-[1.5px] md:border-2 border-[#bed730] flex items-center justify-center flex-shrink-0">
-                         <span className="text-[#bed730] font-black text-sm md:text-base">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
+                     <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-full border-[1.5px] md:border-2 border-[var(--accent-primary)] flex items-center justify-center flex-shrink-0">
+                         <span className="text-[var(--accent-primary)] font-black text-3xl sm:text-4xl md:text-7xl lg:text-8xl">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
                      </div>
-                     <div className="flex flex-col items-start leading-none -space-y-0.5 md:-space-y-1">
-                         <span className="font-black text-lg md:text-xl text-[#2e5ef2] uppercase tracking-tighter">
+                     <div className="flex flex-col items-start leading-none -space-y-0.5 md:-space-y-1 mt-1">
+                         <span className="font-black text-4xl sm:text-5xl md:text-[80px] lg:text-[100px] text-[var(--accent-primary)] uppercase tracking-tighter">
                              {language === 'ur' ? selectedClass.nameUr : selectedClass.nameEn}
                          </span>
                          {selectedClass.inCharge && (() => {
                              const inChargeTeacher = teachers.find(t => t.id === selectedClass.inCharge);
                              return inChargeTeacher ? (
-                                 <span className="text-[#2e5ef2] text-[10px] md:text-[11px] font-bold uppercase tracking-widest pl-1">
+                                 <span className="text-[var(--accent-primary)] text-[16px] sm:text-xl md:text-[34px] lg:text-[40px] font-bold uppercase tracking-widest pl-1 mt-0.5 md:mt-2 opacity-80">
                                      {language === 'ur' ? inChargeTeacher.nameUr : inChargeTeacher.nameEn}
                                  </span>
                              ) : null;
                          })()}
                      </div>
                      
-                     <div className="flex items-center gap-1 ml-1 md:ml-2">
-                         <div className="flex flex-col items-center justify-center relative w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-dashed border-[#bed730] text-[#bed730] flex-shrink-0">
-                             <span className="text-[5px] md:text-[6px] font-bold uppercase absolute top-1 md:top-1 opacity-80">RM</span>
-                             <span className="text-[8px] md:text-[10px] font-black mt-1.5 md:mt-2">{selectedClass.roomNumber || '-'}</span>
+                     <div className="flex items-center gap-1 ml-1 md:ml-3">
+                         <div className="flex flex-col items-center justify-center relative w-12 h-12 sm:w-16 sm:h-16 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full border-[1.5px] border-dashed border-[var(--accent-primary)] text-[var(--accent-primary)] flex-shrink-0">
+                             <span className="text-[8px] sm:text-[10px] md:text-[17px] lg:text-[20px] font-bold uppercase absolute top-2 sm:top-2 md:top-5 lg:top-6 opacity-80">RM</span>
+                             <span className="text-[14px] sm:text-[18px] md:text-[31px] lg:text-[36px] font-black mt-2 sm:mt-2.5 md:mt-6 lg:mt-7">{selectedClass.roomNumber || '-'}</span>
                          </div>
                          <div className="text-gray-300 flex flex-col -gap-2 hidden md:flex">
                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
@@ -705,7 +705,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                              placeholder="Search classes..."
                              value={classSearchQuery}
                              onChange={(e) => setClassSearchQuery(e.target.value)}
-                             className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] border border-gray-200 dark:border-[var(--border-secondary)] rounded-2xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#2e5ef2] transition-all"
+                             className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] border border-gray-200 dark:border-[var(--border-secondary)] rounded-2xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
                              autoFocus
                          />
                      </div>
@@ -722,7 +722,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                         setSortDirection('asc');
                                     }
                                 }}
-                                className={`flex-1 text-xs font-bold uppercase py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 ${classSortBy === key ? 'bg-[#2e5ef2] text-white shadow-sm' : 'text-gray-500 hover:text-black dark:text-gray-400 hover:bg-white dark:hover:bg-[var(--bg-secondary)]'}`}
+                                className={`flex-1 text-xs font-bold uppercase py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 ${classSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-gray-500 hover:text-black dark:text-gray-400 hover:bg-white dark:hover:bg-[var(--bg-secondary)]'}`}
                             >
                                 {key === 'serial' ? '#' : key}
                                 {classSortBy === key && (
@@ -743,9 +743,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                          onSelectionChange(prev => ({ ...prev, classId: c.id }));
                                          setIsClassDropdownOpen(false);
                                      }}
-                                     className={`w-full text-left px-4 py-3 rounded-xl text-sm flex items-center gap-3 transition-colors ${selectedClassId === c.id ? 'bg-[#2e5ef2]/10 text-[#2e5ef2]' : 'hover:bg-gray-50 dark:hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
+                                     className={`w-full text-left px-4 py-3 rounded-xl text-sm flex items-center gap-3 transition-colors ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : 'hover:bg-gray-50 dark:hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
                                  >
-                                     <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-md ${selectedClassId === c.id ? 'bg-[#2e5ef2]/20' : 'bg-gray-100 dark:bg-[var(--bg-secondary)]'}`}>#{c.serialNumber ?? '-'}</span>
+                                     <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-md ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-100 dark:bg-[var(--bg-secondary)]'}`}>#{c.serialNumber ?? '-'}</span>
                                      <span className="font-bold flex-grow text-base break-words text-left">{language === 'ur' ? c.nameUr : c.nameEn}</span>
                                      {c.roomNumber && <span className="text-[10px] opacity-70 whitespace-nowrap px-2 py-1 rounded-md bg-white border border-gray-200 dark:bg-[var(--bg-secondary)] dark:border-[var(--border-secondary)]">Rm {c.roomNumber}</span>}
                                  </button>
@@ -758,43 +758,35 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         
         {/* Actions - Right */}
         <div className="flex items-center justify-start gap-2 flex-shrink-0">
-            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-white dark:bg-[var(--bg-tertiary)] rounded-full shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-4 h-4 md:w-5 md:h-5"><path d="M12.031 0C5.385 0 0 5.385 0 12.033c0 2.651.848 5.129 2.316 7.21l-1.579 5.765 5.922-1.554a11.966 11.966 0 005.372 1.28c6.645 0 12.031-5.385 12.031-12.033S18.677 0 12.031 0zm3.847 17.585c-.198.549-1.189 1.054-1.636 1.111-.409.052-.937.106-2.911-.703-2.366-.967-3.896-3.376-4.01-3.529-.115-.152-.958-1.272-.958-2.428 0-1.156.6-1.728.814-1.936.213-.207.468-.258.623-.258s.308 0 .445.006c.14.007.327-.052.511.393.184.444.622 1.52.678 1.636.056.115.093.251.018.397-.075.146-.115.236-.226.353-.115.116-.242.261-.345.358-.112.106-.231.222-.102.443.129.222.576.953 1.233 1.536.847.75 1.564.978 1.785 1.085.222.106.353.088.484-.06.13-.146.562-.647.712-.871.149-.222.3-.186.505-.11.205.076 1.284.606 1.503.716.222.111.371.165.426.257.054.093.054.538-.144 1.087z"/></svg>
+            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-28 lg:h-28 flex items-center justify-center bg-white dark:bg-[var(--bg-tertiary)] rounded-full shadow-md z-40 relative">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 lg:w-14 lg:h-14"><path d="M12.031 0C5.385 0 0 5.385 0 12.033c0 2.651.848 5.129 2.316 7.21l-1.579 5.765 5.922-1.554a11.966 11.966 0 005.372 1.28c6.645 0 12.031-5.385 12.031-12.033S18.677 0 12.031 0zm3.847 17.585c-.198.549-1.189 1.054-1.636 1.111-.409.052-.937.106-2.911-.703-2.366-.967-3.896-3.376-4.01-3.529-.115-.152-.958-1.272-.958-2.428 0-1.156.6-1.728.814-1.936.213-.207.468-.258.623-.258s.308 0 .445.006c.14.007.327-.052.511.393.184.444.622 1.52.678 1.636.056.115.093.251.018.397-.075.146-.115.236-.226.353-.115.116-.242.261-.345.358-.112.106-.231.222-.102.443.129.222.576.953 1.233 1.536.847.75 1.564.978 1.785 1.085.222.106.353.088.484-.06.13-.146.562-.647.712-.871.149-.222.3-.186.505-.11.205.076 1.284.606 1.503.716.222.111.371.165.426.257.054.093.054.538-.144 1.087z"/></svg>
             </button>
-            <div className="relative" ref={headerMoreRef}>
+            <div className="relative flex items-center" ref={headerMoreRef}>
+                <div className={`absolute right-0 top-full mt-2 sm:mt-3 flex flex-col items-center gap-2 sm:gap-3 p-2 sm:p-3 pb-3 sm:pb-4 rounded-full sm:rounded-[2rem] bg-white/90 dark:bg-[var(--bg-secondary)]/90 backdrop-blur-md shadow-2xl border border-gray-100 dark:border-[var(--border-secondary)] z-[100] transition-all duration-400 origin-top ${isHeaderMoreOpen ? 'opacity-100 scale-100 translate-y-0 visible pointer-events-auto' : 'opacity-0 scale-95 -translate-y-4 invisible pointer-events-none'}`}>
+                    <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} title={t.printViewAction || 'Print'} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full border border-blue-200 bg-blue-50 dark:border-blue-900/50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 flex flex-shrink-0 items-center justify-center transition-transform hover:scale-105 shadow-sm disabled:opacity-50">
+                        <span className="[&>svg]:w-5 [&>svg]:h-5 sm:[&>svg]:w-6 sm:[&>svg]:h-6 md:[&>svg]:w-8 md:[&>svg]:h-8 lg:[&>svg]:w-10 lg:[&>svg]:h-10"><PrintIcon /></span>
+                    </button>
+                    {onUndo && (
+                        <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} title={t.undo || 'Undo'} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 flex flex-shrink-0 items-center justify-center transition-transform hover:scale-105 shadow-sm disabled:opacity-50">
+                            <span className="[&>svg]:w-5 [&>svg]:h-5 sm:[&>svg]:w-6 sm:[&>svg]:h-6 md:[&>svg]:w-8 md:[&>svg]:h-8 lg:[&>svg]:w-10 lg:[&>svg]:h-10"><UndoIcon /></span>
+                        </button>
+                    )}
+                    {onRedo && (
+                        <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} title={t.redo || 'Redo'} className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 flex flex-shrink-0 items-center justify-center transition-transform hover:scale-105 shadow-sm disabled:opacity-50">
+                            <span className="[&>svg]:w-5 [&>svg]:h-5 sm:[&>svg]:w-6 sm:[&>svg]:h-6 md:[&>svg]:w-8 md:[&>svg]:h-8 lg:[&>svg]:w-10 lg:[&>svg]:h-10"><RedoIcon /></span>
+                        </button>
+                    )}
+                    <button onClick={() => { openConfirmation('Clear Class Timetable', 'Are you sure you want to clear?', () => { /* Clear logic */ }); setIsHeaderMoreOpen(false); }} title="Clear" className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 flex flex-shrink-0 items-center justify-center transition-transform hover:scale-105 shadow-sm">
+                        <span className="[&>svg]:w-5 [&>svg]:h-5 sm:[&>svg]:w-6 sm:[&>svg]:h-6 md:[&>svg]:w-8 md:[&>svg]:h-8 lg:[&>svg]:w-10 lg:[&>svg]:h-10"><ClearIcon /></span>
+                    </button>
+                </div>
                 <button 
                   onClick={() => setIsHeaderMoreOpen(!isHeaderMoreOpen)} 
-                  className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white dark:bg-[var(--bg-tertiary)] flex border border-gray-200 dark:border-[var(--border-secondary)] text-gray-400 hover:text-gray-600 dark:text-white hover:bg-gray-50 items-center justify-center transition-all shadow-sm flex-shrink-0"
+                  title="More actions"
+                  className={`w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full relative z-40 bg-white dark:bg-[var(--bg-tertiary)] flex border border-gray-200 dark:border-[var(--border-secondary)] text-gray-500 hover:text-gray-700 dark:text-white hover:bg-gray-50 items-center justify-center transition-all shadow-md flex-shrink-0 ${isHeaderMoreOpen ? 'bg-indigo-50 shadow-inner border-indigo-200 text-indigo-600 dark:bg-indigo-900 dark:border-indigo-700' : ''}`}
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    <ChevronDownIcon className={`w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 lg:w-14 lg:h-14 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isHeaderMoreOpen ? 'rotate-180 scale-90' : ''}`} />
                 </button>
-                
-                {isHeaderMoreOpen && (
-                    <div className="absolute right-0 top-[100%] mt-2 w-48 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl py-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
-                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
-                            <PrintIcon /> {t.printViewAction || 'Print'}
-                        </button>
-                        {onUndo && (
-                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
-                                <UndoIcon /> {t.undo || 'Undo'}
-                            </button>
-                        )}
-                        {onRedo && (
-                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
-                                <RedoIcon /> {t.redo || 'Redo'}
-                            </button>
-                        )}
-                        {onSave && (
-                            <button onClick={() => { onSave(); setIsHeaderMoreOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 text-blue-600">
-                                <SaveIcon /> {t.save || 'Save'}
-                            </button>
-                        )}
-                        <hr className="my-2 border-gray-100 dark:border-gray-800" />
-                        <button onClick={() => { openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { /* Logic to clear class timetable */ }); setIsHeaderMoreOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-3 text-red-600">
-                            <ClearIcon /> Clear
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
       </div>
@@ -806,11 +798,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
           
           {/* Timetable Grid - Modern Styled */}
           <div className="w-full lg:w-[75%] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] rounded-[20px] sm:rounded-[32px] p-2 sm:p-4 shadow-inner overflow-visible border border-[#c5d3df] dark:border-[var(--border-primary)] pb-4 md:pb-6" ref={tableRef}>
+            <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-[20px] sm:rounded-[32px] p-2 sm:p-4 shadow-inner overflow-visible border border-[#c5d3df] dark:border-[var(--border-primary)] pb-4 md:pb-6" ref={tableRef}>
                 <div className="w-full min-w-[320px] flex flex-col gap-2 md:gap-3">
                     {/* Header Row */}
                     <div className="flex gap-1 sm:gap-2 w-full">
-                        <div className="w-9 sm:w-10 md:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[9px] sm:text-[10px] md:text-xs tracking-widest uppercase py-1 flex items-center justify-center">
+                        <div className="w-10 sm:w-12 md:w-16 lg:w-20 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[12px] sm:text-[14px] md:text-sm lg:text-base tracking-widest uppercase py-1 flex items-center justify-center">
                             TIME
                         </div>
                         {activeDays.map(day => {
@@ -826,8 +818,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
 
                             return (
                                 <div key={day} className="flex-1 min-w-0 flex flex-col items-center justify-center py-1" style={{ transform: `scale(${contentScale})`, transformOrigin: 'bottom center' }}>
-                                    <span className="text-[8px] sm:text-[10px] font-bold text-[#2e5ef2] dark:text-blue-400 mb-0.5">{dateStr}</span>
-                                    <span className="font-black text-[#0c2340] dark:text-white text-[10px] sm:text-xs md:text-sm tracking-widest uppercase">{t[day.toLowerCase()].substring(0, 3)}</span>
+                                    <span className="text-[11px] sm:text-[13px] md:text-sm lg:text-base font-bold text-[var(--accent-primary)] dark:text-blue-400 mb-0.5">{dateStr}</span>
+                                    <span className="font-black text-[#0c2340] dark:text-white text-[14px] sm:text-[16px] md:text-lg lg:text-xl tracking-widest uppercase">{language === 'ur' ? t[day.toLowerCase()] : t[day.toLowerCase()].substring(0, 3)}</span>
                                 </div>
                             );
                         })}
@@ -835,16 +827,28 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
 
                     {/* Periods */}
                     {periodLabels.map((label, periodIndex) => {
+                        let formattedTime = '';
+                        const t24 = schoolConfig.periodTimings?.default?.[periodIndex]?.start;
+                        if (t24) {
+                            const parts = t24.split(':');
+                            if (parts.length === 2 && parts[0] && parts[1]) {
+                                formattedTime = `${parts[0]}:${parts[1]}`;
+                            } else {
+                                formattedTime = t24;
+                            }
+                        }
                         
                         return (
                             <React.Fragment key={label}>
                             <div className="flex gap-1 sm:gap-2 items-center w-full">
-                                {/* Time Cell */}
-                                <div className="w-9 sm:w-10 md:w-12 lg:w-14 flex-shrink-0 flex flex-col items-center justify-center -space-y-0.5">
-                                    <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-[#2e5ef2]">P{label}</span>
-                                    <span className="text-[6px] sm:text-[7px] md:text-[8px] font-bold text-gray-800 dark:text-gray-400 whitespace-nowrap">
-                                         08:00
-                                    </span> 
+                                {/* Period Cell */}
+                                <div className="w-10 sm:w-12 md:w-16 lg:w-20 flex-shrink-0 flex flex-col items-center justify-center">
+                                    <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-[var(--accent-primary)]">P{label}</span>
+                                    {formattedTime && (
+                                        <span className="text-[12px] sm:text-[14px] md:text-base lg:text-lg font-bold text-gray-800 dark:text-gray-400 mt-1 whitespace-nowrap">
+                                            {formattedTime}
+                                        </span>
+                                    )}
                                 </div>
                                 
                                 {/* Days Cells */}
@@ -872,10 +876,10 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                     let content = null;
 
                                     if (isDisabled) {
-                                        content = <div className="flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[48px] rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
+                                        content = <div className="flex-1 min-w-0 h-[80px] sm:h-[100px] md:h-[180px] lg:h-[220px] rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
                                     } else {
-                                        let outerClasses = `flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[48px] rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent cursor-pointer z-10`;
-                                        if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[#2e5ef2]/50 hover:bg-white/50 z-30';
+                                        let outerClasses = `flex-1 min-w-0 h-[80px] sm:h-[100px] md:h-[180px] lg:h-[220px] rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent cursor-pointer z-10`;
+                                        if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
 
                                         let availData;
                                         if (teacherAvailabilityMap) {
@@ -944,6 +948,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                             }
                                                         }
 
+                                                        const isGroupPeriod = groupedSlotPeriods.length > 1;
+                                                        const scale = isGroupPeriod ? 0.8 : 1.0;
+
                                                         const subjectName = subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown');
                                                         const teacherName = teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher';
 
@@ -968,7 +975,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                             >
                                                                     <div className="flex flex-col justify-center h-full w-full">
                                                                         <div className="flex justify-between items-start w-full relative">
-                                                                            <span className="font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight leading-none pt-[1px] pr-2 sm:pr-3 block max-w-[8ch]" style={{ color: colorData.hex, fontSize: `calc(13px * var(--content-scale))` }}>
+                                                                            <span className="font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight leading-none pt-[1px] pr-2 sm:pr-3 block max-w-[8ch] md:max-w-[12ch]" style={{ color: colorData.hex, fontSize: `max(calc(${13 * scale}px * var(--content-scale) * 1.5), ${11 * scale}px)` }}>
                                                                                 {subjectName}
                                                                             </span>
                                                                             {/* Delete button */}
@@ -976,15 +983,15 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                                                 onClick={(e) => { e.stopPropagation(); handlePeriodDelete(group[0].id, group[0].classId, day, periodIndex, group[0].jointPeriodId); }}
                                                                                 className="opacity-0 group-hover:opacity-100 p-0.5 bg-red-100/80 hover:bg-red-200 text-red-600 rounded-full transition-opacity absolute top-[1px] right-0 z-20"
                                                                             >
-                                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-[8px] w-[8px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-[12px] w-[12px] md:w-[16px] md:h-[16px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
                                                                             </button>
                                                                         </div>
-                                                                        <span className="font-medium uppercase overflow-hidden whitespace-nowrap text-ellipsis mt-[1px] leading-none block max-w-[8ch]" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(10.5px * var(--content-scale))` }}>
+                                                                        <span className="font-medium uppercase whitespace-normal break-words mt-[1.5px] leading-[1.1] block pr-1 w-full" style={{ color: colorData.hex, opacity: 0.85, fontSize: `max(calc(${10.5 * scale}px * var(--content-scale) * 1.5), ${9 * scale}px)` }}>
                                                                             {teacherName}
                                                                         </span>
                                                                         {/* Combined/Multiple Indicator */}
                                                                         {group.length > 1 && (
-                                                                            <div className="absolute right-0.5 bottom-0.5 w-[10px] h-[10px] sm:w-[12px] sm:h-[12px] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-bold shadow-sm">
+                                                                            <div className="absolute right-0.5 bottom-0.5 w-[10px] h-[10px] sm:w-[12px] sm:h-[12px] md:w-[18px] md:h-[18px] lg:w-[22px] lg:h-[22px] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] md:text-[10px] lg:text-[12px] font-bold shadow-sm">
                                                                                 {group.length}
                                                                             </div>
                                                                         )}
@@ -1014,7 +1021,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
           {/* Right Section / Bottom Section -> Unscheduled */}
           <div className="w-full lg:w-[25%] flex-shrink-0 flex-col mt-2 lg:mt-0 lg:sticky lg:top-4 lg:self-start z-10 hidden lg:flex">
               {/* PC View Unscheduled */}
-              <div className="w-full flex flex-col">
+              <div className="w-full flex flex-col" style={{ width: '260px', height: '530px', borderStyle: 'dotted' }}>
                   <div className="flex items-center gap-3 mb-4 px-2 tracking-tight">
                       <h2 className="text-xl font-black text-[#1f4061] dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
                           UNSCHEDULED 
@@ -1203,7 +1210,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
             <div className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
                 <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                     History / Logs
-                    <span className="bg-[#2e5ef2] text-white text-xs px-2.5 py-0.5 rounded-full">{classLogs.length}</span>
+                    <span className="bg-[var(--accent-primary)] text-white text-xs px-2.5 py-0.5 rounded-full">{classLogs.length}</span>
                 </h3>
                 <div className={`text-gray-400 transform transition-transform duration-200 ${isHistoryExpanded ? 'rotate-180' : ''}`}>
                    <ChevronDownIcon /> 
