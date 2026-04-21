@@ -523,31 +523,6 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
     });
 };
 
-const handleClearTimetable = () => {
-    if (!selectedClass) return;
-    onUpdateTimetableSession((session) => {
-        let newClasses = session.classes.map(c => {
-            if (c.id === selectedClass.id) {
-                return { ...c, timetable: {} };
-            }
-            return c;
-        });
-        
-        let currentLogs = session.changeLogs || [];
-        const log = {
-            id: Date.now().toString(),
-            timestamp: new Date().toISOString(),
-            classId: selectedClass.id,
-            entityType: 'class' as const,
-            entityId: selectedClass.id,
-            action: 'delete' as const,
-            details: `Cleared timetable for class ${selectedClass.nameEn}`
-        };
-        
-        return { ...session, classes: newClasses, changeLogs: [log, ...currentLogs] };
-    });
-};
-
   const handleDrop = (e: React.DragEvent, targetDay: keyof TimetableGridData, targetPeriodIndex: number) => { e.preventDefault(); handleExecuteMove(targetDay, targetPeriodIndex); };
   const handleSidebarDrop = (e: React.DragEvent) => { e.preventDefault(); handleUnschedule(); };
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); };
@@ -617,11 +592,6 @@ const handleClearTimetable = () => {
 
   return (
     <div className="container mx-auto p-1 sm:p-2 lg:p-4" style={{ '--content-scale': contentScale } as React.CSSProperties}>
-      <style>{`
-        @keyframes slideMarquee {
-          100% { transform: translateX(calc(-50% - 0.5rem)); } /* -50% for one copy, -0.5rem for half the gap */
-        }
-      `}</style>
       {selectedClass && (<PrintPreview t={t} isOpen={isPrintPreviewOpen} onClose={() => setIsPrintPreviewOpen(false)} title={`${t.classTimetable}: ${selectedClass.nameEn}`} fileNameBase={`Timetable_${selectedClass.nameEn.replace(' ', '_')}`} generateHtml={(lang, options) => generateClassTimetableHtml(selectedClass, lang, options, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} onSaveDesign={handleSavePrintDesign} />)}
       {selectedClass && <CopyTimetableModal t={t} isOpen={isCopyModalOpen} onClose={() => setIsCopyModalOpen(false)} classes={visibleClasses} subjects={subjects} teachers={teachers} onUpdateClasses={(updatedClasses) => { 
         const newClasses = classes.map(c => {
@@ -810,7 +780,7 @@ const handleClearTimetable = () => {
                             </button>
                         )}
                         <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1"></div>
-                        <button onClick={() => { openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { handleClearTimetable(); }); setIsHeaderMoreOpen(false); }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/50 flex items-center justify-center rounded-xl text-red-600 transition-colors" title="Clear">
+                        <button onClick={() => { openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { /* Logic to clear class timetable */ }); setIsHeaderMoreOpen(false); }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/50 flex items-center justify-center rounded-xl text-red-600 transition-colors" title="Clear">
                             <Trash2 className="w-5 h-5" />
                         </button>
                     </div>
@@ -892,9 +862,9 @@ const handleClearTimetable = () => {
                                     let content = null;
 
                                     if (isDisabled) {
-                                        content = <div className="flex-1 min-w-0 h-[52px] sm:h-[60px] md:h-[90px] lg:h-[72px] rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
+                                        content = <div className="flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[76px] lg:h-[72px] rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
                                     } else {
-                                        let outerClasses = `flex-1 min-w-0 h-[52px] sm:h-[60px] md:h-[90px] lg:h-[72px] rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent cursor-pointer z-10`;
+                                        let outerClasses = `flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[76px] lg:h-[72px] rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent cursor-pointer z-10`;
                                         if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
 
                                         let availData;
@@ -966,12 +936,6 @@ const handleClearTimetable = () => {
 
                                                         const subjectName = subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown');
                                                         const teacherName = teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher';
-                                                        
-                                                        const isGroupPeriod = group.length > 1 || jp != null;
-                                                        const baseSubjectSize = 13;
-                                                        const baseTeacherSize = 10.5;
-                                                        const subjectFontSize = isGroupPeriod ? (baseSubjectSize * 0.8) : baseSubjectSize;
-                                                        const teacherFontSize = isGroupPeriod ? (baseTeacherSize * 0.8) : baseTeacherSize;
 
                                                         return (
                                                             <div 
@@ -992,9 +956,9 @@ const handleClearTimetable = () => {
                                                                     zIndex: 10 + groupIndex
                                                                 }}
                                                             >
-                                                                    <div className={`flex flex-col justify-center h-full w-full ${isGroupPeriod ? 'gap-0' : ''}`}>
+                                                                    <div className="flex flex-col justify-center h-full w-full">
                                                                         <div className="flex justify-between items-start w-full relative">
-                                                                            <span className={`font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight pr-2 sm:pr-3 block max-w-[8ch]`} style={{ color: colorData.hex, fontSize: `calc(${subjectFontSize}px * var(--content-scale))`, lineHeight: isGroupPeriod ? 0.85 : 1.1, paddingBottom: isGroupPeriod ? '1px' : '0' }}>
+                                                                            <span className="font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight leading-none pt-[1px] pr-2 sm:pr-3 block max-w-[8ch]" style={{ color: colorData.hex, fontSize: `calc(13px * var(--content-scale))` }}>
                                                                                 {subjectName}
                                                                             </span>
                                                                             {/* Delete button */}
@@ -1005,16 +969,9 @@ const handleClearTimetable = () => {
                                                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-[8px] w-[8px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
                                                                             </button>
                                                                         </div>
-                                                                        <div className={`w-full overflow-hidden`} style={{ marginTop: isGroupPeriod ? '0px' : '1px', maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: '-webkit-linear-gradient(left, black 85%, transparent 100%)' }}>
-                                                                            <div className="inline-flex items-center whitespace-nowrap gap-4 w-max hover:[animation-play-state:paused]" style={{ animation: 'slideMarquee 6s linear infinite' }}>
-                                                                                <span className="font-medium uppercase" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(${teacherFontSize}px * var(--content-scale))`, lineHeight: isGroupPeriod ? 0.85 : 1.2 }}>
-                                                                                    {teacherName}
-                                                                                </span>
-                                                                                <span className="font-medium uppercase" aria-hidden="true" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(${teacherFontSize}px * var(--content-scale))`, lineHeight: isGroupPeriod ? 0.85 : 1.2 }}>
-                                                                                    {teacherName}
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
+                                                                        <span className="font-medium uppercase overflow-hidden whitespace-nowrap text-ellipsis mt-[1px] leading-none block max-w-[8ch]" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(10.5px * var(--content-scale))` }}>
+                                                                            {teacherName}
+                                                                        </span>
                                                                         {/* Combined/Multiple Indicator */}
                                                                         {group.length > 1 && (
                                                                             <div className="absolute right-0.5 bottom-0.5 w-[10px] h-[10px] sm:w-[12px] sm:h-[12px] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-bold shadow-sm">
