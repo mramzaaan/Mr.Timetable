@@ -566,7 +566,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
 
       <div className="space-y-4">
           {sortedList.map(entity => (
-              <div key={entity.id} className="bg-white dark:bg-[#1e293b] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+              <div key={entity.id} className="bg-white dark:bg-[#1e293b] rounded-[1.5rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                   <button 
                     onClick={() => setExpandedId(expandedId === entity.id ? null : entity.id)} 
                     className="w-full flex items-center justify-between p-5 bg-gray-50/50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none group"
@@ -597,33 +597,33 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                                       const colorData = getColorForId(item.displaySubject?.id || item.key);
                                       
                                       return (
-                                          <div key={item.key} className="relative bg-white dark:bg-[#1a2332] rounded-[20px] shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex justify-between items-start border-l-[6px] hover:shadow-md transition-shadow" style={{ borderLeftColor: colorData.hex }}>
+                                          <div key={item.key} className="relative bg-white dark:bg-[#1a2332] rounded-[1.25rem] shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex justify-between items-start border-l-[0.375rem] hover:shadow-md transition-shadow" style={{ borderLeftColor: colorData.hex }}>
                                               {/* Left Content */}
                                               <div className="space-y-4">
                                                   <div>
-                                                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">SUBJECT</p>
+                                                      <p className="text-[0.625rem] font-bold text-slate-400 uppercase tracking-widest mb-1">SUBJECT</p>
                                                       <h4 className="text-xl font-black text-slate-800 leading-none tracking-tight">{item.displaySubject?.nameEn || 'Unknown'}</h4>
                                                   </div>
                                                   <div>
-                                                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">PERIODS</p>
+                                                      <p className="text-[0.625rem] font-bold text-slate-400 uppercase tracking-widest mb-1.5">PERIODS</p>
                                                       <div className="flex items-center gap-2">
                                                           <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
                                                               {periodsCount} {periodsCount === 1 ? 'PERIOD' : 'PERIODS'}
                                                           </span>
                                                           {item.type === 'joint' && !item.isDuty && sortBy === 'class' && (
-                                                              <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md border border-orange-100 uppercase tracking-wide">Joint</span>
+                                                              <span className="text-[0.625rem] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md border border-orange-100 uppercase tracking-wide">Joint</span>
                                                           )}
                                                           {item.groupName && (
-                                                              <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md border border-purple-100 uppercase tracking-wide">{item.groupName}</span>
+                                                              <span className="text-[0.625rem] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md border border-purple-100 uppercase tracking-wide">{item.groupName}</span>
                                                           )}
                                                       </div>
                                                   </div>
                                               </div>
 
                                               {/* Right Content */}
-                                              <div className="text-right flex flex-col items-end justify-between h-full min-h-[90px]">
+                                              <div className="text-right flex flex-col items-end justify-between h-full min-h-[5.625rem]">
                                                   <div className="mb-4">
-                                                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">TEACHER</p>
+                                                      <p className="text-[0.625rem] font-bold text-slate-400 uppercase tracking-widest mb-1">TEACHER</p>
                                                       <p className="text-sm font-bold text-slate-700 uppercase tracking-wide">{sortBy === 'class' ? (item.displayTeacher?.nameEn || t.withoutTeacher) : (item.type === 'single' ? item.displayClass?.nameEn : item.displayClasses)}</p>
                                                   </div>
                                                   
@@ -649,14 +649,14 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-800/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity" onClick={() => setIsModalOpen(false)}>
-            <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
                 <div className="p-8 pb-6">
                     <h3 className="text-2xl font-bold text-slate-900">{editingLesson ? t.updateLesson : t.addLesson}</h3>
                 </div>
                 <div className="px-8 pb-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
                     {/* Teacher */}
                     <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.teacher}</label>
+                        <label className="block text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.teacher}</label>
                         <div className="relative">
                             <select value={teacherId} onChange={(e) => setTeacherId(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent appearance-none font-medium" disabled={!!limitToTeacherId}>
                                 <option value="">{t.withoutTeacher}</option>
@@ -669,7 +669,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                     </div>
                     {/* Subject */}
                     <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.subject} <span className="text-red-500">*</span></label>
+                        <label className="block text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.subject} <span className="text-red-500">*</span></label>
                         <div className="relative">
                             <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent appearance-none font-medium">
                                 <option value="">{t.select}</option>
@@ -682,7 +682,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                     </div>
                     {/* Periods/Week */}
                     <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.periodsPerWeek}</label>
+                        <label className="block text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.periodsPerWeek}</label>
                         <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl">
                             <button 
                                 type="button"
@@ -704,7 +704,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                     {/* Class */}
                     <div className="animate-fade-in">
                         <div className="flex justify-between items-center mb-2">
-                            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest">{t.class} <span className="text-red-500">*</span></label>
+                            <label className="block text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest">{t.class} <span className="text-red-500">*</span></label>
                             <div className="flex items-center gap-3">
                                 <span className="text-xs text-slate-500 font-medium">{selectedClassIds.length} selected</span>
                                 {!isClassesExpanded && visibleClasses.length > 1 && (
@@ -744,7 +744,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                                     {isJointPeriod && <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
                                 </div>
                                 <input type="checkbox" checked={isJointPeriod} onChange={(e) => setIsJointPeriod(e.target.checked)} className="hidden" />
-                                <span className="text-[13px] font-bold text-slate-800 uppercase tracking-wide">Combine as Joint Period</span>
+                                <span className="text-[0.8125rem] font-bold text-slate-800 uppercase tracking-wide">Combine as Joint Period</span>
                             </label>
                             <p className="text-xs text-slate-500 pl-8">
                                 {isJointPeriod 
@@ -761,16 +761,16 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                                 {isGroupLesson && <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
                             </div>
                             <input type="checkbox" checked={isGroupLesson} onChange={(e) => setIsGroupLesson(e.target.checked)} className="hidden" />
-                            <span className="text-[13px] font-bold text-slate-800 uppercase tracking-wide">{t.groupConfiguration || 'Group Configuration'}</span>
+                            <span className="text-[0.8125rem] font-bold text-slate-800 uppercase tracking-wide">{t.groupConfiguration || 'Group Configuration'}</span>
                         </label>
                         {isGroupLesson && (
                             <div className="space-y-4 pl-8 animate-scale-in mt-4">
                                 <div>
-                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{t.groupName || 'Group Name'} (e.g. Bio, Comp)</label>
+                                    <label className="block text-[0.625rem] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{t.groupName || 'Group Name'} (e.g. Bio, Comp)</label>
                                     <input type="text" value={customGroupName} onChange={(e) => setCustomGroupName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent text-sm font-medium" placeholder="Enter group name" />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{t.groupSetName || 'Group Set Name'} (Optional)</label>
+                                    <label className="block text-[0.625rem] font-bold text-slate-400 uppercase tracking-widest mb-1.5">{t.groupSetName || 'Group Set Name'} (Optional)</label>
                                     <input type="text" value={customGroupSetName} onChange={(e) => setCustomGroupSetName(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent text-sm font-medium" placeholder="e.g. Science Group" />
                                 </div>
                             </div>

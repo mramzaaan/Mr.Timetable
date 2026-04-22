@@ -84,6 +84,11 @@ const appFontOptions = [
     { label: 'Instrument Serif', value: 'Instrument Serif' },
     { label: 'Gulzar', value: 'Gulzar' },
     { label: 'Noto Nastaliq Urdu', value: 'Noto Nastaliq Urdu' },
+    { label: 'Lateef', value: 'Lateef' },
+    { label: 'Rakkas', value: 'Rakkas' },
+    { label: 'Reem Kufi', value: 'Reem Kufi' },
+    { label: 'Reem Kufi Fun', value: 'Reem Kufi Fun' },
+    { label: 'Times New Roman', value: '"Times New Roman", Times, serif' },
     { label: 'Pinyon Script', value: 'Pinyon Script' },
     { label: 'Italianno', value: 'Italianno' },
     { label: 'Alex Brush', value: 'Alex Brush' },
@@ -184,7 +189,7 @@ const ColorPickerInput = ({ label, value, onChange }: { label: string, value: st
 
 const OpacityControl = ({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) => (
     <div className="space-y-2">
-        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">{label}</label>
+        <label className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">{label}</label>
         <div className="flex items-center bg-[var(--bg-primary)] rounded-xl border border-[var(--border-secondary)] h-10 px-1 w-full shadow-inner">
             <button 
                 onClick={() => onChange(Math.max(0, parseFloat((value - 0.05).toFixed(2))))} 
@@ -300,7 +305,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                     <div className="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-secondary)] animate-scale-in">
                         <label className="block text-xs text-[var(--text-secondary)] mb-1">Select Week (Any date)</label>
                         <input type="date" value={selectedWeekDate} onChange={(e) => setSelectedWeekDate(e.target.value)} className="block w-full px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md text-sm text-[var(--text-primary)]" />
-                        <p className="text-[10px] text-[var(--text-secondary)] mt-1">
+                        <p className="text-[0.625rem] text-[var(--text-secondary)] mt-1">
                             Week: {workloadStartDate} to {workloadEndDate}
                         </p>
                     </div>
@@ -365,7 +370,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                         
                         {/* THEME MODE */}
                         <div>
-                            <h4 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">THEME MODE</h4>
+                            <h4 className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">THEME MODE</h4>
                             <div className="grid grid-cols-3 gap-4">
                                 <button 
                                     onClick={() => {
@@ -404,7 +409,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
                         {/* COLOR PALETTE */}
                         <div>
-                            <h4 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">COLOR PALETTE</h4>
+                            <h4 className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">COLOR PALETTE</h4>
                             <div className="flex flex-wrap gap-4">
                                 {[
                                     '#6366f1', // Indigo
@@ -442,7 +447,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                         <div className="border-t border-[var(--border-secondary)] pt-6">
                             <details className="group">
                                 <summary className="flex justify-between items-center cursor-pointer list-none">
-                                    <h4 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">CUSTOMIZE DETAILS</h4>
+                                    <h4 className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">CUSTOMIZE DETAILS</h4>
                                     <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-primary)]">
                                         Show Inputs
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>

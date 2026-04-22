@@ -901,34 +901,34 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                 {/* Text Size Section */}
                 <div className="grid grid-cols-4 gap-2">
                     <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Header</label>
+                        <label className="text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Header</label>
                         <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
                             <button onClick={() => setHeaderTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                            <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(headerTextScale * 100)}%</div>
+                            <div className="flex-1 text-center text-white text-[0.625rem] font-bold">{Math.round(headerTextScale * 100)}%</div>
                             <button onClick={() => setHeaderTextScale(s => Math.min(2.0, s + 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Footer</label>
+                        <label className="text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Footer</label>
                         <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
                             <button onClick={() => setFooterTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                            <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(footerTextScale * 100)}%</div>
+                            <div className="flex-1 text-center text-white text-[0.625rem] font-bold">{Math.round(footerTextScale * 100)}%</div>
                             <button onClick={() => setFooterTextScale(s => Math.min(2.0, s + 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Sub/Teach</label>
+                        <label className="text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Sub/Teach</label>
                         <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
                             <button onClick={() => setSubjectTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                            <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(subjectTextScale * 100)}%</div>
+                            <div className="flex-1 text-center text-white text-[0.625rem] font-bold">{Math.round(subjectTextScale * 100)}%</div>
                             <button onClick={() => setSubjectTextScale(s => Math.min(2.0, s + 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-gray-400">Period Time</label>
+                        <label className="text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Period Time</label>
                         <div className="flex items-center gap-1 bg-[#0f172a] rounded-lg border border-white/10 p-1">
                             <button onClick={() => setPeriodTextScale(s => Math.max(0.5, s - 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                            <div className="flex-1 text-center text-white text-[10px] font-bold">{Math.round(periodTextScale * 100)}%</div>
+                            <div className="flex-1 text-center text-white text-[0.625rem] font-bold">{Math.round(periodTextScale * 100)}%</div>
                             <button onClick={() => setPeriodTextScale(s => Math.min(2.0, s + 0.1))} className="w-6 h-6 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
                         </div>
                     </div>
@@ -937,7 +937,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                 {/* Card Design Section */}
                 <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Card Design</label>
+                        <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Card Design</label>
                         <select 
                             value={selectedCardStyle} 
                             onChange={(e) => setSelectedCardStyle(e.target.value as CardStyle)}
@@ -949,7 +949,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                     
                     {selectedCardStyle === 'triangle' && (
                     <div className="space-y-1 animate-scale-in">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Triangle Corner</label>
+                        <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Triangle Corner</label>
                         <select 
                             value={selectedTriangleCorner} 
                             onChange={(e) => setSelectedTriangleCorner(e.target.value as TriangleCorner)}
@@ -962,7 +962,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                     
                     {selectedCardStyle === 'badge' && (
                     <div className="space-y-1 animate-scale-in">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Badge Target</label>
+                        <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Badge Target</label>
                         <select 
                             value={badgeTarget} 
                             onChange={(e) => setBadgeTarget(e.target.value as any)}
@@ -976,7 +976,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
 
                     {selectedCardStyle === 'outline' && (
                     <div className="space-y-1 animate-scale-in">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Outline Inset</label>
+                        <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Outline Inset</label>
                         <input 
                             type="range" 
                             min="0" max="10" step="1"
@@ -991,7 +991,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                 {/* Buttons */}
                 <div className="flex gap-2 w-full mt-2 items-center">
                     <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Urdu</span>
+                        <span className="text-[0.5625rem] font-bold text-gray-400 uppercase tracking-wider">Urdu</span>
                         <button 
                             onClick={() => setIsUrdu(!isUrdu)}
                             className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isUrdu ? 'bg-blue-600' : 'bg-gray-600'}`}
@@ -1000,7 +1000,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                         </button>
                     </div>
                     <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Time</span>
+                        <span className="text-[0.5625rem] font-bold text-gray-400 uppercase tracking-wider">Time</span>
                         <button 
                             onClick={() => setShowStartTimes(!showStartTimes)}
                             className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showStartTimes ? 'bg-blue-600' : 'bg-gray-600'}`}
@@ -1009,7 +1009,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                         </button>
                     </div>
                     <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Merge</span>
+                        <span className="text-[0.5625rem] font-bold text-gray-400 uppercase tracking-wider">Merge</span>
                         <button 
                             onClick={() => setMergePatterns(!mergePatterns)}
                             className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${mergePatterns ? 'bg-blue-600' : 'bg-gray-600'}`}
@@ -1018,14 +1018,14 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                         </button>
                     </div>
 
-                    <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[10px] font-black uppercase tracking-wider bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
+                    <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[0.625rem] font-black uppercase tracking-wider bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
                         {isGenerating ? (
                             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         ) : (
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
                         )}
                     </button>
-                    <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[10px] font-black uppercase tracking-wider bg-[#128C7E] text-white rounded-md hover:bg-[#075e54] disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
+                    <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[0.625rem] font-black uppercase tracking-wider bg-[#128C7E] text-white rounded-md hover:bg-[#075e54] disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>
                     </button>
                 </div>

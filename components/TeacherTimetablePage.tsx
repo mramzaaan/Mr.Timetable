@@ -10,6 +10,7 @@ import DownloadModal from './DownloadModal';
 import { generateTeacherTimetableHtml, calculateWorkloadStats } from './reportUtils';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import AddLessonForm from './AddLessonForm';
+import { MessageCircle, MoreVertical, Printer, Undo2, Redo2 } from 'lucide-react';
 
 import { OnlineTeachersShareModal } from './OnlineTeachersShareModal';
 
@@ -93,11 +94,13 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
 
   // Custom Dropdown State
   const [isTeacherDropdownOpen, setIsTeacherDropdownOpen] = useState(false);
+  const [isHeaderMoreOpen, setIsHeaderMoreOpen] = useState(false);
   const [isOnlineShareModalOpen, setIsOnlineShareModalOpen] = useState(false);
   const [teacherSortBy, setTeacherSortBy] = useState<'serial' | 'name' | 'periods'>('serial');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [teacherSearchQuery, setTeacherSearchQuery] = useState('');
   const teacherDropdownRef = useRef<HTMLDivElement>(null);
+  const teacherMoreRef = useRef<HTMLDivElement>(null);
 
   const selectedTeacher = useMemo(() => teachers.find(t => t.id === selectedTeacherId), [teachers, selectedTeacherId]);
 
@@ -115,6 +118,9 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
           }
           if (teacherDropdownRef.current && !teacherDropdownRef.current.contains(e.target as Node)) {
               setIsTeacherDropdownOpen(false);
+          }
+          if (teacherMoreRef.current && !teacherMoreRef.current.contains(e.target as Node)) {
+              setIsHeaderMoreOpen(false);
           }
       };
       document.addEventListener('mousedown', handleClickOutside);
@@ -706,8 +712,9 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
 
           // 1. Move Dragged/Selected Periods
           const processedJointIds = new Set<string>();
+          const periodsToMove = (sourceDay && sourcePeriodIndex !== undefined) ? periods : [periods[0]];
           
-          periods.forEach(p => {
+          periodsToMove.forEach(p => {
               if (p.jointPeriodId) {
                   if (processedJointIds.has(p.jointPeriodId)) return;
                   processedJointIds.add(p.jointPeriodId);
@@ -1113,138 +1120,148 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
         t={t}
         language={language === 'ur' ? 'ur' : 'en'}
       />
-      {/* Header Section: Centered Dropdown and Action Buttons */}
-      <div className="mb-8 flex flex-col items-center gap-6">
+      <div className="mb-4 flex flex-nowrap items-center justify-start gap-4 w-full max-w-7xl mx-auto px-1 lg:px-0 mt-2 relative z-[60]">
         
-        {/* Navigation Row */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 w-full max-w-2xl relative z-20">
-            {/* Previous Button */}
-            <button 
-                onClick={handlePreviousTeacher} 
-                disabled={currentTeacherIndex <= 0}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--bg-secondary)] shadow-sm border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
-            >
-                <ChevronLeftIcon />
-            </button>
-
-             {/* Main Pill Dropdown Container */}
-             <div className="flex-1 min-w-0" ref={teacherDropdownRef}>
-                 <div className="relative w-full max-w-md mx-auto">
-                    <button
-                        onClick={() => setIsTeacherDropdownOpen(!isTeacherDropdownOpen)}
-                        className="flex items-center gap-3 sm:gap-4 bg-[var(--bg-secondary)] rounded-full pl-1.5 pr-4 sm:pl-2 sm:pr-6 py-1.5 sm:py-2 shadow-md border border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:shadow-lg transition-all w-full"
-                    >
-                        {selectedTeacher ? (
-                            <>
-                                {/* Serial Circle */}
-                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--accent-primary)] text-white flex items-center justify-center font-bold text-sm sm:text-lg shadow-sm flex-shrink-0">
-                                    {selectedTeacher.serialNumber ?? '-'}
-                                </div>
-                                
-                                {/* Text Stack */}
-                                <div className="flex flex-col items-start mr-auto overflow-hidden min-w-0 flex-1">
-                                    <span className="font-black text-sm sm:text-lg text-[var(--text-primary)] leading-none truncate w-full text-left">
-                                        {language === 'ur' ? selectedTeacher.nameUr : selectedTeacher.nameEn}
-                                    </span>
-                                    <span className="text-[9px] sm:text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mt-0.5 truncate w-full text-left">
-                                        {teacherPeriodCounts.get(selectedTeacher.id) || 0} Periods
-                                    </span>
-                                </div>
-                            </>
-                        ) : (
-                            <span className="text-[var(--text-secondary)] font-medium pl-4">{t.selectATeacher}</span>
-                        )}
-                        
-                        <div className="text-[var(--text-secondary)] flex-shrink-0">
-                            <ChevronDownIcon />
-                        </div>
-                    </button>
-
-                    {isTeacherDropdownOpen && (
-                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl p-3 animate-scale-in origin-top z-50">
-                            {/* Search */}
-                            <div className="relative mb-3">
-                                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--text-placeholder)] pointer-events-none">
-                                    <SearchIcon />
-                                </div>
-                                <input
-                                    type="text"
-                                    placeholder="Search teachers..."
-                                    value={teacherSearchQuery}
-                                    onChange={(e) => setTeacherSearchQuery(e.target.value)}
-                                    className="w-full pl-10 pr-10 py-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
-                                    autoFocus
-                                />
-                                {teacherSearchQuery && (
-                                    <button 
-                                        onClick={() => setTeacherSearchQuery('')}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)] hover:text-red-500 transition-colors p-1 rounded-full hover:bg-[var(--bg-secondary)]"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
-                                    </button>
-                                )}
-                            </div>
-                            
-                            {/* Sort Controls */}
-                            <div className="flex gap-1 mb-2 bg-[var(--bg-tertiary)] p-1 rounded-lg">
-                                {(['serial', 'name', 'periods', 'unscheduled'] as const).map(key => (
-                                    <button
-                                        key={key}
-                                        onClick={() => {
-                                            if (teacherSortBy === key) {
-                                                setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-                                            } else {
-                                                setTeacherSortBy(key);
-                                                setSortDirection('asc');
-                                            }
-                                        }}
-                                        className={`flex-1 text-[10px] font-bold uppercase py-1 rounded-md transition-colors flex items-center justify-center gap-1 ${teacherSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]'}`}
-                                    >
-                                        {key === 'serial' ? '#' : key === 'unscheduled' ? 'Unsch' : key.toUpperCase()}
-                                        {teacherSortBy === key && (
-                                            <span className="text-[8px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* List */}
-                            <div className="max-h-60 overflow-y-auto custom-scrollbar flex flex-col gap-1">
-                                {sortedTeachers.length === 0 ? (
-                                    <div className="p-3 text-center text-xs text-[var(--text-secondary)] italic">No teachers found</div>
-                                ) : (
-                                    sortedTeachers.map(t => (
-                                        <button
-                                            key={t.id}
-                                            onClick={() => {
-                                                onSelectedTeacherChange(t.id);
-                                                setIsTeacherDropdownOpen(false);
-                                            }}
-                                            className={`w-full text-left px-3 py-2.5 rounded-lg text-sm flex items-center gap-3 transition-colors ${selectedTeacherId === t.id ? 'bg-[var(--accent-secondary)] text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]' : 'hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
-                                        >
-                                            <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-0.5 rounded ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10' : 'bg-[var(--bg-primary)]'}`}>#{t.serialNumber ?? '-'}</span>
-                                            <span className="font-bold flex-grow text-base break-words text-left leading-tight">{language === 'ur' ? t.nameUr : t.nameEn}</span>
-                                            <span className={`text-xs opacity-70 whitespace-nowrap min-w-[60px] text-center px-2 py-0.5 rounded ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10' : 'bg-[var(--bg-primary)]'}`}>{teacherPeriodCounts.get(t.id) || 0} Sch | {teacherUnscheduledCounts.get(t.id) || 0} Unsch</span>
-                                            {selectedTeacherId === t.id && <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] flex-shrink-0"></div>}
-                                        </button>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    )}
-                 </div>
+        {/* Teacher Selector Header - Modern Design */}
+        <div className="flex items-center justify-start flex-shrink-0 relative" ref={teacherDropdownRef}>
+             <div className="flex items-center gap-1 sm:gap-2 mr-2">
+                 <button 
+                     onClick={handlePreviousTeacher} 
+                     disabled={currentTeacherIndex <= 0}
+                     className="w-8 h-8 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                 >
+                     <ChevronLeftIcon className="w-5 h-5 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+                 </button>
+                 <button 
+                     onClick={handleNextTeacher} 
+                     disabled={currentTeacherIndex >= sortedTeachers.length - 1}
+                     className="w-8 h-8 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                 >
+                     <ChevronRightIcon className="w-5 h-5 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+                 </button>
              </div>
 
-             {/* Next Button */}
-             <button 
-                 onClick={handleNextTeacher} 
-                 disabled={currentTeacherIndex >= sortedTeachers.length - 1}
-                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--bg-secondary)] shadow-sm border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
-             >
-                 <ChevronRightIcon />
+              {selectedTeacher ? (
+                 <div className="flex items-center gap-2 sm:gap-3 cursor-pointer whitespace-nowrap" onClick={() => setIsTeacherDropdownOpen(!isTeacherDropdownOpen)}>
+                     <div className="w-14 h-14 md:w-28 md:h-28 lg:w-36 lg:h-36 rounded-full border-2 md:border-[0.1875rem] border-[var(--accent-primary)] flex items-center justify-center flex-shrink-0">
+                         <span className="text-[var(--accent-primary)] font-black text-3xl md:text-6xl lg:text-8xl leading-none flex items-center justify-center">{selectedTeacher.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
+                     </div>
+                     <div className="flex flex-col items-start leading-none -space-y-0.5 md:-space-y-1">
+                         <span className="font-black text-3xl md:text-6xl lg:text-8xl text-[var(--accent-primary)] uppercase tracking-tighter hover:opacity-90 transition-opacity">
+                             {language === 'ur' ? selectedTeacher.nameUr : selectedTeacher.nameEn}
+                         </span>
+                     </div>
+                     
+                     <div className="flex items-center gap-1 ml-1 md:ml-3">
+                         <div className="flex flex-col items-center justify-center relative w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full border-2 md:border-[0.1875rem] border-dashed border-orange-500 text-orange-500 flex-shrink-0">
+                             <span className="text-[0.4375rem] md:text-[0.75rem] lg:text-[1rem] font-bold uppercase absolute top-1.5 md:top-3 opacity-80">PD</span>
+                             <span className="text-[0.625rem] md:text-[1.375rem] lg:text-[1.75rem] font-black mt-1.5 md:mt-3 lg:mt-4">{teacherPeriodCounts.get(selectedTeacher.id) || 0}</span>
+                         </div>
+                         <div className="text-gray-300 flex flex-col -gap-2 hidden md:flex">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+                         </div>
+                     </div>
+                 </div>
+             ) : (
+                 <span className="text-gray-400 font-medium text-sm md:text-base whitespace-nowrap">{t.selectATeacher}</span>
+             )}
+
+             {isTeacherDropdownOpen && (
+                 <div className="absolute top-[100%] mt-4 w-full min-w-[17.5rem] md:min-w-[20rem] max-w-md bg-white dark:bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-3xl shadow-2xl p-4 animate-scale-in z-50">
+                     {/* Search */}
+                     <div className="relative mb-3 w-full">
+                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5">
+                             <SearchIcon />
+                         </div>
+                         <input
+                             type="text"
+                             placeholder="Search teachers..."
+                             value={teacherSearchQuery}
+                             onChange={(e) => setTeacherSearchQuery(e.target.value)}
+                             className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] border border-gray-200 dark:border-[var(--border-secondary)] rounded-2xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
+                             autoFocus
+                         />
+                     </div>
+                     
+                     {/* Sort Controls */}
+                     <div className="flex gap-2 mb-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] p-1.5 rounded-xl">
+                         {(['serial', 'name', 'periods', 'unscheduled'] as const).map(key => (
+                             <button
+                                 key={key}
+                                 onClick={() => {
+                                     if (teacherSortBy === key) {
+                                         setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+                                     } else {
+                                         setTeacherSortBy(key);
+                                         setSortDirection('asc');
+                                     }
+                                 }}
+                                 className={`flex-1 text-[0.625rem] font-bold uppercase py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 ${teacherSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-gray-500 hover:text-black dark:text-gray-400 hover:bg-white dark:hover:bg-[var(--bg-secondary)]'}`}
+                             >
+                                 {key === 'serial' ? '#' : key === 'unscheduled' ? 'Unsch' : key.toUpperCase()}
+                                 {teacherSortBy === key && (
+                                     <span className="text-[0.625rem]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                                 )}
+                             </button>
+                         ))}
+                     </div>
+
+                     {/* List */}
+                     <div className="max-h-64 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1">
+                         {sortedTeachers.length === 0 ? (
+                             <div className="p-4 text-center text-sm text-gray-400 italic">No teachers found</div>
+                         ) : (
+                             sortedTeachers.map(t => (
+                                 <button
+                                     key={t.id}
+                                     onClick={() => {
+                                         onSelectedTeacherChange(t.id);
+                                         setIsTeacherDropdownOpen(false);
+                                     }}
+                                     className={`w-full text-left px-4 py-3 rounded-xl text-sm flex items-center gap-3 transition-colors ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : 'hover:bg-gray-50 dark:hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
+                                 >
+                                     <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-md ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-100 dark:bg-[var(--bg-secondary)]'}`}>#{t.serialNumber ?? '-'}</span>
+                                     <span className="font-bold flex-grow text-base break-words text-left">{language === 'ur' ? t.nameUr : t.nameEn}</span>
+                                     <span className={`text-[0.625rem] opacity-70 whitespace-nowrap min-w-[3.75rem] text-center px-2 py-1 rounded-md border ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]' : 'bg-white border-gray-200 dark:bg-[var(--bg-secondary)] dark:border-[var(--border-secondary)]'}`}>{teacherPeriodCounts.get(t.id) || 0} Sch | {teacherUnscheduledCounts.get(t.id) || 0} Unsch</span>
+                                 </button>
+                             ))
+                         )}
+                     </div>
+                 </div>
+             )}
+        </div>
+        
+        {/* Actions - Right */}
+        <div className="flex items-center justify-start gap-2 flex-shrink-0 ml-auto mr-1">
+             <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedTeacher} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center flex-shrink-0">
+                 <MessageCircle className="w-6 h-6 md:w-10 md:h-10 lg:w-12 lg:h-12" strokeWidth={2} />
              </button>
+             <div className="relative" ref={teacherMoreRef}>
+                 <button 
+                   onClick={() => setIsHeaderMoreOpen(!isHeaderMoreOpen)} 
+                   className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 flex text-gray-400 hover:text-gray-600 dark:text-gray-300 hover:dark:text-white items-center justify-center transition-all flex-shrink-0"
+                 >
+                     <MoreVertical className="h-6 w-6 md:h-10 md:w-10 lg:w-12 lg:h-12" strokeWidth={2} />
+                 </button>
+                 
+                 {isHeaderMoreOpen && (
+                     <div className="absolute right-0 top-[100%] mt-2 flex justify-center items-center gap-1 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
+                         <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedTeacher} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
+                             <Printer className="w-5 h-5" />
+                         </button>
+                         {onUndo && (
+                             <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
+                                 <Undo2 className="w-5 h-5" />
+                             </button>
+                         )}
+                         {onRedo && (
+                             <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
+                                 <Redo2 className="w-5 h-5" />
+                             </button>
+                         )}
+                     </div>
+                 )}
+             </div>
         </div>
       </div>
 
@@ -1372,13 +1389,13 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
               <h3 className="text-lg font-bold text-[var(--text-primary)] mb-3 border-b border-[var(--border-primary)] pb-2 flex justify-between items-center">
                   {t.unscheduledPeriods}
                   {moveSource && moveSource.sourceDay && (
-                      <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full animate-pulse">Click here to Unschedule</span>
+                      <span className="text-[0.625rem] bg-red-100 text-red-600 px-2 py-0.5 rounded-full animate-pulse">Click here to Unschedule</span>
                   )}
               </h3>
               {sidebarItems.length === 0 ? (
                 <p className="text-sm text-[var(--text-secondary)] italic">{t.dragAndDropInstruction}</p>
               ) : (
-                <div className="flex flex-row flex-wrap gap-2 max-h-[300px] overflow-y-auto pr-2 period-stack-clickable">
+                <div className="flex flex-row flex-wrap gap-2 max-h-[18.75rem] overflow-y-auto pr-2 period-stack-clickable">
                   {sidebarItems.map((group, index) => {
                       const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                       const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
@@ -1491,14 +1508,14 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                             'bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/50'
                                         }`}>
                                             <div className="flex justify-between items-center mb-1.5">
-                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                                                <span className={`text-[0.5625rem] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
                                                     log.type === 'delete' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 
                                                     log.type === 'add' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 
                                                     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                                                 }`}>
                                                     {log.type}
                                                 </span>
-                                                <span className="text-[10px] font-bold opacity-50 text-[var(--text-secondary)]">
+                                                <span className="text-[0.625rem] font-bold opacity-50 text-[var(--text-secondary)]">
                                                     {new Date(log.timestamp).toLocaleString([], { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
@@ -1539,7 +1556,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                                             </td>
                                                             <td className="px-4 py-3 text-[var(--text-secondary)]">{item.dayName}</td>
                                                             <td className="px-4 py-3">
-                                                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase border ${item.leaveType === 'full' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
+                                                                <span className={`px-2 py-1 rounded text-[0.625rem] font-bold uppercase border ${item.leaveType === 'full' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
                                                                     {item.leaveType === 'full' ? 'Full Day' : 'Half Day'}
                                                                 </span>
                                                             </td>
@@ -1594,14 +1611,14 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
                                                         <tr key={`s-${idx}`} className="hover:bg-[var(--bg-tertiary)]/50 transition-colors">
                                                             <td className="px-4 py-3 font-mono font-medium text-[var(--text-primary)]">
                                                                 {new Date(item.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}
-                                                                <div className="text-[10px] text-[var(--text-secondary)] uppercase font-bold">{item.dayName}</div>
+                                                                <div className="text-[0.625rem] text-[var(--text-secondary)] uppercase font-bold">{item.dayName}</div>
                                                             </td>
                                                             <td className="px-4 py-3 text-center font-bold text-[var(--text-primary)] bg-[var(--bg-tertiary)]/30">{item.period}</td>
                                                             <td className="px-4 py-3">
                                                                 {item.type === 'sub_given' ? (
-                                                                    <span className="px-2 py-1 rounded text-[10px] font-bold uppercase bg-orange-100 text-orange-700 border border-orange-200 whitespace-nowrap">Given ➔</span>
+                                                                    <span className="px-2 py-1 rounded text-[0.625rem] font-bold uppercase bg-orange-100 text-orange-700 border border-orange-200 whitespace-nowrap">Given ➔</span>
                                                                 ) : (
-                                                                    <span className="px-2 py-1 rounded text-[10px] font-bold uppercase bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">Taken ⬅️</span>
+                                                                    <span className="px-2 py-1 rounded text-[0.625rem] font-bold uppercase bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">Taken ⬅️</span>
                                                                 )}
                                                             </td>
                                                             <td className="px-4 py-3">
@@ -1626,52 +1643,6 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
             )}
         </div>
       )}
-
-      {/* Floating Action Buttons */}
-      <div className="fixed top-24 right-6 z-50 flex flex-col items-end gap-3">
-          {/* Main Toggle Button */}
-          <div className="flex flex-col items-center gap-3">
-              {/* WhatsApp Button - Always visible */}
-              <button 
-                  onClick={() => setIsCommModalOpen(true)}
-                  disabled={!selectedTeacher}
-                  className="w-12 h-12 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:bg-[#128C7E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={t.sendViaWhatsApp}
-              >
-                  <WhatsAppIcon />
-              </button>
-
-              {/* Toggle FAB */}
-              <button 
-                  onClick={() => setIsFabOpen(!isFabOpen)}
-                  className={`w-12 h-12 rounded-full bg-[var(--accent-primary)] text-[var(--accent-text)] flex items-center justify-center shadow-lg hover:bg-[var(--accent-primary-hover)] transition-transform duration-300 ${isFabOpen ? 'rotate-90' : ''}`}
-              >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-              </button>
-          </div>
-
-          {/* Collapsible Buttons */}
-          <div className={`flex flex-col gap-3 transition-all duration-300 origin-top ${isFabOpen ? 'scale-100 opacity-100 mt-2' : 'scale-0 opacity-0 h-0 pointer-events-none'}`}>
-              <button onClick={() => { setIsPrintPreviewOpen(true); setIsFabOpen(false); }} disabled={!selectedTeacher} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title={t.printViewAction}>
-                  <PrintIcon />
-              </button>
-              {onSave && (
-                  <button onClick={() => { onSave(); setIsFabOpen(false); }} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors" title="Save (Ctrl+S)">
-                      <SaveIcon />
-                  </button>
-              )}
-              {onRedo && (
-                  <button onClick={() => { onRedo(); setIsFabOpen(false); }} disabled={!canRedo} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Redo (Ctrl+Y)">
-                      <RedoIcon />
-                  </button>
-              )}
-              {onUndo && (
-                  <button onClick={() => { onUndo(); setIsFabOpen(false); }} disabled={!canUndo} className="w-10 h-10 rounded-full bg-white text-[var(--text-primary)] flex items-center justify-center shadow-md border border-[var(--border-secondary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Undo (Ctrl+Z)">
-                      <UndoIcon />
-                  </button>
-              )}
-          </div>
-      </div>
     </div>
   );
 };
