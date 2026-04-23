@@ -712,9 +712,8 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
 
           // 1. Move Dragged/Selected Periods
           const processedJointIds = new Set<string>();
-          const periodsToMove = (sourceDay && sourcePeriodIndex !== undefined) ? periods : [periods[0]];
           
-          periodsToMove.forEach(p => {
+          periods.forEach(p => {
               if (p.jointPeriodId) {
                   if (processedJointIds.has(p.jointPeriodId)) return;
                   processedJointIds.add(p.jointPeriodId);

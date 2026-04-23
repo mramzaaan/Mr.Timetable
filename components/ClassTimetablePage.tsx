@@ -402,8 +402,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                   const targetDayPeriods = (sourceDay === targetDay) ? newTimetable[sourceDay] : [...newTimetable[targetDay]];
                   const targetSlot = targetDayPeriods[targetPeriodIndex] || [];
                   
-                  const periodsToMove = (sourceDay && sourcePeriodIndex !== undefined) ? periods : [periods[0]];
-                  targetDayPeriods[targetPeriodIndex] = [...targetSlot, ...periodsToMove];
+                  targetDayPeriods[targetPeriodIndex] = [...targetSlot, ...periods];
                   newTimetable[targetDay] = targetDayPeriods;
                   updatedClass.timetable = newTimetable;
                   newClasses[classIdx] = updatedClass;
