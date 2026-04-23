@@ -202,23 +202,23 @@ const LivePeriodTracker: React.FC<LivePeriodTrackerProps> = ({ session, schoolCo
             
             {/* Current/Next Period Cards (Blue Single Auto-Rotating) */}
             {(targetPeriodIndex !== -1 || specialMessage) && (
-                <div className="w-full max-w-[45rem] relative z-20 perspective-1000 mt-2">
+                <div className="w-full max-w-[720px] relative z-20 perspective-1000 mt-2">
                     {targetClassesData.length === 0 ? (
-                         <div className="h-[6.875rem] rounded-[1.5rem] bg-gradient-to-r from-[#d9f1ff] via-[#e6f4ff] to-[#c6e9ff] shadow-[0_20px_40px_rgba(50,150,250,0.2)] flex flex-col items-center justify-center overflow-hidden relative border-[0.09375rem] border-white/90">
+                         <div className="h-[110px] rounded-[24px] bg-gradient-to-r from-[#d9f1ff] via-[#e6f4ff] to-[#c6e9ff] shadow-[0_20px_40px_rgba(50,150,250,0.2)] flex flex-col items-center justify-center overflow-hidden relative border-[1.5px] border-white/90">
                             <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-black/5 pointer-events-none"></div>
                             {specialMessage ? (
-                                <span className="text-[#4a81ab] font-black uppercase tracking-[0.2em] text-[1.25rem] sm:text-[1.5rem] z-10 text-center px-4" style={{ textShadow: '0 2px 4px rgba(255,255,255,0.8)' }}>
+                                <span className="text-[#4a81ab] font-black uppercase tracking-[0.2em] text-[20px] sm:text-[24px] z-10 text-center px-4" style={{ textShadow: '0 2px 4px rgba(255,255,255,0.8)' }}>
                                     {specialMessage}
                                 </span>
                             ) : (
                                 <>
-                                    <span className="text-[#0c2340]/50 font-black uppercase tracking-[0.25em] text-[0.9375rem] z-10 mb-1">NORMAL TIMETABLE</span>
-                                    <span className="text-[#4a7294]/60 font-bold tracking-widest text-[0.6875rem] z-10">NO CLASSES SCHEDULED</span>
+                                    <span className="text-[#0c2340]/50 font-black uppercase tracking-[0.25em] text-[15px] z-10 mb-1">NORMAL TIMETABLE</span>
+                                    <span className="text-[#4a7294]/60 font-bold tracking-widest text-[11px] z-10">NO CLASSES SCHEDULED</span>
                                 </>
                             )}
                         </div>
                     ) : (
-                        <div className="relative h-[6.875rem] sm:h-[7.5rem] rounded-[1.5rem] bg-gradient-to-r from-[#d9f1ff] via-[#e6f4ff] to-[#c6e9ff] shadow-[0_20px_40px_rgba(50,150,250,0.2)] overflow-hidden border-[0.09375rem] border-white/90 transform transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_25px_50px_rgba(50,150,250,0.25)]">
+                        <div className="relative h-[110px] sm:h-[120px] rounded-[24px] bg-gradient-to-r from-[#d9f1ff] via-[#e6f4ff] to-[#c6e9ff] shadow-[0_20px_40px_rgba(50,150,250,0.2)] overflow-hidden border-[1.5px] border-white/90 transform transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_25px_50px_rgba(50,150,250,0.25)]">
                             {activeTopData && (
                                 <div key={activeTopData.id + topActiveIndex} className="animate-in fade-in zoom-in duration-500 absolute inset-0 flex flex-row items-stretch p-2 sm:p-3 pr-2 sm:pr-4">
                                     {/* Glassy Overlays */}
@@ -227,21 +227,21 @@ const LivePeriodTracker: React.FC<LivePeriodTrackerProps> = ({ session, schoolCo
                                     <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-400/10 blur-3xl rounded-full pointer-events-none"></div>
                                     
                                     {/* Left Box (Class) */}
-                                    <div className="w-[5.3125rem] h-[5.3125rem] sm:w-[6rem] sm:h-[6rem] my-auto bg-white/60 backdrop-blur-md rounded-xl shadow-[inset_0_2px_10px_rgba(255,255,255,1),0_4px_15px_rgba(0,0,0,0.05)] border border-white/80 flex flex-col items-center justify-center flex-shrink-0 z-10 p-1 sm:p-2">
-                                        <span className="text-[0.8125rem] sm:text-[0.9375rem] font-black leading-tight tracking-tight text-center" style={{ color: '#4a81ab', textShadow: '1px 2px 4px rgba(0,0,0,0.08)' }}>{activeTopData.className}</span>
+                                    <div className="w-[85px] h-[85px] sm:w-[96px] sm:h-[96px] my-auto bg-white/60 backdrop-blur-md rounded-xl shadow-[inset_0_2px_10px_rgba(255,255,255,1),0_4px_15px_rgba(0,0,0,0.05)] border border-white/80 flex flex-col items-center justify-center flex-shrink-0 z-10 p-1 sm:p-2">
+                                        <span className="text-[13px] sm:text-[15px] font-black leading-tight tracking-tight text-center" style={{ color: '#4a81ab', textShadow: '1px 2px 4px rgba(0,0,0,0.08)' }}>{activeTopData.className}</span>
                                     </div>
                                     
                                     {/* Center */}
                                     <div className="flex flex-col flex-grow items-start justify-center pl-3 sm:pl-5 pr-2 z-10 relative overflow-hidden">
-                                        <p className="text-[0.8125rem] sm:text-[0.9375rem] font-black text-[#4a81ab] uppercase tracking-[0.1em] mb-0.5" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.8)' }}>
+                                        <p className="text-[13px] sm:text-[15px] font-black text-[#4a81ab] uppercase tracking-[0.1em] mb-0.5" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.8)' }}>
                                             {activeTopData.periodName} <span className="opacity-80">{mode}</span>
                                         </p>
-                                        <h3 className="text-[1.125rem] sm:text-[1.375rem] font-black text-[#0c2340] uppercase tracking-tight leading-tight mb-1 drop-shadow-sm text-left line-clamp-2 max-w-full" title={activeTopData.teacherName}>{activeTopData.teacherName}</h3>
+                                        <h3 className="text-[18px] sm:text-[22px] font-black text-[#0c2340] uppercase tracking-tight leading-tight mb-1 drop-shadow-sm text-left line-clamp-2 max-w-full" title={activeTopData.teacherName}>{activeTopData.teacherName}</h3>
                                         
-                                        <div className="flex items-center gap-1 sm:gap-2 mt-0 h-[1.25rem]">
+                                        <div className="flex items-center gap-1 sm:gap-2 mt-0 h-[20px]">
                                             {activeTopData.isSubstitute && (
                                                 <div className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-0.5 rounded-full shadow-[0_4px_10px_rgba(59,130,246,0.3)] border border-blue-400/50">
-                                                    <span className="text-[0.5625rem] sm:text-[0.625rem] font-black uppercase tracking-wider">Sub</span>
+                                                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider">Sub</span>
                                                 </div>
                                             )}
 
@@ -251,16 +251,16 @@ const LivePeriodTracker: React.FC<LivePeriodTrackerProps> = ({ session, schoolCo
                                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
                                                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-blue-600"></span>
                                                 </div>
-                                                <span className="text-[0.5625rem] sm:text-[0.625rem] font-black text-[#1f4061] uppercase tracking-wider">Combined</span>
+                                                <span className="text-[9px] sm:text-[10px] font-black text-[#1f4061] uppercase tracking-wider">Combined</span>
                                             </div>
                                             )}
                                         </div>
                                     </div>
                                     
                                     {/* Right Box (Room) */}
-                                    <div className="pl-2 sm:pl-4 border-l-2 border-[#a1cced]/60 flex flex-col items-center justify-center flex-shrink-0 w-[4.375rem] sm:w-[5.625rem] z-10 overflow-hidden">
-                                        <span className="text-[0.625rem] sm:text-[0.6875rem] font-extrabold text-[#1f4061] uppercase tracking-[0.2em] mb-0.5 opacity-80">ROM</span>
-                                        <span className="text-[1.25rem] sm:text-[1.625rem] font-black text-[#0c2340] leading-none tracking-tighter text-center drop-shadow-sm truncate w-full">{activeTopData.room}</span>
+                                    <div className="pl-2 sm:pl-4 border-l-2 border-[#a1cced]/60 flex flex-col items-center justify-center flex-shrink-0 w-[70px] sm:w-[90px] z-10 overflow-hidden">
+                                        <span className="text-[10px] sm:text-[11px] font-extrabold text-[#1f4061] uppercase tracking-[0.2em] mb-0.5 opacity-80">ROM</span>
+                                        <span className="text-[20px] sm:text-[26px] font-black text-[#0c2340] leading-none tracking-tighter text-center drop-shadow-sm truncate w-full">{activeTopData.room}</span>
                                     </div>
                                 </div>
                             )}
@@ -270,47 +270,47 @@ const LivePeriodTracker: React.FC<LivePeriodTrackerProps> = ({ session, schoolCo
             )}
 
             {/* Future / Daily Substitutions Cards (Gold Single Auto-Rotating) */}
-            <div className={`w-full max-w-[41.25rem] relative z-10 transition-all duration-500 mt-2 sm:-mt-4`}>
+            <div className={`w-full max-w-[660px] relative z-10 transition-all duration-500 mt-2 sm:-mt-4`}>
                 <div className="w-full flex-col flex items-center mt-2">
                     <div className="w-full flex flex-col gap-4 perspective-1000">
                         {futureData.length > 0 && activeBtmData ? (
-                            <div className="relative h-[6.875rem] sm:h-[7.5rem] rounded-[1.5rem] bg-gradient-to-r from-[#fdfbf3] via-[#faf3da] to-[#f4e2b0] border-[0.09375rem] border-white/80 shadow-[0_15px_35px_rgba(200,160,50,0.15)] overflow-hidden transform transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(200,160,50,0.25)]">
+                            <div className="relative h-[110px] sm:h-[120px] rounded-[24px] bg-gradient-to-r from-[#fdfbf3] via-[#faf3da] to-[#f4e2b0] border-[1.5px] border-white/80 shadow-[0_15px_35px_rgba(200,160,50,0.15)] overflow-hidden transform transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(200,160,50,0.25)]">
                                 <div key={activeBtmData.id + btmActiveIndex} className="animate-in fade-in zoom-in duration-500 absolute inset-0 flex flex-row items-stretch p-2 sm:p-3 pr-2 sm:pr-4">
                                     {/* Glassy Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-amber-900/5 pointer-events-none"></div>
                                     <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/50 blur-3xl rounded-full pointer-events-none"></div>
 
                                     {/* Left Box (Class) */}
-                                    <div className="w-[5.3125rem] h-[5.3125rem] sm:w-[6rem] sm:h-[6rem] my-auto bg-white/70 backdrop-blur-sm rounded-xl shadow-[inset_0_2px_8px_rgba(255,255,255,1),0_2px_10px_rgba(0,0,0,0.03)] border border-white flex flex-col items-center justify-center flex-shrink-0 z-10 p-1 sm:p-2">
-                                        <span className="text-[0.8125rem] sm:text-[0.9375rem] font-black leading-tight tracking-tight text-center" style={{ color: '#b89b47', textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>{activeBtmData.className}</span>
+                                    <div className="w-[85px] h-[85px] sm:w-[96px] sm:h-[96px] my-auto bg-white/70 backdrop-blur-sm rounded-xl shadow-[inset_0_2px_8px_rgba(255,255,255,1),0_2px_10px_rgba(0,0,0,0.03)] border border-white flex flex-col items-center justify-center flex-shrink-0 z-10 p-1 sm:p-2">
+                                        <span className="text-[13px] sm:text-[15px] font-black leading-tight tracking-tight text-center" style={{ color: '#b89b47', textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>{activeBtmData.className}</span>
                                     </div>
                                     
                                     {/* Center */}
                                     <div className="flex flex-col flex-grow items-center justify-center px-1 sm:px-4 z-10 overflow-hidden">
-                                        <h3 className="text-[1.125rem] sm:text-[1.375rem] font-black text-[#4a3a0e] uppercase tracking-tight leading-tight mb-1 drop-shadow-sm text-center line-clamp-2 max-w-full" title={activeBtmData.teacherName}>{activeBtmData.teacherName}</h3>
-                                        <p className="text-[0.6875rem] sm:text-[0.75rem] font-bold text-[#8a722e] uppercase tracking-[0.2em] bg-white/50 px-3 py-0.5 rounded-full shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">{activeBtmData.periodName}</p>
-                                        <div className="mt-1 sm:mt-1.5 flex items-center gap-1 sm:gap-1.5 h-[1.25rem]">
+                                        <h3 className="text-[18px] sm:text-[22px] font-black text-[#4a3a0e] uppercase tracking-tight leading-tight mb-1 drop-shadow-sm text-center line-clamp-2 max-w-full" title={activeBtmData.teacherName}>{activeBtmData.teacherName}</h3>
+                                        <p className="text-[11px] sm:text-[12px] font-bold text-[#8a722e] uppercase tracking-[0.2em] bg-white/50 px-3 py-0.5 rounded-full shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)]">{activeBtmData.periodName}</p>
+                                        <div className="mt-1 sm:mt-1.5 flex items-center gap-1 sm:gap-1.5 h-[20px]">
                                             <div className="flex items-center gap-1 bg-amber-500 text-white px-2 py-0.5 rounded-full shadow-sm">
-                                                <span className="text-[0.5625rem] sm:text-[0.625rem] font-black uppercase tracking-widest">Substitution</span>
+                                                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Substitution</span>
                                             </div>
                                             {activeBtmData.isDual && (
                                                 <div className="flex items-center gap-1 bg-[#fdfaf1]/90 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white shadow-sm">
-                                                    <span className="text-[0.5625rem] sm:text-[0.625rem] font-black text-[#8a722e] uppercase tracking-wider">Combined</span>
+                                                    <span className="text-[9px] sm:text-[10px] font-black text-[#8a722e] uppercase tracking-wider">Combined</span>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
                                     
                                     {/* Right Box (Room) */}
-                                    <div className="pl-2 sm:pl-4 border-l-2 border-[#d3be87]/60 flex flex-col items-center justify-center flex-shrink-0 w-[4.375rem] sm:w-[5.625rem] z-10 overflow-hidden">
-                                        <span className="text-[0.625rem] sm:text-[0.6875rem] font-extrabold text-[#5e4912] uppercase tracking-[0.2em] mb-0.5 opacity-80">ROM</span>
-                                        <span className="text-[1.25rem] sm:text-[1.625rem] font-black text-[#2c2003] leading-none tracking-tighter text-center drop-shadow-sm truncate w-full">{activeBtmData.room}</span>
+                                    <div className="pl-2 sm:pl-4 border-l-2 border-[#d3be87]/60 flex flex-col items-center justify-center flex-shrink-0 w-[70px] sm:w-[90px] z-10 overflow-hidden">
+                                        <span className="text-[10px] sm:text-[11px] font-extrabold text-[#5e4912] uppercase tracking-[0.2em] mb-0.5 opacity-80">ROM</span>
+                                        <span className="text-[20px] sm:text-[26px] font-black text-[#2c2003] leading-none tracking-tighter text-center drop-shadow-sm truncate w-full">{activeBtmData.room}</span>
                                     </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="h-[5.625rem] w-full rounded-[1.5rem] bg-amber-50/50 border-2 border-dashed border-amber-200/50 flex flex-col items-center justify-center">
-                                <span className="text-amber-500/70 font-bold uppercase tracking-widest text-[0.75rem]">NO SUBSTITUTIONS TODAY</span>
+                            <div className="h-[90px] w-full rounded-[24px] bg-amber-50/50 border-2 border-dashed border-amber-200/50 flex flex-col items-center justify-center">
+                                <span className="text-amber-500/70 font-bold uppercase tracking-widest text-[12px]">NO SUBSTITUTIONS TODAY</span>
                             </div>
                         )}
                     </div>

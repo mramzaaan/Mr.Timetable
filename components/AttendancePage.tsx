@@ -226,7 +226,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
       <div className="bg-white rounded-[2rem] border border-gray-200 shadow-2xl p-8 sm:p-12 mb-10 flex flex-col items-center gap-8">
         <div className="flex flex-wrap items-center justify-center gap-10 w-full">
             <div className="flex flex-col gap-2">
-            <label className="text-[0.6875rem] font-black uppercase text-gray-400 px-1 tracking-widest text-center">SELECT DATE</label>
+            <label className="text-[11px] font-black uppercase text-gray-400 px-1 tracking-widest text-center">SELECT DATE</label>
             <input 
                 type="date" 
                 value={selectedDate} 
@@ -235,11 +235,11 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
             />
             </div>
             <div className="flex flex-col gap-2">
-            <label className="text-[0.6875rem] font-black uppercase text-gray-400 px-1 tracking-widest text-center">SELECT A CLASS</label>
+            <label className="text-[11px] font-black uppercase text-gray-400 px-1 tracking-widest text-center">SELECT A CLASS</label>
             <select 
                 value={selectedClassId || ''} 
                 onChange={(e) => setSelectedClassId(e.target.value)}
-                className="px-6 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-bold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all min-w-[15rem]"
+                className="px-6 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-bold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all min-w-[240px]"
             >
                 {visibleClasses.map(c => (
                 <option key={c.id} value={c.id}>{c.nameEn} / {c.nameUr}</option>

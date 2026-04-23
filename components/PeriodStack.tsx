@@ -206,10 +206,10 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
          )}
 
          {groupInfo && (
-            <div title={groupInfo.name} className={`absolute -top-1 -left-1 px-1.5 py-0.5 rounded-full flex items-center justify-center text-white text-[0.5625rem] font-bold z-10 ${
+            <div title={groupInfo.name} className={`absolute -top-1 -left-1 px-1.5 py-0.5 rounded-full flex items-center justify-center text-white text-[9px] font-bold z-10 ${
             groupInfo.index % 2 === 0 ? 'bg-blue-600' : 'bg-green-600'
             }`}>
-                <span className="truncate max-w-[3.75rem]">{groupInfo.displayName}</span>
+                <span className="truncate max-w-[60px]">{groupInfo.displayName}</span>
             </div>
         )}
         
@@ -217,14 +217,14 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
             {displayContext === 'class' ? (
                 <>
                     {/* Class Name (Context): Smaller, Top-Left */}
-                    <p className="text-[0.625rem] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">{contextNameJsx}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">{contextNameJsx}</p>
                     {/* Subject Name: Larger, Bottom-Left */}
                     <p className="font-black text-sm truncate text-left leading-tight mt-0.5">{subjectNameJsx}</p>
                 </>
             ) : (
                 <>
                     {/* Subject Name: Smaller, Top-Left */}
-                    <p className="text-[0.625rem] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">{subjectNameJsx}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">{subjectNameJsx}</p>
                     {/* Teacher Name: Larger, Bottom-Left */}
                     <p className="font-black text-sm truncate text-left leading-tight mt-0.5">{contextNameJsx}</p>
                 </>
@@ -239,7 +239,7 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
        {onDeleteStack && !isGhost && !isSelected && (
           <button 
               onClick={(e) => { e.stopPropagation(); onDeleteStack(); }}
-              className="absolute top-0.5 right-0.5 bg-black/20 text-white rounded-full w-4 h-4 flex items-center justify-center text-[0.625rem] font-bold opacity-0 group-hover:opacity-100 hover:!opacity-100 hover:bg-red-600 transition-all duration-200"
+              className="absolute top-0.5 right-0.5 bg-black/20 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 hover:!opacity-100 hover:bg-red-600 transition-all duration-200"
               aria-label="Delete period stack"
               title="Delete period stack"
           >

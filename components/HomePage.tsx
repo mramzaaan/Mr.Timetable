@@ -148,7 +148,7 @@ const DocumentCard: React.FC<{
     return (
         <button 
             onClick={onClick}
-            className="group relative w-full mt-6 focus:outline-none min-h-[11.25rem]"
+            className="group relative w-full mt-6 focus:outline-none min-h-[180px]"
         >
             {/* Filter Container for Drop Shadow */}
             <div className="relative w-full h-full drop-shadow-xl transition-transform duration-300 group-hover:scale-[1.02]">
@@ -173,7 +173,7 @@ const DocumentCard: React.FC<{
                     <div className="mt-2 flex flex-col items-start gap-2 w-full">
                         <h4 className={`text-lg font-black ${theme.text} uppercase tracking-tight leading-tight line-clamp-2`}>{title}</h4>
                         <div className="w-12 h-1 rounded-full bg-gray-100 dark:bg-white/10 my-1"></div>
-                        <p className="text-[0.625rem] font-bold text-gray-400 uppercase tracking-widest leading-relaxed line-clamp-3">{subtitle}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed line-clamp-3">{subtitle}</p>
                     </div>
                 </div>
             </div>
@@ -261,7 +261,7 @@ const FeatureCard: React.FC<{
         <button
             onClick={onClick}
             style={style}
-            className={`${className || 'absolute w-[8.75rem] sm:w-[11.25rem] aspect-[4/5]'} flex-shrink-0 bg-white/40 dark:bg-white/10 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] ${color.shadow} ${color.glow} hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.7)] transition-all duration-300 group overflow-hidden border ${color.border} hover:bg-white/50 dark:hover:bg-white/15
+            className={`${className || 'absolute w-[140px] sm:w-[180px] aspect-[4/5]'} flex-shrink-0 bg-white/40 dark:bg-white/10 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] ${color.shadow} ${color.glow} hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.7)] transition-all duration-300 group overflow-hidden border ${color.border} hover:bg-white/50 dark:hover:bg-white/15
             ${isActive ? 'cursor-pointer scale-100 opacity-100' : 'cursor-default scale-95 opacity-70'}
             `}
         >
@@ -277,7 +277,7 @@ const FeatureCard: React.FC<{
                     <h3 className={`text-sm sm:text-lg font-medium text-gray-800 dark:text-white/90 tracking-wide mb-0.5 sm:mb-1`}>
                         {label}
                     </h3>
-                    <p className="hidden sm:block text-[0.625rem] sm:text-xs text-gray-500 dark:text-white/50 font-light leading-relaxed line-clamp-1">
+                    <p className="hidden sm:block text-[10px] sm:text-xs text-gray-500 dark:text-white/50 font-light leading-relaxed line-clamp-1">
                         {description}
                     </p>
                 </div>
@@ -540,8 +540,8 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
     return (
         <div className="w-full max-w-[90rem] mx-auto mb-4 px-3 sm:px-4">
             <div className="relative overflow-hidden w-full bg-white/60 dark:bg-black/20 backdrop-blur-xl border border-white/50 shadow-2xl rounded-[2rem] sm:rounded-[3rem] transition-all duration-300 hover:shadow-cyan-500/10">
-                <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full blur-[5rem] opacity-10 animate-pulse pointer-events-none"></div>
-                <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur-[5rem] opacity-10 animate-pulse pointer-events-none" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full blur-[80px] opacity-10 animate-pulse pointer-events-none"></div>
+                <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur-[80px] opacity-10 animate-pulse pointer-events-none" style={{ animationDelay: '2s' }}></div>
                 <div className="relative z-10 p-5 sm:p-8 lg:p-12 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 lg:gap-12 text-center md:text-left">
                     <div className="flex flex-col items-center md:items-start md:flex-[0.8] md:min-w-0">
                         <h1 className="text-[4rem] xs:text-[5rem] sm:text-[6.5rem] md:text-[3rem] lg:text-[3.5rem] xl:text-[4.5rem] font-black tracking-tighter text-gray-900 dark:text-white select-none whitespace-normal sm:whitespace-nowrap animate-alive leading-none mb-1 flex-shrink-0" style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -549,16 +549,16 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
                         </h1>
                         <div className="flex flex-col items-center md:items-start w-full gap-0 sm:gap-1">
                             <p className="text-xs sm:text-xl lg:text-lg font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-indigo-500 select-none mt-1 truncate w-full">{formattedDay}</p>
-                            <p className="text-[0.5625rem] sm:text-lg lg:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-gray-400 select-none truncate w-full">{formattedDateOnly}</p>
+                            <p className="text-[9px] sm:text-lg lg:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-gray-400 select-none truncate w-full">{formattedDateOnly}</p>
                         </div>
                     </div>
                     {cardData && (
                         <div className="w-full md:max-w-none md:flex-[1.2] bg-white/20 dark:bg-black/10 rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 border border-white/40 shadow-xl backdrop-blur-md transition-transform duration-300 hover:scale-[1.01] animate-alive flex flex-col justify-center" style={{ animationDelay: '1s' }}>
                             <div className="flex justify-between items-center mb-3 sm:mb-6">
                                 <h2 className="text-lg sm:text-2xl font-black text-gray-800 dark:text-white tracking-tight truncate pr-2">{cardData.title}</h2>
-                                <span className="px-3 sm:px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 dark:bg-indigo-900/30 text-[0.5rem] sm:text-[0.625rem] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 shadow-sm whitespace-nowrap">{cardData.badge}</span>
+                                <span className="px-3 sm:px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 dark:bg-indigo-900/30 text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 shadow-sm whitespace-nowrap">{cardData.badge}</span>
                             </div>
-                            <div className="flex justify-between items-end text-[0.5625rem] sm:text-[0.75rem] font-black text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-widest gap-2">
+                            <div className="flex justify-between items-end text-[9px] sm:text-[12px] font-black text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-widest gap-2">
                                 <span className="truncate">{cardData.left}</span>
                                 <span className="text-right truncate">{cardData.right}</span>
                             </div>
@@ -872,7 +872,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                         <div className="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-secondary)] animate-scale-in">
                             <label className="block text-xs text-[var(--text-secondary)] mb-1">Select Week (Any date)</label>
                             <input type="date" value={selectedWeekDate} onChange={(e) => setSelectedWeekDate(e.target.value)} className="block w-full px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md text-sm text-[var(--text-primary)]" />
-                            <p className="text-[0.625rem] text-[var(--text-secondary)] mt-1">
+                            <p className="text-[10px] text-[var(--text-secondary)] mt-1">
                                 Week: {workloadStartDate} to {workloadEndDate}
                             </p>
                         </div>
@@ -936,7 +936,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                                     </div>
                                     <div>
                                         <h4 className="font-black text-xl text-[var(--text-primary)] uppercase tracking-tight leading-none mb-2">{session.name}</h4>
-                                        <div className="flex items-center gap-3 text-[0.625rem] font-black text-[var(--text-secondary)] uppercase tracking-widest opacity-70">
+                                        <div className="flex items-center gap-3 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest opacity-70">
                                             <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-lg">{new Date(session.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                             <span className="text-[var(--accent-primary)]">➔</span>
                                             <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-lg">{new Date(session.endDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
@@ -1033,7 +1033,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
 
                 <div 
                     ref={featuresSectionRef} 
-                    className="w-full relative mt-4 flex flex-col items-center min-h-[25rem]"
+                    className="w-full relative mt-4 flex flex-col items-center min-h-[400px]"
                 >
                     <button 
                         onClick={scrollToFeatures}

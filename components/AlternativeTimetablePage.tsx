@@ -359,7 +359,7 @@ const SubstitutePicker: React.FC<SubstitutePickerProps> = ({ teachersWithStatus,
                                 <div className="flex justify-between items-center mb-1.5">
                                     <div className="flex flex-col">
                                         <span className={`font-bold text-lg ${nameColor}`}>{name}</span>
-                                        {statusText && <span className={`text-[0.625rem] font-bold ${nameColor}`}>{statusText}</span>}
+                                        {statusText && <span className={`text-[10px] font-bold ${nameColor}`}>{statusText}</span>}
                                     </div>
                                 </div>
                                 <div className="flex gap-1 justify-end">
@@ -368,9 +368,9 @@ const SubstitutePicker: React.FC<SubstitutePickerProps> = ({ teachersWithStatus,
                                         const dName = parts[0];
                                         const dNum = parts[1] || '';
                                         return (
-                                            <div key={idx} className={`flex flex-col items-center min-w-[1.75rem] p-0.5 rounded ${isToday(idx) ? 'bg-[var(--accent-secondary)] ring-1 ring-[var(--accent-primary)]' : ''}`}>
-                                                <span className={`text-[0.5625rem] leading-none font-bold ${isToday(idx) ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'}`}>{dName}</span>
-                                                <span className={`text-[0.5rem] leading-none font-bold mb-0.5 ${isToday(idx) ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'}`}>{dNum}</span>
+                                            <div key={idx} className={`flex flex-col items-center min-w-[28px] p-0.5 rounded ${isToday(idx) ? 'bg-[var(--accent-secondary)] ring-1 ring-[var(--accent-primary)]' : ''}`}>
+                                                <span className={`text-[9px] leading-none font-bold ${isToday(idx) ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'}`}>{dName}</span>
+                                                <span className={`text-[8px] leading-none font-bold mb-0.5 ${isToday(idx) ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'}`}>{dNum}</span>
                                                 <span className={`text-sm font-mono font-black leading-none ${teacherStats[idx] > 0 ? (isToday(idx) ? 'text-[var(--accent-primary)]' : 'text-orange-500') : 'text-[var(--text-placeholder)]'}`}>
                                                     {teacherStats[idx]}
                                                 </span>
@@ -425,12 +425,12 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
             `}
         >
             {group.isClassAbsent && (
-                <div className="absolute -top-2 -left-2 bg-red-500 text-white border border-red-600 px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1">
+                <div className="absolute -top-2 -left-2 bg-red-500 text-white border border-red-600 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1">
                     {language === 'ur' ? <span className="font-urdu">کلاس بند ہے</span> : 'Class Closed'}
                 </div>
             )}
             {isLegacy && (
-                <div className="absolute -top-2 -right-2 bg-orange-500 text-white border border-orange-600 px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1">
+                <div className="absolute -top-2 -right-2 bg-orange-500 text-white border border-orange-600 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 00-1-1v3a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
@@ -440,7 +440,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
 
             <div className="flex items-center gap-3 mb-1">
                <div className={`flex flex-col items-center justify-center border rounded-xl w-11 h-11 flex-shrink-0 ${group.isClassAbsent ? 'bg-red-100/50 dark:bg-red-900/30 border-red-200 dark:border-red-800' : 'bg-[var(--bg-tertiary)] border-[var(--border-secondary)]'}`}>
-                    <span className={`text-[0.5rem] font-bold uppercase tracking-wider leading-none mb-0.5 ${group.isClassAbsent ? 'text-red-500' : 'text-[var(--text-secondary)]'}`}>PD</span>
+                    <span className={`text-[8px] font-bold uppercase tracking-wider leading-none mb-0.5 ${group.isClassAbsent ? 'text-red-500' : 'text-[var(--text-secondary)]'}`}>PD</span>
                     <span className={`text-xl font-black leading-none ${group.isClassAbsent ? 'text-red-600 dark:text-red-400' : currentSubstituteId ? 'text-emerald-600' : 'text-[var(--accent-primary)]'}`}>
                         {group.periodIndex + 1}
                     </span>
@@ -450,7 +450,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
                     <h4 className={`text-lg font-black leading-tight truncate w-full ${group.isClassAbsent ? 'text-red-900 dark:text-red-100' : 'text-[var(--text-primary)]'}`} title={language === 'ur' ? group.combinedClassNames.ur : group.combinedClassNames.en}>
                        {language === 'ur' ? <span className="font-urdu">{group.combinedClassNames.ur}</span> : group.combinedClassNames.en}
                     </h4>
-                    <p className={`text-[0.625rem] font-bold uppercase tracking-wider opacity-80 truncate w-full ${group.isClassAbsent ? 'text-red-700 dark:text-red-300' : 'text-[var(--text-secondary)]'}`} title={language === 'ur' ? group.subjectInfo.ur : group.subjectInfo.en}>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider opacity-80 truncate w-full ${group.isClassAbsent ? 'text-red-700 dark:text-red-300' : 'text-[var(--text-secondary)]'}`} title={language === 'ur' ? group.subjectInfo.ur : group.subjectInfo.en}>
                        {language === 'ur' ? <span className="font-urdu">{group.subjectInfo.ur}</span> : group.subjectInfo.en}
                     </p>
                </div>
@@ -511,7 +511,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
             </div>
             
             {assignedAdj?.conflictDetails && (
-                <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/40 text-[0.5625rem] text-red-600 font-bold animate-pulse">
+                <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/40 text-[9px] text-red-600 font-bold animate-pulse">
                     <DoubleBookedWarningIcon />
                     <span className="truncate">{t.doubleBook}: {language === 'ur' ? assignedAdj.conflictDetails.classNameUr : assignedAdj.conflictDetails.classNameEn}</span>
                 </div>
@@ -745,7 +745,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                           }
                       }
 
-                      if (isMissed && Array.isArray(slot)) {
+                      if (isMissed) {
                           slot.forEach(p => {
                               if (p.teacherId === absentTeacher.id) {
                                   teacherPeriods.push({ classId: c.id, period: p, periodIndex: pIndex });
@@ -819,7 +819,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
           const slots = absentClass.timetable[dayOfWeek];
           const leave = absenteeDetails[`CLASS_${absentClass.id}`];
           
-          if (Array.isArray(slots)) {
+          if (slots) {
               slots.forEach((slot, pIndex) => {
                   let isCancelled = false;
                   if (leave) {
@@ -835,7 +835,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                       }
                   }
 
-                  if (Array.isArray(slot) && slot.length > 0 && isCancelled) {
+                  if (slot.length > 0 && isCancelled) {
                       const detailsList = slot.map(p => {
                           const sub = subjects.find(s => s.id === p.subjectId);
                           const tea = teachers.find(t => t.id === p.teacherId);
@@ -1320,7 +1320,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       {/* Hidden Slip Component for generating image */}
       <div style={{ position: 'fixed', top: 0, left: 0, zIndex: -50, pointerEvents: 'none', opacity: 0 }}>
         {slipData && (
-            <div ref={slipRef} className="w-[75rem] bg-white font-sans text-slate-800 relative overflow-hidden flex flex-col">
+            <div ref={slipRef} className="w-[1200px] bg-white font-sans text-slate-800 relative overflow-hidden flex flex-col">
                 {/* Top Gradient */}
                 <div className="h-6 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
 
@@ -1402,7 +1402,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
             </div>
         )}
         {teacherShareData && (
-            <div ref={teacherShareRef} className="w-[50rem] bg-white font-sans text-slate-800 relative overflow-hidden flex flex-col p-8 border border-slate-200">
+            <div ref={teacherShareRef} className="w-[800px] bg-white font-sans text-slate-800 relative overflow-hidden flex flex-col p-8 border border-slate-200">
                 {/* Header */}
                 <div className="text-center mb-8 border-b-2 border-slate-100 pb-6">
                     <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">
@@ -1428,7 +1428,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                             return (
                                 <div key={idx} className="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 relative">
                                     <div className="flex flex-col items-center justify-center bg-white rounded-xl w-12 h-12 border border-slate-200 mr-4 shadow-sm flex-shrink-0">
-                                        <span className="text-[0.625rem] font-bold text-slate-400 uppercase">PD</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase">PD</span>
                                         <span className="text-xl font-black text-slate-700">{group.periodIndex + 1}</span>
                                     </div>
                                     <div className="flex-grow min-w-0">
@@ -1441,7 +1441,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                             {subName}
                                         </p>
                                         {conflictData && (
-                                            <div className="flex items-center text-[0.625rem] font-bold uppercase tracking-wider bg-[#d93025] text-white px-2 py-0.5 rounded-full mt-1 flex-shrink-0">
+                                            <div className="flex items-center text-[10px] font-bold uppercase tracking-wider bg-[#d93025] text-white px-2 py-0.5 rounded-full mt-1 flex-shrink-0">
                                                 <span className="truncate">Conflict: {language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn}</span>
                                             </div>
                                         )}
@@ -1457,7 +1457,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                 {/* Footer */}
                 <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
                     <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">{schoolConfig.schoolNameEn}</span>
-                    <span className="text-slate-300 text-[0.625rem] font-bold uppercase tracking-widest">Generated by MR. TMS</span>
+                    <span className="text-slate-300 text-[10px] font-bold uppercase tracking-widest">Generated by MR. TMS</span>
                 </div>
             </div>
         )}
@@ -1554,16 +1554,16 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       {/* Hidden Multi-Teacher Slip */}
       <div style={{ position: 'fixed', top: 0, left: 0, zIndex: -50, pointerEvents: 'none', opacity: 0 }}>
         {computedMultiTeacherSlipData && (
-            <div ref={multiTeacherSlipRef} className="w-[56.25rem] bg-white font-sans text-slate-800 p-6 pt-8 rounded-2xl">
+            <div ref={multiTeacherSlipRef} className="w-[900px] bg-white font-sans text-slate-800 p-6 pt-8 rounded-2xl">
                 <style dangerouslySetInnerHTML={{__html: `
                     @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap');
                     .oswald-font { font-family: 'Oswald', sans-serif; }
                 `}} />
                 
                 <div className="text-center mb-4">
-                    <h2 className="text-[2.25rem] leading-tight font-black uppercase tracking-wide text-[#b01e51] oswald-font mb-1 pb-1">{schoolConfig.schoolNameEn}</h2>
-                    <p className="text-[1.25rem] text-[#6b5270] oswald-font font-medium uppercase tracking-wider mb-0.5">DAILY SUBSTITUTION REPORT</p>
-                    <p className="text-[1.25rem] text-[#52446a] font-medium oswald-font">
+                    <h2 className="text-[36px] leading-tight font-black uppercase tracking-wide text-[#b01e51] oswald-font mb-1 pb-1">{schoolConfig.schoolNameEn}</h2>
+                    <p className="text-[20px] text-[#6b5270] oswald-font font-medium uppercase tracking-wider mb-0.5">DAILY SUBSTITUTION REPORT</p>
+                    <p className="text-[20px] text-[#52446a] font-medium oswald-font">
                         {new Date(computedMultiTeacherSlipData.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                 </div>
@@ -1573,7 +1573,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                         <div key={idx} className="break-inside-avoid">
                             <div className="flex items-center mb-1.5">
                                 <div className="w-1.5 h-6 bg-[#64b5f6] mr-2"></div>
-                                <h3 className="text-[1.375rem] font-bold text-[#374151] oswald-font">
+                                <h3 className="text-[22px] font-bold text-[#374151] oswald-font">
                                     Teacher on Leave: <span className="text-[#a41a4a] font-black">{teacher.nameEn.toUpperCase()}</span> <span className="text-[#a41a4a]">({teacher.substitutions.length})</span>
                                 </h3>
                             </div>
@@ -1633,22 +1633,22 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                     return (
                                         <div key={sIdx} className="flex w-full">
                                             <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex items-center justify-center whitespace-nowrap overflow-hidden`}>
-                                                <span className="text-[1.625rem] overflow-hidden text-ellipsis font-black">{sub.periodIndex + 1}</span>
-                                                <span className="text-[1.25rem] overflow-hidden text-ellipsis font-bold ml-2">- ({timeStr})</span>
+                                                <span className="text-[26px] overflow-hidden text-ellipsis font-black">{sub.periodIndex + 1}</span>
+                                                <span className="text-[20px] overflow-hidden text-ellipsis font-bold ml-2">- ({timeStr})</span>
                                             </div>
                                             <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center overflow-hidden`}>
-                                                <span className="text-[1.25rem] font-bold leading-tight text-center line-clamp-2 break-words w-full">{classRoomStr || '-'}</span>
+                                                <span className="text-[20px] font-bold leading-tight text-center line-clamp-2 break-words w-full">{classRoomStr || '-'}</span>
                                             </div>
                                             <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center overflow-hidden`}>
-                                                <span className="text-[1.25rem] font-bold uppercase leading-tight text-center line-clamp-2 break-words w-full">{sub.subjectInfo.en}</span>
+                                                <span className="text-[20px] font-bold uppercase leading-tight text-center line-clamp-2 break-words w-full">{sub.subjectInfo.en}</span>
                                             </div>
                                             <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center relative overflow-hidden`}>
                                                 {subTeacher ? (
                                                     <>
-                                                        <span className="text-[1.25rem] font-black uppercase leading-tight text-center line-clamp-2 break-words w-full">{subTeacher.nameEn}</span>
+                                                        <span className="text-[20px] font-black uppercase leading-tight text-center line-clamp-2 break-words w-full">{subTeacher.nameEn}</span>
                                                         {conflictData && (
                                                             <div className="w-full mt-0.5 flex justify-center">
-                                                                <div className="flex items-center text-[0.8125rem] font-bold uppercase tracking-wider bg-[#d93025] text-white px-2.5 py-0.5 rounded-full shadow-sm leading-none animate-pulse gap-1.5">
+                                                                <div className="flex items-center text-[13px] font-bold uppercase tracking-wider bg-[#d93025] text-white px-2.5 py-0.5 rounded-full shadow-sm leading-none animate-pulse gap-1.5">
                                                                     <span>Conflict: {language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn}</span>
                                                                     <span className="text-yellow-300 flex items-center"><DoubleBookedWarningIcon /></span>
                                                                 </div>
@@ -1656,7 +1656,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                                         )}
                                                     </>
                                                 ) : (
-                                                    <span className="text-[1.25rem] font-bold w-full text-center">Unassigned ⚠️</span>
+                                                    <span className="text-[20px] font-bold w-full text-center">Unassigned ⚠️</span>
                                                 )}
                                             </div>
                                         </div>
@@ -1762,7 +1762,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                                         <div className="p-3 rounded-2xl border bg-blue-50/50 border-blue-200 dark:border-blue-800 flex flex-col gap-2">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="flex flex-col items-center justify-center bg-white dark:bg-black/20 rounded-xl w-10 h-10 border border-blue-100">
-                                                                    <span className="text-[0.5rem] font-bold text-blue-400 uppercase">PD</span>
+                                                                    <span className="text-[8px] font-bold text-blue-400 uppercase">PD</span>
                                                                     <span className="text-lg font-black text-blue-600">{group.periodIndex + 1}</span>
                                                                 </div>
                                                                 <div>

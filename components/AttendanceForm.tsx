@@ -219,7 +219,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
     };
 
     const inputRowClass = "flex flex-col gap-1 w-full min-w-0";
-    const labelClass = "text-[0.5625rem] sm:text-[0.6875rem] font-black uppercase text-[var(--text-placeholder)] px-1 tracking-widest truncate";
+    const labelClass = "text-[9px] sm:text-[11px] font-black uppercase text-[var(--text-placeholder)] px-1 tracking-widest truncate";
     const valueContainerClass = "w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl sm:rounded-2xl text-[var(--text-primary)] font-black text-center text-xl sm:text-2xl shadow-inner transition-all";
 
     return (
@@ -236,7 +236,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
             
             <div className="flex flex-col gap-6 mt-4">
                 <div className="bg-[var(--bg-tertiary)]/50 p-4 rounded-2xl border border-[var(--border-secondary)]">
-                    <span className="text-[0.625rem] font-black uppercase text-[var(--text-placeholder)] block mb-1">Submitted By</span>
+                    <span className="text-[10px] font-black uppercase text-[var(--text-placeholder)] block mb-1">Submitted By</span>
                     <div className="text-lg font-bold text-[var(--accent-primary)] flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
@@ -297,11 +297,11 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                         {signature ? (
                             <div className="flex flex-col items-center gap-2">
                                 <img src={signature} alt="Sign" className="h-12 object-contain" />
-                                <span className="text-[0.625rem] font-black uppercase tracking-widest text-emerald-600">{t.submitAttendance}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">{t.submitAttendance}</span>
                             </div>
                         ) : (
                             <div className="flex flex-col items-center gap-1 opacity-40">
-                                <span className="text-[0.625rem] font-black uppercase tracking-tighter text-emerald-700 dark:text-emerald-400">{t.tapToSign.toUpperCase()}</span>
+                                <span className="text-[10px] font-black uppercase tracking-tighter text-emerald-700 dark:text-emerald-400">{t.tapToSign.toUpperCase()}</span>
                                 <span className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">{t.submitAttendance.toUpperCase()}</span>
                             </div>
                         )}

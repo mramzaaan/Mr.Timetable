@@ -474,7 +474,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                 
                 <div className="flex flex-wrap gap-3 mb-6">
                     {localAssembly[activeTimingTab] && (
-                        <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border-l-4 border-[#2563eb] min-w-[9.375rem]">
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border-l-4 border-[#2563eb] min-w-[150px]">
                             <div className="flex flex-col flex-1">
                                 <span className="text-xs font-bold text-gray-400 tracking-wider uppercase">Active</span>
                                 <span className="text-base font-bold text-gray-900">Assembly</span>
@@ -483,7 +483,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                         </div>
                     )}
                     {localBreaks[activeTimingTab].map((b, idx) => (
-                        <div key={b.id} className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border-l-4 border-[#059669] min-w-[12.5rem]">
+                        <div key={b.id} className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border-l-4 border-[#059669] min-w-[200px]">
                             <div className="flex flex-col flex-1">
                                 <span className="text-xs font-bold text-gray-400 tracking-wider uppercase">Active</span>
                                 <input 
@@ -495,7 +495,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                                 />
                             </div>
                             <div className="flex flex-col items-end">
-                                <span className="text-[0.625rem] font-bold text-gray-400 uppercase">Before</span>
+                                <span className="text-[10px] font-bold text-gray-400 uppercase">Before</span>
                                 <select 
                                     value={b.beforePeriod} 
                                     onChange={(e) => handleBreakConfigChange(idx, 'beforePeriod', parseInt(e.target.value))}

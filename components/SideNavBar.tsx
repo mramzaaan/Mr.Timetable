@@ -99,14 +99,14 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className={`fixed top-0 left-0 bottom-0 z-40 bg-[#f0f4f8] dark:bg-[var(--bg-secondary)] border-r border-[var(--border-secondary)] shadow-sm transition-all duration-300 ease-in-out flex flex-col
-          ${isHovered ? 'w-64' : 'w-[4.5rem]'} 
+          ${isHovered ? 'w-64' : 'w-[72px]'} 
           hidden lg:flex
         `}
       >
         {/* Logo Section */}
         <div className={`flex items-center px-4 h-24 flex-shrink-0 relative overflow-hidden transition-all duration-300 ${isHovered ? 'gap-3' : 'justify-center gap-0'}`}>
             {schoolConfig.schoolLogoBase64 && (
-                <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-8 w-8 min-w-[2rem] object-contain rounded-full shadow-sm" />
+                <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-8 w-8 min-w-[32px] object-contain rounded-full shadow-sm" />
             )}
             <h1 className={`text-xl font-black text-blue-700 dark:text-blue-400 tracking-tight whitespace-nowrap transition-opacity duration-300 ${isHovered ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
                 {schoolConfig.schoolNameEn || 'Mr. TimeTable'}
@@ -133,7 +133,7 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
                     <button
                         key={item.page}
                         onClick={() => setCurrentPage(item.page)}
-                        className={`relative flex items-center h-12 transition-all duration-300 focus:outline-none group ${isActive ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'hover:bg-[var(--bg-tertiary)]'} ${isHovered ? 'px-6 w-full' : 'px-0 w-[4.5rem] justify-center'}`}
+                        className={`relative flex items-center h-12 transition-all duration-300 focus:outline-none group ${isActive ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'hover:bg-[var(--bg-tertiary)]'} ${isHovered ? 'px-6 w-full' : 'px-0 w-[72px] justify-center'}`}
                         title={t[item.labelKey]}
                     >
                         {isActive && (
@@ -149,7 +149,7 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
                                 {item.icon}
                             </span>
                             
-                            <span className={`text-sm font-semibold whitespace-nowrap transition-all duration-300 overflow-hidden ${isActive ? 'text-blue-600' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'} ${isHovered ? 'ml-4 opacity-100 max-w-[12.5rem]' : 'ml-0 opacity-0 max-w-0'}`}>
+                            <span className={`text-sm font-semibold whitespace-nowrap transition-all duration-300 overflow-hidden ${isActive ? 'text-blue-600' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'} ${isHovered ? 'ml-4 opacity-100 max-w-[200px]' : 'ml-0 opacity-0 max-w-0'}`}>
                                 {t[item.labelKey]}
                             </span>
                         </div>

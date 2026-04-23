@@ -12,7 +12,7 @@ interface TeacherAvailabilitySummaryProps {
 
 const DayCard = ({ day, count, isToday, colorClass }: any) => (
     <div className={`relative p-2 rounded-2xl bg-white dark:bg-[#1e293b] shadow-sm flex flex-col justify-between h-16 w-14 flex-shrink-0 border-l-4 transition-all ${isToday ? 'border-blue-500 shadow-md scale-105' : 'border-transparent'}`}>
-        <span className={`text-[0.5625rem] font-bold tracking-wider ${colorClass}`}>{day}</span>
+        <span className={`text-[9px] font-bold tracking-wider ${colorClass}`}>{day}</span>
         <div className="mt-0.5">
             <span className="text-xl font-black text-gray-800 dark:text-white leading-none">{count < 10 ? `0${count}` : count}</span>
         </div>
@@ -21,7 +21,7 @@ const DayCard = ({ day, count, isToday, colorClass }: any) => (
 
 const WorkloadCard = ({ title, value, colorClass, bgClass }: any) => (
     <div className={`relative p-2 rounded-2xl ${bgClass} flex flex-col justify-between h-16 w-14 flex-shrink-0`}>
-        <span className={`text-[0.5625rem] font-bold tracking-wider ${colorClass}`}>{title}</span>
+        <span className={`text-[9px] font-bold tracking-wider ${colorClass}`}>{title}</span>
         <div className="mt-0.5">
             <span className={`text-xl font-black leading-none ${colorClass}`}>{typeof value === 'number' && value < 10 ? `0${value}` : value}</span>
         </div>
@@ -47,7 +47,7 @@ const CircularProgress = ({ value }: any) => {
                     <circle cx="24" cy="24" r={radius} stroke="currentColor" strokeWidth="4" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} className={`${colorClass} transition-all duration-1000 ease-out`} strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[0.625rem] font-black text-gray-800 dark:text-white">{value}%</span>
+                    <span className="text-[10px] font-black text-gray-800 dark:text-white">{value}%</span>
                 </div>
             </div>
         </div>

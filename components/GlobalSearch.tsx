@@ -210,7 +210,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ t, language, classes, teach
                                                                     <span className="font-semibold truncate">{highlightText(item.nameEn, query)}</span>
                                                                     <span className="font-urdu opacity-80 truncate">{highlightText(item.nameUr, query)}</span>
                                                                 </div>
-                                                                <div className="flex items-center gap-3 text-[0.625rem] text-[var(--text-secondary)] mt-0.5 font-medium uppercase tracking-wide">
+                                                                <div className="flex items-center gap-3 text-[10px] text-[var(--text-secondary)] mt-0.5 font-medium uppercase tracking-wide">
                                                                     {item.serialNumber && (
                                                                         <span className="flex items-center gap-1">
                                                                             <span className="opacity-60">#</span>

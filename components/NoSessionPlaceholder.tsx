@@ -4,8 +4,8 @@ import React from 'react';
 const NoSessionPlaceholder = ({ t }: { t: any }) => (
   <div className="flex flex-col items-center justify-center min-h-[70vh] text-center p-8 animate-scale-in relative overflow-hidden">
     {/* Background Decorations */}
-    <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-[var(--accent-primary)] rounded-full blur-[6.25rem] animate-pulse pointer-events-none opacity-20 mix-blend-screen" style={{ animationDuration: '4s' }}></div>
-    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-400 rounded-full blur-[6.25rem] animate-pulse pointer-events-none opacity-20 mix-blend-screen" style={{ animationDuration: '5s', animationDelay: '1s' }}></div>
+    <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-[var(--accent-primary)] rounded-full blur-[100px] animate-pulse pointer-events-none opacity-20 mix-blend-screen" style={{ animationDuration: '4s' }}></div>
+    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-400 rounded-full blur-[100px] animate-pulse pointer-events-none opacity-20 mix-blend-screen" style={{ animationDuration: '5s', animationDelay: '1s' }}></div>
 
     <div className="relative overflow-hidden rounded-[2.5rem] border border-white/20 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl shadow-2xl p-12 max-w-2xl w-full transition-all duration-500">
       

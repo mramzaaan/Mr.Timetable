@@ -151,10 +151,10 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, onDragStart, onDragEnd,
        )}
 
        {groupInfo && (
-        <div title={groupInfo.name} className={`absolute top-0.5 left-0.5 px-1.5 py-0.5 rounded-full flex items-center justify-center text-white text-[0.5625rem] font-bold z-10 ${
+        <div title={groupInfo.name} className={`absolute top-0.5 left-0.5 px-1.5 py-0.5 rounded-full flex items-center justify-center text-white text-[9px] font-bold z-10 ${
           groupInfo.index % 2 === 0 ? 'bg-blue-600' : 'bg-green-600'
         }`}>
-          <span className="truncate max-w-[3.125rem]">{groupInfo.displayName}</span>
+          <span className="truncate max-w-[50px]">{groupInfo.displayName}</span>
         </div>
       )}
       
@@ -165,14 +165,14 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, onDragStart, onDragEnd,
         </div>
         <div>
             {/* Teacher/Context: Smaller, Bold, Right Aligned */}
-            <p className="text-[0.6875rem] font-bold leading-tight truncate opacity-90 w-full text-right">{contextName}</p>
+            <p className="text-[11px] font-bold leading-tight truncate opacity-90 w-full text-right">{contextName}</p>
         </div>
       </div>
 
       {onDeletePeriod && !isGhost && (
           <button 
               onClick={(e) => { e.stopPropagation(); onDeletePeriod(); }}
-              className="absolute top-0.5 right-0.5 bg-black/20 text-white rounded-full w-4 h-4 flex items-center justify-center text-[0.625rem] font-bold opacity-0 group-hover:opacity-100 hover:!opacity-100 hover:bg-red-600 transition-all duration-200"
+              className="absolute top-0.5 right-0.5 bg-black/20 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 hover:!opacity-100 hover:bg-red-600 transition-all duration-200"
               aria-label="Delete period"
               title="Delete period"
           >
