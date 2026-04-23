@@ -149,7 +149,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
             timetable: Object.fromEntries(
                 Object.entries(c.timetable).map(([key, daySlots]) => [
                     key, 
-                    (daySlots as any).map((slot: any) => [...slot]) // Deep copy slots
+                    (daySlots as any).map((slot: any) => Array.isArray(slot) ? [...slot] : []) // Deep copy slots safely
                 ])
             ) as TimetableGridData
         }));

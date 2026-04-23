@@ -505,7 +505,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
               const day = activeDays[c];
               // @ts-ignore
               const slot = teacherTimetableData[day]?.[r] || [];
-              if (slot.length > 0) {
+              if (Array.isArray(slot) && slot.length > 0) {
                   // Sort to ensure consistent order
                   const sortedPeriods = [...slot].sort((a, b) => {
                       const subA = subjects.find(s => s.id === a.subjectId);
