@@ -12,7 +12,7 @@ import DownloadModal from './DownloadModal';
 import { generateClassTimetableHtml } from './reportUtils';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import AddLessonForm from './AddLessonForm'; 
-import { MessageCircle, MoreVertical, Printer, Undo2, Redo2, Trash2 } from 'lucide-react';
+import { MessageCircle, MoreVertical } from 'lucide-react';
 
 interface ClassTimetablePageProps {
   t: any;
@@ -58,12 +58,18 @@ const createLog = (
     entityId
 });
 
+const ClearIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>;
 const CopyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>;
+const UndoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>;
+const RedoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>;
+const SaveIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 011-1h3.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V6a1 1 0 01-1 1h-1a1 1 0 01-1-1V4z" /></svg>;
 const ChevronDownIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
 const ChevronLeftIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>;
 const ChevronRightIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>;
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
 const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+const WhatsAppIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>);
+const PrintIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2v4h10z" /></svg>;
 
 const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, classes, subjects, teachers, jointPeriods, adjustments, onSetClasses, schoolConfig, onUpdateSchoolConfig, selection, onSelectionChange, openConfirmation, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs, appFont, theme }) => {
   const { classId: selectedClassId, highlightedTeacherId } = selection;
@@ -523,31 +529,6 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
     });
 };
 
-const handleClearTimetable = () => {
-    if (!selectedClass) return;
-    onUpdateTimetableSession((session) => {
-        let newClasses = session.classes.map(c => {
-            if (c.id === selectedClass.id) {
-                return { ...c, timetable: {} };
-            }
-            return c;
-        });
-        
-        let currentLogs = session.changeLogs || [];
-        const log = {
-            id: Date.now().toString(),
-            timestamp: new Date().toISOString(),
-            classId: selectedClass.id,
-            entityType: 'class' as const,
-            entityId: selectedClass.id,
-            action: 'delete' as const,
-            details: `Cleared timetable for class ${selectedClass.nameEn}`
-        };
-        
-        return { ...session, classes: newClasses, changeLogs: [log, ...currentLogs] };
-    });
-};
-
   const handleDrop = (e: React.DragEvent, targetDay: keyof TimetableGridData, targetPeriodIndex: number) => { e.preventDefault(); handleExecuteMove(targetDay, targetPeriodIndex); };
   const handleSidebarDrop = (e: React.DragEvent) => { e.preventDefault(); handleUnschedule(); };
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); };
@@ -617,11 +598,6 @@ const handleClearTimetable = () => {
 
   return (
     <div className="container mx-auto p-1 sm:p-2 lg:p-4" style={{ '--content-scale': contentScale } as React.CSSProperties}>
-      <style>{`
-        @keyframes slideMarquee {
-          100% { transform: translateX(calc(-50% - 0.5rem)); } /* -50% for one copy, -0.5rem for half the gap */
-        }
-      `}</style>
       {selectedClass && (<PrintPreview t={t} isOpen={isPrintPreviewOpen} onClose={() => setIsPrintPreviewOpen(false)} title={`${t.classTimetable}: ${selectedClass.nameEn}`} fileNameBase={`Timetable_${selectedClass.nameEn.replace(' ', '_')}`} generateHtml={(lang, options) => generateClassTimetableHtml(selectedClass, lang, options, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} onSaveDesign={handleSavePrintDesign} />)}
       {selectedClass && <CopyTimetableModal t={t} isOpen={isCopyModalOpen} onClose={() => setIsCopyModalOpen(false)} classes={visibleClasses} subjects={subjects} teachers={teachers} onUpdateClasses={(updatedClasses) => { 
         const newClasses = classes.map(c => {
@@ -672,23 +648,23 @@ const handleClearTimetable = () => {
                  <button 
                      onClick={handlePreviousClass} 
                      disabled={currentClassIndex <= 0}
-                     className="w-8 h-8 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                     className="w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full bg-transparent border-2 md:border-[3px] border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
-                     <ChevronLeftIcon className="w-5 h-5 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+                     <ChevronLeftIcon className="w-6 h-6 md:w-12 md:h-12 lg:w-16 lg:h-16" />
                  </button>
                  <button 
                      onClick={handleNextClass} 
                      disabled={currentClassIndex >= sortedClasses.length - 1}
-                     className="w-8 h-8 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                     className="w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full bg-transparent border-2 md:border-[3px] border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
-                     <ChevronRightIcon className="w-5 h-5 md:w-8 md:h-8 lg:w-10 lg:h-10" />
+                     <ChevronRightIcon className="w-6 h-6 md:w-12 md:h-12 lg:w-16 lg:h-16" />
                  </button>
              </div>
 
               {selectedClass ? (
                  <div className="flex items-center gap-2 sm:gap-3 cursor-pointer whitespace-nowrap" onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}>
                      <div className="w-12 h-12 md:w-24 md:h-24 lg:w-32 lg:h-32 rounded-full border-2 md:border-[3px] border-[var(--accent-primary)] flex items-center justify-center flex-shrink-0">
-                         <span className="text-[var(--accent-primary)] font-black text-2xl md:text-5xl lg:text-7xl leading-none flex items-center justify-center">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
+                         <span className="text-[var(--accent-primary)] font-black text-lg md:text-3xl lg:text-5xl">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
                      </div>
                      <div className="flex flex-col items-start leading-none -space-y-0.5 md:-space-y-1">
                          <span className="font-black text-2xl md:text-5xl lg:text-7xl text-[var(--accent-primary)] uppercase tracking-tighter">
@@ -783,35 +759,40 @@ const handleClearTimetable = () => {
         
         {/* Actions - Right */}
         <div className="flex items-center justify-start gap-2 flex-shrink-0">
-            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center flex-shrink-0">
-                <MessageCircle className="w-6 h-6 md:w-10 md:h-10 lg:w-12 lg:h-12" strokeWidth={2} />
+            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 flex items-center justify-center bg-white dark:bg-[var(--bg-tertiary)] rounded-full shadow-sm">
+                <MessageCircle className="w-6 h-6 md:w-12 md:h-12 lg:w-16 lg:h-16" strokeWidth={2} />
             </button>
             <div className="relative" ref={headerMoreRef}>
                 <button 
                   onClick={() => setIsHeaderMoreOpen(!isHeaderMoreOpen)} 
-                  className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 flex text-gray-400 hover:text-gray-600 dark:text-gray-300 hover:dark:text-white items-center justify-center transition-all flex-shrink-0"
+                  className="w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full bg-white dark:bg-[var(--bg-tertiary)] flex border border-gray-200 dark:border-[var(--border-secondary)] text-gray-400 hover:text-gray-600 dark:text-white hover:bg-gray-50 items-center justify-center transition-all shadow-sm flex-shrink-0"
                 >
-                    <MoreVertical className="h-6 w-6 md:h-10 md:w-10 lg:w-12 lg:h-12" strokeWidth={2} />
+                    <MoreVertical className="h-6 w-6 md:h-12 md:w-12 lg:w-16 lg:h-16" strokeWidth={2} />
                 </button>
                 
                 {isHeaderMoreOpen && (
-                    <div className="absolute right-0 top-[100%] mt-2 flex justify-center items-center gap-1 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
-                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
-                            <Printer className="w-5 h-5" />
+                    <div className="absolute right-0 top-[100%] mt-2 w-48 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl py-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
+                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
+                            <PrintIcon /> {t.printViewAction || 'Print'}
                         </button>
                         {onUndo && (
-                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
-                                <Undo2 className="w-5 h-5" />
+                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
+                                <UndoIcon /> {t.undo || 'Undo'}
                             </button>
                         )}
                         {onRedo && (
-                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
-                                <Redo2 className="w-5 h-5" />
+                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
+                                <RedoIcon /> {t.redo || 'Redo'}
                             </button>
                         )}
-                        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1"></div>
-                        <button onClick={() => { openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { handleClearTimetable(); }); setIsHeaderMoreOpen(false); }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/50 flex items-center justify-center rounded-xl text-red-600 transition-colors" title="Clear">
-                            <Trash2 className="w-5 h-5" />
+                        {onSave && (
+                            <button onClick={() => { onSave(); setIsHeaderMoreOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 text-blue-600">
+                                <SaveIcon /> {t.save || 'Save'}
+                            </button>
+                        )}
+                        <hr className="my-2 border-gray-100 dark:border-gray-800" />
+                        <button onClick={() => { openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { /* Logic to clear class timetable */ }); setIsHeaderMoreOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-3 text-red-600">
+                            <ClearIcon /> Clear
                         </button>
                     </div>
                 )}
@@ -825,9 +806,9 @@ const handleClearTimetable = () => {
         <div className="relative flex flex-col lg:flex-row gap-6 items-start w-full mt-4">
           
           {/* Timetable Grid - Modern Styled */}
-          <div className="w-full lg:w-[80%] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="w-full lg:w-[75%] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-[20px] sm:rounded-[32px] p-2 sm:p-4 shadow-inner overflow-visible border border-[#c5d3df] dark:border-[var(--border-primary)] pb-4 md:pb-6" ref={tableRef}>
-                <div className="w-full min-w-[320px] flex flex-col gap-2 md:gap-3 lg:gap-2">
+                <div className="w-full min-w-[320px] flex flex-col gap-2 md:gap-3">
                     {/* Header Row */}
                     <div className="flex gap-1 sm:gap-2 w-full">
                         <div className="w-9 sm:w-10 md:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[9px] sm:text-[10px] md:text-xs tracking-widest uppercase py-1 flex items-center justify-center">
@@ -892,9 +873,9 @@ const handleClearTimetable = () => {
                                     let content = null;
 
                                     if (isDisabled) {
-                                        content = <div className="flex-1 min-w-0 h-[52px] sm:h-[60px] md:h-[90px] lg:h-[72px] rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
+                                        content = <div className="flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[76px] lg:h-[86px] rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
                                     } else {
-                                        let outerClasses = `flex-1 min-w-0 h-[52px] sm:h-[60px] md:h-[90px] lg:h-[72px] rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent cursor-pointer z-10`;
+                                        let outerClasses = `flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[76px] lg:h-[86px] rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent cursor-pointer z-10`;
                                         if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
 
                                         let availData;
@@ -966,12 +947,6 @@ const handleClearTimetable = () => {
 
                                                         const subjectName = subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown');
                                                         const teacherName = teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher';
-                                                        
-                                                        const isGroupPeriod = group.length > 1 || jp != null;
-                                                        const baseSubjectSize = 13;
-                                                        const baseTeacherSize = 10.5;
-                                                        const subjectFontSize = isGroupPeriod ? (baseSubjectSize * 0.8) : baseSubjectSize;
-                                                        const teacherFontSize = isGroupPeriod ? (baseTeacherSize * 0.8) : baseTeacherSize;
 
                                                         return (
                                                             <div 
@@ -992,9 +967,9 @@ const handleClearTimetable = () => {
                                                                     zIndex: 10 + groupIndex
                                                                 }}
                                                             >
-                                                                    <div className={`flex flex-col justify-center h-full w-full ${isGroupPeriod ? 'gap-0' : ''}`}>
+                                                                    <div className="flex flex-col justify-center h-full w-full">
                                                                         <div className="flex justify-between items-start w-full relative">
-                                                                            <span className={`font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight pr-2 sm:pr-3 block max-w-[8ch]`} style={{ color: colorData.hex, fontSize: `calc(${subjectFontSize}px * var(--content-scale))`, lineHeight: isGroupPeriod ? 0.85 : 1.1, paddingBottom: isGroupPeriod ? '1px' : '0' }}>
+                                                                            <span className="font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight leading-none pt-[1px] pr-2 sm:pr-3 block max-w-[8ch]" style={{ color: colorData.hex, fontSize: `calc(13px * var(--content-scale))` }}>
                                                                                 {subjectName}
                                                                             </span>
                                                                             {/* Delete button */}
@@ -1005,16 +980,9 @@ const handleClearTimetable = () => {
                                                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-[8px] w-[8px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
                                                                             </button>
                                                                         </div>
-                                                                        <div className={`w-full overflow-hidden`} style={{ marginTop: isGroupPeriod ? '0px' : '1px', maskImage: 'linear-gradient(to right, black 85%, transparent 100%)', WebkitMaskImage: '-webkit-linear-gradient(left, black 85%, transparent 100%)' }}>
-                                                                            <div className="inline-flex items-center whitespace-nowrap gap-4 w-max hover:[animation-play-state:paused]" style={{ animation: 'slideMarquee 6s linear infinite' }}>
-                                                                                <span className="font-medium uppercase" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(${teacherFontSize}px * var(--content-scale))`, lineHeight: isGroupPeriod ? 0.85 : 1.2 }}>
-                                                                                    {teacherName}
-                                                                                </span>
-                                                                                <span className="font-medium uppercase" aria-hidden="true" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(${teacherFontSize}px * var(--content-scale))`, lineHeight: isGroupPeriod ? 0.85 : 1.2 }}>
-                                                                                    {teacherName}
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
+                                                                        <span className="font-medium uppercase overflow-hidden whitespace-nowrap text-ellipsis mt-[1px] leading-none block max-w-[8ch]" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(10.5px * var(--content-scale))` }}>
+                                                                            {teacherName}
+                                                                        </span>
                                                                         {/* Combined/Multiple Indicator */}
                                                                         {group.length > 1 && (
                                                                             <div className="absolute right-0.5 bottom-0.5 w-[10px] h-[10px] sm:w-[12px] sm:h-[12px] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-bold shadow-sm">
@@ -1045,9 +1013,9 @@ const handleClearTimetable = () => {
           </div>
 
           {/* Right Section / Bottom Section -> Unscheduled */}
-          <div className="w-full lg:w-[20%] flex-shrink-0 flex-col mt-2 lg:mt-0 lg:sticky lg:top-4 lg:self-start z-10 hidden lg:flex">
+          <div className="w-full lg:w-[25%] flex-shrink-0 flex-col mt-2 lg:mt-0 lg:sticky lg:top-4 lg:self-start z-10 hidden lg:flex">
               {/* PC View Unscheduled */}
-              <div className="w-full flex flex-col" style={{ width: '100%', minWidth: '220px', height: '530px', borderStyle: 'dotted' }}>
+              <div className="w-full flex flex-col" style={{ width: '260px', height: '530px', borderStyle: 'dotted' }}>
                   <div className="flex items-center gap-3 mb-4 px-2 tracking-tight">
                       <h2 className="text-xl font-black text-[#1f4061] dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
                           UNSCHEDULED 
