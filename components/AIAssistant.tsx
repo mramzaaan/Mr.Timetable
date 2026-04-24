@@ -138,7 +138,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ currentSession }) => {
 
       {/* Chat Window */}
       <div
-        className={`fixed z-[90] bottom-40 left-4 xl:bottom-24 xl:left-8 w-[90vw] sm:w-96 max-w-[400px] flex flex-col bg-[var(--bg-secondary)] rounded-2xl shadow-2xl border border-[var(--border-primary)] transition-all duration-300 origin-bottom-left overflow-hidden ${
+        className={`fixed z-[90] bottom-40 left-4 xl:bottom-24 xl:left-8 w-[90vw] sm:w-96 max-w-[25rem] flex flex-col bg-[var(--bg-secondary)] rounded-2xl shadow-2xl border border-[var(--border-primary)] transition-all duration-300 origin-bottom-left overflow-hidden ${
           isOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 translate-y-10 pointer-events-none'
@@ -151,7 +151,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ currentSession }) => {
             <SparklesIcon />
             <div>
                 <h3 className="font-bold text-base leading-none">Mr. TMS AI</h3>
-                <span className="text-[10px] opacity-90 font-mono">gemini-3-flash</span>
+                <span className="text-[0.625rem] opacity-90 font-mono">gemini-3-flash</span>
             </div>
           </div>
           <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-white/20 rounded-full transition">

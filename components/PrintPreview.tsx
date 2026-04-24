@@ -104,7 +104,7 @@ const ControlGroup = ({ label, children, defaultOpen = true }: any) => {
         <div className="bg-[#22252a] rounded-2xl p-4 flex flex-col gap-4">
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between text-[10px] text-blue-400 font-bold uppercase tracking-wider"
+                className="w-full flex items-center justify-between text-[0.625rem] text-blue-400 font-bold uppercase tracking-wider"
             >
                 {label}
                 <div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
@@ -153,7 +153,7 @@ const MarginInput = ({ options, onChange }: any) => (
     <div className="grid grid-cols-4 gap-2">
         {['top', 'right', 'bottom', 'left'].map(side => (
             <div key={side} className="bg-[#1a1d21] p-2 rounded-xl flex flex-col items-center justify-center gap-1 border border-transparent focus-within:border-teal-500">
-                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{side}</label>
+                <label className="text-[0.625rem] text-gray-500 font-bold uppercase tracking-wider">{side}</label>
                 <input 
                     type="number" 
                     value={options.page.margins[side as keyof typeof options.page.margins]} 
@@ -202,7 +202,7 @@ const ColorInput = ({ label, path, value, onChange }: any) => (
                 type="text" 
                 value={value || '#000000'} 
                 onChange={(e) => onChange(path, e.target.value)} 
-                className="w-16 bg-[#1a1d21] text-gray-300 text-[10px] font-bold rounded-full px-2 py-1 outline-none text-center uppercase border border-transparent focus:border-teal-500"
+                className="w-16 bg-[#1a1d21] text-gray-300 text-[0.625rem] font-bold rounded-full px-2 py-1 outline-none text-center uppercase border border-transparent focus:border-teal-500"
                 maxLength={7}
             />
         </div>
@@ -298,7 +298,7 @@ const SettingsSidebar: React.FC<{
     };
 
     return (
-        <div className="w-full md:w-[300px] bg-[#111315] border-r border-gray-800 flex flex-col h-full shadow-xl z-20">
+        <div className="w-full md:w-[18.75rem] bg-[#111315] border-r border-gray-800 flex flex-col h-full shadow-xl z-20">
             <div className="p-4 border-b border-gray-800 bg-[#1a1d21] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Icons.Settings className="text-teal-500 w-5 h-5" />
@@ -322,8 +322,8 @@ const SettingsSidebar: React.FC<{
                         <div className="flex flex-col sm:flex-row gap-6">
                             {/* Orientation */}
                             <div className="flex-1">
-                                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Orientation</label>
-                                <div className="flex bg-[#22252a] rounded-full p-1 w-full max-w-[200px]">
+                                <label className="text-[0.625rem] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Orientation</label>
+                                <div className="flex bg-[#22252a] rounded-full p-1 w-full max-w-[12.5rem]">
                                     <button 
                                         onClick={() => handleValueChange('page.orientation', 'portrait')}
                                         className={`flex-1 flex items-center justify-center h-10 rounded-full transition-colors ${options.page.orientation === 'portrait' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
@@ -345,7 +345,7 @@ const SettingsSidebar: React.FC<{
 
                             {/* Page Size */}
                             <div className="flex-1">
-                                <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Page Size</label>
+                                <label className="text-[0.625rem] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Page Size</label>
                                 <div className="flex flex-wrap gap-2">
                                     {['a4', 'letter', 'exec', 'legal'].map(size => (
                                         <button 
@@ -362,10 +362,10 @@ const SettingsSidebar: React.FC<{
 
                         {/* Row 2: Margins */}
                         <div>
-                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Margin</label>
+                            <label className="text-[0.625rem] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Margin</label>
                             <div className="flex flex-wrap gap-3">
                                 {['top', 'bottom', 'left', 'right'].map(side => (
-                                    <div key={side} className="bg-[#22252a] rounded-2xl p-3 flex flex-col gap-2 flex-1 min-w-[70px]">
+                                    <div key={side} className="bg-[#22252a] rounded-2xl p-3 flex flex-col gap-2 flex-1 min-w-[4.375rem]">
                                         <span className="text-xs text-gray-400 font-medium capitalize text-center">{side}</span>
                                         <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5 justify-between">
                                             <button onClick={() => handleValueChange(`page.margins.${side}`, Math.max(0, options.page.margins[side as keyof typeof options.page.margins] - 1))} className="w-5 h-5 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
@@ -381,7 +381,7 @@ const SettingsSidebar: React.FC<{
                         <div className="flex flex-col xl:flex-row gap-6">
                             {/* Grid Rows */}
                             <div className="bg-[#22252a] rounded-2xl p-4 flex-1">
-                                <label className="text-[10px] text-blue-400 font-bold uppercase tracking-wider mb-4 block">Grid Rows</label>
+                                <label className="text-[0.625rem] text-blue-400 font-bold uppercase tracking-wider mb-4 block">Grid Rows</label>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-teal-400">All Pages</span>
@@ -405,7 +405,7 @@ const SettingsSidebar: React.FC<{
                             {/* Watermark */}
                             <div className="bg-[#22252a] rounded-2xl p-4 flex-1">
                                 <div className="flex items-center justify-between mb-4">
-                                    <label className="text-[10px] text-pink-800 dark:text-pink-400 font-bold uppercase tracking-wider">Watermark</label>
+                                    <label className="text-[0.625rem] text-pink-800 dark:text-pink-400 font-bold uppercase tracking-wider">Watermark</label>
                                     <div className="cursor-pointer" onClick={() => handleValueChange('page.watermarkOpacity', options.page.watermarkOpacity > 0 ? 0 : 0.45)}>
                                         <div className={`w-10 h-5 rounded-full relative transition-colors ${options.page.watermarkOpacity > 0 ? 'bg-pink-500' : 'bg-gray-700'}`}>
                                             <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${options.page.watermarkOpacity > 0 ? 'left-5.5' : 'left-0.5'}`}></div>
@@ -492,7 +492,7 @@ const SettingsSidebar: React.FC<{
                                 </>
                             )}
                             <div className="mt-4 pt-4 border-t border-gray-800">
-                                <h5 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-3">Details (Name, Room, etc.)</h5>
+                                <h5 className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-wider mb-3">Details (Name, Room, etc.)</h5>
                                 <div className="space-y-3">
                                     <NumberInput label="Size" path="header.details.fontSize" value={options.header.details?.fontSize || 14} min={8} max={40} onChange={handleValueChange} />
                                     <ColorInput label="Color" path="header.details.color" value={options.header.details?.color || '#000000'} onChange={handleValueChange} />
@@ -596,7 +596,7 @@ const SettingsSidebar: React.FC<{
                 {activeSection === 'edit' && (
                     <>
                         <div className="bg-[#1a1d21] p-3 rounded-lg border border-gray-800 mb-4 shadow-sm">
-                            <p className="text-[10px] text-gray-400">Click on any text element in the preview to edit its style.</p>
+                            <p className="text-[0.625rem] text-gray-400">Click on any text element in the preview to edit its style.</p>
                             {!activeElement && <p className="text-xs text-yellow-500 mt-2 font-bold">No element selected</p>}
                         </div>
                         
@@ -1100,7 +1100,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
         {/* Top/Left Sidebar */}
         <div className={`transition-all duration-300 z-50 bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col ${
             isSidebarOpen 
-            ? 'h-1/2 md:h-full w-full md:w-[300px]' 
+            ? 'h-1/2 md:h-full w-full md:w-[18.75rem]' 
             : 'h-0 md:h-full w-full md:w-0 overflow-hidden'
         }`}>
             <div className={`overflow-hidden flex flex-col h-full ${!isSidebarOpen && 'invisible md:invisible'}`}>
@@ -1144,15 +1144,15 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                 <div className="h-14 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-2 sm:px-4 text-white">
                     <div className="flex items-center gap-3 flex-shrink-0">
                         {/* Modified margin to clear sidebar toggle and smaller text size */}
-                        <span className="font-black text-xs uppercase tracking-wider text-gray-300 ml-12 whitespace-nowrap truncate max-w-[60px] sm:max-w-[200px]" title={title}>{title}</span>
+                        <span className="font-black text-xs uppercase tracking-wider text-gray-300 ml-12 whitespace-nowrap truncate max-w-[3.75rem] sm:max-w-[12.5rem]" title={title}>{title}</span>
                     </div>
                     
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pl-2">
                         {/* Language Selector */}
                         <div className="flex bg-gray-800 rounded-lg border border-gray-700 p-0.5 mr-1 flex-shrink-0">
-                            <button onClick={() => setLang('en')} className={`px-2 py-1 text-[10px] font-bold uppercase rounded-md transition-colors ${lang === 'en' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>En</button>
-                            <button onClick={() => setLang('ur')} className={`px-2 py-1 text-[10px] font-bold uppercase rounded-md transition-colors ${lang === 'ur' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>Ur</button>
-                            <button onClick={() => setLang('both')} className={`px-2 py-1 text-[10px] font-bold uppercase rounded-md transition-colors ${lang === 'both' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>Both</button>
+                            <button onClick={() => setLang('en')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-md transition-colors ${lang === 'en' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>En</button>
+                            <button onClick={() => setLang('ur')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-md transition-colors ${lang === 'ur' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>Ur</button>
+                            <button onClick={() => setLang('both')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-md transition-colors ${lang === 'both' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>Both</button>
                         </div>
 
                         <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700 p-1 gap-1 flex-shrink-0">
@@ -1163,7 +1163,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                             <button onClick={() => setZoomLevel(z => Math.max(20, z - 10))} className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white" title="Zoom Out"><ZoomOutIcon /></button>
                             <span className="text-xs font-bold text-gray-400 w-8 text-center">{zoomLevel}%</span>
                             <button onClick={() => setZoomLevel(z => Math.min(200, z + 10))} className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white" title="Zoom In"><ZoomInIcon /></button>
-                            <button onClick={() => setZoomLevel(70)} className="px-2 py-1 text-[10px] font-bold text-gray-400 hover:text-white hover:bg-gray-700 rounded" title="Fit to Screen">Fit</button>
+                            <button onClick={() => setZoomLevel(70)} className="px-2 py-1 text-[0.625rem] font-bold text-gray-400 hover:text-white hover:bg-gray-700 rounded" title="Fit to Screen">Fit</button>
                         </div>
 
                         <div className="w-px h-6 bg-gray-700 mx-1 flex-shrink-0"></div>

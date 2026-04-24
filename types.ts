@@ -354,22 +354,22 @@ export const generateUniqueId = (): string => {
 };
 
 export const colorSchemes = [
-    { name: 'subject-sky', border: 'border-l-sky-500', hex: '#0ea5e9' },
-    { name: 'subject-green', border: 'border-l-green-500', hex: '#22c55e' },
-    { name: 'subject-yellow', border: 'border-l-yellow-500', hex: '#eab308' },
-    { name: 'subject-red', border: 'border-l-red-500', hex: '#ef4444' },
-    { name: 'subject-purple', border: 'border-l-purple-500', hex: '#a855f7' },
-    { name: 'subject-pink', border: 'border-l-pink-500', hex: '#ec4899' },
-    { name: 'subject-orange', border: 'border-l-orange-500', hex: '#f97316' },
-    { name: 'subject-teal', border: 'border-l-teal-500', hex: '#14b8a6' },
-    { name: 'subject-lime', border: 'border-l-lime-500', hex: '#84cc16' },
-    { name: 'subject-cyan', border: 'border-l-cyan-500', hex: '#06b6d4' },
-    { name: 'subject-emerald', border: 'border-l-emerald-500', hex: '#10b981' },
-    { name: 'subject-fuchsia', border: 'border-l-fuchsia-500', hex: '#d946ef' },
-    { name: 'subject-rose', border: 'border-l-rose-500', hex: '#f43f5e' },
-    { name: 'subject-amber', border: 'border-l-amber-500', hex: '#f59e0b' },
-    { name: 'subject-blue', border: 'border-l-blue-500', hex: '#3b82f6' },
-    { name: 'subject-indigo', border: 'border-l-indigo-500', hex: '#6366f1' },
+    { name: 'subject-sky', border: 'border-l-sky-400', hex: '#38bdf8' },
+    { name: 'subject-green', border: 'border-l-green-400', hex: '#4ade80' },
+    { name: 'subject-yellow', border: 'border-l-yellow-400', hex: '#facc15' },
+    { name: 'subject-red', border: 'border-l-red-400', hex: '#f87171' },
+    { name: 'subject-purple', border: 'border-l-purple-400', hex: '#c084fc' },
+    { name: 'subject-pink', border: 'border-l-pink-400', hex: '#f472b6' },
+    { name: 'subject-orange', border: 'border-l-orange-400', hex: '#fb923c' },
+    { name: 'subject-teal', border: 'border-l-teal-400', hex: '#2dd4bf' },
+    { name: 'subject-lime', border: 'border-l-lime-400', hex: '#a3e635' },
+    { name: 'subject-cyan', border: 'border-l-cyan-400', hex: '#22d3ee' },
+    { name: 'subject-emerald', border: 'border-l-emerald-400', hex: '#34d399' },
+    { name: 'subject-fuchsia', border: 'border-l-fuchsia-400', hex: '#e879f9' },
+    { name: 'subject-rose', border: 'border-l-rose-400', hex: '#fb7185' },
+    { name: 'subject-amber', border: 'border-l-amber-400', hex: '#fbbf24' },
+    { name: 'subject-blue', border: 'border-l-blue-400', hex: '#60a5fa' },
+    { name: 'subject-indigo', border: 'border-l-indigo-400', hex: '#818cf8' },
 ];
 
 export const getColorForId = (id: string, isDark?: boolean): { name: string, border: string, hex: string } => {

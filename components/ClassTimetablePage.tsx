@@ -12,7 +12,7 @@ import DownloadModal from './DownloadModal';
 import { generateClassTimetableHtml } from './reportUtils';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import AddLessonForm from './AddLessonForm'; 
-import { MessageCircle, MoreVertical } from 'lucide-react';
+import { MessageCircle, MoreVertical, Printer, Undo2, Redo2, Trash2 } from 'lucide-react';
 
 interface ClassTimetablePageProps {
   t: any;
@@ -58,18 +58,12 @@ const createLog = (
     entityId
 });
 
-const ClearIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>;
 const CopyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>;
-const UndoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>;
-const RedoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>;
-const SaveIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 011-1h3.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V6a1 1 0 01-1 1h-1a1 1 0 01-1-1V4z" /></svg>;
 const ChevronDownIcon = ({ className = "h-4 w-4" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
 const ChevronLeftIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>;
 const ChevronRightIcon = ({ className = "h-5 w-5" }: { className?: string }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>;
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
 const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-const WhatsAppIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>);
-const PrintIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2v4h10z" /></svg>;
 
 const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, classes, subjects, teachers, jointPeriods, adjustments, onSetClasses, schoolConfig, onUpdateSchoolConfig, selection, onSelectionChange, openConfirmation, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs, appFont, theme }) => {
   const { classId: selectedClassId, highlightedTeacherId } = selection;
@@ -88,7 +82,6 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
   const [isLessonListOpen, setIsLessonListOpen] = useState(true);
-  const [isFabOpen, setIsFabOpen] = useState(false);
   
   // Custom Dropdown State
   const [isClassDropdownOpen, setIsClassDropdownOpen] = useState(false);
@@ -226,13 +219,22 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
     return map;
   }, [highlightedTeacherId, classes, activeDays, maxPeriods, selectedClassId, language, subjects, jointPeriods, teachers]);
 
-  const teacherColorMap = useMemo(() => {
+  const subjectColorMap = useMemo(() => {
       const map = new Map<string, string>();
-      teachers.forEach(t => {
-          map.set(t.id, getColorForId(t.id).name);
+      if (!selectedClass) return map;
+
+      Object.values(selectedClass.timetable).forEach(daySlots => {
+          (daySlots as any[]).forEach(slot => {
+              slot.forEach(p => {
+                  const key = p.jointPeriodId ? String(p.jointPeriodId) : `${p.classId}-${p.subjectId}`;
+                  if (!map.has(key)) {
+                      map.set(key, getColorForId(key).name);
+                  }
+              });
+          });
       });
       return map;
-  }, [teachers]);
+  }, [selectedClass]);
 
   // --- LOGIC FOR MOVES ---
   
@@ -408,7 +410,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                   const targetDayPeriods = (sourceDay === targetDay) ? newTimetable[sourceDay] : [...newTimetable[targetDay]];
                   const targetSlot = targetDayPeriods[targetPeriodIndex] || [];
                   
-                  targetDayPeriods[targetPeriodIndex] = [...targetSlot, ...periods];
+                  const periodsToMove = (sourceDay && sourcePeriodIndex !== undefined) ? periods : [periods[0]];
+                  targetDayPeriods[targetPeriodIndex] = [...targetSlot, ...periodsToMove];
                   newTimetable[targetDay] = targetDayPeriods;
                   updatedClass.timetable = newTimetable;
                   newClasses[classIdx] = updatedClass;
@@ -538,12 +541,17 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
       const scheduledCounts = new Map<string, number>();
       Object.keys(selectedClass.timetable).forEach(dayKey => {
           const day = dayKey as keyof TimetableGridData;
-          selectedClass.timetable[day]?.forEach(slot => {
-              slot.forEach(p => {
-                  const key = p.jointPeriodId ? `jp-${p.jointPeriodId}` : p.subjectId;
-                  scheduledCounts.set(key, (scheduledCounts.get(key) || 0) + 1);
+          const daySlots = selectedClass.timetable[day];
+          if (Array.isArray(daySlots)) {
+              daySlots.forEach(slot => {
+                  if (Array.isArray(slot)) {
+                      slot.forEach(p => {
+                          const key = p.jointPeriodId ? `jp-${p.jointPeriodId}` : p.subjectId;
+                          scheduledCounts.set(key, (scheduledCounts.get(key) || 0) + 1);
+                      });
+                  }
               });
-          });
+          }
       });
       const unscheduled: Period[] = [];
       selectedClass.subjects.forEach(sub => {
@@ -597,7 +605,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
   const contentScale = schoolConfig.contentScale || 1;
 
   return (
-    <div className="container mx-auto p-1 sm:p-2 lg:p-4" style={{ '--content-scale': contentScale } as React.CSSProperties}>
+    <div className="w-full px-1 sm:px-2 lg:px-4 mx-auto max-w-none 2xl:max-w-[1800px]" style={{ '--content-scale': contentScale } as React.CSSProperties}>
       {selectedClass && (<PrintPreview t={t} isOpen={isPrintPreviewOpen} onClose={() => setIsPrintPreviewOpen(false)} title={`${t.classTimetable}: ${selectedClass.nameEn}`} fileNameBase={`Timetable_${selectedClass.nameEn.replace(' ', '_')}`} generateHtml={(lang, options) => generateClassTimetableHtml(selectedClass, lang, options, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} onSaveDesign={handleSavePrintDesign} />)}
       {selectedClass && <CopyTimetableModal t={t} isOpen={isCopyModalOpen} onClose={() => setIsCopyModalOpen(false)} classes={visibleClasses} subjects={subjects} teachers={teachers} onUpdateClasses={(updatedClasses) => { 
         const newClasses = classes.map(c => {
@@ -606,7 +614,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         });
         onSetClasses(newClasses); 
       }} sourceClassId={selectedClass.id} />}
-      {selectedClass && (<ClassCommunicationModal t={t} isOpen={isCommModalOpen} onClose={() => setIsCommModalOpen(false)} selectedClass={selectedClass} inChargeTeacher={teachers.find(t => t.id === selectedClass.inCharge)!} subjects={subjects} teachers={teachers} schoolConfig={schoolConfig} subjectColorMap={teacherColorMap} appFont={appFont} />)}
+      {selectedClass && (<ClassCommunicationModal t={t} isOpen={isCommModalOpen} onClose={() => setIsCommModalOpen(false)} selectedClass={selectedClass} inChargeTeacher={teachers.find(t => t.id === selectedClass.inCharge)!} subjects={subjects} teachers={teachers} schoolConfig={schoolConfig} subjectColorMap={subjectColorMap} appFont={appFont} />)}
       
       <DownloadModal t={t} isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} title={t.downloadTimetable} fileNameBase="Class_Timetables" items={visibleClasses} itemType="class" generateFullPageHtml={(item, lang, design) => generateClassTimetableHtml(item, lang, design, teachers, subjects, schoolConfig)} designConfig={schoolConfig.downloadDesigns.class} />
 
@@ -640,62 +648,62 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
           </div>
       )}
 
-      <div className="mb-4 flex flex-nowrap items-center justify-start gap-4 w-full max-w-7xl mx-auto px-1 lg:px-0 mt-2 relative z-[60]">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 sm:gap-4 w-full max-w-7xl mx-auto px-1 lg:px-0 mt-2 relative z-[60]">
         
         {/* Class Selector Header - Modern Design */}
-        <div className="flex items-center justify-start flex-shrink-0 relative" ref={classDropdownRef}>
-             <div className="flex items-center gap-1 sm:gap-2 mr-2">
+        <div className="flex items-center justify-start flex-1 min-w-0 relative" ref={classDropdownRef}>
+             <div className="flex items-center gap-1 xl:gap-2 mr-1 sm:mr-2 flex-shrink-0">
                  <button 
                      onClick={handlePreviousClass} 
                      disabled={currentClassIndex <= 0}
-                     className="w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full bg-transparent border-2 md:border-[3px] border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                     className="w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 lg:w-16 lg:h-16 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
-                     <ChevronLeftIcon className="w-6 h-6 md:w-12 md:h-12 lg:w-16 lg:h-16" />
+                     <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8" />
                  </button>
                  <button 
                      onClick={handleNextClass} 
                      disabled={currentClassIndex >= sortedClasses.length - 1}
-                     className="w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full bg-transparent border-2 md:border-[3px] border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
+                     className="w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 lg:w-16 lg:h-16 rounded-full bg-transparent border-2 border-[#1f4061] text-[#1f4061] dark:border-white dark:text-white hover:bg-[#1f4061]/10 disabled:opacity-30 transition-all flex items-center justify-center flex-shrink-0"
                  >
-                     <ChevronRightIcon className="w-6 h-6 md:w-12 md:h-12 lg:w-16 lg:h-16" />
+                     <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-8 lg:h-8" />
                  </button>
              </div>
 
               {selectedClass ? (
-                 <div className="flex items-center gap-2 sm:gap-3 cursor-pointer whitespace-nowrap" onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}>
-                     <div className="w-12 h-12 md:w-24 md:h-24 lg:w-32 lg:h-32 rounded-full border-2 md:border-[3px] border-[var(--accent-primary)] flex items-center justify-center flex-shrink-0">
-                         <span className="text-[var(--accent-primary)] font-black text-lg md:text-3xl lg:text-5xl">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
+                 <div className="flex items-center gap-1.5 sm:gap-3 cursor-pointer min-w-0 flex-1" onClick={() => setIsClassDropdownOpen(!isClassDropdownOpen)}>
+                     <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full border-2 md:border-[0.1875rem] border-[var(--accent-primary)] flex items-center justify-center flex-shrink-0">
+                         <span className="text-[var(--accent-primary)] font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none flex items-center justify-center">{selectedClass.serialNumber?.toString().padStart(2, '0') ?? '-'}</span>
                      </div>
-                     <div className="flex flex-col items-start leading-none -space-y-0.5 md:-space-y-1">
-                         <span className="font-black text-2xl md:text-5xl lg:text-7xl text-[var(--accent-primary)] uppercase tracking-tighter">
+                     <div className="flex flex-col items-start leading-none -space-y-0.5 md:-space-y-1 min-w-0 flex-1">
+                         <span className="font-black text-xl sm:text-2xl md:text-4xl lg:text-5xl text-[var(--accent-primary)] uppercase tracking-tighter truncate w-full">
                              {language === 'ur' ? selectedClass.nameUr : selectedClass.nameEn}
                          </span>
                          {selectedClass.inCharge && (() => {
                              const inChargeTeacher = teachers.find(t => t.id === selectedClass.inCharge);
                              return inChargeTeacher ? (
-                                 <span className="text-[var(--accent-primary)] text-xs md:text-xl lg:text-2xl font-bold uppercase tracking-widest pl-1 mt-1 md:mt-2 opacity-80">
+                                 <span className="text-[var(--accent-primary)] text-[0.65rem] sm:text-xs md:text-base lg:text-xl font-bold uppercase tracking-widest pl-1 mt-1 md:mt-2 opacity-80 truncate w-full">
                                      {language === 'ur' ? inChargeTeacher.nameUr : inChargeTeacher.nameEn}
                                  </span>
                              ) : null;
                          })()}
                      </div>
                      
-                     <div className="flex items-center gap-1 ml-1 md:ml-3">
-                         <div className="flex flex-col items-center justify-center relative w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full border-2 md:border-[3px] border-dashed border-[var(--accent-primary)] text-[var(--accent-primary)] flex-shrink-0">
-                             <span className="text-[7px] md:text-[12px] lg:text-[16px] font-bold uppercase absolute top-1.5 md:top-3 opacity-80">RM</span>
-                             <span className="text-[10px] md:text-[22px] lg:text-[28px] font-black mt-1.5 md:mt-3 lg:mt-4">{selectedClass.roomNumber || '-'}</span>
+                     <div className="flex items-center gap-1 ml-1 sm:ml-3 flex-shrink-0">
+                         <div className="flex flex-col items-center justify-center relative w-9 h-9 sm:w-10 sm:h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full border-2 md:border-[0.1875rem] border-dashed border-[var(--accent-primary)] text-[var(--accent-primary)] flex-shrink-0">
+                             <span className="text-[0.4rem] sm:text-[0.4375rem] md:text-[0.6rem] lg:text-[0.75rem] font-bold uppercase absolute top-1 sm:top-1.5 md:top-2 opacity-80">RM</span>
+                             <span className="text-[0.55rem] sm:text-[0.625rem] md:text-[1rem] lg:text-[1.25rem] font-black mt-1 sm:mt-1.5 md:mt-3 lg:mt-4">{selectedClass.roomNumber || '-'}</span>
                          </div>
-                         <div className="text-gray-300 flex flex-col -gap-2 hidden md:flex">
-                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+                         <div className="text-gray-300 flex flex-col -gap-2 hidden lg:flex">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 lg:h-5 lg:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
                          </div>
                      </div>
                  </div>
-             ) : (
+              ) : (
                  <span className="text-gray-400 font-medium text-sm md:text-base whitespace-nowrap">{t.selectAClass}</span>
              )}
 
              {isClassDropdownOpen && (
-                 <div className="absolute top-[100%] mt-4 w-full min-w-[280px] md:min-w-[320px] max-w-md bg-white dark:bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-3xl shadow-2xl p-4 animate-scale-in z-50">
+                 <div className="absolute top-[100%] mt-4 w-full min-w-[17.5rem] md:min-w-[20rem] max-w-md bg-white dark:bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-3xl shadow-2xl p-4 animate-scale-in z-50">
                      {/* Search */}
                      <div className="relative mb-3 w-full">
                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5">
@@ -727,7 +735,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                             >
                                 {key === 'serial' ? '#' : key}
                                 {classSortBy === key && (
-                                    <span className="text-[10px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                                    <span className="text-[0.625rem]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                                 )}
                             </button>
                         ))}
@@ -748,7 +756,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                  >
                                      <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-md ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-100 dark:bg-[var(--bg-secondary)]'}`}>#{c.serialNumber ?? '-'}</span>
                                      <span className="font-bold flex-grow text-base break-words text-left">{language === 'ur' ? c.nameUr : c.nameEn}</span>
-                                     {c.roomNumber && <span className="text-[10px] opacity-70 whitespace-nowrap px-2 py-1 rounded-md bg-white border border-gray-200 dark:bg-[var(--bg-secondary)] dark:border-[var(--border-secondary)]">Rm {c.roomNumber}</span>}
+                                     {c.roomNumber && <span className="text-[0.625rem] opacity-70 whitespace-nowrap px-2 py-1 rounded-md bg-white border border-gray-200 dark:bg-[var(--bg-secondary)] dark:border-[var(--border-secondary)]">Rm {c.roomNumber}</span>}
                                  </button>
                              ))
                          )}
@@ -759,40 +767,53 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         
         {/* Actions - Right */}
         <div className="flex items-center justify-start gap-2 flex-shrink-0">
-            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 flex items-center justify-center bg-white dark:bg-[var(--bg-tertiary)] rounded-full shadow-sm">
-                <MessageCircle className="w-6 h-6 md:w-12 md:h-12 lg:w-16 lg:h-16" strokeWidth={2} />
+            <button onClick={() => setIsCommModalOpen(true)} disabled={!selectedClass} title={t.sendViaWhatsApp} className="text-[#25D366] hover:scale-110 transition-transform disabled:opacity-50 w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="w-6 h-6 md:w-10 md:h-10 lg:w-12 lg:h-12" strokeWidth={2} />
             </button>
             <div className="relative" ref={headerMoreRef}>
                 <button 
                   onClick={() => setIsHeaderMoreOpen(!isHeaderMoreOpen)} 
-                  className="w-10 h-10 md:w-20 md:h-20 lg:w-28 lg:h-28 rounded-full bg-white dark:bg-[var(--bg-tertiary)] flex border border-gray-200 dark:border-[var(--border-secondary)] text-gray-400 hover:text-gray-600 dark:text-white hover:bg-gray-50 items-center justify-center transition-all shadow-sm flex-shrink-0"
+                  className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 flex text-gray-400 hover:text-gray-600 dark:text-gray-300 hover:dark:text-white items-center justify-center transition-all flex-shrink-0"
                 >
-                    <MoreVertical className="h-6 w-6 md:h-12 md:w-12 lg:w-16 lg:h-16" strokeWidth={2} />
+                    <MoreVertical className="h-6 w-6 md:h-10 md:w-10 lg:w-12 lg:h-12" strokeWidth={2} />
                 </button>
                 
                 {isHeaderMoreOpen && (
-                    <div className="absolute right-0 top-[100%] mt-2 w-48 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl py-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
-                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
-                            <PrintIcon /> {t.printViewAction || 'Print'}
+                    <div className="absolute right-0 top-[100%] mt-2 flex justify-center items-center gap-1 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
+                        <button onClick={() => { setIsCopyModalOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.copyTimetable || 'Copy'}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        </button>
+                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
+                            <Printer className="w-5 h-5" />
                         </button>
                         {onUndo && (
-                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
-                                <UndoIcon /> {t.undo || 'Undo'}
+                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
+                                <Undo2 className="w-5 h-5" />
                             </button>
                         )}
                         {onRedo && (
-                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 disabled:opacity-50 text-[var(--text-primary)]">
-                                <RedoIcon /> {t.redo || 'Redo'}
+                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
+                                <Redo2 className="w-5 h-5" />
                             </button>
                         )}
-                        {onSave && (
-                            <button onClick={() => { onSave(); setIsHeaderMoreOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-3 text-blue-600">
-                                <SaveIcon /> {t.save || 'Save'}
-                            </button>
-                        )}
-                        <hr className="my-2 border-gray-100 dark:border-gray-800" />
-                        <button onClick={() => { openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { /* Logic to clear class timetable */ }); setIsHeaderMoreOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-3 text-red-600">
-                            <ClearIcon /> Clear
+                        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1"></div>
+                        <button onClick={() => { 
+                            openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { 
+                                if (!selectedClassId) return;
+                                onUpdateTimetableSession((session) => {
+                                    let newClasses = session.classes.map(c => ({...c, timetable: {...c.timetable}}));
+                                    let currentLogs = session.changeLogs || [];
+                                    const classIndex = newClasses.findIndex(c => c.id === selectedClassId);
+                                    if (classIndex !== -1) {
+                                        newClasses[classIndex].timetable = {};
+                                        currentLogs.push(createLog('delete', `Cleared timetable for class`, 'class', selectedClassId));
+                                    }
+                                    return { ...session, classes: newClasses, changeLogs: currentLogs };
+                                });
+                            }); 
+                            setIsHeaderMoreOpen(false); 
+                        }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/50 flex items-center justify-center rounded-xl text-red-600 transition-colors" title="Clear">
+                            <Trash2 className="w-5 h-5" />
                         </button>
                     </div>
                 )}
@@ -806,12 +827,12 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         <div className="relative flex flex-col lg:flex-row gap-6 items-start w-full mt-4">
           
           {/* Timetable Grid - Modern Styled */}
-          <div className="w-full lg:w-[75%] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-[20px] sm:rounded-[32px] p-2 sm:p-4 shadow-inner overflow-visible border border-[#c5d3df] dark:border-[var(--border-primary)] pb-4 md:pb-6" ref={tableRef}>
-                <div className="w-full min-w-[320px] flex flex-col gap-2 md:gap-3">
+          <div className="flex-1 min-w-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+            <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-[1.25rem] sm:rounded-[2rem] p-1 sm:p-2 md:p-4 shadow-inner overflow-hidden border border-[#c5d3df] dark:border-[var(--border-primary)] pb-3 md:pb-6 w-full" ref={tableRef}>
+                <div className="w-full flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-2 overflow-hidden">
                     {/* Header Row */}
-                    <div className="flex gap-1 sm:gap-2 w-full">
-                        <div className="w-9 sm:w-10 md:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[9px] sm:text-[10px] md:text-xs tracking-widest uppercase py-1 flex items-center justify-center">
+                    <div className="flex gap-0.5 sm:gap-1 md:gap-2 w-full pr-1">
+                        <div className="w-7 sm:w-9 md:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[0.45rem] sm:text-[0.5625rem] md:text-xs tracking-tight uppercase py-1 flex items-center justify-center">
                             TIME
                         </div>
                         {activeDays.map(day => {
@@ -826,9 +847,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                             const dateStr = targetDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 
                             return (
-                                <div key={day} className="flex-1 min-w-0 flex flex-col items-center justify-center py-1" style={{ transform: `scale(${contentScale})`, transformOrigin: 'bottom center' }}>
-                                    <span className="text-[8px] sm:text-[10px] font-bold text-[var(--accent-primary)] dark:text-blue-400 mb-0.5">{dateStr}</span>
-                                    <span className="font-black text-[#0c2340] dark:text-white text-[10px] sm:text-xs md:text-sm tracking-widest uppercase">{t[day.toLowerCase()].substring(0, 3)}</span>
+                                <div key={day} className="flex-1 min-w-0 flex flex-col items-center justify-center py-1 overflow-hidden" style={{ transform: `scale(${contentScale})`, transformOrigin: 'bottom center' }}>
+                                    <span className="text-[0.45rem] sm:text-[0.5rem] md:text-[0.625rem] font-bold text-[var(--accent-primary)] dark:text-blue-400 mb-0.5 truncate w-full text-center">{dateStr}</span>
+                                    <span className="font-black text-[#0c2340] dark:text-white text-[0.5rem] sm:text-[0.625rem] md:text-sm tracking-widest uppercase truncate w-full text-center">{t[day.toLowerCase()].substring(0, 3)}</span>
                                 </div>
                             );
                         })}
@@ -839,11 +860,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                         
                         return (
                             <React.Fragment key={label}>
-                            <div className="flex gap-1 sm:gap-2 items-center w-full">
+                            <div className="flex gap-0.5 sm:gap-1 md:gap-2 items-center w-full">
                                 {/* Time Cell */}
-                                <div className="w-9 sm:w-10 md:w-12 lg:w-14 flex-shrink-0 flex flex-col items-center justify-center -space-y-0.5">
-                                    <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-[var(--accent-primary)]">P{label}</span>
-                                    <span className="text-[6px] sm:text-[7px] md:text-[8px] font-bold text-gray-800 dark:text-gray-400 whitespace-nowrap">
+                                <div className="w-7 sm:w-9 md:w-12 lg:w-14 flex-shrink-0 flex flex-col items-center justify-center -space-y-0.5">
+                                    <span className="text-xs sm:text-sm md:text-lg lg:text-xl font-black text-[var(--accent-primary)] leading-none">P{label}</span>
+                                    <span className="text-[0.35rem] sm:text-[0.4375rem] md:text-[0.5rem] font-bold text-gray-800 dark:text-gray-400 whitespace-nowrap mt-0.5">
                                          08:00
                                     </span> 
                                 </div>
@@ -873,9 +894,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                     let content = null;
 
                                     if (isDisabled) {
-                                        content = <div className="flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[76px] lg:h-[86px] rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
+                                        content = <div className="flex-1 min-w-0 h-[2.75rem] sm:h-[3.25rem] md:h-[4.75rem] lg:h-[4.5rem] rounded-[0.5rem] sm:rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
                                     } else {
-                                        let outerClasses = `flex-1 min-w-0 h-[40px] sm:h-[44px] md:h-[76px] lg:h-[86px] rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[1.5px] border-transparent cursor-pointer z-10`;
+                                        let outerClasses = `flex-1 min-w-0 h-[2.75rem] sm:h-[3.25rem] md:h-[4.75rem] lg:h-[4.5rem] rounded-[0.5rem] sm:rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[0.09375rem] border-transparent cursor-pointer z-10`;
                                         if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
 
                                         let availData;
@@ -886,7 +907,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                             } else if (availData && availData.status === 'here') {
                                                  outerClasses += ' ring-2 ring-blue-500 border-blue-400 bg-blue-50/50 dark:bg-blue-900/20 z-20';
                                             } else if (slotPeriods.length === 0) {
-                                                outerClasses += ' bg-[#f9f5e8] dark:bg-yellow-900/20 border-[#22c55e] border-[2px] border-dashed';
+                                                outerClasses += ' bg-[#f9f5e8] dark:bg-yellow-900/20 border-[#22c55e] border-[0.125rem] border-dashed';
                                             } else {
                                                 // Grey out the slots taking place that don't belong to the highlight teacher without breaking design explicitly
                                                 outerClasses += ' opacity-50 grayscale border-gray-200/50';
@@ -911,15 +932,15 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                 {teacherAvailabilityMap && (
                                                     <>
                                                         {availData?.status === 'elsewhere' && (
-                                                            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl z-[40] overflow-hidden bg-red-100/95 dark:bg-red-900/95 border-2 border-red-500 shadow-xl backdrop-blur-[1px] p-0.5 pointer-events-none">
-                                                                <span className="text-[7px] sm:text-[8px] md:text-[9.5px] font-bold text-red-900 dark:text-red-100 uppercase leading-none text-center truncate w-[95%]">{availData.conflictSubject}</span>
-                                                                <span className="text-[6px] sm:text-[6.5px] md:text-[7.5px] font-black text-white bg-red-600 rounded px-1 py-0.5 my-0.5 leading-none text-center break-words line-clamp-2 max-w-[95%] shadow-sm w-full">{availData.conflictClass}</span>
-                                                                <span className="text-[5px] sm:text-[6px] md:text-[7px] font-semibold text-red-800 dark:text-red-200 uppercase leading-none text-center truncate w-[95%] opacity-90">{availData.conflictTeacher}</span>
+                                                            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl z-[40] overflow-hidden bg-red-100/95 dark:bg-red-900/95 border-2 border-red-500 shadow-xl backdrop-blur-[0.0625rem] p-0.5 pointer-events-none">
+                                                                <span className="text-[0.4375rem] sm:text-[0.5rem] md:text-[0.59375rem] font-bold text-red-900 dark:text-red-100 uppercase leading-none text-center truncate w-[95%]">{availData.conflictSubject}</span>
+                                                                <span className="text-[0.375rem] sm:text-[0.40625rem] md:text-[0.46875rem] font-black text-white bg-red-600 rounded px-1 py-0.5 my-0.5 leading-none text-center break-words line-clamp-2 max-w-[95%] shadow-sm w-full">{availData.conflictClass}</span>
+                                                                <span className="text-[0.3125rem] sm:text-[0.375rem] md:text-[0.4375rem] font-semibold text-red-800 dark:text-red-200 uppercase leading-none text-center truncate w-[95%] opacity-90">{availData.conflictTeacher}</span>
                                                             </div>
                                                         )}
                                                         {availData?.status !== 'elsewhere' && slotPeriods.length === 0 && (
                                                             <div className="absolute inset-0 flex items-center justify-center rounded-xl z-20 overflow-hidden bg-[#f9f5e8]/90 border border-dashed border-green-500 pointer-events-none">
-                                                                <span className="text-[7.5px] font-bold text-green-700 uppercase tracking-widest bg-white/80 px-1 py-0.5 rounded shadow-sm border border-green-200 truncate max-w-[90%]">Avail</span>
+                                                                <span className="text-[0.46875rem] font-bold text-green-700 uppercase tracking-widest bg-white/80 px-1 py-0.5 rounded shadow-sm border border-green-200 truncate max-w-[90%]">Avail</span>
                                                             </div>
                                                         )}
                                                     </>
@@ -929,7 +950,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                 <div className="h-full flex flex-col relative z-10 w-full rounded-xl overflow-visible">
                                                     {groupedSlotPeriods.map((group, groupIndex) => {
                                                         const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
-                                                        const colorData = getColorForId(group[0].classId + group[0].subjectId, theme === 'dark' || theme === 'amoled');
+                                                        const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : `${group[0].classId}-${group[0].subjectId}`;
+                                                        const colorData = getColorForId(groupColorKey, theme === 'dark' || theme === 'amoled');
                                                         const subject = subjects.find(s => s.id === group[0].subjectId);
                                                         const teacher = teachers.find(t => t.id === group[0].teacherId);
                                                         
@@ -955,7 +977,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                                 onDragStart={(e) => { e.stopPropagation(); handleDragStart(group, day, periodIndex); }}
                                                                 onDragEnd={handleDragEnd}
                                                                 onClick={(e) => { e.stopPropagation(); handleStackClick(group, day, periodIndex); }}
-                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[3px] sm:border-l-[4px] rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-grab active:cursor-grabbing overflow-hidden shadow-sm ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
+                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-grab active:cursor-grabbing overflow-hidden shadow-sm ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
                                                                 style={{ 
                                                                     borderLeftColor: colorData.hex, 
                                                                     backgroundColor: isSelected ? `${colorData.hex}40` : `${colorData.hex}15`,
@@ -967,25 +989,25 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                                                     zIndex: 10 + groupIndex
                                                                 }}
                                                             >
-                                                                    <div className="flex flex-col justify-center h-full w-full">
-                                                                        <div className="flex justify-between items-start w-full relative">
-                                                                            <span className="font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight leading-none pt-[1px] pr-2 sm:pr-3 block max-w-[8ch]" style={{ color: colorData.hex, fontSize: `calc(13px * var(--content-scale))` }}>
+                                                                    <div className="flex flex-col justify-center h-full w-full min-w-0">
+                                                                        <div className="flex justify-between items-start w-full relative min-w-0">
+                                                                            <span className="font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight leading-none pt-[0.0625rem] pr-1 sm:pr-3 block w-full text-left" style={{ color: colorData.hex, fontSize: `calc(0.8rem * var(--content-scale))` }}>
                                                                                 {subjectName}
                                                                             </span>
                                                                             {/* Delete button */}
                                                                             <button 
                                                                                 onClick={(e) => { e.stopPropagation(); handlePeriodDelete(group[0].id, group[0].classId, day, periodIndex, group[0].jointPeriodId); }}
-                                                                                className="opacity-0 group-hover:opacity-100 p-0.5 bg-red-100/80 hover:bg-red-200 text-red-600 rounded-full transition-opacity absolute top-[1px] right-0 z-20"
+                                                                                className="opacity-0 group-hover:opacity-100 p-0.5 bg-red-100/80 hover:bg-red-200 text-red-600 rounded-full transition-opacity absolute top-[0.0625rem] right-0 z-20 hidden md:block"
                                                                             >
-                                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-[8px] w-[8px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-[0.5rem] w-[0.5rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
                                                                             </button>
                                                                         </div>
-                                                                        <span className="font-medium uppercase overflow-hidden whitespace-nowrap text-ellipsis mt-[1px] leading-none block max-w-[8ch]" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(10.5px * var(--content-scale))` }}>
+                                                                        <span className="font-medium uppercase overflow-hidden whitespace-nowrap text-ellipsis mt-[0.0625rem] leading-none block w-full text-left" style={{ color: colorData.hex, opacity: 0.85, fontSize: `calc(0.65rem * var(--content-scale))` }}>
                                                                             {teacherName}
                                                                         </span>
                                                                         {/* Combined/Multiple Indicator */}
                                                                         {group.length > 1 && (
-                                                                            <div className="absolute right-0.5 bottom-0.5 w-[10px] h-[10px] sm:w-[12px] sm:h-[12px] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-bold shadow-sm">
+                                                                            <div className="absolute right-0.5 bottom-0.5 w-[0.625rem] h-[0.625rem] sm:w-[0.75rem] sm:h-[0.75rem] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[0.375rem] sm:text-[0.4375rem] font-bold shadow-sm">
                                                                                 {group.length}
                                                                             </div>
                                                                         )}
@@ -1013,9 +1035,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
           </div>
 
           {/* Right Section / Bottom Section -> Unscheduled */}
-          <div className="w-full lg:w-[25%] flex-shrink-0 flex-col mt-2 lg:mt-0 lg:sticky lg:top-4 lg:self-start z-10 hidden lg:flex">
+          <div className="w-full lg:w-[22%] xl:w-[20%] flex-shrink-0 flex-col mt-2 lg:mt-0 lg:sticky lg:top-4 lg:self-start z-10 hidden lg:flex">
               {/* PC View Unscheduled */}
-              <div className="w-full flex flex-col" style={{ width: '260px', height: '530px', borderStyle: 'dotted' }}>
+              <div className="w-full flex flex-col" style={{ width: '100%', minWidth: '220px', height: '530px', borderStyle: 'dotted' }}>
                   <div className="flex items-center gap-3 mb-4 px-2 tracking-tight">
                       <h2 className="text-xl font-black text-[#1f4061] dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
                           UNSCHEDULED 
@@ -1027,7 +1049,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                   
                   <div className="w-full">
                       <div 
-                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-[#c5d3df] dark:border-gray-700 rounded-[24px] p-3 flex flex-col gap-2 min-h-[400px] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
+                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-[#c5d3df] dark:border-gray-700 rounded-[1.5rem] p-3 flex flex-col gap-2 min-h-[25rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
                           onDragOver={handleDragOver}
                           onDrop={handleSidebarDrop}
                           onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
@@ -1049,7 +1071,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                       const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                       const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
                                       const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
-                                      const colorData = getColorForId(group[0].classId + group[0].subjectId, theme === 'dark' || theme === 'amoled');
+                                      const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : `${group[0].classId}-${group[0].subjectId}`;
+                                      const colorData = getColorForId(groupColorKey, theme === 'dark' || theme === 'amoled');
                                       const subject = subjects.find(s => s.id === group[0].subjectId);
                                       const teacher = teachers.find(t => t.id === group[0].teacherId);
 
@@ -1060,20 +1083,20 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`w-fit max-w-full bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
-                                              <div className="flex flex-col">
-                                                  <span className="text-[11px] font-bold uppercase tracking-tight block max-w-[8ch] overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                              <div className="flex flex-col flex-1 min-w-0">
+                                                  <span className="text-sm md:text-base font-bold uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
                                                       {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
                                                   </span>
-                                                  <span className="text-[10px] font-medium text-black dark:text-white opacity-80 block max-w-[8ch] overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                                  <span className="text-xs md:text-sm font-medium text-black dark:text-white opacity-80 block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
                                                       {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
                                                   </span>
                                               </div>
-                                              <div className="flex items-center ml-1">
+                                              <div className="flex items-center ml-1 flex-shrink-0">
                                                   {group.length > 1 && (
-                                                      <span className="bg-blue-500/10 text-blue-800 dark:text-blue-200 w-4 h-4 mr-1 rounded-full flex items-center justify-center text-[8px] font-bold">x{group.length}</span>
+                                                      <span className="bg-blue-500/10 text-blue-800 dark:text-blue-200 w-5 h-5 mr-1 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
                                                   )}
                                                   <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
                                               </div>
@@ -1104,9 +1127,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                       </div>
                   </div>
                   
-                  <div className={`transition-all duration-500 overflow-hidden ${isLessonListOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className={`transition-all duration-500 overflow-hidden ${isLessonListOpen ? 'max-h-[125rem] opacity-100' : 'max-h-0 opacity-0'}`}>
                       <div 
-                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-dashed border-[#a6b8ca] dark:border-gray-600 rounded-[24px] p-4 flex flex-col gap-3 min-h-[150px] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-dashed border-[#a6b8ca] dark:border-gray-600 rounded-[1.5rem] p-4 flex flex-col gap-3 min-h-[9.375rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
                           onDragOver={handleDragOver}
                           onDrop={handleSidebarDrop}
                           onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
@@ -1128,7 +1151,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                       const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                       const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
                                       const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
-                                      const colorData = getColorForId(group[0].classId + group[0].subjectId);
+                                      const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : `${group[0].classId}-${group[0].subjectId}`;
+                                      const colorData = getColorForId(groupColorKey);
                                       const subject = subjects.find(s => s.id === group[0].subjectId);
                                       const teacher = teachers.find(t => t.id === group[0].teacherId);
                                       
@@ -1142,20 +1166,20 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`w-fit max-w-full bg-white dark:bg-[#1e293b] rounded-[16px] px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
-                                              <div className="flex flex-col">
-                                                  <span className="text-xs font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight block max-w-[8ch] overflow-hidden whitespace-nowrap text-ellipsis">
+                                              <div className="flex flex-col flex-1 min-w-0">
+                                                  <span className="text-sm md:text-base font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis">
                                                       {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
                                                   </span>
-                                                  <span className="text-[10px] sm:text-sm font-black text-black dark:text-white block max-w-[8ch] overflow-hidden whitespace-nowrap text-ellipsis">
+                                                  <span className="text-xs md:text-sm font-black text-black dark:text-white block w-full overflow-hidden whitespace-nowrap text-ellipsis">
                                                       {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
                                                   </span>
                                               </div>
-                                              <div className="flex items-center gap-3">
+                                              <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
                                                   {group.length > 1 && (
-                                                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold">x{group.length}</span>
+                                                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
                                                   )}
                                                   <svg width="12" height="18" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60 group-hover:opacity-100 transition-opacity"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
                                               </div>
@@ -1200,7 +1224,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
 
       {/* History Section (Logs) */}
       {selectedClass && hasActiveSession && (
-        <div className={`mt-8 mb-24 bg-white dark:bg-[#1e293b] rounded-[24px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[500px]' : 'max-h-16 sm:max-h-[72px]'}`}>
+        <div className={`mt-8 mb-24 bg-white dark:bg-[#1e293b] rounded-[1.5rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[31.25rem]' : 'max-h-16 sm:max-h-[4.5rem]'}`}>
             <div className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
                 <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                     History / Logs
@@ -1211,7 +1235,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                 </div>
             </div>
             
-            <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 overflow-y-auto custom-scrollbar max-h-[400px]">
+            <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 overflow-y-auto custom-scrollbar max-h-[25rem]">
                 {classLogs.length === 0 ? (
                     <div className="text-center py-8 opacity-50">
                          <div className="mb-3 mx-auto w-12 h-12 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-sm">
@@ -1222,20 +1246,20 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
                 ) : (
                     <ul className="space-y-3">
                         {classLogs.map((log) => (
-                            <li key={log.id} className={`p-4 rounded-[16px] border shadow-sm transition-all ${
+                            <li key={log.id} className={`p-4 rounded-[1rem] border shadow-sm transition-all ${
                                 log.type === 'delete' ? 'bg-red-50/80 dark:bg-red-900/10 border-red-100 dark:border-red-800/50' :
                                 log.type === 'add' ? 'bg-emerald-50/80 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/50' :
                                 'bg-blue-50/80 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/50'
                             }`}>
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                                    <span className={`text-[0.625rem] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
                                         log.type === 'delete' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 
                                         log.type === 'add' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 
                                         'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                                     }`}>
                                         {log.type}
                                     </span>
-                                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">
+                                    <span className="text-[0.625rem] font-bold text-gray-400 dark:text-gray-500">
                                         {new Date(log.timestamp).toLocaleString([], { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>

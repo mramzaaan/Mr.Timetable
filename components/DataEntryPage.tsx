@@ -121,7 +121,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
     return (
         <button
           onClick={() => onTabChange(tabName)}
-          className={`flex items-center justify-center px-4 sm:px-8 py-2.5 text-xs sm:text-sm font-bold rounded-full transition-all duration-200 whitespace-nowrap min-w-[80px] sm:min-w-[100px] ${
+          className={`flex items-center justify-center px-4 sm:px-8 py-2.5 text-xs sm:text-sm font-bold rounded-full transition-all duration-200 whitespace-nowrap min-w-[5rem] sm:min-w-[6.25rem] ${
             isActive
               ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5'
               : 'text-slate-500 hover:text-slate-700'
@@ -135,7 +135,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 pt-24 sm:pt-28">
       
-      <div className="max-w-[1600px] mx-auto">
+      <div className="max-w-[100rem] mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div>
                 <h2 className="text-3xl sm:text-4xl font-black text-[var(--text-primary)] uppercase tracking-tighter">DATA ENTRY</h2>
