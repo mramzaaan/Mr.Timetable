@@ -224,8 +224,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
       if (!selectedClass) return map;
 
       Object.values(selectedClass.timetable).forEach(daySlots => {
-          (daySlots as any[]).forEach(slot => {
-              slot.forEach(p => {
+          (daySlots as any[])?.forEach(slot => {
+              slot?.forEach((p: Period) => {
                   const key = p.jointPeriodId ? String(p.jointPeriodId) : `${p.classId}-${p.subjectId}`;
                   if (!map.has(key)) {
                       map.set(key, getColorForId(key).name);
@@ -827,9 +827,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = ({ t, language, cl
         <div className="relative flex flex-col lg:flex-row gap-6 items-start w-full mt-4">
           
           {/* Timetable Grid - Modern Styled */}
-          <div className="flex-1 min-w-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
-            <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-[1.25rem] sm:rounded-[2rem] p-1 sm:p-2 md:p-4 shadow-inner overflow-hidden border border-[#c5d3df] dark:border-[var(--border-primary)] pb-3 md:pb-6 w-full" ref={tableRef}>
-                <div className="w-full flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-2 overflow-hidden">
+          <div className="flex-1 min-w-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] -mx-1 sm:mx-0 w-[100vw] sm:w-full max-w-[100vw]">
+            <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-none sm:rounded-[2rem] p-1 sm:p-2 md:p-4 shadow-inner overflow-x-auto overflow-y-hidden border-y sm:border border-[#c5d3df] dark:border-[var(--border-primary)] pb-3 md:pb-6 w-full" ref={tableRef}>
+                <div className="w-full min-w-[500px] md:min-w-0 flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-2">
                     {/* Header Row */}
                     <div className="flex gap-0.5 sm:gap-1 md:gap-2 w-full pr-1">
                         <div className="w-7 sm:w-9 md:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[0.45rem] sm:text-[0.5625rem] md:text-xs tracking-tight uppercase py-1 flex items-center justify-center">

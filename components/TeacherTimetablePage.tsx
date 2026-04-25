@@ -1035,8 +1035,8 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
       if (!teacherTimetableData) return map;
 
       Object.values(teacherTimetableData).forEach(daySlots => {
-          (daySlots as any[]).forEach(slot => {
-              slot.forEach(p => {
+          (daySlots as any[])?.forEach(slot => {
+              slot?.forEach((p: Period) => {
                   const key = p.jointPeriodId ? String(p.jointPeriodId) : `${p.classId}-${p.subjectId}`;
                   if (!map.has(key)) {
                       map.set(key, getColorForId(key).name);
@@ -1277,9 +1277,9 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = ({
           <TeacherAvailabilitySummary t={t} workloadStats={workloadStats} maxWorkload={maxTeacherWorkload} unscheduledCount={teacherUnscheduledCounts.get(selectedTeacherId) || 0} />
 
           {/* Timetable Grid - Modern Styled */}
-          <div className="w-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
-            <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-[1.25rem] sm:rounded-[2rem] p-1 sm:p-2 md:p-4 shadow-inner overflow-hidden border border-[#c5d3df] dark:border-[var(--border-primary)] pb-3 md:pb-6 w-full">
-                <div className="w-full flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-2 overflow-hidden">
+          <div className="w-[100vw] sm:w-full -mx-1 sm:mx-0 max-w-[100vw] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+            <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-none sm:rounded-[2rem] p-1 sm:p-2 md:p-4 shadow-inner overflow-x-auto overflow-y-hidden border-y sm:border border-[#c5d3df] dark:border-[var(--border-primary)] pb-3 md:pb-6 w-full">
+                <div className="w-full min-w-[500px] md:min-w-0 flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-2">
                     {/* Header Row */}
                     <div className="flex gap-0.5 sm:gap-1 md:gap-2 w-full pr-1">
                         <div className="w-7 sm:w-9 md:w-12 lg:w-14 flex-shrink-0 text-center font-bold text-[#1f4061] dark:text-gray-300 text-[0.45rem] sm:text-[0.5625rem] md:text-xs tracking-tight uppercase py-1 flex items-center justify-center">
