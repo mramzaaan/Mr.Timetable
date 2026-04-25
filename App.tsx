@@ -34,33 +34,22 @@ export interface ThemeColors {
 
 // Helper to manipulate colors
 const adjustColor = (col: string, amt: number) => {
-    try {
-        let usePound = false;
-        if (col[0] === "#") {
-            col = col.slice(1);
-            usePound = true;
-        }
-        
-        let r = 0, g = 0, b = 0;
-        if (col.length === 3) {
-            r = parseInt(col[0] + col[0], 16);
-            g = parseInt(col[1] + col[1], 16);
-            b = parseInt(col[2] + col[2], 16);
-        } else {
-            const num = parseInt(col, 16);
-            r = (num >> 16);
-            g = ((num >> 8) & 0x00FF);
-            b = (num & 0x0000FF);
-        }
-
-        r = Math.max(0, Math.min(255, r + amt));
-        g = Math.max(0, Math.min(255, g + amt));
-        b = Math.max(0, Math.min(255, b + amt));
-
-        return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
-    } catch (e) {
-        return col;
+    let usePound = false;
+    if (col[0] === "#") {
+        col = col.slice(1);
+        usePound = true;
     }
+    const num = parseInt(col, 16);
+    let r = (num >> 16) + amt;
+    if (r > 255) r = 255;
+    else if (r < 0) r = 0;
+    let b = ((num >> 8) & 0x00FF) + amt;
+    if (b > 255) b = 255;
+    else if (b < 0) b = 0;
+    let g = (num & 0x0000FF) + amt;
+    if (g > 255) g = 255;
+    else if (g < 0) g = 0;
+    return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
 };
 
 const hexToRgba = (hex: string, alpha: number) => {
@@ -134,31 +123,16 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ t, isOpen, onClos
 
 const App: React.FC = () => {
     const [theme, setTheme] = useState<Theme>(() => {
-        try {
-            let savedTheme = localStorage.getItem('mrtimetable_theme') as any;
-            if (savedTheme === 'high-contrast') savedTheme = 'light'; 
-            if (savedTheme === 'custom' || !savedTheme) savedTheme = 'light'; 
-            if (!['light', 'dark', 'mint', 'amoled'].includes(savedTheme)) savedTheme = 'light';
-            return (savedTheme as Theme);
-        } catch (e) {
-            return 'light';
-        }
+        let savedTheme = localStorage.getItem('mrtimetable_theme') as any;
+        if (savedTheme === 'high-contrast') savedTheme = 'light'; // Fallback
+        if (savedTheme === 'custom') savedTheme = 'light'; 
+        if (!['light', 'dark', 'mint', 'amoled'].includes(savedTheme)) savedTheme = 'light';
+        return (savedTheme as Theme) || 'light';
     });
     
     const [themeColors, setThemeColors] = useState<ThemeColors>(() => {
-        try {
-            const saved = localStorage.getItem(`mrtimetable_themeColors_${theme}`);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                // Validate required keys exist
-                if (parsed.bgPrimary && parsed.bgSecondary && parsed.textPrimary && parsed.accentPrimary) {
-                    return parsed;
-                }
-            }
-        } catch (e) {
-            console.error('Failed to load theme colors:', e);
-        }
-        return THEME_PRESETS[theme];
+        const saved = localStorage.getItem(`mrtimetable_themeColors_${theme}`);
+        return saved ? JSON.parse(saved) : THEME_PRESETS[theme];
     });
 
     const handleThemeChange = (newTheme: Theme) => {
@@ -191,17 +165,8 @@ const App: React.FC = () => {
     const [navBarAlpha, setNavBarAlpha] = useState<number>(() => { const saved = localStorage.getItem('mrtimetable_navBarAlpha'); return saved !== null ? parseFloat(saved) : 0.8; });
     const [navBarColor, setNavBarColor] = useState<string>(() => (localStorage.getItem('mrtimetable_navBarColor') || ''));
 
-    const [fontSize, setFontSize] = useState<number>(() => {
-        try {
-            const saved = localStorage.getItem('mrtimetable_fontSize');
-            if (saved) {
-                const val = parseInt(saved, 10);
-                if (!isNaN(val) && val >= 8 && val <= 32) return val;
-            }
-        } catch { }
-        return 16; 
-    });
-    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || ''));
+    const [fontSize, setFontSize] = useState<number>(() => { const saved = localStorage.getItem('mrtimetable_fontSize'); return saved ? parseInt(saved, 10) : 13; });
+    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || 'Gulzar'));
     const [isSchoolInfoModalOpen, setIsSchoolInfoModalOpen] = useState(false);
 
     const [history, setHistory] = useState<UserData[]>(() => {
@@ -309,33 +274,13 @@ const App: React.FC = () => {
     const [adjustmentsSelection, setAdjustmentsSelection] = useState<{ date: string; teacherIds: string[]; }>({ date: new Date().toISOString().split('T')[0], teacherIds: [] });
     const [confirmationState, setConfirmationState] = useState<{ isOpen: boolean; onConfirm: () => void; title: string; message: React.ReactNode; }>({ isOpen: false, onConfirm: () => {}, title: '', message: '' });
 
-    const t = translations[language] || translations.en;
+    const t = translations[language];
 
     useEffect(() => {
-        if (!themeColors || !themeColors.bgPrimary) return;
-
         document.documentElement.className = theme;
         localStorage.setItem('mrtimetable_theme', theme);
-        
         const { bgPrimary, bgSecondary, textPrimary, accentPrimary } = themeColors;
-        
-        // Robust isLight calculation
-        const getLuminance = (hex: string) => {
-            try {
-                if (!hex || hex.length < 4) return 255; // Default light
-                const c = hex.substring(1);
-                const rgb = c.length === 3 
-                    ? [parseInt(c[0]+c[0], 16), parseInt(c[1]+c[1], 16), parseInt(c[2]+c[2], 16)]
-                    : [parseInt(c.substring(0, 2), 16), parseInt(c.substring(2, 4), 16), parseInt(c.substring(4, 6), 16)];
-                return (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]);
-            } catch (e) {
-                return 255;
-            }
-        };
-
-        const luminance = getLuminance(bgPrimary);
-        const isLight = luminance > 128;
-        
+        const isLight = parseInt(bgPrimary.slice(1), 16) > 0xffffff / 2;
         const contrastShift = isLight ? 60 : -60;
         const textSecondary = adjustColor(textPrimary, contrastShift); 
         const textPlaceholder = adjustColor(textPrimary, isLight ? 100 : -100);
@@ -345,7 +290,7 @@ const App: React.FC = () => {
         const accentPrimaryHover = adjustColor(accentPrimary, -20);
         const accentSecondary = hexToRgba(accentPrimary, 0.1);
         const accentSecondaryHover = hexToRgba(accentPrimary, 0.15);
-        const accentText = isLight ? '#ffffff' : '#ffffff';
+        const accentText = isLight ? '#ffffff' : (theme === 'amoled' || theme === 'dark' ? '#ffffff' : '#ffffff');
         const slotAvailableBg = hexToRgba(accentPrimary, 0.1);
         const slotConflictBg = 'rgba(239, 68, 68, 0.15)'; 
         const slotDisabledBg = bgTertiary;

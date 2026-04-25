@@ -33,8 +33,8 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
   const navItems: { page: Page; labelKey: string; icon: React.ReactElement; color: string }[] = [
     { page: 'home', labelKey: 'home', icon: <HomeIcon />, color: '#6366f1' },
     { page: 'dataEntry', labelKey: 'dataEntry', icon: <DataEntryIcon />, color: '#10b981' },
-    { page: 'classTimetable', labelKey: 'classTimetable', icon: <ClassTimetableIcon />, color: '#4f46e5' },
-    { page: 'teacherTimetable', labelKey: 'teacherTimetable', icon: <TeacherTimetableIcon />, color: '#8b5cf6' },
+    { page: 'classTimetable', labelKey: 'class', icon: <ClassTimetableIcon />, color: '#4f46e5' },
+    { page: 'teacherTimetable', labelKey: 'teacher', icon: <TeacherTimetableIcon />, color: '#8b5cf6' },
     { page: 'attendance', labelKey: 'attendance', icon: <AttendanceIcon />, color: '#14b8a6' },
     { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon />, color: '#f59e0b' },
     { page: 'settings', labelKey: 'settings', icon: <SettingsIcon />, color: '#64748b' },
@@ -46,8 +46,10 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
       <aside 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="fixed top-4 left-4 bottom-4 z-50 bg-[var(--accent-primary)] rounded-[2rem] shadow-2xl transition-all duration-300 ease-in-out flex flex-col items-center py-6 hidden md:landscape:flex lg:flex"
-        style={{ width: isHovered ? '256px' : '88px' }}
+        className={`fixed top-4 left-4 bottom-4 z-50 bg-[#8b5cf6] rounded-[2rem] shadow-2xl transition-all duration-300 ease-in-out flex flex-col items-center py-6
+          ${isHovered ? 'w-64' : 'w-22'} 
+          hidden md:landscape:flex lg:flex
+        `}
       >
         {/* Header Section - School Logo moved here */}
         <div className="w-full flex flex-col items-center mb-6 min-h-[4rem] justify-center px-4">
@@ -79,25 +81,23 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
                         key={item.page}
                         onClick={() => setCurrentPage(item.page)}
                         className={`relative flex items-center group w-full transition-all duration-200 focus:outline-none min-h-[4rem] h-16
-                            ${isHovered ? 'pl-8 pr-4' : 'justify-center px-0'}
+                            ${isHovered ? 'px-6' : 'justify-center px-0'}
                         `}
                     >
                         {/* The Notch Background - Refined to remove lines/gaps */}
                         {isActive && (
                             <motion.div
                                 layoutId="nav-notch"
-                                className="absolute right-0 w-[calc(100%-0.75rem)] h-full bg-[var(--bg-primary)] rounded-l-[2rem] z-0 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.1)]"
-                                transition={{ type: "spring", stiffness: 350, damping: 35 }}
+                                className="absolute -right-[2px] w-[calc(100%-0.75rem)] h-full bg-[var(--bg-primary)] rounded-l-[2rem] z-0"
+                                transition={{ type: "tween", ease: "easeInOut", duration: 0.25 }}
                             >
-                                {/* Top Inverted Corner */}
-                                <div className="absolute -top-[24px] right-0 w-[40px] h-[24px] overflow-hidden pointer-events-none">
-                                    <div className="w-full h-full bg-[var(--bg-primary)]" />
-                                    <div className="absolute top-0 right-0 w-full h-full bg-[var(--accent-primary)] rounded-br-[2rem]" />
+                                {/* Top Inverted Corner - Larger coverage to prevent sub-pixel lines */}
+                                <div className="absolute -top-6 right-0 w-10 h-6 bg-[var(--bg-primary)]">
+                                    <div className="w-full h-full bg-[#8b5cf6] rounded-br-[2rem]" />
                                 </div>
                                 {/* Bottom Inverted Corner */}
-                                <div className="absolute -bottom-[24px] right-0 w-[40px] h-[24px] overflow-hidden pointer-events-none">
-                                    <div className="w-full h-full bg-[var(--bg-primary)]" />
-                                    <div className="absolute top-0 right-0 w-full h-full bg-[var(--accent-primary)] rounded-tr-[2rem]" />
+                                <div className="absolute -bottom-6 right-0 w-10 h-6 bg-[var(--bg-primary)]">
+                                    <div className="w-full h-full bg-[#8b5cf6] rounded-tr-[2rem]" />
                                 </div>
                             </motion.div>
                         )}

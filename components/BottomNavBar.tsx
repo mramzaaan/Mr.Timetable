@@ -130,7 +130,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
                                 exit={{ opacity: 0, width: 0, marginLeft: 0 }}
                                 className="text-xs sm:text-sm font-bold whitespace-nowrap text-white"
                             >
-                                { (t[item.labelKey] || item.labelKey).split(' ')[0] }
+                                {t[item.labelKey].split(' ')[0]}
                             </motion.span>
                         )}
                     </div>

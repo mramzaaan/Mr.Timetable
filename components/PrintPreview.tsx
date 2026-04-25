@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { toBlob, toJpeg } from 'html-to-image';
 import type { DownloadLanguage, DownloadDesignConfig, FontFamily, CardStyle, TriangleCorner } from '../types';
 
@@ -205,79 +204,58 @@ const ModernColorPicker = ({ value, onChange, label, hideLabel = false }: { valu
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const palettes = [
-        { name: 'Core', colors: ['#6366f1', '#8b5cf6', '#a855f7', '#ec4899', '#f43f5e'] },
-        { name: 'Nature', colors: ['#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6'] },
-        { name: 'Warm', colors: ['#f59e0b', '#f97316', '#ef4444', '#78350f', '#451a03'] },
-        { name: 'Monochrome', colors: ['#000000', '#334155', '#64748b', '#94a3b8', '#ffffff'] }
+    const presets = [
+        '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', 
+        '#f59e0b', '#10b981', '#06b6d4', '#000000', 
+        '#64748b', '#ffffff'
     ];
 
     return (
         <div className="flex items-center justify-between relative" ref={containerRef}>
-            {!hideLabel && <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">{label}</span>}
-            <div className="flex items-center gap-2 group">
+            {!hideLabel && <span className="text-xs font-bold text-gray-400">{label}</span>}
+            <div className="flex items-center gap-2">
                 <button 
                     onClick={() => setIsOpen(!isOpen)}
-                    className="relative w-8 h-8 rounded-xl shadow-lg border border-gray-700 overflow-hidden flex-shrink-0 transition-all duration-300 hover:scale-110 active:scale-95 group-hover:ring-2 group-hover:ring-teal-500/30"
+                    className="relative w-7 h-7 rounded-lg shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 group cursor-pointer transition-transform hover:scale-110 active:scale-95"
                 >
                     <div className="absolute inset-0 w-full h-full" style={{ backgroundColor: value }}></div>
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent opacity-30" />
-                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-xl pointer-events-none" />}
+                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-lg pointer-events-none" />}
                 </button>
                 <input 
                     type="text" 
                     value={value} 
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-16 bg-[#1a1d21] text-gray-300 text-[10px] font-black font-mono rounded-lg px-2 py-1.5 outline-none text-center uppercase border border-gray-800 focus:border-teal-500 transition-colors tracking-widest"
+                    className="w-16 bg-[#1a1d21] text-gray-300 text-[0.625rem] font-bold rounded-full px-2 py-1 outline-none text-center uppercase border border-transparent focus:border-teal-500"
                     maxLength={7}
                 />
             </div>
 
             {isOpen && (
-                <div 
-                    className="absolute z-[60] mt-3 p-4 bg-[#1a1d21] border border-gray-700 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl w-56 right-0 top-full"
-                >
-                        <div className="space-y-4">
-                            {palettes.map(palette => (
-                                <div key={palette.name}>
-                                    <div className="text-[8px] font-black text-gray-500 uppercase tracking-[0.25em] mb-2 px-1">{palette.name}</div>
-                                    <div className="grid grid-cols-5 gap-1.5">
-                                        {palette.colors.map(p => (
-                                            <button
-                                                key={p}
-                                                onClick={() => { onChange(p); setIsOpen(false); }}
-                                                className={`w-7 h-7 rounded-lg transition-all duration-300 hover:scale-125 active:scale-90 border border-black/20 relative group
-                                                    ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-teal-500 ring-offset-4 ring-offset-[#1a1d21]' : ''}
-                                                `}
-                                                style={{ backgroundColor: p }}
-                                            >
-                                                {value.toLowerCase() === p.toLowerCase() && (
-                                                    <div className="absolute inset-0 flex items-center justify-center">
-                                                        <div className={`w-1 h-1 rounded-full ${p === '#ffffff' ? 'bg-black' : 'bg-white'}`} />
-                                                    </div>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                            
-                            <div className="pt-3 border-t border-gray-800">
-                                <label className="flex items-center gap-3 cursor-pointer group">
-                                    <div className="w-full h-8 rounded-xl bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 relative overflow-hidden flex items-center justify-center p-[2px]">
-                                        <div className="w-full h-full bg-black/20 backdrop-blur-sm rounded-[10px] flex items-center justify-center">
-                                            <span className="text-[9px] font-black text-white tracking-[0.2em] uppercase drop-shadow-md">Spectrum</span>
-                                        </div>
-                                        <input 
-                                            type="color" 
-                                            value={value} 
-                                            onChange={(e) => onChange(e.target.value)}
-                                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-[5]"
-                                        />
-                                    </div>
-                                </label>
+                <div className="absolute z-50 mt-2 p-3 bg-[#1a1d21] border border-gray-700 rounded-xl shadow-2xl animate-scale-in w-40 right-0 top-full">
+                    <div className="grid grid-cols-4 gap-2 mb-3">
+                        {presets.map(p => (
+                            <button
+                                key={p}
+                                onClick={() => { onChange(p); setIsOpen(false); }}
+                                className={`w-6 h-6 rounded-md transition-transform hover:scale-110 active:scale-90 border border-black/20 ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-[#1a1d21]' : ''}`}
+                                style={{ backgroundColor: p }}
+                            />
+                        ))}
+                    </div>
+                    <div className="relative pt-2 border-t border-gray-700">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <div className="w-full h-7 rounded-md bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 relative overflow-hidden flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-white drop-shadow-md">CUSTOM</span>
+                                <input 
+                                    type="color" 
+                                    value={value} 
+                                    onChange={(e) => onChange(e.target.value)}
+                                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-150"
+                                />
                             </div>
-                        </div>
+                        </label>
+                    </div>
                 </div>
             )}
         </div>

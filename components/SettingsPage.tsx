@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import type { Language, SchoolConfig, SchoolClass, Teacher, Subject, Adjustment, DownloadDesignConfig, FontFamily, LeaveDetails, AttendanceData } from '../types';
 import type { Theme, ThemeColors } from '../App';
 import type { NavPosition, NavDesign, NavShape } from '../types';
@@ -175,84 +174,57 @@ const ModernColorPicker = ({ value, onChange, label, hideLabel = false }: { valu
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const palettes = [
-        { name: 'Core', colors: ['#6366f1', '#8b5cf6', '#a855f7', '#ec4899', '#f43f5e'] },
-        { name: 'Nature', colors: ['#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6'] },
-        { name: 'Warm', colors: ['#f59e0b', '#f97316', '#ef4444', '#78350f', '#451a03'] },
-        { name: 'Monochrome', colors: ['#000000', '#334155', '#64748b', '#94a3b8', '#ffffff'] }
+    const presets = [
+        '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', 
+        '#f59e0b', '#10b981', '#06b6d4', '#000000', 
+        '#64748b', '#ffffff'
     ];
 
     return (
         <div className="space-y-2 relative" ref={containerRef}>
-            {!hideLabel && <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] opacity-70 ml-1">{label}</label>}
-            <div className="flex items-center gap-2 group">
+            {!hideLabel && <label className="block text-xs font-semibold text-[var(--text-secondary)]">{label}</label>}
+            <div className="flex items-center gap-2">
                 <button 
                     onClick={() => setIsOpen(!isOpen)}
-                    className="relative w-12 h-10 rounded-2xl shadow-lg border border-[var(--border-secondary)] overflow-hidden flex-shrink-0 transition-all duration-300 hover:scale-105 active:scale-95 group-hover:ring-4 group-hover:ring-[var(--accent-primary)]/10"
+                    className="relative w-10 h-10 rounded-xl shadow-sm border border-[var(--border-secondary)] overflow-hidden flex-shrink-0 group cursor-pointer transition-transform hover:scale-105 active:scale-95"
                 >
-                    <div className="absolute inset-0 w-full h-full animate-pulse-slow" style={{ backgroundColor: value }}></div>
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent opacity-30" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full shadow-sm" />
-                    </div>
-                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-2xl pointer-events-none" />}
+                    <div className="absolute inset-0 w-full h-full" style={{ backgroundColor: value }}></div>
+                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-xl pointer-events-none" />}
                 </button>
-                <div className="relative flex-grow">
-                    <input 
-                        type="text" 
-                        value={value} 
-                        onChange={(e) => onChange(e.target.value)} 
-                        className="w-full px-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-2xl text-[11px] font-black font-mono text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] uppercase tracking-[0.2em] shadow-inner"
-                        maxLength={7}
-                    />
-                </div>
+                <input 
+                    type="text" 
+                    value={value} 
+                    onChange={(e) => onChange(e.target.value)}
+                    className="flex-grow px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-xl text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] uppercase tracking-wider"
+                    maxLength={7}
+                />
             </div>
 
             {isOpen && (
-                <div 
-                    className="absolute z-[60] mt-3 p-4 bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl w-64 left-0 top-full"
-                >
-                    <div className="space-y-4">
-                        {palettes.map(palette => (
-                            <div key={palette.name}>
-                                <div className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-2 px-1">{palette.name}</div>
-                                <div className="grid grid-cols-5 gap-2">
-                                    {palette.colors.map(p => (
-                                        <button
-                                            key={p}
-                                            onClick={() => { onChange(p); setIsOpen(false); }}
-                                            className={`w-8 h-8 rounded-xl transition-all duration-300 hover:scale-125 active:scale-90 border border-black/10 shadow-sm relative group
-                                                ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-[var(--accent-primary)] ring-offset-4 ring-offset-[var(--bg-primary)]' : ''}
-                                            `}
-                                            style={{ backgroundColor: p }}
-                                        >
-                                            {value.toLowerCase() === p.toLowerCase() && (
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${p === '#ffffff' ? 'bg-black' : 'bg-white'}`} />
-                                                </div>
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                <div className="absolute z-50 mt-2 p-3 bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-2xl shadow-2xl animate-scale-in w-48 left-0 top-full">
+                    <div className="grid grid-cols-5 gap-2 mb-3">
+                        {presets.map(p => (
+                            <button
+                                key={p}
+                                onClick={() => { onChange(p); setIsOpen(false); }}
+                                className={`w-6 h-6 rounded-lg transition-transform hover:scale-110 active:scale-90 border border-black/10 ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-primary)]' : ''}`}
+                                style={{ backgroundColor: p }}
+                            />
                         ))}
-                        
-                        <div className="pt-3 border-t border-[var(--border-secondary)]">
-                            <label className="flex items-center gap-3 cursor-pointer group">
-                                <div className="w-full h-10 rounded-2xl bg-gradient-to-r from-[#ff0000] via-[#ffff00] via-[#00ff00] via-[#00ffff] via-[#0000ff] via-[#ff00ff] to-[#ff0000] relative overflow-hidden flex items-center justify-center p-[2px]">
-                                    <div className="absolute inset-0 bg-black/10 transition-opacity group-hover:opacity-0" />
-                                    <div className="w-full h-full bg-white/10 backdrop-blur-sm rounded-[14px] flex items-center justify-center">
-                                        <span className="text-[10px] font-black text-white tracking-[0.3em] uppercase drop-shadow-lg">Custom Spectrum</span>
-                                    </div>
-                                    <input 
-                                        type="color" 
-                                        value={value} 
-                                        onChange={(e) => onChange(e.target.value)}
-                                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-[5]"
-                                    />
-                                </div>
-                            </label>
-                        </div>
+                    </div>
+                    <div className="relative pt-2 border-t border-[var(--border-secondary)]">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                            <div className="w-full h-8 rounded-lg bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 relative overflow-hidden flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-white drop-shadow-md">CUSTOM</span>
+                                <input 
+                                    type="color" 
+                                    value={value} 
+                                    onChange={(e) => onChange(e.target.value)}
+                                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-150"
+                                />
+                            </div>
+                        </label>
                     </div>
                 </div>
             )}

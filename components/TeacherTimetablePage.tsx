@@ -112,7 +112,6 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
   const [isHeaderMoreOpen, setIsHeaderMoreOpen] = useState(false);
   const [isOnlineShareModalOpen, setIsOnlineShareModalOpen] = useState(false);
   const [teacherSortBy, setTeacherSortBy] = useState<'serial' | 'name' | 'periods'>('serial');
-  const [sidebarTab, setSidebarTab] = useState<'unscheduled' | 'scheduled'>('unscheduled');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [teacherSearchQuery, setTeacherSearchQuery] = useState('');
   const teacherDropdownRef = useRef<HTMLDivElement>(null);
@@ -1041,32 +1040,6 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
           return acc;
       }, {} as Record<string, Period[]>);
   }, [unscheduledPeriods]);
-
-  const groupedScheduled = useMemo((): Record<string, { periods: Period[], count: number, dayLocations: {day: keyof TimetableGridData, period: number}[] }> => {
-      const scheduled: Record<string, { periods: Period[], count: number, dayLocations: {day: keyof TimetableGridData, period: number}[] }> = {};
-      
-      if (!teacherTimetableData) return scheduled;
-
-      activeDays.forEach(day => {
-          teacherTimetableData[day].forEach((slot, periodIndex) => {
-              if (Array.isArray(slot)) {
-                  slot.forEach(p => {
-                      const key = p.jointPeriodId ? `jp-${p.jointPeriodId}` : `${p.classId}-${p.subjectId}`;
-                      if (!scheduled[key]) {
-                          scheduled[key] = { 
-                              periods: [p], 
-                              count: 0, 
-                              dayLocations: [] 
-                          };
-                      }
-                      scheduled[key].count++;
-                      scheduled[key].dayLocations.push({ day, period: periodIndex });
-                  });
-              }
-          });
-      });
-      return scheduled;
-  }, [teacherTimetableData, activeDays]);
   
   const sidebarItems = useMemo((): Period[][] => {
       // Group all instances of a lesson into a single stack so count can be shown
@@ -1481,29 +1454,16 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
               </div>
             </div>
 
-            {/* PC View Sidebar */}
+            {/* PC View Unscheduled Sidebar */}
             <div className="w-full lg:w-[22%] xl:w-[20%] flex-shrink-0 flex-col mt-2 lg:mt-0 lg:sticky lg:top-4 lg:self-start z-10 hidden lg:flex">
                 <div className="w-full flex flex-col">
-                  {/* Sidebar Tabs */}
-                  <div className="flex gap-1 bg-[var(--bg-tertiary)] p-1 rounded-xl mb-4 border border-[var(--border-secondary)] mx-2">
-                      <button 
-                          onClick={() => setSidebarTab('unscheduled')}
-                          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg text-[0.65rem] font-bold uppercase tracking-wider transition-all ${sidebarTab === 'unscheduled' ? 'bg-[var(--bg-secondary)] text-[var(--accent-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                      >
-                          Unscheduled
-                          <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${sidebarTab === 'unscheduled' ? 'bg-[var(--accent-primary)] text-white' : 'bg-[var(--bg-primary)] border border-[var(--border-secondary)]'}`}>
+                  <div className="flex items-center gap-3 mb-4 px-2 tracking-tight">
+                      <h2 className="text-xl font-black text-[#1f4061] dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
+                          UNSCHEDULED 
+                          <span className="bg-[#8b0000] text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">
                               {sidebarItems.length}
                           </span>
-                      </button>
-                      <button 
-                          onClick={() => setSidebarTab('scheduled')}
-                          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg text-[0.65rem] font-bold uppercase tracking-wider transition-all ${sidebarTab === 'scheduled' ? 'bg-[var(--bg-secondary)] text-[var(--accent-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                      >
-                          In-Schedule
-                          <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${sidebarTab === 'scheduled' ? 'bg-[var(--accent-primary)] text-white' : 'bg-[var(--bg-primary)] border border-[var(--border-secondary)]'}`}>
-                              {Object.keys(groupedScheduled).length}
-                          </span>
-                      </button>
+                      </h2>
                   </div>
                   
                   <div className="w-full">
@@ -1513,107 +1473,56 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                           onDrop={handleSidebarDrop}
                           onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
                       >
-                          {sidebarTab === 'unscheduled' ? (
-                            <>
-                              {moveSource && moveSource.sourceDay && (
-                                  <div className="px-3 py-2 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-xl text-center animate-pulse cursor-pointer shadow-sm">
-                                      <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
-                                  </div>
-                              )}
+                          {moveSource && moveSource.sourceDay && (
+                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-xl text-center animate-pulse cursor-pointer shadow-sm">
+                                  <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
+                              </div>
+                          )}
 
-                              {sidebarItems.length === 0 ? (
-                                  <div className="text-center py-12 px-4 opacity-60 m-auto">
-                                      <span className="block text-3xl mb-2">✨</span>
-                                      <p className="text-sm text-[#1f4061] dark:text-gray-400 font-bold">{t.allLessonsScheduled}</p>
-                                  </div>
-                              ) : (
-                                  <div className="flex flex-row flex-wrap gap-2 period-stack-clickable overflow-y-auto custom-scrollbar pr-1 max-h-[60vh]">
-                                      {sidebarItems.map((group, index) => {
-                                          const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
-                                          const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
-                                          const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
-                                          const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : `${group[0].classId}-${group[0].subjectId}`;
-                                          const colorData = getColorForId(groupColorKey, theme === 'dark' || theme === 'amoled');
-                                          const subject = subjects.find(s => s.id === group[0].subjectId);
-                                          const schoolClass = classes.find(c => c.id === group[0].classId);
-
-                                          return (
-                                              <div 
-                                                  key={`unscheduled-pc-${groupKey}-${index}`} 
-                                                  draggable
-                                                  onDragStart={() => handleDragStart(group)}
-                                                  onDragEnd={handleDragEnd}
-                                                  onClick={() => handleStackClick(group)}
-                                                  className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
-                                                  style={{ borderLeftColor: colorData.hex }}
-                                              >
-                                                  <div className="flex flex-col flex-1 min-w-0">
-                                                      <span className="text-sm md:text-base font-bold uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
-                                                           {schoolClass ? (language === 'ur' ? schoolClass.nameUr : schoolClass.nameEn) : 'No Class'}
-                                                      </span>
-                                                      <span className="text-xs md:text-sm font-medium text-black dark:text-white opacity-80 block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
-                                                          {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
-                                                      </span>
-                                                  </div>
-                                                  <div className="flex items-center ml-1 flex-shrink-0">
-                                                      {group.length > 1 && (
-                                                          <span className="bg-blue-500/10 text-blue-800 dark:text-blue-200 w-5 h-5 mr-1 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
-                                                      )}
-                                                      <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
-                                                  </div>
-                                              </div>
-                                          );
-                                      })}
-                                  </div>
-                              )}
-                            </>
+                          {sidebarItems.length === 0 ? (
+                              <div className="text-center py-12 px-4 opacity-60 m-auto">
+                                  <span className="block text-3xl mb-2">✨</span>
+                                  <p className="text-sm text-[#1f4061] dark:text-gray-400 font-bold">{t.allLessonsScheduled}</p>
+                              </div>
                           ) : (
-                            <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1 max-h-[60vh]">
-                                {Object.keys(groupedScheduled).length === 0 ? (
-                                    <div className="text-center py-12 px-4 opacity-60 m-auto">
-                                        <span className="block text-3xl mb-2">📅</span>
-                                        <p className="text-sm text-[#1f4061] dark:text-gray-400 font-bold">No lessons scheduled yet</p>
-                                    </div>
-                                ) : (
-                                    Object.entries(groupedScheduled).map(([key, data]) => {
-                                        const p = data.periods[0];
-                                        const jp = p.jointPeriodId ? jointPeriods.find(j => j.id === p.jointPeriodId) : undefined;
-                                        const groupColorKey = p.jointPeriodId ? String(p.jointPeriodId) : `${p.classId}-${p.subjectId}`;
-                                        const colorData = getColorForId(groupColorKey, theme === 'dark' || theme === 'amoled');
-                                        const subject = subjects.find(s => s.id === p.subjectId);
-                                        const schoolClass = classes.find(c => c.id === p.classId);
+                              <div className="flex flex-row flex-wrap gap-2 period-stack-clickable overflow-y-auto custom-scrollbar pr-1 max-h-[60vh]">
+                                  {sidebarItems.map((group, index) => {
+                                      const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
+                                      const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
+                                      const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
+                                      const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : `${group[0].classId}-${group[0].subjectId}`;
+                                      const colorData = getColorForId(groupColorKey, theme === 'dark' || theme === 'amoled');
+                                      const subject = subjects.find(s => s.id === group[0].subjectId);
+                                      const schoolClass = classes.find(c => c.id === group[0].classId);
 
-                                        return (
-                                            <div 
-                                                key={`scheduled-sidebar-${key}`}
-                                                className="bg-white dark:bg-[#1e293b] rounded-xl p-3 shadow-sm border-l-4 transition-all hover:shadow-md"
-                                                style={{ borderLeftColor: colorData.hex }}
-                                            >
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <div className="flex flex-col min-w-0">
-                                                        <span className="text-sm font-bold uppercase text-[#1f4061] dark:text-gray-300 truncate" style={{ color: colorData.hex }}>
-                                                            {schoolClass ? (language === 'ur' ? schoolClass.nameUr : schoolClass.nameEn) : 'No Class'}
-                                                        </span>
-                                                        <span className="text-xs font-medium text-black dark:text-white opacity-80 truncate" style={{ color: colorData.hex }}>
-                                                            {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
-                                                        </span>
-                                                    </div>
-                                                    <span className="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase text-center min-w-[50px]">
-                                                        {data.count} {data.count > 1 ? 'Sessions' : 'Session'}
-                                                    </span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {data.dayLocations.map((loc, i) => (
-                                                        <div key={i} className="text-[9px] font-bold bg-[var(--bg-tertiary)] text-[var(--text-secondary)] px-1.5 py-0.5 rounded-md border border-[var(--border-secondary)]">
-                                                            {t[loc.day.toLowerCase()].substring(0, 3)} P{loc.period + 1}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                )}
-                            </div>
+                                      return (
+                                          <div 
+                                              key={`unscheduled-pc-${groupKey}-${index}`} 
+                                              draggable
+                                              onDragStart={() => handleDragStart(group)}
+                                              onDragEnd={handleDragEnd}
+                                              onClick={() => handleStackClick(group)}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                              style={{ borderLeftColor: colorData.hex }}
+                                          >
+                                              <div className="flex flex-col flex-1 min-w-0">
+                                                  <span className="text-sm md:text-base font-bold uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                                       {schoolClass ? (language === 'ur' ? schoolClass.nameUr : schoolClass.nameEn) : 'No Class'}
+                                                  </span>
+                                                  <span className="text-xs md:text-sm font-medium text-black dark:text-white opacity-80 block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                                      {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
+                                                  </span>
+                                              </div>
+                                              <div className="flex items-center ml-1 flex-shrink-0">
+                                                  {group.length > 1 && (
+                                                      <span className="bg-blue-500/10 text-blue-800 dark:text-blue-200 w-5 h-5 mr-1 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
+                                                  )}
+                                                  <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
                           )}
                       </div>
                   </div>
