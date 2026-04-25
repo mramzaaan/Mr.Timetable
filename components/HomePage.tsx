@@ -107,21 +107,32 @@ interface HomePageProps {
 }
 
 // Icons
-const DataEntryIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-2.825.908a.375.375 0 01-.467-.467l.908-2.825a4.5 4.5 0 011.146-1.89l13.158-13.158z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.125L16.875 4.5" /></svg>;
-const ClassTimetableIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><rect x="3" y="4" width="18" height="10" rx="1" /><path strokeLinecap="round" strokeLinejoin="round" d="M2 16h20M5 16v5M19 16v5M8 14v-3l4-1 4 1v3" /></svg>;
-const TeacherTimetableIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 12a4 4 0 100-8 4 4 0 000 8z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 10c-1 2-1 4 0 5M18 10c1 2 1 4 0 5" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>;
-const AdjustmentsIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6.5a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M8.5 2.5v1M8.5 9.5v1M5 6.5H4M13 6.5h-1M11 4l-1 1M6 9l-1 1M11 9l-1-1M6 4l-1-1" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 17.5a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M17.5 13.5v1M17.5 20.5v1M14 17.5h-1M22 17.5h-1M20 15l-1 1M15 20l-1 1M20 20l-1-1M15 15l-1-1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /></svg>;
-const AttendanceIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 12l2 2 4-4M8 17l2 2 4-4" /></svg>;
-const SettingsIcon = ({ className = "h-12 w-12" }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924-1.756-3.35 0a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0 3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-);
-const DesignIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" /><path strokeLinecap="round" strokeLinejoin="round" d="M14 2v6h6M8 13h8M8 17h8" /></svg>;
-const CsvIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><ellipse cx="12" cy="6" rx="8" ry="3" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 6v6c0 1.657 3.582 3 8 3s8-1.343 8-3V6" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 12v6c0 1.657 3.582 3 8 3s8-1.343 8-3v-6" /></svg>;
-const CloseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>;
-const SchoolIcon = ({ className = "h-12 w-12" }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>;
+import { 
+  Database,
+  Calendar,
+  Users,
+  Shuffle,
+  UserCheck,
+  Settings,
+  FileText,
+  FileSpreadsheet,
+  X,
+  School
+} from 'lucide-react';
+
+// ... (other imports)
+
+// Icons
+const DataEntryIcon = ({ className = "h-12 w-12" }) => <Database className={className} strokeWidth={1.5} />;
+const ClassTimetableIcon = ({ className = "h-12 w-12" }) => <Calendar className={className} strokeWidth={1.5} />;
+const TeacherTimetableIcon = ({ className = "h-12 w-12" }) => <Users className={className} strokeWidth={1.5} />;
+const AdjustmentsIcon = ({ className = "h-12 w-12" }) => <Shuffle className={className} strokeWidth={1.5} />;
+const AttendanceIcon = ({ className = "h-12 w-12" }) => <UserCheck className={className} strokeWidth={1.5} />;
+const SettingsIcon = ({ className = "h-12 w-12" }) => <Settings className={className} strokeWidth={1.5} />;
+const DesignIcon = ({ className = "h-12 w-12" }) => <FileText className={className} strokeWidth={1.5} />;
+const CsvIcon = ({ className = "h-12 w-12" }) => <FileSpreadsheet className={className} strokeWidth={1.5} />;
+const CloseIcon = () => <X className="h-6 w-6" />;
+const SchoolIcon = ({ className = "h-12 w-12" }) => <School className={className} strokeWidth={1.5} />;
 
 const DocumentCard: React.FC<{
     title: string;
@@ -960,11 +971,11 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
       )}
 
       <div className="min-h-screen flex flex-col overflow-x-hidden">
-        {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-40 bg-transparent border-none shadow-none transition-all duration-300 xl:left-64">
+        {/* Header - Visible on Home since SideNavBar is hidden */}
+        <header className="fixed top-0 left-0 right-0 z-40 bg-transparent border-none shadow-none transition-all duration-300">
           <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none opacity-50"></div>
           <div className="container mx-auto px-4 py-3 flex justify-between items-center relative z-10">
-            <div className="flex items-center gap-3 xl:hidden">
+            <div className="flex items-center gap-3">
                {schoolConfig.schoolLogoBase64 && <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full shadow-lg border-2 border-white/20" />}
                <div className="flex flex-col justify-center"><span className="text-2xl font-black text-gray-900 dark:text-white leading-none tracking-tighter">Mr. Timetable</span><span className="text-[0.6rem] font-black text-indigo-500 uppercase tracking-widest leading-none mt-1">Timetable Management System</span></div>
             </div>

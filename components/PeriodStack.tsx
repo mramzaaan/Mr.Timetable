@@ -29,14 +29,15 @@ const LinkIcon = () => (
     </svg>
 );
 
-const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragEnd, onDeleteStack, onClick, colorName, language, subjects, teachers, classes, jointPeriods, displayContext, isHighlighted, isDimmed, isGhost, isSelected, className, showCount = true, jointPeriodName }) => {
-  if (periods.length === 0) return null;
-
+const PeriodStack: React.FC<PeriodStackProps> = React.memo(({ periods, onDragStart, onDragEnd, onDeleteStack, onClick, colorName, language, subjects, teachers, classes, jointPeriods, displayContext, isHighlighted, isDimmed, isGhost, isSelected, className, showCount = true, jointPeriodName }) => {
   const firstPeriod = periods[0];
-  const schoolClass = classes.find(c => c.id === firstPeriod.classId);
+  const schoolClass = useMemo(() => {
+    if (!firstPeriod) return undefined;
+    return classes.find(c => c.id === firstPeriod.classId);
+  }, [classes, firstPeriod?.classId]);
 
   const groupInfo = useMemo(() => {
-    if (!schoolClass) return null;
+    if (!schoolClass || !firstPeriod) return null;
 
     let groupSetId: string | undefined;
     let groupId: string | undefined;
@@ -68,15 +69,17 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
     };
   }, [schoolClass, firstPeriod, jointPeriods, classes]);
 
+  if (periods.length === 0) return null;
+
   let subjectNameJsx: React.ReactNode;
   let contextNameJsx: React.ReactNode;
   let titleString: string;
   let finalColorName: string;
   let count: number;
   
-  const subject = subjects.find(s => s.id === firstPeriod.subjectId);
+  const subject = useMemo(() => subjects.find(s => s.id === firstPeriod.subjectId), [subjects, firstPeriod.subjectId]);
   if (!subject) return null;
-  
+
   finalColorName = colorName || 'subject-default';
   
   // Strict Language Helpers
@@ -85,7 +88,7 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
   const getClassName = (c: SchoolClass) => language === 'ur' ? <span className="font-urdu">{c.nameUr}</span> : c.nameEn;
   
   if(displayContext === 'jointPeriod') {
-      const teacher = teachers.find(t => t.id === firstPeriod.teacherId);
+      const teacher = useMemo(() => teachers.find(t => t.id === firstPeriod.teacherId), [teachers, firstPeriod.teacherId]);
       subjectNameJsx = <>{jointPeriodName}</>;
       contextNameJsx = teacher ? getTeacherName(teacher) : (language === 'ur' ? <span className="font-urdu">کوئی استاد نہیں</span> : 'No Teacher');
       titleString = `${jointPeriodName} - ${teacher?.nameEn || 'No Teacher'}`;

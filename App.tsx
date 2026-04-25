@@ -34,22 +34,33 @@ export interface ThemeColors {
 
 // Helper to manipulate colors
 const adjustColor = (col: string, amt: number) => {
-    let usePound = false;
-    if (col[0] === "#") {
-        col = col.slice(1);
-        usePound = true;
+    try {
+        let usePound = false;
+        if (col[0] === "#") {
+            col = col.slice(1);
+            usePound = true;
+        }
+        
+        let r = 0, g = 0, b = 0;
+        if (col.length === 3) {
+            r = parseInt(col[0] + col[0], 16);
+            g = parseInt(col[1] + col[1], 16);
+            b = parseInt(col[2] + col[2], 16);
+        } else {
+            const num = parseInt(col, 16);
+            r = (num >> 16);
+            g = ((num >> 8) & 0x00FF);
+            b = (num & 0x0000FF);
+        }
+
+        r = Math.max(0, Math.min(255, r + amt));
+        g = Math.max(0, Math.min(255, g + amt));
+        b = Math.max(0, Math.min(255, b + amt));
+
+        return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
+    } catch (e) {
+        return col;
     }
-    const num = parseInt(col, 16);
-    let r = (num >> 16) + amt;
-    if (r > 255) r = 255;
-    else if (r < 0) r = 0;
-    let b = ((num >> 8) & 0x00FF) + amt;
-    if (b > 255) b = 255;
-    else if (b < 0) b = 0;
-    let g = (num & 0x0000FF) + amt;
-    if (g > 255) g = 255;
-    else if (g < 0) g = 0;
-    return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
 };
 
 const hexToRgba = (hex: string, alpha: number) => {
@@ -123,16 +134,31 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ t, isOpen, onClos
 
 const App: React.FC = () => {
     const [theme, setTheme] = useState<Theme>(() => {
-        let savedTheme = localStorage.getItem('mrtimetable_theme') as any;
-        if (savedTheme === 'high-contrast') savedTheme = 'light'; // Fallback
-        if (savedTheme === 'custom') savedTheme = 'light'; 
-        if (!['light', 'dark', 'mint', 'amoled'].includes(savedTheme)) savedTheme = 'light';
-        return (savedTheme as Theme) || 'light';
+        try {
+            let savedTheme = localStorage.getItem('mrtimetable_theme') as any;
+            if (savedTheme === 'high-contrast') savedTheme = 'light'; 
+            if (savedTheme === 'custom' || !savedTheme) savedTheme = 'light'; 
+            if (!['light', 'dark', 'mint', 'amoled'].includes(savedTheme)) savedTheme = 'light';
+            return (savedTheme as Theme);
+        } catch (e) {
+            return 'light';
+        }
     });
     
     const [themeColors, setThemeColors] = useState<ThemeColors>(() => {
-        const saved = localStorage.getItem(`mrtimetable_themeColors_${theme}`);
-        return saved ? JSON.parse(saved) : THEME_PRESETS[theme];
+        try {
+            const saved = localStorage.getItem(`mrtimetable_themeColors_${theme}`);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Validate required keys exist
+                if (parsed.bgPrimary && parsed.bgSecondary && parsed.textPrimary && parsed.accentPrimary) {
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load theme colors:', e);
+        }
+        return THEME_PRESETS[theme];
     });
 
     const handleThemeChange = (newTheme: Theme) => {
@@ -165,8 +191,17 @@ const App: React.FC = () => {
     const [navBarAlpha, setNavBarAlpha] = useState<number>(() => { const saved = localStorage.getItem('mrtimetable_navBarAlpha'); return saved !== null ? parseFloat(saved) : 0.8; });
     const [navBarColor, setNavBarColor] = useState<string>(() => (localStorage.getItem('mrtimetable_navBarColor') || ''));
 
-    const [fontSize, setFontSize] = useState<number>(() => { const saved = localStorage.getItem('mrtimetable_fontSize'); return saved ? parseInt(saved, 10) : 13; });
-    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || 'Gulzar'));
+    const [fontSize, setFontSize] = useState<number>(() => {
+        try {
+            const saved = localStorage.getItem('mrtimetable_fontSize');
+            if (saved) {
+                const val = parseInt(saved, 10);
+                if (!isNaN(val) && val >= 8 && val <= 32) return val;
+            }
+        } catch { }
+        return 16; 
+    });
+    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || ''));
     const [isSchoolInfoModalOpen, setIsSchoolInfoModalOpen] = useState(false);
 
     const [history, setHistory] = useState<UserData[]>(() => {
@@ -274,13 +309,33 @@ const App: React.FC = () => {
     const [adjustmentsSelection, setAdjustmentsSelection] = useState<{ date: string; teacherIds: string[]; }>({ date: new Date().toISOString().split('T')[0], teacherIds: [] });
     const [confirmationState, setConfirmationState] = useState<{ isOpen: boolean; onConfirm: () => void; title: string; message: React.ReactNode; }>({ isOpen: false, onConfirm: () => {}, title: '', message: '' });
 
-    const t = translations[language];
+    const t = translations[language] || translations.en;
 
     useEffect(() => {
+        if (!themeColors || !themeColors.bgPrimary) return;
+
         document.documentElement.className = theme;
         localStorage.setItem('mrtimetable_theme', theme);
+        
         const { bgPrimary, bgSecondary, textPrimary, accentPrimary } = themeColors;
-        const isLight = parseInt(bgPrimary.slice(1), 16) > 0xffffff / 2;
+        
+        // Robust isLight calculation
+        const getLuminance = (hex: string) => {
+            try {
+                if (!hex || hex.length < 4) return 255; // Default light
+                const c = hex.substring(1);
+                const rgb = c.length === 3 
+                    ? [parseInt(c[0]+c[0], 16), parseInt(c[1]+c[1], 16), parseInt(c[2]+c[2], 16)]
+                    : [parseInt(c.substring(0, 2), 16), parseInt(c.substring(2, 4), 16), parseInt(c.substring(4, 6), 16)];
+                return (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]);
+            } catch (e) {
+                return 255;
+            }
+        };
+
+        const luminance = getLuminance(bgPrimary);
+        const isLight = luminance > 128;
+        
         const contrastShift = isLight ? 60 : -60;
         const textSecondary = adjustColor(textPrimary, contrastShift); 
         const textPlaceholder = adjustColor(textPrimary, isLight ? 100 : -100);
@@ -290,7 +345,7 @@ const App: React.FC = () => {
         const accentPrimaryHover = adjustColor(accentPrimary, -20);
         const accentSecondary = hexToRgba(accentPrimary, 0.1);
         const accentSecondaryHover = hexToRgba(accentPrimary, 0.15);
-        const accentText = isLight ? '#ffffff' : (theme === 'amoled' || theme === 'dark' ? '#ffffff' : '#ffffff');
+        const accentText = isLight ? '#ffffff' : '#ffffff';
         const slotAvailableBg = hexToRgba(accentPrimary, 0.1);
         const slotConflictBg = 'rgba(239, 68, 68, 0.15)'; 
         const slotDisabledBg = bgTertiary;
@@ -344,7 +399,12 @@ const App: React.FC = () => {
         style.innerHTML = `:root { --font-app-primary: ${appFont ? `'${appFont}', sans-serif` : 'sans-serif'}; } body { font-family: var(--font-app-primary); } button, input, select, textarea { font-family: var(--font-app-primary); }`;
     }, [appFont]);
     
-    useEffect(() => { localStorage.setItem('mrtimetable_userData', JSON.stringify(userData)); }, [userData]);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            localStorage.setItem('mrtimetable_userData', JSON.stringify(userData));
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [userData]);
     useEffect(() => { if (currentTimetableSessionId) localStorage.setItem('mrtimetable_currentTimetableSessionId', currentTimetableSessionId); else localStorage.removeItem('mrtimetable_currentTimetableSessionId'); }, [currentTimetableSessionId]);
     useEffect(() => { if (userData.timetableSessions.length > 0) { const sessionExists = userData.timetableSessions.some(s => s.id === currentTimetableSessionId); if (!sessionExists) setCurrentTimetableSessionId(userData.timetableSessions[0].id); } else { if (currentTimetableSessionId !== null) setCurrentTimetableSessionId(null); } }, [userData, currentTimetableSessionId]);
 
@@ -401,7 +461,7 @@ const App: React.FC = () => {
         switch (currentPage) {
             case 'dataEntry': return <DataEntryPage t={t} subjects={currentTimetableSession?.subjects || []} teachers={currentTimetableSession?.teachers || []} classes={currentTimetableSession?.classes || []} jointPeriods={currentTimetableSession?.jointPeriods || []} onAddSubject={subject => updateCurrentSession(s => ({ ...s, subjects: [...s.subjects, subject] }))} onUpdateSubject={updatedSubject => updateCurrentSession(s => ({ ...s, subjects: s.subjects.map(sub => sub.id === updatedSubject.id ? updatedSubject : sub) }))} onDeleteSubject={handleDeleteSubject} onAddTeacher={teacher => updateCurrentSession(s => ({ ...s, teachers: [...s.teachers, teacher] }))} onUpdateTeacher={updatedTeacher => updateCurrentSession(s => ({ ...s, teachers: s.teachers.map(teach => teach.id === updatedTeacher.id ? updatedTeacher : teach) }))} onDeleteTeacher={handleDeleteTeacher} onSetClasses={handleSetClasses} onDeleteClass={handleDeleteClass} onAddJointPeriod={handleAddJointPeriod} onUpdateJointPeriod={handleUpdateJointPeriod} onDeleteJointPeriod={handleDeleteJointPeriod} activeTab={dataEntryTab} onTabChange={setDataEntryTab} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} currentTimetableSession={currentTimetableSession} onUpdateTimetableSession={updateCurrentSession} openConfirmation={openConfirmation} onOpenSchoolInfo={() => setIsSchoolInfoModalOpen(true)} />;
             case 'classTimetable': return <ClassTimetablePage t={t} language={language} classes={currentTimetableSession?.classes || []} subjects={currentTimetableSession?.subjects || []} teachers={currentTimetableSession?.teachers || []} jointPeriods={currentTimetableSession?.jointPeriods || []} adjustments={currentTimetableSession?.adjustments || {}} onSetClasses={handleSetClasses} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} selection={classTimetableSelection} onSelectionChange={setClassTimetableSelection} openConfirmation={openConfirmation} hasActiveSession={!!currentTimetableSession} {...historyProps} onAddJointPeriod={handleAddJointPeriod} onUpdateJointPeriod={handleUpdateJointPeriod} onDeleteJointPeriod={handleDeleteJointPeriod} onUpdateTimetableSession={updateCurrentSession} changeLogs={currentTimetableSession?.changeLogs} appFont={appFont} theme={theme} />;
-            case 'teacherTimetable': return <TeacherTimetablePage t={t} language={language} classes={currentTimetableSession?.classes || []} subjects={currentTimetableSession?.subjects || []} teachers={currentTimetableSession?.teachers || []} jointPeriods={currentTimetableSession?.jointPeriods || []} adjustments={currentTimetableSession?.adjustments || {}} leaveDetails={currentTimetableSession?.leaveDetails} onSetClasses={handleSetClasses} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} selectedTeacherId={teacherTimetableSelection.teacherId} onSelectedTeacherChange={(id) => setTeacherTimetableSelection({ teacherId: id })} hasActiveSession={!!currentTimetableSession} {...historyProps} openConfirmation={openConfirmation} onAddJointPeriod={handleAddJointPeriod} onUpdateJointPeriod={handleUpdateJointPeriod} onDeleteJointPeriod={handleDeleteJointPeriod} onUpdateTimetableSession={updateCurrentSession} appFont={appFont} />;
+            case 'teacherTimetable': return <TeacherTimetablePage t={t} language={language} classes={currentTimetableSession?.classes || []} subjects={currentTimetableSession?.subjects || []} teachers={currentTimetableSession?.teachers || []} jointPeriods={currentTimetableSession?.jointPeriods || []} adjustments={currentTimetableSession?.adjustments || {}} leaveDetails={currentTimetableSession?.leaveDetails} onSetClasses={handleSetClasses} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} selectedTeacherId={teacherTimetableSelection.teacherId} onSelectedTeacherChange={(id) => setTeacherTimetableSelection({ teacherId: id })} hasActiveSession={!!currentTimetableSession} {...historyProps} openConfirmation={openConfirmation} onAddJointPeriod={handleAddJointPeriod} onUpdateJointPeriod={handleUpdateJointPeriod} onDeleteJointPeriod={handleDeleteJointPeriod} onUpdateTimetableSession={updateCurrentSession} appFont={appFont} theme={theme} />;
             case 'alternativeTimetable': return <AlternativeTimetablePage t={t} language={language} classes={currentTimetableSession?.classes || []} subjects={currentTimetableSession?.subjects || []} teachers={currentTimetableSession?.teachers || []} adjustments={currentTimetableSession?.adjustments || {}} leaveDetails={currentTimetableSession?.leaveDetails} onSetAdjustments={handleSetAdjustments} onSetLeaveDetails={handleSetLeaveDetails} onUpdateSession={updateCurrentSession} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} selection={adjustmentsSelection} onSelectionChange={setAdjustmentsSelection} openConfirmation={openConfirmation} hasActiveSession={!!currentTimetableSession} jointPeriods={currentTimetableSession?.jointPeriods} />;
             case 'attendance': return <AttendancePage t={t} language={language} classes={currentTimetableSession?.classes || []} currentTimetableSession={currentTimetableSession} onUpdateSession={updateCurrentSession} onUpdateSchoolConfig={handleUpdateSchoolConfig} schoolConfig={effectiveSchoolConfig} />;
             case 'settings': return <SettingsPage t={t} language={language} setLanguage={setLanguage} theme={theme} setTheme={handleThemeChange} themeColors={themeColors} onColorChange={handleColorChange} onResetTheme={resetThemeColors} navDesign={navDesign} setNavDesign={setNavDesign} navShape={navShape} setNavShape={setNavShape} navBtnAlphaSelected={navBtnAlphaSelected} setNavBtnAlphaSelected={setNavBtnAlphaSelected} navBtnAlphaUnselected={navBtnAlphaUnselected} setNavBtnAlphaUnselected={setNavBtnAlphaUnselected} navBarAlpha={navBarAlpha} setNavBarAlpha={setNavBarAlpha} navBarColor={navBarColor} setNavBarColor={setNavBarColor} navAnimation={navAnimation} setNavAnimation={setNavAnimation} fontSize={fontSize} setFontSize={setFontSize} appFont={appFont} setAppFont={setAppFont} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} classes={currentTimetableSession?.classes || []} teachers={currentTimetableSession?.teachers || []} subjects={currentTimetableSession?.subjects || []} adjustments={currentTimetableSession?.adjustments || {}} leaveDetails={currentTimetableSession?.leaveDetails} attendance={currentTimetableSession?.attendance || {}} />;
@@ -415,8 +475,8 @@ const App: React.FC = () => {
             <SchoolInfoModal t={t} isOpen={isSchoolInfoModalOpen} onClose={() => setIsSchoolInfoModalOpen(false)} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} />
 
             <div className={`min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 flex`}>
-                <SideNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />
-                <div className={`flex-1 flex flex-col min-w-0 pb-24 md:landscape:pb-0 lg:pb-0 lg:pl-[72px]`}>
+                {currentPage !== 'home' && <SideNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />}
+                <div className={`flex-1 flex flex-col min-w-0 pb-24 md:landscape:pb-0 lg:pb-0 ${currentPage !== 'home' ? 'md:landscape:pl-32 lg:pl-32' : ''}`}>
                     <main className={`flex-1 ${currentPage === 'home' ? '!pt-0' : 'pt-6 lg:pt-8 px-4 lg:px-8'}`}>
                         {renderPage()}
                     </main>

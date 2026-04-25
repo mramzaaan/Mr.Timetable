@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import type { Language, SchoolConfig, SchoolClass, Teacher, Subject, Adjustment, DownloadDesignConfig, FontFamily, LeaveDetails, AttendanceData } from '../types';
 import type { Theme, ThemeColors } from '../App';
 import type { NavPosition, NavDesign, NavShape } from '../types';
@@ -160,31 +161,107 @@ const ThemeCard: React.FC<{
 interface SelectionModalProps { title: string; items: { id: string; label: React.ReactNode }[]; selectedIds: string[]; onSelect: (id: string, isChecked: boolean) => void; onSelectAll: (isChecked: boolean) => void; onConfirm: () => void; onCancel: () => void; confirmLabel: string; isOpen: boolean; t: any; children?: React.ReactNode; }
 const SelectionModal: React.FC<SelectionModalProps> = ({ title, items, selectedIds, onSelect, onSelectAll, onConfirm, onCancel, confirmLabel, isOpen, t, children }) => { if (!isOpen) return null; return ( <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity" onClick={onCancel}> <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 transform flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}> <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">{title}</h3> {children} <div className="flex-grow border border-[var(--border-primary)] bg-[var(--bg-tertiary)] rounded-lg overflow-y-auto p-3 space-y-2"> <label className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer border-b border-[var(--border-secondary)] sticky top-0 bg-[var(--bg-tertiary)] z-10"> <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => onSelectAll(e.target.checked)} /> <span className="font-semibold text-[var(--text-primary)]">{t.selectAll}</span> </label> {items.map(item => ( <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-md hover:bg-[var(--accent-secondary-hover)]"> <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={selectedIds.includes(item.id)} onChange={(e) => onSelect(item.id, e.target.checked)} /> <span className="text-[var(--text-primary)]">{item.label}</span> </label> ))} </div> <div className="flex justify-end gap-4 pt-6 border-t border-[var(--border-primary)] mt-6"> <button onClick={onCancel} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-lg hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button> <button onClick={onConfirm} disabled={selectedIds.length === 0} className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-lg hover:bg-[var(--accent-primary-hover)] disabled:opacity-50">{confirmLabel}</button> </div> </div> </div> ); };
 
-const ColorPickerInput = ({ label, value, onChange }: { label: string, value: string, onChange: (val: string) => void }) => {
+const ModernColorPicker = ({ value, onChange, label, hideLabel = false }: { value: string, onChange: (val: string) => void, label?: string, hideLabel?: boolean }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const palettes = [
+        { name: 'Core', colors: ['#6366f1', '#8b5cf6', '#a855f7', '#ec4899', '#f43f5e'] },
+        { name: 'Nature', colors: ['#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6'] },
+        { name: 'Warm', colors: ['#f59e0b', '#f97316', '#ef4444', '#78350f', '#451a03'] },
+        { name: 'Monochrome', colors: ['#000000', '#334155', '#64748b', '#94a3b8', '#ffffff'] }
+    ];
+
     return (
-        <div className="space-y-2">
-            <label className="block text-xs font-semibold text-[var(--text-secondary)]">{label}</label>
-            <div className="flex items-center gap-2">
-                <div className="relative w-8 h-8 rounded-lg shadow-sm border border-[var(--border-secondary)] overflow-hidden flex-shrink-0 group cursor-pointer">
-                    <div className="absolute inset-0 w-full h-full" style={{ backgroundColor: value }}></div>
+        <div className="space-y-2 relative" ref={containerRef}>
+            {!hideLabel && <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] opacity-70 ml-1">{label}</label>}
+            <div className="flex items-center gap-2 group">
+                <button 
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="relative w-12 h-10 rounded-2xl shadow-lg border border-[var(--border-secondary)] overflow-hidden flex-shrink-0 transition-all duration-300 hover:scale-105 active:scale-95 group-hover:ring-4 group-hover:ring-[var(--accent-primary)]/10"
+                >
+                    <div className="absolute inset-0 w-full h-full animate-pulse-slow" style={{ backgroundColor: value }}></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent opacity-30" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-1.5 h-1.5 bg-white rounded-full shadow-sm" />
+                    </div>
+                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-2xl pointer-events-none" />}
+                </button>
+                <div className="relative flex-grow">
                     <input 
-                        type="color" 
+                        type="text" 
                         value={value} 
                         onChange={(e) => onChange(e.target.value)} 
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                        className="w-full px-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-2xl text-[11px] font-black font-mono text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] uppercase tracking-[0.2em] shadow-inner"
+                        maxLength={7}
                     />
-                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 </div>
-                <input 
-                    type="text" 
-                    value={value} 
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-full px-2 py-1 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] uppercase"
-                    maxLength={7}
-                />
             </div>
+
+            {isOpen && (
+                <div 
+                    className="absolute z-[60] mt-3 p-4 bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl w-64 left-0 top-full"
+                >
+                    <div className="space-y-4">
+                        {palettes.map(palette => (
+                            <div key={palette.name}>
+                                <div className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-2 px-1">{palette.name}</div>
+                                <div className="grid grid-cols-5 gap-2">
+                                    {palette.colors.map(p => (
+                                        <button
+                                            key={p}
+                                            onClick={() => { onChange(p); setIsOpen(false); }}
+                                            className={`w-8 h-8 rounded-xl transition-all duration-300 hover:scale-125 active:scale-90 border border-black/10 shadow-sm relative group
+                                                ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-[var(--accent-primary)] ring-offset-4 ring-offset-[var(--bg-primary)]' : ''}
+                                            `}
+                                            style={{ backgroundColor: p }}
+                                        >
+                                            {value.toLowerCase() === p.toLowerCase() && (
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${p === '#ffffff' ? 'bg-black' : 'bg-white'}`} />
+                                                </div>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                        
+                        <div className="pt-3 border-t border-[var(--border-secondary)]">
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                                <div className="w-full h-10 rounded-2xl bg-gradient-to-r from-[#ff0000] via-[#ffff00] via-[#00ff00] via-[#00ffff] via-[#0000ff] via-[#ff00ff] to-[#ff0000] relative overflow-hidden flex items-center justify-center p-[2px]">
+                                    <div className="absolute inset-0 bg-black/10 transition-opacity group-hover:opacity-0" />
+                                    <div className="w-full h-full bg-white/10 backdrop-blur-sm rounded-[14px] flex items-center justify-center">
+                                        <span className="text-[10px] font-black text-white tracking-[0.3em] uppercase drop-shadow-lg">Custom Spectrum</span>
+                                    </div>
+                                    <input 
+                                        type="color" 
+                                        value={value} 
+                                        onChange={(e) => onChange(e.target.value)}
+                                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-[5]"
+                                    />
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
+};
+
+const ColorPickerInput = ({ label, value, onChange }: { label: string, value: string, onChange: (val: string) => void }) => {
+    return <ModernColorPicker label={label} value={value} onChange={onChange} />;
 };
 
 const OpacityControl = ({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) => (
@@ -518,7 +595,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                          {/* GENERAL */}
                          <div>
                             <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4 ml-1">{t.general}</h4>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div className="mb-4">
                                 <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
                                     <div>
                                         <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">{t.appLanguage}</h5>
@@ -539,15 +616,17 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                         </button>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm lg:col-span-1">
                                     <div>
                                         <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">App Font</h5>
-                                        <p className="text-xs text-[var(--text-secondary)]">Select the global font for the application</p>
+                                        <p className="text-xs text-[var(--text-secondary)]">Select the global font</p>
                                     </div>
                                     <div className="relative" ref={fontDropdownRef}>
                                         <div 
-                                            className="appearance-none bg-[var(--bg-primary)] border border-[var(--border-secondary)] text-[var(--text-primary)] text-sm rounded-lg focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] block w-48 p-2.5 pr-8 cursor-pointer relative"
+                                            className="appearance-none bg-[var(--bg-primary)] border border-[var(--border-secondary)] text-[var(--text-primary)] text-sm rounded-lg focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] block w-40 sm:w-48 p-2.5 pr-8 cursor-pointer relative"
                                             style={{ fontFamily: appFont || 'inherit' }}
                                             onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}
                                         >
@@ -576,6 +655,31 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                     </div>
                                 </div>
 
+                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm lg:col-span-1">
+                                    <div>
+                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">Font Size</h5>
+                                        <p className="text-xs text-[var(--text-secondary)]">Current: {fontSize}px</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 bg-[var(--bg-primary)] p-1 rounded-xl border border-[var(--border-secondary)] h-10 px-1 w-40 sm:w-48 shadow-inner">
+                                        <button 
+                                            onClick={() => setFontSize(Math.max(8, fontSize - 1))} 
+                                            className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold"
+                                        >
+                                            —
+                                        </button>
+                                        <div className="flex-grow text-center text-sm font-bold text-[var(--text-primary)] tabular-nums">
+                                            {fontSize}px
+                                        </div>
+                                        <button 
+                                            onClick={() => setFontSize(Math.min(fontSize + 1, 32))} 
+                                            className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+
+
                                 <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
                                     <div>
                                         <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">Auto-hide Navigation</h5>
@@ -591,30 +695,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                             </div>
                         </div>
 
-                         {/* GLOBAL TYPOGRAPHY */}
-                         <div>
-                            <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4 ml-1">{t.globalTypography}</h4>
-                            
-                            <div className="space-y-6">
-                                {/* Font Size */}
-                                <div>
-                                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-3 ml-1">Global Font Size: {fontSize}px</label>
-                                    <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center gap-4 shadow-sm">
-                                        <span className="text-xs font-bold text-[var(--text-secondary)]">A</span>
-                                        <input 
-                                            type="range" 
-                                            min="8" 
-                                            max="30" 
-                                            step="1" 
-                                            value={fontSize} 
-                                            onChange={(e) => setFontSize(parseInt(e.target.value))} 
-                                            className="w-full h-1.5 bg-[var(--bg-primary)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-primary)]" 
-                                        />
-                                        <span className="text-lg font-bold text-[var(--text-primary)]">A</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </div>

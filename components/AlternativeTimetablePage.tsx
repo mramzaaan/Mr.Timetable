@@ -7,19 +7,12 @@ import { generateAdjustmentsExcel, generateAdjustmentsReportHtml } from './repor
 import { generateUniqueId, allDays } from '../types';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import { toJpeg, toBlob } from 'html-to-image';
+import { Share2, ArrowUpDown, Printer, Calendar, ChevronDown as ChevronDownLucide, Trash2, Edit, Plus as PlusLucide, Check } from 'lucide-react';
 
 // Icons
-const ImportExportIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-  </svg>
-);
-const PrintIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2v4h10z" />
-    </svg>
-);
-const ChevronDown = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
+const ImportExportIcon = () => <ArrowUpDown className="h-5 w-5" />;
+const PrintIcon = () => <Printer className="h-5 w-5" />;
+const ChevronDown = () => <ChevronDownLucide className="h-5 w-5" />;
 const DoubleBookedWarningIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block" viewBox="0 0 20 20" fill="currentColor">
       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 00-1-1v3a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -30,31 +23,12 @@ const WhatsAppIcon: React.FC = () => (
         <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" />
     </svg>
 );
-const CheckIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-    </svg>
-);
-const PlusIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-    </svg>
-);
-const EditIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-    </svg>
-);
-const TrashIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-    </svg>
-);
-const ShareIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-    </svg>
-);
+const CheckIcon = () => <Check className="h-5 w-5" />;
+const PlusIcon = () => <PlusLucide className="h-6 w-6" />;
+const EditIcon = () => <Edit className="h-4 w-4" />;
+const TrashIcon = () => <Trash2 className="h-4 w-4" />;
+const ShareIcon = () => <Share2 className="h-4 w-4" />;
+
 
 const SignatureModal: React.FC<{
     t: any;
@@ -1680,8 +1654,31 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-wrap">
             <h2 className="text-2xl font-bold text-[var(--text-primary)]">{t.dailyAdjustments}</h2>
-            <div className="flex items-center gap-2 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-secondary)] shadow-sm">
-                <input type="date" value={selectedDate} onChange={(e) => onSelectionChange(prev => ({ ...prev, date: e.target.value }))} className="bg-transparent border-none text-[var(--text-primary)] focus:ring-0 text-sm font-medium px-2 py-1 outline-none" />
+            <div className="relative group cursor-pointer">
+                <input 
+                    type="date" 
+                    value={selectedDate} 
+                    onChange={(e) => onSelectionChange(prev => ({ ...prev, date: e.target.value }))} 
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10" 
+                />
+                <div className="flex items-center gap-4 bg-[var(--bg-secondary)] px-5 py-2.5 rounded-2xl border-2 border-[var(--border-secondary)] shadow-sm group-hover:border-[var(--accent-primary)] transition-all min-w-[150px]">
+                    <div className="flex flex-col items-center border-r border-[var(--border-secondary)] pr-4">
+                        <span className="text-[0.65rem] font-black text-[#6366f1] uppercase leading-none tracking-wider">
+                            {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'short' })}
+                        </span>
+                        <span className="text-2xl font-bold text-[#0f172a] dark:text-white mt-1 leading-none">
+                            {new Date(selectedDate).getDate()}
+                        </span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[0.75rem] font-bold text-[#475569] dark:text-[#94a3b8] uppercase leading-none tracking-tight">
+                            {new Date(selectedDate).toLocaleDateString('en-US', { month: 'long' })}
+                        </span>
+                        <span className="text-[0.75rem] font-bold text-[#94a3b8] dark:text-[#64748b] leading-none mt-1">
+                            {new Date(selectedDate).getFullYear()}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
         
