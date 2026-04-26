@@ -7,7 +7,7 @@ import { generateAdjustmentsExcel, generateAdjustmentsReportHtml } from './repor
 import { generateUniqueId, allDays } from '../types';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import { toJpeg, toBlob } from 'html-to-image';
-import { Share2, ArrowUpDown, Printer, Calendar, ChevronDown as ChevronDownLucide, Trash2, Edit, Plus as PlusLucide, Check } from 'lucide-react';
+import { Share2, ArrowUpDown, Printer, Calendar, ChevronDown as ChevronDownLucide, Trash2, Edit, Plus as PlusLucide, Check, Zap, RotateCcw } from 'lucide-react';
 
 // Icons
 const ImportExportIcon = () => <ArrowUpDown className="h-5 w-5" />;
@@ -28,6 +28,8 @@ const PlusIcon = () => <PlusLucide className="h-6 w-6" />;
 const EditIcon = () => <Edit className="h-4 w-4" />;
 const TrashIcon = () => <Trash2 className="h-4 w-4" />;
 const ShareIcon = () => <Share2 className="h-4 w-4" />;
+const AutoIcon = () => <Zap className="h-5 w-5" />;
+const ResetIcon = () => <RotateCcw className="h-5 w-5" />;
 
 
 const SignatureModal: React.FC<{
@@ -1187,6 +1189,204 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
   const handleSavePrintDesign = (newDesign: DownloadDesignConfig) => { onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, adjustments: newDesign } }); };
   
+  const clearAllAdjustments = () => {
+    openConfirmation(t.delete, "Are you sure you want to clear ALL adjustments for this date?", () => {
+        onSetAdjustments(selectedDate, []);
+    });
+  };
+
+  const autoAssignSubstitutes = () => {
+    if (!dayOfWeek) return;
+
+    // 1. Get teacher section eligibility
+    const teacherSectionsMap = new Map<string, Set<string>>();
+    teachers.forEach(t => {
+        const sections = new Set<string>();
+        classes.forEach(c => {
+          if (c.category && (
+            c.subjects.some(s => s.teacherId === t.id) || 
+            c.inCharge === t.id ||
+            jointPeriods.some(jp => jp.teacherId === t.id && jp.assignments.some(a => a.classId === c.id))
+          )) {
+            sections.add(c.category);
+          }
+        });
+        teacherSectionsMap.set(t.id, sections);
+    });
+
+    // 2. Calculate initial substitution workload for each teacher today/this week
+    const workloadMap = new Map<string, number>();
+    teachers.forEach(t => {
+        const stats = historyStats.stats[t.id] || [];
+        const currentSubstitutionCount = stats.reduce((acc, val) => acc + val, 0);
+        workloadMap.set(t.id, currentSubstitutionCount);
+    });
+
+    // 3. Define "free periods" count for each teacher today
+    const teacherFreeCountMap = new Map<string, number>();
+    teachers.forEach(teacher => {
+        if (absentTeacherIds.includes(teacher.id)) {
+            teacherFreeCountMap.set(teacher.id, 0);
+            return;
+        }
+        
+        let freeCount = 0;
+        const config = schoolConfig.daysConfig?.[dayOfWeek];
+        const periodCount = config ? config.periodCount : 8;
+
+        for (let pIdx = 0; pIdx < periodCount; pIdx++) {
+            const leave = absenteeDetails[teacher.id];
+            let isAbsentThisPeriod = false;
+            if (leave) {
+                if (leave.leaveType === 'full') isAbsentThisPeriod = true;
+                else {
+                    const pNum = pIdx + 1;
+                    if (leave.periods?.length) isAbsentThisPeriod = leave.periods.includes(pNum);
+                    else if (leave.startPeriod && pNum >= leave.startPeriod) isAbsentThisPeriod = true;
+                }
+            }
+            if (isAbsentThisPeriod) continue;
+
+            const isTeachingRegularly = classes.some(c => {
+                const classLeave = absenteeDetails[`CLASS_${c.id}`];
+                if (classLeave) {
+                     if (classLeave.leaveType === 'full') return false;
+                     const pNum = pIdx + 1;
+                     if (classLeave.periods?.includes(pNum)) return false;
+                     if (classLeave.startPeriod && pNum >= classLeave.startPeriod) return false;
+                }
+                const slot = c.timetable[dayOfWeek]?.[pIdx];
+                return Array.isArray(slot) && slot.some(p => p.teacherId === teacher.id);
+            });
+
+            if (!isTeachingRegularly) freeCount++;
+        }
+        teacherFreeCountMap.set(teacher.id, freeCount);
+    });
+
+    // 4. Identify groups needing substitution
+    const unassignedGroups = substitutionGroups.filter(g => 
+        !g.isClassAbsent && 
+        !dailyAdjustments.some(adj => 
+            adj.originalTeacherId === g.absentEntity.id && 
+            adj.periodIndex === g.periodIndex &&
+            g.combinedClassIds.includes(adj.classId)
+        )
+    );
+
+    if (unassignedGroups.length === 0) {
+        alert("All periods are already assigned!");
+        return;
+    }
+
+    const newAdjustments = [...dailyAdjustments];
+    const skippedGroups: SubstitutionGroup[] = [];
+    const assignedResults: { group: SubstitutionGroup, substitute: Teacher }[] = [];
+
+    // Sort groups by importance (optional, but let's go by period sequence)
+    const sortedGroups = [...unassignedGroups].sort((a,b) => a.periodIndex - b.periodIndex);
+
+    sortedGroups.forEach(group => {
+        // Find qualified candidates using existing findAvailableTeachers logic
+        const rawCandidates = findAvailableTeachers(group.periodIndex, group.period, group.combinedClassIds);
+        
+        // Filter out unavailable or absent or already assigned as substitute in THIS new set
+        const eligibleCandidates = rawCandidates.filter(cand => {
+            if (cand.status.type === 'UNAVAILABLE') return false;
+            // Also check if already assigned in newAdjustments for this slot
+            const isAlreadySubbing = newAdjustments.some(adj => 
+                adj.substituteTeacherId === cand.teacher.id && 
+                adj.periodIndex === group.periodIndex
+            );
+            return !isAlreadySubbing;
+        });
+
+        // Apply section restriction
+        const classCategory = group.combinedClassIds.map(cid => classes.find(c => c.id === cid)?.category).filter(Boolean)[0];
+        const filteredBySection = eligibleCandidates.filter(cand => {
+            if (!classCategory) return true;
+            const tSections = teacherSectionsMap.get(cand.teacher.id);
+            if (!tSections) return false;
+            
+            if (classCategory === 'Primary') {
+                return tSections.has('Primary');
+            } else if (classCategory === 'Middle' || classCategory === 'High') {
+                return tSections.has('Middle') || tSections.has('High');
+            }
+            return true;
+        });
+
+        if (filteredBySection.length === 0) {
+            skippedGroups.push(group);
+            return;
+        }
+
+        // Rank candidates
+        const ranked = filteredBySection.sort((a, b) => {
+            // Priority 1: Status (In-Charge > Teaches > Available)
+            const getPriority = (s: SubstituteStatus) => {
+                if (s.type === 'IN_CHARGE') return 0;
+                if (s.type === 'TEACHES_CLASS') return 1;
+                return 2;
+            };
+            const pA = getPriority(a.status);
+            const pB = getPriority(b.status);
+            if (pA !== pB) return pA - pB;
+
+            // Priority 2: Free periods on that day (Descending)
+            const freeA = teacherFreeCountMap.get(a.teacher.id) || 0;
+            const freeB = teacherFreeCountMap.get(b.teacher.id) || 0;
+            if (freeA !== freeB) return freeB - freeA;
+
+            // Priority 3: Workload (Ascending)
+            const workA = workloadMap.get(a.teacher.id) || 0;
+            const workB = workloadMap.get(b.teacher.id) || 0;
+            return workA - workB;
+        });
+
+        const best = ranked[0];
+        
+        // Assign
+        group.combinedClassIds.forEach(classId => {
+            let subjectId = group.period.subjectId;
+            if (group.period.jointPeriodId) {
+                const cls = classes.find(c => c.id === classId);
+                const p = cls?.timetable[dayOfWeek!]?.[group.periodIndex]?.find(p => p.teacherId === group.absentEntity.id);
+                if (p) subjectId = p.subjectId;
+            }
+
+            newAdjustments.push({
+                id: generateUniqueId(),
+                classId,
+                subjectId,
+                originalTeacherId: group.absentEntity.id,
+                substituteTeacherId: best.teacher.id,
+                day: dayOfWeek,
+                periodIndex: group.periodIndex,
+            });
+        });
+
+        // Update workload map for next iterations in this loop
+        workloadMap.set(best.teacher.id, (workloadMap.get(best.teacher.id) || 0) + 1);
+        assignedResults.push({ group, substitute: best.teacher });
+    });
+
+    onSetAdjustments(selectedDate, newAdjustments);
+
+    // Show summary notification
+    if (skippedGroups.length > 0) {
+        const skippedDetails = skippedGroups.map(g => {
+            const absentName = language === 'ur' ? g.absentEntity.nameUr : g.absentEntity.nameEn;
+            const className = language === 'ur' ? g.combinedClassNames.ur : g.combinedClassNames.en;
+            return `• ${className} (${t.period} ${g.periodIndex + 1}) - ${absentName} ${t.isAbsent || 'is absent'}`;
+        }).join('\n');
+        
+        alert(`Auto-Assignment Summary:\n------------------------\n✅ Successfully assigned: ${assignedResults.length}\n❌ Could not assign: ${skippedGroups.length}\n\nThe following periods require manual adjustment:\n${skippedDetails}`);
+    } else {
+        alert(`Success! Auto-assigned all ${assignedResults.length} uncovered periods.`);
+    }
+  };
+
   const handleShareTeacher = async (teacherId: string) => {
       const teacher = teachers.find(t => t.id === teacherId);
       if (!teacher) return;
@@ -1534,31 +1734,30 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     .oswald-font { font-family: 'Oswald', sans-serif; }
                 `}} />
                 
-                <div className="text-center mb-4">
-                    <h2 className="text-[2.25rem] leading-tight font-black uppercase tracking-wide text-[#b01e51] oswald-font mb-1 pb-1">{schoolConfig.schoolNameEn}</h2>
-                    <p className="text-[1.25rem] text-[#6b5270] oswald-font font-medium uppercase tracking-wider mb-0.5">DAILY SUBSTITUTION REPORT</p>
-                    <p className="text-[1.25rem] text-[#52446a] font-medium oswald-font">
+                <div className="text-center mb-6 border-b-2 border-slate-900 pb-4">
+                    <h2 className="text-[2.5rem] leading-tight font-black uppercase tracking-tight text-slate-900 oswald-font mb-1">{schoolConfig.schoolNameEn}</h2>
+                    <p className="text-[1.5rem] text-slate-600 oswald-font font-bold uppercase tracking-widest mb-1">DAILY SUBSTITUTION REPORT</p>
+                    <p className="text-[1.25rem] text-slate-500 font-medium oswald-font bg-slate-100 inline-block px-6 py-1 rounded-full uppercase tracking-tighter">
                         {new Date(computedMultiTeacherSlipData.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                 </div>
                 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-6">
                     {computedMultiTeacherSlipData.teachers.map((teacher, idx) => (
                         <div key={idx} className="break-inside-avoid">
-                            <div className="flex items-center mb-1.5">
-                                <div className="w-1.5 h-6 bg-[#64b5f6] mr-2"></div>
-                                <h3 className="text-[1.375rem] font-bold text-[#374151] oswald-font">
-                                    Teacher on Leave: <span className="text-[#a41a4a] font-black">{teacher.nameEn.toUpperCase()}</span> <span className="text-[#a41a4a]">({teacher.substitutions.length})</span>
+                            <div className="flex items-center mb-2">
+                                <h3 className="text-[1.5rem] font-bold text-slate-800 oswald-font">
+                                    Teacher on Leave: <span className="text-slate-900 font-black underline decoration-2 decoration-slate-400">{teacher.nameEn.toUpperCase()}</span> <span className="text-slate-500 ml-2">({teacher.substitutions.length} {teacher.substitutions.length === 1 ? 'Period' : 'Periods'})</span>
                                 </h3>
                             </div>
                             
-                            <div className="flex flex-col gap-0.5 w-full border border-gray-100 rounded-xl overflow-hidden p-1 shadow-sm">
+                            <div className="flex flex-col gap-0 w-full border-2 border-slate-900 rounded-xl overflow-hidden shadow-md">
                                 {/* Table Header */}
-                                <div className="flex w-full">
-                                    <div className="w-1/4 bg-[#5c7bc0] text-white py-1.5 px-2 text-center font-bold text-base rounded-t-lg mx-0.5 oswald-font tracking-wider">PERIOD & TIME</div>
-                                    <div className="w-1/4 bg-[#5c7bc0] text-white py-1.5 px-2 text-center font-bold text-base rounded-t-lg mx-0.5 oswald-font tracking-wider">CLASS & ROOM</div>
-                                    <div className="w-1/4 bg-[#5c7bc0] text-white py-1.5 px-2 text-center font-bold text-base rounded-t-lg mx-0.5 oswald-font tracking-wider">SUBJECT</div>
-                                    <div className="w-1/4 bg-[#5c7bc0] text-white py-1.5 px-2 text-center font-bold text-base rounded-t-lg mx-0.5 oswald-font tracking-wider">SUBSTITUTE</div>
+                                <div className="flex w-full bg-slate-900">
+                                    <div className="w-[20%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700">PERIOD</div>
+                                    <div className="w-[30%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700">CLASS & ROOM</div>
+                                    <div className="w-[25%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700">SUBJECT</div>
+                                    <div className="w-[25%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest">SUBSTITUTE</div>
                                 </div>
 
                                 {teacher.substitutions.length > 0 ? teacher.substitutions.map((sub, sIdx) => {
@@ -1566,20 +1765,6 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                     const subTeacher = teachers.find(t => t.id === assignedAdj?.substituteTeacherId);
                                     const activeConflict = subTeacher ? getTeacherConflict(subTeacher.id, sub.periodIndex, assignedAdj?.id) : undefined;
                                     const conflictData = activeConflict || assignedAdj?.conflictDetails;
-                                    
-                                    // Row styles
-                                    const rowColors = [
-                                        { bg: 'bg-[#5b7cce]', text: 'text-white' }, // Period 1
-                                        { bg: 'bg-[#a35dd8]', text: 'text-white' }, // Period 2
-                                        { bg: 'bg-[#e237db]', text: 'text-white' }, // Period 3
-                                        { bg: 'bg-[#7fd924]', text: 'text-black' }, // Period 4
-                                        { bg: 'bg-[#21d6b0]', text: 'text-black' }, // Period 5
-                                        { bg: 'bg-[#29cfb9]', text: 'text-black' }, // Period 6
-                                        { bg: 'bg-[#fdb018]', text: 'text-black' }, // Period 7
-                                        { bg: 'bg-[#6ad1e7]', text: 'text-black' }, // Period 8
-                                        { bg: 'bg-[#3b82f6]', text: 'text-white' }, // Period 9+
-                                    ];
-                                    const style = rowColors[sub.periodIndex % rowColors.length];
                                     
                                     // Timing
                                     const isFriday = new Date(selectedDate).getUTCDay() === 5;
@@ -1605,48 +1790,45 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                     }).join(' | ');
 
                                     return (
-                                        <div key={sIdx} className="flex w-full">
-                                            <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex items-center justify-center whitespace-nowrap overflow-hidden`}>
-                                                <span className="text-[1.625rem] overflow-hidden text-ellipsis font-black">{sub.periodIndex + 1}</span>
-                                                <span className="text-[1.25rem] overflow-hidden text-ellipsis font-bold ml-2">- ({timeStr})</span>
+                                        <div key={sIdx} className={`flex w-full border-t border-slate-300 ${sIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
+                                            <div className="w-[20%] px-3 py-3 flex flex-col items-center justify-center border-r border-slate-300">
+                                                <span className="text-[1.75rem] font-black text-slate-900 leading-none">{sub.periodIndex + 1}</span>
+                                                <span className="text-[0.875rem] font-bold text-slate-500 mt-1">{timeStr}</span>
                                             </div>
-                                            <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center overflow-hidden`}>
-                                                <span className="text-[1.25rem] font-bold leading-tight text-center line-clamp-2 break-words w-full">{classRoomStr || '-'}</span>
+                                            <div className="w-[30%] px-3 py-3 flex flex-col justify-center border-r border-slate-300 bg-white">
+                                                <span className="text-[1.125rem] font-bold leading-tight text-slate-800 text-center">{classRoomStr || '-'}</span>
                                             </div>
-                                            <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center overflow-hidden`}>
-                                                <span className="text-[1.25rem] font-bold uppercase leading-tight text-center line-clamp-2 break-words w-full">{sub.subjectInfo.en}</span>
+                                            <div className="w-[25%] px-3 py-3 flex flex-col justify-center border-r border-slate-300 bg-white">
+                                                <span className="text-[1.125rem] font-bold uppercase leading-tight text-slate-800 text-center">{sub.subjectInfo.en}</span>
                                             </div>
-                                            <div className={`w-1/4 ${style.bg} ${style.text} px-2 py-1 rounded-lg mx-0.5 flex flex-col justify-center items-center relative overflow-hidden`}>
+                                            <div className="w-[25%] px-3 py-3 flex flex-col justify-center items-center relative bg-white">
                                                 {subTeacher ? (
                                                     <>
-                                                        <span className="text-[1.25rem] font-black uppercase leading-tight text-center line-clamp-2 break-words w-full">{subTeacher.nameEn}</span>
+                                                        <span className="text-[1.375rem] font-black uppercase leading-tight text-center text-indigo-700">{subTeacher.nameEn}</span>
                                                         {conflictData && (
-                                                            <div className="w-full mt-0.5 flex justify-center">
-                                                                <div className="flex items-center text-[0.8125rem] font-bold uppercase tracking-wider bg-[#d93025] text-white px-2.5 py-0.5 rounded-full shadow-sm leading-none animate-pulse gap-1.5">
-                                                                    <span>Conflict: {language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn}</span>
-                                                                    <span className="text-yellow-300 flex items-center"><DoubleBookedWarningIcon /></span>
+                                                            <div className="mt-1 w-full flex justify-center">
+                                                                <div className="flex items-center text-[0.7rem] font-bold uppercase tracking-wider bg-red-600 text-white px-2 py-0.5 rounded shadow-sm leading-none animate-pulse">
+                                                                    Conflict: {language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn}
                                                                 </div>
                                                             </div>
                                                         )}
                                                     </>
                                                 ) : (
-                                                    <span className="text-[1.25rem] font-bold w-full text-center">Unassigned ⚠️</span>
+                                                    <span className="text-[1.25rem] font-bold text-red-500 italic">Unassigned</span>
                                                 )}
                                             </div>
                                         </div>
                                     );
-                                }) : <div className="p-4 text-center text-slate-400 italic">No periods found.</div>}
+                                }) : <div className="p-8 text-center text-slate-400 italic bg-white">No periods found.</div>}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-6 pt-3 flex justify-center items-center">
-                    <span className="text-slate-700 text-xs font-medium oswald-font tracking-wider">Generated by Mr. TMS |</span>
+                <div className="mt-10 pt-4 border-t border-slate-200 flex justify-between items-center text-slate-400 text-[0.6rem] font-bold uppercase tracking-[0.2em] oswald-font">
+                    <span>Generated by Mr. TMS</span>
+                    <span>Confidential Substitution Report</span>
                 </div>
-                
-                {/* Rainbow bottom border */}
-                <div className="h-1.5 w-1/3 mx-auto mt-2 rounded-full bg-gradient-to-r from-purple-500 via-yellow-400 to-blue-500"></div>
             </div>
         )}
       </div>
@@ -1683,6 +1865,23 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
         </div>
         
         <div className="flex items-center gap-3 flex-wrap">
+            <button 
+                onClick={autoAssignSubstitutes} 
+                className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm transition-all transform hover:-translate-y-0.5 active:scale-95" 
+                title={t.autoAssign}
+            >
+                <AutoIcon />
+                <span className="hidden sm:inline">{t.autoAssign}</span>
+            </button>
+            <button 
+                onClick={clearAllAdjustments} 
+                className="flex items-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold border border-red-200 transition-all active:scale-95" 
+                title={t.clearAll}
+            >
+                <ResetIcon />
+                <span className="hidden sm:inline">{t.clearAll}</span>
+            </button>
+            <div className="w-px h-8 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
             <button onClick={() => { setSelectedTeachersForSlip(absentTeachers.map(t => t.id)); setIsShareModalOpen(true); }} className="p-3 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Share Slips"><ShareIcon /></button>
             <button onClick={() => setIsImportExportOpen(true)} className="p-3 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Import/Export Adjustments"><ImportExportIcon /></button>
             <button onClick={() => setIsPrintPreviewOpen(true)} className="p-3 text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors border border-[var(--border-secondary)] shadow-sm" title={t.printViewAction}><PrintIcon /></button>

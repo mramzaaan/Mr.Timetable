@@ -101,10 +101,10 @@ const triangleCornerOptions: { label: string, value: TriangleCorner }[] = [
 const ControlGroup = ({ label, children, defaultOpen = true }: any) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="bg-[#22252a] rounded-2xl p-4 flex flex-col gap-4">
+        <div className="bg-[#22252a] rounded-2xl p-3 flex flex-col gap-3">
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between text-[0.625rem] text-blue-400 font-bold uppercase tracking-wider"
+                className="w-full flex items-center justify-between text-[0.625rem] text-teal-400 font-black uppercase tracking-widest px-1"
             >
                 {label}
                 <div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
@@ -112,7 +112,7 @@ const ControlGroup = ({ label, children, defaultOpen = true }: any) => {
                 </div>
             </button>
             {isOpen && (
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {children}
                 </div>
             )}
@@ -295,8 +295,10 @@ const SettingsSidebar: React.FC<{
     onApplyStyle: (property: string, value: string) => void,
     onExecCmd: (cmd: string, val?: string) => void,
     onToggleBold: () => void,
-}> = ({ options, onUpdate, onSaveDesign, resetToDefaults, activeElement, activeElementStyles, onApplyStyle, onExecCmd, onToggleBold }) => {
-    const [activeSection, setActiveSection] = useState<'page' | 'header' | 'table' | 'footer' | 'edit' | 'visibility' | 'presets' | null>('page');
+    selectedScope: 'element' | 'row' | 'column' | 'table',
+    onScopeChange: (scope: 'element' | 'row' | 'column' | 'table') => void,
+}> = ({ options, onUpdate, onSaveDesign, resetToDefaults, activeElement, activeElementStyles, onApplyStyle, onExecCmd, onToggleBold, selectedScope, onScopeChange }) => {
+    const [activeSection, setActiveSection] = useState<'global' | 'header' | 'table' | 'footer' | 'edit' | null>('global');
     const [isSaving, setIsSaving] = useState(false);
 
     const handleValueChange = (path: string, value: any) => {
@@ -358,357 +360,331 @@ const SettingsSidebar: React.FC<{
             </div>
             
             <div className="flex overflow-x-auto border-b border-gray-800 bg-[#1a1d21] no-scrollbar">
-                <SectionButton id="page" label="Layout" icon={Icons.Layout} activeSection={activeSection} onClick={handleSectionClick} />
+                <SectionButton id="global" label="Page" icon={Icons.Layout} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="header" label="Header" icon={Icons.Header} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="table" label="Table" icon={Icons.Table} activeSection={activeSection} onClick={handleSectionClick} />
                 <SectionButton id="footer" label="Footer" icon={Icons.Footer} activeSection={activeSection} onClick={handleSectionClick} />
-                <SectionButton id="visibility" label="Visibility" icon={Icons.Check} activeSection={activeSection} onClick={handleSectionClick} />
-                <SectionButton id="edit" label="Edit Text" icon={Icons.Edit} activeSection={activeSection} onClick={handleSectionClick} />
+                <SectionButton id="edit" label="Format" icon={Icons.Edit} activeSection={activeSection} onClick={handleSectionClick} />
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
-                {activeSection === 'page' && (
-                    <div className="flex flex-col gap-6">
-                        {/* Row 1: Orientation and Page Size */}
-                        <div className="flex flex-col sm:flex-row gap-6">
-                            {/* Orientation */}
-                            <div className="flex-1">
-                                <label className="text-[0.625rem] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Orientation</label>
-                                <div className="flex bg-[#22252a] rounded-full p-1 w-full max-w-[12.5rem]">
-                                    <button 
-                                        onClick={() => handleValueChange('page.orientation', 'portrait')}
-                                        className={`flex-1 flex items-center justify-center h-10 rounded-full transition-colors ${options.page.orientation === 'portrait' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+            <div className="flex-1 overflow-y-auto p-3 custom-scrollbar space-y-3">
+                {activeSection === 'global' && (
+                    <div className="flex flex-col gap-4">
+                        <ControlGroup label="Page Configuration">
+                            <div className="grid grid-cols-2 gap-3 mb-2">
+                                <div>
+                                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-2 block">Orientation</label>
+                                    <div className="flex bg-black/20 rounded-full p-1">
+                                        <button onClick={() => handleValueChange('page.orientation', 'portrait')} className={`flex-1 h-8 flex items-center justify-center rounded-full transition-all ${options.page.orientation === 'portrait' ? 'bg-teal-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 2h6v10H7V5z" clipRule="evenodd" /></svg>
+                                        </button>
+                                        <button onClick={() => handleValueChange('page.orientation', 'landscape')} className={`flex-1 h-8 flex items-center justify-center rounded-full transition-all ${options.page.orientation === 'landscape' ? 'bg-teal-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 2v6h10V7H5z" clipRule="evenodd" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-2 block">Size</label>
+                                    <select 
+                                        value={options.page.size} 
+                                        onChange={(e) => handleValueChange('page.size', e.target.value)}
+                                        className="w-full bg-black/20 text-gray-300 text-xs font-bold rounded-full px-3 h-10 outline-none appearance-none border border-transparent focus:border-teal-500"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 2h6v10H7V5z" clipRule="evenodd" />
-                                        </svg>
-                                    </button>
-                                    <button 
-                                        onClick={() => handleValueChange('page.orientation', 'landscape')}
-                                        className={`flex-1 flex items-center justify-center h-10 rounded-full transition-colors ${options.page.orientation === 'landscape' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 2v6h10V7H5z" clipRule="evenodd" />
-                                        </svg>
-                                    </button>
+                                        {['a4', 'letter', 'exec', 'legal'].map(s => <option key={s} value={s}>{s.toUpperCase()}</option>)}
+                                    </select>
                                 </div>
                             </div>
-
-                            {/* Page Size */}
-                            <div className="flex-1">
-                                <label className="text-[0.625rem] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Page Size</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {['a4', 'letter', 'exec', 'legal'].map(size => (
-                                        <button 
-                                            key={size}
-                                            onClick={() => handleValueChange('page.size', size)}
-                                            className={`py-2 px-4 rounded-full text-xs font-bold transition-colors ${options.page.size === size ? 'bg-[#e0e7ff] text-blue-600 border border-blue-200' : 'bg-[#22252a] text-gray-400 hover:bg-[#2a2d33]'}`}
-                                        >
-                                            {size === 'a4' ? 'A4' : size.charAt(0).toUpperCase() + size.slice(1)}
-                                        </button>
+                            <div className="space-y-1">
+                                <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest block px-1">Margins (mm)</label>
+                                <div className="grid grid-cols-4 gap-1">
+                                    {['top', 'bottom', 'left', 'right'].map(side => (
+                                        <div key={side} className="bg-black/20 rounded-xl p-2 flex flex-col items-center">
+                                            <span className="text-[8px] text-gray-600 font-black uppercase mb-1">{side}</span>
+                                            <input 
+                                                type="number" 
+                                                value={options.page.margins[side as keyof typeof options.page.margins]} 
+                                                onChange={(e) => handleValueChange(`page.margins.${side}`, Number(e.target.value))}
+                                                className="w-full bg-transparent text-center text-xs font-bold text-gray-300 outline-none"
+                                            />
+                                        </div>
                                     ))}
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Row 2: Margins */}
-                        <div>
-                            <label className="text-[0.625rem] text-gray-500 font-bold uppercase tracking-wider mb-2 block">Margin</label>
-                            <div className="flex flex-wrap gap-3">
-                                {['top', 'bottom', 'left', 'right'].map(side => (
-                                    <div key={side} className="bg-[#22252a] rounded-2xl p-3 flex flex-col gap-2 flex-1 min-w-[4.375rem]">
-                                        <span className="text-xs text-gray-400 font-medium capitalize text-center">{side}</span>
-                                        <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5 justify-between">
-                                            <button onClick={() => handleValueChange(`page.margins.${side}`, Math.max(0, options.page.margins[side as keyof typeof options.page.margins] - 1))} className="w-5 h-5 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
-                                            <span className="text-xs font-bold text-gray-300">{options.page.margins[side as keyof typeof options.page.margins]}</span>
-                                            <button onClick={() => handleValueChange(`page.margins.${side}`, options.page.margins[side as keyof typeof options.page.margins] + 1)} className="w-5 h-5 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Row 3: Grid Rows & Watermark */}
-                        <div className="flex flex-col xl:flex-row gap-6">
-                            {/* Grid Rows */}
-                            <div className="bg-[#22252a] rounded-2xl p-4 flex-1">
-                                <label className="text-[0.625rem] text-blue-400 font-bold uppercase tracking-wider mb-4 block">Grid Rows</label>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-teal-400">All Pages</span>
-                                        <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
-                                            <button onClick={() => handleValueChange('rowsPerPage', Math.max(1, (options.rowsPerPage || 5) - 1))} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
-                                            <span className="w-8 text-center text-xs font-bold text-teal-400">{options.rowsPerPage || 5}</span>
-                                            <button onClick={() => handleValueChange('rowsPerPage', (options.rowsPerPage || 5) + 1)} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-pink-400">1st Page</span>
-                                        <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
-                                            <button onClick={() => handleValueChange('rowsPerFirstPage', Math.max(1, (options.rowsPerFirstPage || options.rowsPerPage || 5) - 1))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
-                                            <span className="w-8 text-center text-xs font-bold text-pink-400">{options.rowsPerFirstPage || options.rowsPerPage || 5}</span>
-                                            <button onClick={() => handleValueChange('rowsPerFirstPage', (options.rowsPerFirstPage || options.rowsPerPage || 5) + 1)} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
-                                        </div>
-                                    </div>
+                        </ControlGroup>
+                        
+                        <ControlGroup label="Background Watermark">
+                            <ToggleInput label="Enable Watermark" path="page.watermarkOpacity" value={options.page.watermarkOpacity > 0} onChange={(_, val) => handleValueChange('page.watermarkOpacity', val ? 0.45 : 0)} />
+                            {options.page.watermarkOpacity > 0 && (
+                                <div className="space-y-3 pt-2 border-t border-white/5">
+                                    <TextInput label="Text Content" path="watermarkText" value={options.watermarkText} onChange={handleValueChange} />
+                                    <ColorInput label="Color" path="watermarkColor" value={options.watermarkColor || '#cbd5e1'} onChange={handleValueChange} />
+                                    <NumberInput label="Opacity" path="page.watermarkOpacity" value={options.page.watermarkOpacity} min={0.1} max={1.0} step={0.05} onChange={handleValueChange} />
                                 </div>
-                            </div>
-
-                            {/* Watermark */}
-                            <div className="bg-[#22252a] rounded-2xl p-4 flex-1">
-                                <div className="flex items-center justify-between mb-4">
-                                    <label className="text-[0.625rem] text-pink-800 dark:text-pink-400 font-bold uppercase tracking-wider">Watermark</label>
-                                    <div className="cursor-pointer" onClick={() => handleValueChange('page.watermarkOpacity', options.page.watermarkOpacity > 0 ? 0 : 0.45)}>
-                                        <div className={`w-10 h-5 rounded-full relative transition-colors ${options.page.watermarkOpacity > 0 ? 'bg-pink-500' : 'bg-gray-700'}`}>
-                                            <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${options.page.watermarkOpacity > 0 ? 'left-5.5' : 'left-0.5'}`}></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {options.page.watermarkOpacity > 0 && (
-                                    <div className="space-y-4">
-                                        <input 
-                                            type="text" 
-                                            value={options.watermarkText || ''} 
-                                            onChange={(e) => handleValueChange('watermarkText', e.target.value)} 
-                                            placeholder="DRAFT-2024"
-                                            className="w-full bg-[#1a1d21] text-gray-300 text-sm rounded-xl px-4 py-2.5 outline-none border border-gray-700 focus:border-pink-500 transition-colors"
-                                        />
-                                        
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xs text-gray-400 font-medium">Alpha</span>
-                                            <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5 w-28">
-                                                <button onClick={() => handleValueChange('page.watermarkOpacity', Math.max(0.05, Number((options.page.watermarkOpacity - 0.05).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">-</button>
-                                                <span className="flex-1 text-center text-xs font-bold text-gray-300">{Math.round(options.page.watermarkOpacity * 100)}%</span>
-                                                <button onClick={() => handleValueChange('page.watermarkOpacity', Math.min(1.0, Number((options.page.watermarkOpacity + 0.05).toFixed(2))))} className="w-6 h-6 flex items-center justify-center text-pink-400 font-bold rounded-full hover:bg-[#2a2d33]">+</button>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-3 pt-2">
-                                            {[
-                                                { color: '#cbd5e1', name: 'gray' },
-                                                { color: '#000000', name: 'black' },
-                                                { color: '#3b82f6', name: 'blue' }
-                                            ].map(c => (
-                                                <button
-                                                    key={c.name}
-                                                    onClick={() => handleValueChange('watermarkColor', c.color)}
-                                                    className={`w-6 h-6 rounded-full transition-transform ${options.watermarkColor === c.color || (!options.watermarkColor && c.name === 'gray') ? 'ring-2 ring-offset-2 ring-offset-[#22252a] ring-gray-400 scale-110' : 'hover:scale-110'}`}
-                                                    style={{ backgroundColor: c.color }}
-                                                />
-                                            ))}
-                                            {/* Custom Color Picker */}
-                                            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-gray-600 cursor-pointer hover:scale-110 transition-transform">
-                                                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-tr from-red-500 via-green-500 to-blue-500">
-                                                    <Icons.Edit className="w-3 h-3 text-white drop-shadow-md" />
-                                                </div>
-                                                <input 
-                                                    type="color" 
-                                                    value={options.watermarkColor || '#cbd5e1'} 
-                                                    onChange={(e) => handleValueChange('watermarkColor', e.target.value)} 
-                                                    className="opacity-0 w-full h-full cursor-pointer absolute inset-0" 
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                            )}
+                        </ControlGroup>
                     </div>
                 )}
 
-                {activeSection === 'visibility' && (
-                    <ControlGroup label="Show/Hide Elements">
-                        <ToggleInput label="Teacher Name" path="visibleElements.teacherName" value={options.visibleElements?.teacherName ?? true} onChange={handleValueChange} />
-                        <ToggleInput label="Subject Name" path="visibleElements.subjectName" value={options.visibleElements?.subjectName ?? true} onChange={handleValueChange} />
-                        <ToggleInput label="Room Number" path="visibleElements.roomNumber" value={options.visibleElements?.roomNumber ?? true} onChange={handleValueChange} />
-                    </ControlGroup>
-                )}
-
                 {activeSection === 'header' && (
-                    <>
-                        <ControlGroup label="School Name">
-                            <SelectInput label="Font" path="header.schoolName.fontFamily" value={options.header.schoolName.fontFamily} options={fontOptions} onChange={handleValueChange} />
-                            <NumberInput label="Size" path="header.schoolName.fontSize" value={options.header.schoolName.fontSize} min={10} max={80} onChange={handleValueChange} />
-                            <SelectInput label="Align" path="header.schoolName.align" value={options.header.schoolName.align} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} onChange={handleValueChange} />
-                            <ColorInput label="Color" path="header.schoolName.color" value={options.header.schoolName.color} onChange={handleValueChange} />
-                        </ControlGroup>
-                        <ControlGroup label="Header Features">
+                    <div className="flex flex-col gap-4">
+                        <ControlGroup label="Branding & Visibility">
                             <ToggleInput label="Show Logo" path="header.showLogo" value={options.header.showLogo} onChange={handleValueChange} />
-                            <NumberInput label="Logo Size" path="header.logoSize" value={options.header.logoSize} min={20} max={200} onChange={handleValueChange} />
-                            <ToggleInput label="Show Title" path="header.showTitle" value={options.header.showTitle} onChange={handleValueChange} />
-                            {options.header.showTitle && (
-                                <>
-                                    <NumberInput label="Title Size" path="header.title.fontSize" value={options.header.title?.fontSize || 18} min={10} max={80} onChange={handleValueChange} />
-                                    <ColorInput label="Title Color" path="header.title.color" value={options.header.title?.color || '#000000'} onChange={handleValueChange} />
-                                </>
-                            )}
-                            <div className="mt-4 pt-4 border-t border-gray-800">
-                                <h5 className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-wider mb-3">Details (Name, Room, etc.)</h5>
-                                <div className="space-y-3">
-                                    <NumberInput label="Size" path="header.details.fontSize" value={options.header.details?.fontSize || 14} min={8} max={40} onChange={handleValueChange} />
-                                    <ColorInput label="Color" path="header.details.color" value={options.header.details?.color || '#000000'} onChange={handleValueChange} />
-                                </div>
+                            {options.header.showLogo && <NumberInput label="Logo Dimension" path="header.logoSize" value={options.header.logoSize} min={20} max={200} onChange={handleValueChange} />}
+                            <TextInput label="Document Subtitle" path="header.subtitle" value={options.header.subtitle} onChange={handleValueChange} />
+                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                <ToggleInput label="Show Date" path="header.showDate" value={options.header.showDate} onChange={handleValueChange} />
+                                <ToggleInput label="Divider Line" path="header.divider" value={options.header.divider} onChange={handleValueChange} />
                             </div>
-                            <ToggleInput label="Show Date" path="header.showDate" value={options.header.showDate} onChange={handleValueChange} />
-                            {options.header.showDate && (
-                                <NumberInput label="Date Font Size" path="header.dateFontSize" value={options.header.dateFontSize || 12} min={6} max={24} onChange={handleValueChange} />
-                            )}
-                            <TextInput label="Subtitle" path="header.subtitle" value={options.header.subtitle} onChange={handleValueChange} />
-                            <ToggleInput label="Show Divider" path="header.divider" value={options.header.divider} onChange={handleValueChange} />
-                            <ColorInput label="Background" path="header.bgColor" value={options.header.bgColor} onChange={handleValueChange} />
                         </ControlGroup>
-                    </>
+
+                        <ControlGroup label="Header Essentials">
+                            <div className="flex flex-col gap-3">
+                                <SelectInput label="Font Family" path="header.schoolName.fontFamily" value={options.header.schoolName?.fontFamily || options.table.fontFamily} options={fontOptions} onChange={handleValueChange} />
+                                <div className="grid grid-cols-2 gap-3">
+                                    <NumberInput label="Title Size" path="header.schoolName.fontSize" value={options.header.schoolName.fontSize} min={10} max={80} onChange={handleValueChange} />
+                                    <SelectInput label="Alignment" path="header.schoolName.align" value={options.header.schoolName.align} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} onChange={handleValueChange} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/5">
+                                    <ColorInput label="Title Color" path="header.schoolName.color" value={options.header.schoolName.color} onChange={handleValueChange} />
+                                    <ColorInput label="Background" path="header.bgColor" value={options.header.bgColor} onChange={handleValueChange} />
+                                </div>
+                                <ColorInput label="Subtitle Color" path="header.title.color" value={options.header.title?.color || '#000000'} onChange={handleValueChange} />
+                            </div>
+                        </ControlGroup>
+                    </div>
                 )}
 
                 {activeSection === 'table' && (
-                    <>
-                        <ControlGroup label="Dimensions & Layout">
-                            <NumberInput label="Column Width" path="table.periodColumnWidth" value={options.table.periodColumnWidth} min={20} max={100} onChange={handleValueChange} />
-                            <NumberInput label="Border Width" path="table.borderWidth" value={options.table.borderWidth} min={0} max={10} step={0.5} onChange={handleValueChange} />
-                            <SelectInput label="Grid Style" path="table.gridStyle" value={options.table.gridStyle} options={[{value:'solid', label:'Solid'}, {value:'dashed', label:'Dashed'}, {value:'dotted', label:'Dotted'}]} onChange={handleValueChange} />
-                            <SelectInput label="Vertical Align" path="table.verticalAlign" value={options.table.verticalAlign} options={[{value:'top', label:'Top'}, {value:'middle', label:'Middle'}, {value:'bottom', label:'Bottom'}]} onChange={handleValueChange} />
-                            <ToggleInput label="Merge Identical" path="table.mergeIdenticalPeriods" value={options.table.mergeIdenticalPeriods ?? true} onChange={handleValueChange} />
-                            <SelectInput label="Class Name Format" path="table.classNameFormat" value={options.table.classNameFormat || 'default'} options={[{value: 'default', label: 'Default (10th A)'}, {value: 'compact', label: 'Compact (10A)'}, {value: 'hyphenated', label: 'Hyphenated (10-A)'}]} onChange={handleValueChange} />
-                            <NumberInput label="Period Font Size" path="table.periodFontSize" value={options.table.periodFontSize || 12} min={6} max={36} onChange={handleValueChange} />
-                            <ToggleInput label="Show Period Time" path="table.showPeriodTime" value={options.table.showPeriodTime ?? false} onChange={handleValueChange} />
-                            {options.table.showPeriodTime && (
-                                <>
-                                    <SelectInput label="Time Position" path="table.periodTimePosition" value={options.table.periodTimePosition || 'below'} options={[{value:'above', label:'Above'}, {value:'below', label:'Below'}, {value:'left', label:'Left'}, {value:'right', label:'Right'}]} onChange={handleValueChange} />
-                                    <SelectInput label="Time Rotation" path="table.periodTimeRotation" value={options.table.periodTimeRotation || '0'} options={[{value:'0', label:'0°'}, {value:'90', label:'90°'}, {value:'180', label:'180°'}, {value:'270', label:'270°'}]} onChange={handleValueChange} />
-                                    <NumberInput label="Time Font Size" path="table.periodTimeFontSize" value={options.table.periodTimeFontSize || 10} min={6} max={24} onChange={handleValueChange} />
-                                    <ColorInput label="Time Color" path="table.periodTimeColor" value={options.table.periodTimeColor || '#666666'} onChange={handleValueChange} />
-                                </>
-                            )}
+                    <div className="flex flex-col gap-4">
+                        <ControlGroup label="Table Visibility & Logic">
+                            <div className="grid grid-cols-1 gap-2">
+                                <ToggleInput label="Teacher Name" path="visibleElements.teacherName" value={options.visibleElements?.teacherName ?? true} onChange={handleValueChange} />
+                                <ToggleInput label="Subject Name" path="visibleElements.subjectName" value={options.visibleElements?.subjectName ?? true} onChange={handleValueChange} />
+                                <ToggleInput label="Room Number" path="visibleElements.roomNumber" value={options.visibleElements?.roomNumber ?? true} onChange={handleValueChange} />
+                                <ToggleInput label="Merge Identical" path="table.mergeIdenticalPeriods" value={options.table.mergeIdenticalPeriods ?? true} onChange={handleValueChange} />
+                            </div>
                         </ControlGroup>
 
-                        <ControlGroup label="Typography & Style">
-                            <SelectInput label="Card Design" path="table.cardStyle" value={options.table.cardStyle || 'full'} options={cardStyleOptions} onChange={handleValueChange} />
-                            
-                            {options.table.cardStyle === 'outline' && (
-                                <NumberInput label="Outline Width" path="table.outlineWidth" value={options.table.outlineWidth || 2} min={0.5} max={10} step={0.5} onChange={handleValueChange} />
-                            )}
-                            {options.table.cardStyle === 'triangle' && (
-                                <SelectInput label="Corner" path="table.triangleCorner" value={options.table.triangleCorner || 'bottom-left'} options={triangleCornerOptions} onChange={handleValueChange} />
-                            )}
-                            {options.table.cardStyle === 'badge' && (
-                                <SelectInput label="Badge Target" path="table.badgeTarget" value={options.table.badgeTarget || 'subject'} options={[{value:'subject', label:'Subject'}, {value:'teacher', label:'Teacher'}, {value:'class', label:'Class'}]} onChange={handleValueChange} />
-                            )}
-
-                            <SelectInput label="Font Family" path="table.fontFamily" value={options.table.fontFamily} options={fontOptions} onChange={handleValueChange} />
-                            <NumberInput label="Body Size" path="table.fontSize" value={options.table.fontSize} min={8} max={32} onChange={handleValueChange} />
-                            <NumberInput label="Header Size" path="table.headerFontSize" value={options.table.headerFontSize || options.table.fontSize} min={8} max={40} onChange={handleValueChange} />
-                            <NumberInput label="Line Height" path="table.lineHeight" value={options.table.lineHeight || 1.1} min={0.8} max={3.0} step={0.1} onChange={handleValueChange} />
-                            <NumberInput label="Cell Padding" path="table.cellPadding" value={options.table.cellPadding} min={0} max={30} onChange={handleValueChange} />
+                        <ControlGroup label="Structural Geometry">
+                            <div className="grid grid-cols-1 gap-3">
+                                <NumberInput label="Col Width" path="table.periodColumnWidth" value={options.table.periodColumnWidth} min={20} max={100} onChange={handleValueChange} />
+                                <div className="grid grid-cols-2 gap-3">
+                                    <NumberInput label="Borders" path="table.borderWidth" value={options.table.borderWidth} min={0} max={10} step={0.5} onChange={handleValueChange} />
+                                    <NumberInput label="Padding" path="table.cellPadding" value={options.table.cellPadding} min={0} max={30} onChange={handleValueChange} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <SelectInput label="Grid" path="table.gridStyle" value={options.table.gridStyle} options={[{value:'solid', label:'Solid'}, {value:'dashed', label:'Dashed'}, {value:'dotted', label:'Dotted'}]} onChange={handleValueChange} />
+                                    <NumberInput label="Spacing" path="table.lineHeight" value={options.table.lineHeight || 1.1} min={0.8} max={3.0} step={0.1} onChange={handleValueChange} />
+                                </div>
+                            </div>
                         </ControlGroup>
 
-                        <ControlGroup label="Colors">
-                            <ColorInput label="Header BG" path="table.headerBgColor" value={options.table.headerBgColor} onChange={handleValueChange} />
-                            <ColorInput label="Header Text" path="table.headerColor" value={options.table.headerColor} onChange={handleValueChange} />
-                            <ColorInput label="Body Text" path="table.bodyColor" value={options.table.bodyColor || '#000000'} onChange={handleValueChange} />
-                            <ColorInput label="Period Col BG" path="table.periodColumnBgColor" value={options.table.periodColumnBgColor} onChange={handleValueChange} />
-                            <ColorInput label="Period Col Text" path="table.periodColumnColor" value={options.table.periodColumnColor} onChange={handleValueChange} />
-                            <ColorInput label="Alt Row" path="table.altRowColor" value={options.table.altRowColor} onChange={handleValueChange} />
-                            <ColorInput label="Borders" path="table.borderColor" value={options.table.borderColor} onChange={handleValueChange} />
+                        <ControlGroup label="Content Essentials">
+                            <div className="space-y-4">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Main Typography</label>
+                                    <SelectInput label="Global Font" path="table.fontFamily" value={options.table.fontFamily} options={fontOptions} onChange={handleValueChange} />
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <NumberInput label="Content Size" path="table.fontSize" value={options.table.fontSize} min={8} max={32} onChange={handleValueChange} />
+                                        <ColorInput label="Text Color" path="table.bodyColor" value={options.table.bodyColor || '#000000'} onChange={handleValueChange} />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2 pt-2 border-t border-white/5">
+                                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Header Cells</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <NumberInput label="Size" path="table.headerFontSize" value={options.table.headerFontSize || options.table.fontSize} min={8} max={40} onChange={handleValueChange} />
+                                        <ColorInput label="Text" path="table.headerColor" value={options.table.headerColor} onChange={handleValueChange} />
+                                    </div>
+                                    <ColorInput label="Background" path="table.headerBgColor" value={options.table.headerBgColor} onChange={handleValueChange} />
+                                </div>
+                                <div className="flex flex-col gap-2 pt-2 border-t border-white/5">
+                                    <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Visual Styles</label>
+                                    <SelectInput label="Card Design" path="table.cardStyle" value={options.table.cardStyle || 'full'} options={cardStyleOptions} onChange={handleValueChange} />
+                                    <ColorInput label="Alternating Rows" path="table.altRowColor" value={options.table.altRowColor} onChange={handleValueChange} />
+                                </div>
+                            </div>
                         </ControlGroup>
-                    </>
+
+                        <ControlGroup label="Pagination">
+                            <div className="grid grid-cols-2 gap-3">
+                                <NumberInput label="Global Rows" path="rowsPerPage" value={options.rowsPerPage || 5} min={1} max={20} onChange={handleValueChange} />
+                                <NumberInput label="Page 1 Rows" path="rowsPerFirstPage" value={options.rowsPerFirstPage || options.rowsPerPage || 5} min={1} max={20} onChange={handleValueChange} />
+                            </div>
+                        </ControlGroup>
+                    </div>
                 )}
 
                 {activeSection === 'footer' && (
-                    <>
-                        <ControlGroup label="Footer Settings">
-                            <ToggleInput label="Show Footer" path="footer.show" value={options.footer.show} onChange={handleValueChange} />
+                    <div className="flex flex-col gap-4">
+                        <ControlGroup label="Footer Essentials">
+                            <ToggleInput label="Enable Footer" path="footer.show" value={options.footer.show} onChange={handleValueChange} />
                             {options.footer.show && (
-                                <>
-                                    <TextInput label="App Name" path="footer.text" value={options.footer.text} onChange={handleValueChange} />
-                                    <SelectInput label="App Name Pos" path="footer.appNamePlacement" value={options.footer.appNamePlacement || 'center'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />
-                                    
-                                    <ToggleInput label="Show Date" path="footer.includeDate" value={options.footer.includeDate} onChange={handleValueChange} />
-                                    {options.footer.includeDate && (
-                                        <NumberInput label="Date Font Size" path="footer.dateFontSize" value={options.footer.dateFontSize || 10} min={6} max={24} onChange={handleValueChange} />
-                                    )}
-                                    <SelectInput label="Date Pos" path="footer.datePlacement" value={options.footer.datePlacement || 'hidden'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />
-                                    
-                                    <ToggleInput label="Show Time" path="footer.includeTimestamp" value={options.footer.includeTimestamp} onChange={handleValueChange} />
-                                    {options.footer.includeTimestamp && (
-                                        <NumberInput label="Time Font Size" path="footer.timeFontSize" value={options.footer.timeFontSize || 10} min={6} max={24} onChange={handleValueChange} />
-                                    )}
-                                    
-                                    <ToggleInput label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} onChange={handleValueChange} />
-                                    <SelectInput label="Page Num Pos" path="footer.pageNumberPlacement" value={options.footer.pageNumberPlacement || 'right'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}, {value: 'hidden', label: 'Hidden'}]} onChange={handleValueChange} />
-                                    
-                                    <NumberInput label="Font Size" path="footer.fontSize" value={options.footer.fontSize} min={6} max={20} onChange={handleValueChange} />
-                                    <ColorInput label="Color" path="footer.color" value={options.footer.color} onChange={handleValueChange} />
-                                </>
+                                <div className="space-y-4 pt-2 mt-2 border-t border-white/5">
+                                    <TextInput label="Company/School Info" path="footer.text" value={options.footer.text} onChange={handleValueChange} />
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <ToggleInput label="Print Date" path="footer.includeDate" value={options.footer.includeDate} onChange={handleValueChange} />
+                                        <ToggleInput label="Print Time" path="footer.includeTimestamp" value={options.footer.includeTimestamp} onChange={handleValueChange} />
+                                        <ToggleInput label="Page Numbers" path="footer.includePageNumber" value={options.footer.includePageNumber} onChange={handleValueChange} />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/5">
+                                        <NumberInput label="Font Size" path="footer.fontSize" value={options.footer.fontSize} min={6} max={20} onChange={handleValueChange} />
+                                        <ColorInput label="Text Color" path="footer.color" value={options.footer.color} onChange={handleValueChange} />
+                                    </div>
+                                    <SelectInput label="Info Position" path="footer.appNamePlacement" value={options.footer.appNamePlacement || 'center'} options={[{value: 'left', label: 'Left'}, {value: 'center', label: 'Center'}, {value: 'right', label: 'Right'}]} onChange={handleValueChange} />
+                                </div>
                             )}
                         </ControlGroup>
-                    </>
+                    </div>
                 )}
 
                 {activeSection === 'edit' && (
-                    <>
-                        <div className="bg-[#1a1d21] p-3 rounded-lg border border-gray-800 mb-4 shadow-sm">
-                            <p className="text-[0.625rem] text-gray-400">Click on any text element in the preview to edit its style.</p>
-                            {!activeElement && <p className="text-xs text-yellow-500 mt-2 font-bold">No element selected</p>}
+                    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300 pb-10">
+                        {/* Header Selection Info */}
+                        <div className="px-1 mb-2">
+                            <h3 className="text-lg font-black text-gray-100 flex items-center gap-2">
+                                <Icons.Edit className="w-5 h-5 text-teal-500" />
+                                Format.
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1">
+                                <div className={`w-2 h-2 rounded-full ${activeElement ? 'bg-teal-500 animate-pulse' : 'bg-gray-700'}`} />
+                                <span className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest">
+                                    {activeElement ? `Selected: ${activeElement.tagName}` : 'Select an element in preview'}
+                                </span>
+                            </div>
                         </div>
-                        
-                        <ControlGroup label="Typography">
+
+                        {/* --- Group A: Header Formatting --- */}
+                        <div className={`flex flex-col gap-3 p-4 rounded-3xl border transition-all ${activeElement?.closest('.print-header') ? 'bg-indigo-500/5 border-indigo-500/30' : 'bg-[#22252a] border-gray-800'}`}>
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-gray-400">Font Family</span>
-                                <div className="relative w-32">
+                                <div className="flex items-center gap-2">
+                                    <Icons.Header className="w-3.5 h-3.5 text-indigo-400" />
+                                    <span className="text-[0.625rem] font-black text-indigo-400 uppercase tracking-tighter">Header Styles</span>
+                                </div>
+                                {activeElement?.closest('.print-header') && <div className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-bold rounded-full">ACTIVE</div>}
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2">
+                                {/* Font & Size */}
+                                <div className="bg-black/20 rounded-2xl p-2.5 flex flex-col gap-2">
                                     <select 
                                         value={activeElementStyles.fontFamily.replace(/['"]/g, '')}
                                         onChange={(e) => onApplyStyle('fontFamily', e.target.value)}
                                         disabled={!activeElement}
-                                        className="w-full bg-[#1a1d21] text-gray-300 text-xs font-bold rounded-full px-3 py-1.5 outline-none appearance-none cursor-pointer border border-transparent focus:border-teal-500 disabled:opacity-50"
+                                        className="w-full bg-transparent text-gray-300 text-[10px] font-bold outline-none cursor-pointer appearance-none"
                                     >
                                         {fontOptions.map(f => <option key={f.value} value={f.value} className="bg-gray-900">{f.label}</option>)}
                                     </select>
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-teal-500">
-                                        <ChevronDownIcon />
+                                    <div className="flex items-center justify-between border-t border-white/5 pt-2">
+                                        <button onClick={() => onApplyStyle('fontSize', `${parseInt(activeElementStyles.fontSize) - 1}px`)} className="text-indigo-400 font-black px-2">-</button>
+                                        <span className="text-[10px] text-gray-300 font-black">{parseInt(activeElementStyles.fontSize) || '--'}</span>
+                                        <button onClick={() => onApplyStyle('fontSize', `${parseInt(activeElementStyles.fontSize) + 1}px`)} className="text-indigo-400 font-black px-2">+</button>
+                                    </div>
+                                </div>
+
+                                {/* Colors */}
+                                <div className="bg-black/20 rounded-2xl p-2.5 flex items-center justify-around">
+                                    <ManualColorInput label="" hideLabel value={activeElementStyles.color} onChange={(val: string) => onExecCmd('foreColor', val)} />
+                                    <div className="w-px h-4 bg-white/5" />
+                                    <ManualColorInput label="" hideLabel value={activeElementStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? activeElementStyles.backgroundColor : '#ffffff'} onChange={(val: string) => onExecCmd('hiliteColor', val)} />
+                                </div>
+                            </div>
+                        </div>
+
+                         {/* --- Group B: Table Formatting --- */}
+                         <div className={`flex flex-col gap-3 p-4 rounded-3xl border transition-all ${activeElement?.closest('table') ? 'bg-teal-500/5 border-teal-500/30' : 'bg-[#22252a] border-gray-800'}`}>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Icons.Table className="w-3.5 h-3.5 text-teal-400" />
+                                    <span className="text-[0.625rem] font-black text-teal-400 uppercase tracking-tighter">Table Content</span>
+                                </div>
+                                {activeElement?.closest('table') && <div className="px-2 py-0.5 bg-teal-500/20 text-teal-400 text-[10px] font-bold rounded-full">ACTIVE</div>}
+                            </div>
+
+                            {/* Scope Grid */}
+                            <div className="grid grid-cols-4 gap-1 p-1 bg-black/20 rounded-xl border border-white/5">
+                                {(['element', 'row', 'column', 'table'] as const).map(s => (
+                                    <button 
+                                        key={s}
+                                        onClick={() => onScopeChange(s)}
+                                        className={`py-1.5 text-[0.625rem] font-bold rounded-lg transition-all capitalize ${selectedScope === s ? 'bg-teal-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-400'}`}
+                                    >
+                                        {s}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="bg-black/20 rounded-2xl p-3 flex flex-col gap-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex gap-1">
+                                        <button onClick={onToggleBold} disabled={!activeElement} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${activeElementStyles.fontWeight === 'bold' || parseInt(activeElementStyles.fontWeight) >= 600 ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-white/5'}`}><Icons.Bold /></button>
+                                        <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white/5 italic"><Icons.Italic /></button>
+                                    </div>
+                                    <div className="flex gap-1 bg-black/30 rounded-lg p-0.5">
+                                        <button onClick={() => onApplyStyle('textAlign', 'left')} className={`w-7 h-7 flex items-center justify-center rounded-md ${activeElementStyles.textAlign === 'left' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignLeft /></button>
+                                        <button onClick={() => onApplyStyle('textAlign', 'center')} className={`w-7 h-7 flex items-center justify-center rounded-md ${activeElementStyles.textAlign === 'center' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignCenter /></button>
+                                        <button onClick={() => onApplyStyle('textAlign', 'right')} className={`w-7 h-7 flex items-center justify-center rounded-md ${activeElementStyles.textAlign === 'right' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignRight /></button>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center justify-between border-t border-white/5 pt-3">
+                                    <div className="flex items-center gap-2">
+                                        <ManualColorInput label="" hideLabel value={activeElementStyles.color} onChange={(val: string) => onExecCmd('foreColor', val)} />
+                                        <span className="text-[10px] font-bold text-gray-600">COLOR</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-bold text-gray-600">BG</span>
+                                        <ManualColorInput label="" hideLabel value={activeElementStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? activeElementStyles.backgroundColor : '#ffffff'} onChange={(val: string) => onExecCmd('hiliteColor', val)} />
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* --- Group C: Footer Formatting --- */}
+                        <div className={`flex flex-col gap-3 p-4 rounded-3xl border transition-all ${activeElement?.closest('.print-footer') ? 'bg-pink-500/5 border-pink-500/30' : 'bg-[#22252a] border-gray-800'}`}>
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-gray-400">Font Size</span>
-                                <div className="flex items-center bg-[#1a1d21] rounded-full px-1 py-0.5">
-                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size - 1}px`); } }} disabled={!activeElement} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33] disabled:opacity-50">-</button>
-                                    <span className="w-10 text-center text-xs font-bold text-gray-300">{parseInt(activeElementStyles.fontSize) || '--'}</span>
-                                    <button onClick={() => { if(activeElement) { const size = parseInt(activeElementStyles.fontSize) || 12; onApplyStyle('fontSize', `${size + 1}px`); } }} disabled={!activeElement} className="w-6 h-6 flex items-center justify-center text-teal-400 font-bold rounded-full hover:bg-[#2a2d33] disabled:opacity-50">+</button>
+                                <div className="flex items-center gap-2">
+                                    <Icons.Footer className="w-3.5 h-3.5 text-pink-400" />
+                                    <span className="text-[0.625rem] font-black text-pink-400 uppercase tracking-tighter">Footer Area</span>
+                                </div>
+                                {activeElement?.closest('.print-footer') && <div className="px-2 py-0.5 bg-pink-500/20 text-pink-400 text-[10px] font-bold rounded-full">ACTIVE</div>}
+                            </div>
+                            
+                            <div className="flex items-center justify-between bg-black/20 rounded-2xl p-3">
+                                <div className="flex items-center gap-4">
+                                     <button onClick={() => onApplyStyle('fontSize', `${parseInt(activeElementStyles.fontSize) - 1}px`)} className="text-pink-400 font-black">-</button>
+                                     <span className="text-xs text-gray-300 font-bold">{parseInt(activeElementStyles.fontSize) || '--'}</span>
+                                     <button onClick={() => onApplyStyle('fontSize', `${parseInt(activeElementStyles.fontSize) + 1}px`)} className="text-pink-400 font-black">+</button>
+                                </div>
+                                <div className="flex gap-2">
+                                    <ManualColorInput label="" hideLabel value={activeElementStyles.color} onChange={(val: string) => onExecCmd('foreColor', val)} />
+                                    <ManualColorInput label="" hideLabel value={activeElementStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? activeElementStyles.backgroundColor : '#ffffff'} onChange={(val: string) => onExecCmd('hiliteColor', val)} />
                                 </div>
                             </div>
-                        </ControlGroup>
+                        </div>
 
-                        <ControlGroup label="Formatting">
-                            <div className="flex gap-2 mb-3">
-                                <button onClick={onToggleBold} disabled={!activeElement} className={`flex-1 py-2 rounded-full flex justify-center transition-colors disabled:opacity-50 ${activeElementStyles.fontWeight === 'bold' || parseInt(activeElementStyles.fontWeight) >= 600 ? 'bg-teal-600 text-white' : 'bg-[#1a1d21] text-gray-300 hover:text-white hover:bg-[#2a2d33]'}`}><Icons.Bold /></button>
-                                <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.Italic /></button>
-                            </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => onApplyStyle('textAlign', 'left')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.AlignLeft /></button>
-                                <button onClick={() => onApplyStyle('textAlign', 'center')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.AlignCenter /></button>
-                                <button onClick={() => onApplyStyle('textAlign', 'right')} disabled={!activeElement} className="flex-1 py-2 bg-[#1a1d21] rounded-full text-gray-300 hover:text-white hover:bg-[#2a2d33] disabled:opacity-50 flex justify-center transition-colors"><Icons.AlignRight /></button>
-                            </div>
-                        </ControlGroup>
-
-                        <ControlGroup label="Colors">
-                            <ManualColorInput label="Text Color" value={activeElementStyles.color} onChange={(val: string) => onExecCmd('foreColor', val)} />
-                            <ManualColorInput label="Background" value={activeElementStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? activeElementStyles.backgroundColor : '#ffffff'} onChange={(val: string) => onExecCmd('hiliteColor', val)} />
-                        </ControlGroup>
-
-                        <button onClick={() => onExecCmd('removeFormat')} disabled={!activeElement} className="w-full py-2 bg-red-900/30 border border-red-900/50 text-red-400 rounded-full hover:bg-red-900/50 flex items-center justify-center gap-2 disabled:opacity-50 text-xs font-bold mt-4 transition-colors">
-                            <Icons.Eraser /> Clear Formatting
-                        </button>
-                    </>
+                        {/* Global Quick Actions */}
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                            <button onClick={() => onExecCmd('removeFormat')} disabled={!activeElement} className="flex-1 py-3 bg-red-900/10 text-red-400 rounded-2xl border border-red-900/20 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider disabled:opacity-30">
+                                <Icons.Eraser className="w-3.5 h-3.5" /> Clear All
+                            </button>
+                            <button onClick={() => setActiveSection('layout')} className="flex-1 py-3 bg-gray-800 text-gray-300 rounded-2xl border border-gray-700 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider">
+                                <Icons.Settings className="w-3.5 h-3.5" /> Full Cell
+                            </button>
+                        </div>
+                    </div>
                 )}
+
             </div>
 
-            <div className="p-4 border-t border-gray-800 bg-[#1a1d21] flex gap-2">
-                 <button onClick={resetToDefaults} className="flex-1 py-2 text-xs font-bold text-gray-400 bg-[#22252a] border border-gray-700 rounded-full hover:bg-gray-700 hover:text-white transition-colors">
-                     <div className="flex items-center justify-center gap-1"><Icons.Reset /> Reset</div>
-                 </button>
-                 <button onClick={handleSave} className="flex-1 py-2 text-xs font-bold text-white bg-teal-600 rounded-full hover:bg-teal-700 transition-colors shadow-lg">
-                     <div className="flex items-center justify-center gap-1">{isSaving ? <Icons.Check /> : null} {isSaving ? 'Saved' : 'Save'}</div>
-                 </button>
+            <div className="p-4 border-t border-gray-800 bg-[#1a1d21] flex flex-col gap-4">
+                 <div className="flex gap-2">
+                    <button onClick={resetToDefaults} className="flex-1 py-3 text-xs font-bold text-gray-400 bg-[#22252a] border border-gray-700 rounded-2xl hover:bg-gray-700 hover:text-white transition-all active:scale-95">
+                        <div className="flex items-center justify-center gap-2"><Icons.Reset className="w-4 h-4" /> Reset</div>
+                    </button>
+                    <button onClick={handleSave} className="flex-1 py-3 text-xs font-bold text-white bg-teal-600 rounded-2xl hover:bg-teal-700 transition-all shadow-lg active:scale-95">
+                        <div className="flex items-center justify-center gap-2">{isSaving ? <Icons.Check className="w-4 h-4" /> : null} {isSaving ? 'Saved' : 'Save Design'}</div>
+                    </button>
+                 </div>
             </div>
         </div>
     );
@@ -719,6 +695,9 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
   const [isGenerating, setIsGenerating] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(70); // Default 70%
   
+  const [selectedScope, setSelectedScope] = useState<'element' | 'row' | 'column' | 'table'>('element');
+  const [cellInfo, setCellInfo] = useState<{ row: number, col: number } | null>(null);
+
   const [history, setHistory] = useState<HistoryState[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [currentPage, setCurrentPage] = useState(0);
@@ -835,6 +814,20 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
           editable.setAttribute('data-selected', 'true');
           setActiveElement(editable);
           
+          // Detect cell position if it's a table cell
+          const td = editable.closest('td, th') as HTMLTableCellElement;
+          if (td) {
+              const tr = td.closest('tr');
+              const table = td.closest('table');
+              if (tr && table) {
+                const rowIndex = Array.from(table.rows).indexOf(tr);
+                const colIndex = Array.from(tr.cells).indexOf(td);
+                setCellInfo({ row: rowIndex, col: colIndex });
+              }
+          } else {
+              setCellInfo(null);
+          }
+
           const computed = window.getComputedStyle(editable);
           setActiveElementStyles({
               fontSize: computed.fontSize,
@@ -847,28 +840,69 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
           e.stopPropagation();
       } else {
           setActiveElement(null);
+          setCellInfo(null);
       }
   };
 
   // Text Styling Handlers
   const applyStyle = (property: string, value: string) => {
-      if (activeElement) {
-          activeElement.style[property as any] = value;
-          setActiveElementStyles(prev => ({ ...prev, [property]: value }));
+      if (!contentRef.current) return;
+
+      let targets: HTMLElement[] = [];
+      if (selectedScope === 'element' && activeElement) {
+          targets = [activeElement];
+      } else if (selectedScope === 'row' && cellInfo) {
+          const table = activeElement?.closest('table');
+          if (table) targets = Array.from(table.rows[cellInfo.row]?.cells || []) as HTMLElement[];
+      } else if (selectedScope === 'column' && cellInfo) {
+          const table = activeElement?.closest('table');
+          if (table) {
+              targets = Array.from(table.rows).map(row => row.cells[cellInfo.col]).filter(Boolean) as HTMLElement[];
+          }
+      } else if (selectedScope === 'table') {
+          const table = activeElement?.closest('table');
+          if (table) {
+              targets = Array.from(table.querySelectorAll('td, th')) as HTMLElement[];
+          }
+      }
+
+      if (targets.length > 0) {
+          targets.forEach(el => {
+              el.style[property as any] = value;
+          });
+          if (activeElement) {
+            setActiveElementStyles(prev => ({ ...prev, [property]: value }));
+          }
           saveManualEdit();
       }
   };
   
   const execCmd = (cmd: string, val?: string) => {
-      document.execCommand(cmd, false, val);
-      // For colors, update state
-      if (cmd === 'foreColor' && val) setActiveElementStyles(prev => ({...prev, color: val}));
-      if (cmd === 'hiliteColor' && val) setActiveElementStyles(prev => ({...prev, backgroundColor: val}));
-      saveManualEdit();
+      if (selectedScope === 'element') {
+          document.execCommand(cmd, false, val);
+          if (cmd === 'foreColor' && val) setActiveElementStyles(prev => ({...prev, color: val}));
+          if (cmd === 'hiliteColor' && val) setActiveElementStyles(prev => ({...prev, backgroundColor: val}));
+          saveManualEdit();
+      } else {
+          // Map standard commands to style properties for bulk operations
+          const cmdMap: Record<string, string> = {
+              'foreColor': 'color',
+              'hiliteColor': 'backgroundColor',
+              'underline': 'textDecoration',
+              'strikeThrough': 'textDecoration'
+          };
+          
+          if (cmdMap[cmd]) {
+              let value = val || '';
+              if (cmd === 'underline') value = 'underline';
+              if (cmd === 'strikeThrough') value = 'line-through';
+              applyStyle(cmdMap[cmd], value);
+          }
+      }
   };
 
   const toggleBold = () => {
-      if (activeElement) {
+      if (selectedScope === 'element' && activeElement) {
           const currentWeight = window.getComputedStyle(activeElement).fontWeight;
           const isBold = currentWeight === 'bold' || parseInt(currentWeight) >= 600;
           const newWeight = isBold ? 'normal' : 'bold';
@@ -876,7 +910,8 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
           setActiveElementStyles(prev => ({ ...prev, fontWeight: newWeight }));
           saveManualEdit();
       } else {
-          execCmd('bold');
+          const newWeight = activeElementStyles.fontWeight === 'bold' ? 'normal' : 'bold';
+          applyStyle('fontWeight', newWeight);
       }
   };
 
@@ -890,8 +925,18 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       await new Promise(resolve => setTimeout(resolve, 100));
 
       const orientation = options.page.orientation || 'portrait';
-      const widthPx = orientation === 'portrait' ? '794px' : '1123px';
-      const heightPx = orientation === 'portrait' ? '1123px' : '794px';
+      const pageSize = options.page.size || 'a4';
+      
+      const PAGE_DIMENSIONS: Record<string, { w: number, h: number }> = {
+          a4: { w: 794, h: 1123 },
+          letter: { w: 816, h: 1056 },
+          legal: { w: 816, h: 1344 },
+          exec: { w: 696, h: 1008 }
+      };
+
+      const dims = PAGE_DIMENSIONS[pageSize] || PAGE_DIMENSIONS.a4;
+      const widthPx = orientation === 'portrait' ? `${dims.w}px` : `${dims.h}px`;
+      const heightPx = orientation === 'portrait' ? `${dims.h}px` : `${dims.w}px`;
 
       const tempContainer = document.createElement('div');
       Object.assign(tempContainer.style, {
@@ -984,12 +1029,24 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       setIsGenerating(true);
       const jsPDF = jspdf.jsPDF;
       const orientation = options.page.orientation || 'portrait';
-      const pdf = new jsPDF({ orientation, unit: 'mm', format: options.page.size || 'a4' });
+      const pageSize = options.page.size || 'a4';
+      
+      // Map 'exec' to 'executive' for jsPDF compatibility
+      const pdfFormat = pageSize === 'exec' ? 'executive' : pageSize;
+      const pdf = new jsPDF({ orientation, unit: 'mm', format: pdfFormat });
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      const widthPx = orientation === 'portrait' ? '794px' : '1123px';
-      const heightPx = orientation === 'portrait' ? '1123px' : '794px';
+      const PAGE_DIMENSIONS: Record<string, { w: number, h: number }> = {
+          a4: { w: 794, h: 1123 },
+          letter: { w: 816, h: 1056 },
+          legal: { w: 816, h: 1344 },
+          exec: { w: 696, h: 1008 }
+      };
+
+      const dims = PAGE_DIMENSIONS[pageSize] || PAGE_DIMENSIONS.a4;
+      const widthPx = orientation === 'portrait' ? `${dims.w}px` : `${dims.h}px`;
+      const heightPx = orientation === 'portrait' ? `${dims.h}px` : `${dims.w}px`;
 
       const tempContainer = document.createElement('div');
       Object.assign(tempContainer.style, {
@@ -1084,6 +1141,17 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       const currentRender = history[historyIndex] || { options: designConfig, pages: [] };
       const allPagesHtml = currentRender.pages.join('<div style="page-break-after: always; height: 0;"></div>');
 
+      const orientation = options.page.orientation || 'portrait';
+      const pageSize = options.page.size || 'a4';
+      
+      const sizeMap: Record<string, string> = {
+          a4: '210mm 297mm',
+          letter: '8.5in 11in',
+          legal: '8.5in 14in',
+          exec: '7.25in 10.5in'
+      };
+      const cssPageSize = sizeMap[pageSize] || '210mm 297mm';
+
       const doc = iframe.contentWindow?.document;
       if (doc) {
           doc.open();
@@ -1095,7 +1163,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                   <style>
                       /* Force white background and reset margins for print */
                       @media print {
-                          @page { margin: 0; size: auto; }
+                          @page { margin: 0; size: ${cssPageSize} ${orientation}; }
                           body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: #ffffff !important; }
                           .page-break { page-break-after: always; }
                           .print-container { width: 100% !important; height: auto !important; }
@@ -1148,13 +1216,14 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
   return (
     <div className="fixed inset-0 bg-black z-[110] flex flex-col md:flex-row overflow-hidden animate-scale-in">
         
-        {/* Top/Left Sidebar */}
-        <div className={`transition-all duration-300 z-50 bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col ${
-            isSidebarOpen 
-            ? 'h-1/2 md:h-full w-full md:w-[18.75rem]' 
-            : 'h-0 md:h-full w-full md:w-0 overflow-hidden'
-        }`}>
-            <div className={`overflow-hidden flex flex-col h-full ${!isSidebarOpen && 'invisible md:invisible'}`}>
+        {/* Bottom/Left Sidebar (Bottom Sheet on Mobile) */}
+        <div className={`transition-all duration-300 z-[100] bg-[#111315] border-t md:border-t-0 md:border-r border-gray-800 flex flex-col 
+            absolute bottom-[calc(3.5rem+env(safe-area-inset-bottom))] left-0 right-0 md:static md:bottom-auto md:left-auto md:right-auto
+            ${isSidebarOpen 
+                ? 'h-[35vh] md:h-full w-full md:w-[35%] shadow-[0_-10px_30px_rgba(0,0,0,0.5)] md:shadow-none' 
+                : 'h-0 md:h-full w-full md:w-0 overflow-hidden'
+            }`}>
+            <div className={`overflow-hidden flex flex-col h-full ${!isSidebarOpen ? 'hidden md:flex md:invisible' : 'flex'}`}>
                 <SettingsSidebar 
                     options={options} 
                     onUpdate={handleDesignUpdate} 
@@ -1165,37 +1234,46 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                     onApplyStyle={applyStyle}
                     onExecCmd={execCmd}
                     onToggleBold={toggleBold}
+                    selectedScope={selectedScope}
+                    onScopeChange={setSelectedScope}
                 />
             </div>
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-gray-800 relative">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-gray-800 relative z-40">
             {/* Sidebar Toggle Handle */}
-            <div className={`absolute top-4 z-50 transition-all duration-300 left-0`}>
+            <div className={`absolute z-[110] transition-all duration-300 
+                left-1/2 -translate-x-1/2 
+                md:left-0 md:-translate-x-0 md:top-4
+                ${isSidebarOpen ? 'bottom-[calc(35vh+3.5rem+env(safe-area-inset-bottom))] md:bottom-auto' : 'bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-auto'}
+            `}>
                 <button 
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-                    className={`flex items-center justify-center w-8 h-10 rounded-r-xl border-y border-r shadow-lg backdrop-blur-md transition-all hover:w-10 ${
+                    className={`flex items-center justify-center shadow-lg backdrop-blur-md transition-all 
+                        w-14 h-8 rounded-full border mb-2 md:mb-0
+                        md:w-8 md:h-10 md:rounded-l-none md:rounded-r-xl md:border-y md:border-r md:border-l-0 
+                        md:hover:w-10 ${
                         isSidebarOpen 
-                        ? 'bg-[#111315]/80 border-gray-800 text-gray-400 hover:text-white' 
+                        ? 'bg-[#111315]/90 border-gray-700 text-teal-400 hover:text-teal-300' 
                         : 'bg-teal-600/90 border-teal-500 text-white hover:bg-teal-500'
                     }`}
                     title={isSidebarOpen ? "Close Settings" : "Open Settings"}
                 >
-                    <div className={`transform transition-transform duration-300 ${isSidebarOpen ? 'rotate-180' : ''}`}>
+                    <div className={`transform transition-transform duration-300 ${isSidebarOpen ? 'rotate-90 md:rotate-180' : '-rotate-90 md:rotate-0'}`}>
                         <ChevronRightIcon />
                     </div>
                 </button>
             </div>
             
             {/* Top Bar: Header & Toolbar */}
-            <div className="flex flex-col bg-white border-b border-gray-200 z-40 relative shadow-md">
+            <div className="order-2 md:order-1 flex flex-col shrink-0 bg-gray-900 border-t md:border-t-0 md:border-b border-gray-800 z-[105] relative shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.3)] md:shadow-md pb-[env(safe-area-inset-bottom)] md:pb-0">
                 
                 {/* Header Row (Title & Main Actions) */}
-                <div className="h-14 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-2 sm:px-4 text-white">
+                <div className="h-14 bg-gray-900 border-t md:border-t-0 border-b border-gray-800 flex items-center justify-between px-2 sm:px-4 text-white">
                     <div className="flex items-center gap-3 flex-shrink-0">
                         {/* Modified margin to clear sidebar toggle and smaller text size */}
-                        <span className="font-black text-xs uppercase tracking-wider text-gray-300 ml-12 whitespace-nowrap truncate max-w-[3.75rem] sm:max-w-[12.5rem]" title={title}>{title}</span>
+                        <span className="font-black text-xs uppercase tracking-wider text-gray-300 md:ml-12 whitespace-nowrap truncate max-w-[3.75rem] sm:max-w-[12.5rem]" title={title}>{title}</span>
                     </div>
                     
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pl-2">
@@ -1280,7 +1358,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
             </div>
 
             {/* Preview Area */}
-            <div className="flex-1 overflow-auto p-8 relative flex flex-col items-center bg-gray-900/50 custom-scrollbar" ref={previewRef}>
+            <div className="order-1 md:order-2 flex-1 overflow-auto min-h-0 p-4 md:p-8 relative flex flex-col items-center bg-gray-900/50 custom-scrollbar pb-20 md:pb-8" ref={previewRef}>
                 {pages.length > 1 && (
                     <div className="sticky top-0 z-20 mb-4 bg-white/90 backdrop-blur shadow-sm rounded-full px-4 py-2 flex items-center gap-4 text-sm font-bold text-gray-600 border border-gray-200">
                         <button onClick={() => handlePageChange(Math.max(0, currentPage - 1))} disabled={currentPage === 0} className="hover:text-teal-600 disabled:opacity-30">&larr;</button>

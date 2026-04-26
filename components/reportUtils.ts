@@ -418,27 +418,33 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
     const footer = design?.footer || { fontFamily: 'sans-serif', fontSize: 10, color: '#000000' };
 
     const getWidth = () => {
-        if (page.orientation === 'portrait') {
-            if (page.size === 'legal') return '816px';
-            if (page.size === 'exec') return '696px';
-            return '794px'; // A4/Letter approx
-        } else {
-            if (page.size === 'legal') return '1344px';
-            if (page.size === 'exec') return '1008px';
-            return '1123px';
-        }
+        const orientation = page.orientation || 'portrait';
+        const size = page.size || 'a4';
+        
+        const dims: Record<string, {w: string, h: string}> = {
+            a4: { w: '210mm', h: '297mm' },
+            letter: { w: '8.5in', h: '11in' },
+            legal: { w: '8.5in', h: '14in' },
+            exec: { w: '7.25in', h: '10.5in' }
+        };
+
+        const d = dims[size] || dims.a4;
+        return orientation === 'portrait' ? d.w : d.h;
     };
     
     const getHeight = () => {
-        if (page.orientation === 'portrait') {
-            if (page.size === 'legal') return '1344px';
-            if (page.size === 'exec') return '1008px';
-            return '1123px';
-        } else {
-            if (page.size === 'legal') return '816px';
-            if (page.size === 'exec') return '696px';
-            return '794px';
-        }
+        const orientation = page.orientation || 'portrait';
+        const size = page.size || 'a4';
+        
+        const dims: Record<string, {w: string, h: string}> = {
+            a4: { w: '210mm', h: '297mm' },
+            letter: { w: '8.5in', h: '11in' },
+            legal: { w: '8.5in', h: '14in' },
+            exec: { w: '7.25in', h: '10.5in' }
+        };
+
+        const d = dims[size] || dims.a4;
+        return orientation === 'portrait' ? d.h : d.w;
     };
 
     const width = getWidth();
