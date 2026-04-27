@@ -713,7 +713,8 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                           classId: p.classId,
                           subjectId: p.subjectId,
                           teacherId: p.teacherId,
-                          jointPeriodId: p.jointPeriodId
+                          jointPeriodId: p.jointPeriodId,
+                          isPractical: p.isPractical
                       };
                       
                       targetDayList[toIdx] = [...targetSlot, newPeriod];
@@ -764,7 +765,8 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                   classId: assign.classId,
                                   subjectId: assign.subjectId,
                                   teacherId: jpDef.teacherId,
-                                  jointPeriodId: jpDef.id
+                                  jointPeriodId: jpDef.id,
+                                  isPractical: p.isPractical
                               };
                               processMove(tempP, undefined, undefined, targetDay, targetPeriodIndex);
                           });
@@ -946,11 +948,12 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
       if (!selectedTeacherId) return [];
       
       const unscheduled: Period[] = [];
-      const jointPeriodScheduledSlots = new Map<string, Set<string>>(); // jointPeriodId -> Set("Day-PeriodIndex")
-      const singleSubjectCounts = new Map<string, number>(); // "classId-subjectId" -> count
+      const jointPeriodNormalScheduledSlots = new Map<string, Set<string>>(); // jointPeriodId -> Set("Day-PeriodIndex")
+      const jointPeriodPracticalScheduledSlots = new Map<string, Set<string>>(); // jointPeriodId -> Set("Day-PeriodIndex")
+      const singleNormalSubjectCounts = new Map<string, number>(); // "classId-subjectId" -> count
+      const singlePracticalSubjectCounts = new Map<string, number>(); // "classId-subjectId" -> count
 
       // 1. Count Scheduled
-      // Iterate safely through all days to avoid object.entries issues if structure is partial
       classes.forEach(c => {
           allDays.forEach(day => {
               const slots = c.timetable[day];
@@ -960,14 +963,18 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                           slot.forEach(p => {
                               if (p.teacherId === selectedTeacherId) {
                                   if (p.jointPeriodId) {
-                                      if (!jointPeriodScheduledSlots.has(p.jointPeriodId)) {
-                                          jointPeriodScheduledSlots.set(p.jointPeriodId, new Set());
+                                      const jointMap = p.isPractical ? jointPeriodPracticalScheduledSlots : jointPeriodNormalScheduledSlots;
+                                      if (!jointMap.has(p.jointPeriodId)) {
+                                          jointMap.set(p.jointPeriodId, new Set());
                                       }
-                                      // Track unique time slots to correctly count scheduled instances
-                                      jointPeriodScheduledSlots.get(p.jointPeriodId)!.add(`${day}-${periodIndex}`);
+                                      jointMap.get(p.jointPeriodId)!.add(`${day}-${periodIndex}`);
                                   } else {
                                       const key = `${c.id}-${p.subjectId}`;
-                                      singleSubjectCounts.set(key, (singleSubjectCounts.get(key) || 0) + 1);
+                                      if (p.isPractical) {
+                                          singlePracticalSubjectCounts.set(key, (singlePracticalSubjectCounts.get(key) || 0) + 1);
+                                      } else {
+                                          singleNormalSubjectCounts.set(key, (singleNormalSubjectCounts.get(key) || 0) + 1);
+                                      }
                                   }
                               }
                           });
@@ -991,15 +998,31 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                   if (isJoint) return;
 
                   const key = `${c.id}-${sub.subjectId}`;
-                  const scheduled = singleSubjectCounts.get(key) || 0;
-                  const remaining = sub.periodsPerWeek - scheduled;
+                  const scheduledNormal = singleNormalSubjectCounts.get(key) || 0;
+                  const scheduledPractical = singlePracticalSubjectCounts.get(key) || 0;
                   
-                  for (let i = 0; i < remaining; i++) {
+                  const practicalTotal = sub.practicalPeriodsCount || 0;
+                  const normalTotal = Math.max(0, sub.periodsPerWeek - practicalTotal);
+                  
+                  const normalRemaining = Math.max(0, normalTotal - scheduledNormal);
+                  const practicalRemaining = Math.max(0, practicalTotal - scheduledPractical);
+                  
+                  for (let i = 0; i < normalRemaining; i++) {
                       unscheduled.push({
                           id: generateUniqueId(),
                           classId: c.id,
                           subjectId: sub.subjectId,
-                          teacherId: selectedTeacherId
+                          teacherId: selectedTeacherId,
+                          isPractical: false
+                      });
+                  }
+                  for (let i = 0; i < practicalRemaining; i++) {
+                      unscheduled.push({
+                          id: generateUniqueId(),
+                          classId: c.id,
+                          subjectId: sub.subjectId,
+                          teacherId: selectedTeacherId,
+                          isPractical: true
                       });
                   }
               }
@@ -1009,20 +1032,39 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
       // Add joint periods
       jointPeriods.forEach((jp: JointPeriod) => {
           if (jp.teacherId === selectedTeacherId) {
-              const scheduledSlots = jointPeriodScheduledSlots.get(jp.id);
-              // Count unique time slots, ensuring we don't overcount if multiple classes share same slot
-              const scheduledCount = scheduledSlots ? scheduledSlots.size : 0;
-              const remaining = jp.periodsPerWeek - scheduledCount;
+              const scheduledNormalSlots = jointPeriodNormalScheduledSlots.get(jp.id);
+              const scheduledPracticalSlots = jointPeriodPracticalScheduledSlots.get(jp.id);
+              // Count unique time slots
+              const scheduledNormalCount = scheduledNormalSlots ? scheduledNormalSlots.size : 0;
+              const scheduledPracticalCount = scheduledPracticalSlots ? scheduledPracticalSlots.size : 0;
               
-              for (let i = 0; i < remaining; i++) {
-                  // Push period objects for ALL assigned classes so PeriodStack can group them
+              const practicalTotal = jp.practicalPeriodsCount || 0;
+              const normalTotal = Math.max(0, jp.periodsPerWeek - practicalTotal);
+              
+              const normalRemaining = Math.max(0, normalTotal - scheduledNormalCount);
+              const practicalRemaining = Math.max(0, practicalTotal - scheduledPracticalCount);
+              
+              for (let i = 0; i < normalRemaining; i++) {
                   jp.assignments.forEach((assign: JointPeriodAssignment) => {
                       unscheduled.push({
                           id: generateUniqueId(),
                           classId: assign.classId,
                           subjectId: assign.subjectId,
                           teacherId: selectedTeacherId,
-                          jointPeriodId: jp.id
+                          jointPeriodId: jp.id,
+                          isPractical: false
+                      });
+                  });
+              }
+              for (let i = 0; i < practicalRemaining; i++) {
+                  jp.assignments.forEach((assign: JointPeriodAssignment) => {
+                      unscheduled.push({
+                          id: generateUniqueId(),
+                          classId: assign.classId,
+                          subjectId: assign.subjectId,
+                          teacherId: selectedTeacherId,
+                          jointPeriodId: jp.id,
+                          isPractical: true
                       });
                   });
               }
@@ -1034,7 +1076,8 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
 
   const groupedUnscheduled = useMemo((): Record<string, Period[]> => {
       return unscheduledPeriods.reduce((acc, p) => {
-          const key = p.jointPeriodId ? `jp-${p.jointPeriodId}` : `${p.classId}-${p.subjectId}`;
+          let key = p.jointPeriodId ? `jp-${p.jointPeriodId}` : `${p.classId}-${p.subjectId}`;
+          if (p.isPractical) key += '-prac';
           if (!acc[key]) acc[key] = [];
           acc[key].push(p);
           return acc;
@@ -1562,6 +1605,8 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                         const subject = subjects.find(s => s.id === group[0].subjectId);
                         const schoolClass = classes.find(c => c.id === group[0].classId);
                         
+                        const isPractical = group[0].isPractical;
+
                         return (
                             <div 
                                 key={`unscheduled-mobile-${groupKey}-${index}`} 
@@ -1569,23 +1614,32 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                 onDragStart={() => handleDragStart(group)}
                                 onDragEnd={handleDragEnd}
                                 onClick={() => handleStackClick(group)}
-                                className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] md:rounded-xl px-2.5 py-1.5 md:px-3 md:py-2 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] md:rounded-xl px-2.5 py-1.5 md:px-3 md:py-2 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                 style={{ borderLeftColor: colorData.hex }}
                             >
-                                <div className="flex flex-col flex-1 min-w-0">
-                                    <span className="text-sm md:text-base font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
-                                        {schoolClass ? (language === 'ur' ? schoolClass.nameUr : schoolClass.nameEn) : 'No Class'}
-                                    </span>
-                                    <span className="text-xs md:text-sm font-black text-black dark:text-white opacity-80 block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
-                                        {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
-                                    </span>
+                                <div className="flex w-full items-center justify-between">
+                                    <div className="flex flex-col flex-1 min-w-0">
+                                        <span className="text-sm md:text-base font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                            {schoolClass ? (language === 'ur' ? schoolClass.nameUr : schoolClass.nameEn) : 'No Class'}
+                                        </span>
+                                        <span className="text-xs md:text-sm font-black text-black dark:text-white opacity-80 block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                            {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                                        {group.length > 1 && (
+                                            <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
+                                        )}
+                                        <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                                    {group.length > 1 && (
-                                        <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
-                                    )}
-                                    <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
-                                </div>
+                                {isPractical && (
+                                    <div className="w-full pb-0.5">
+                                        <span className="text-[0.55rem] font-black tracking-widest text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded border border-teal-200 dark:border-teal-700/50 uppercase">
+                                            PRC
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

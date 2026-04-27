@@ -46,6 +46,8 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
   const [teacherId, setTeacherId] = useState<string>('');
   const [subjectId, setSubjectId] = useState<string>('');
   const [periodsCount, setPeriodsCount] = useState<number>(1);
+  const [isPracticalSubject, setIsPracticalSubject] = useState(false);
+  const [practicalPeriodsCount, setPracticalPeriodsCount] = useState<number>(1);
   const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]); 
   
   // Groups
@@ -85,6 +87,8 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
     setTeacherId(limitToTeacherId || '');
     setSubjectId('');
     setPeriodsCount(1);
+    setIsPracticalSubject(false);
+    setPracticalPeriodsCount(1);
     setSelectedClassIds(limitToClassId ? [limitToClassId] : []);
     setIsClassesExpanded(false);
     setIsJointPeriod(true);
@@ -215,6 +219,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                         subjectId,
                         teacherId: teacherId || '',
                         periodsPerWeek: periodsCount,
+                        practicalPeriodsCount: isPracticalSubject ? practicalPeriodsCount : undefined,
                         groupSetId: assignedGroupSetId,
                         groupId: assignedGroupId
                     };
@@ -262,6 +267,7 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                 name,
                 teacherId: teacherId || '',
                 periodsPerWeek: periodsCount,
+                practicalPeriodsCount: isPracticalSubject ? practicalPeriodsCount : undefined,
                 assignments: assignmentsWithGroups
             };
             
@@ -366,6 +372,8 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
           setTeacherId(subject.teacherId);
           setSubjectId(subject.subjectId);
           setPeriodsCount(subject.periodsPerWeek);
+          setIsPracticalSubject(!!subject.practicalPeriodsCount);
+          setPracticalPeriodsCount(subject.practicalPeriodsCount || 1);
           setSelectedClassIds([classId]);
           
           if (subject.groupId) {
@@ -386,6 +394,8 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
           setTeacherId(jointPeriod.teacherId);
           setSubjectId(jointPeriod.assignments[0]?.subjectId || '');
           setPeriodsCount(jointPeriod.periodsPerWeek);
+          setIsPracticalSubject(!!jointPeriod.practicalPeriodsCount);
+          setPracticalPeriodsCount(jointPeriod.practicalPeriodsCount || 1);
           
           const assignedIds = jointPeriod.assignments.map((a: any) => a.classId);
           if (assignedIds.length > 0 && assignedIds[0] !== NON_TEACHING_CLASS_ID) {
@@ -613,6 +623,12 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                                                           {item.type === 'joint' && !item.isDuty && sortBy === 'class' && (
                                                               <span className="text-[0.625rem] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md border border-orange-100 uppercase tracking-wide">Joint</span>
                                                           )}
+                                                          {item.type === 'single' && item.subject.practicalPeriodsCount > 0 && (
+                                                              <span className="text-[0.625rem] font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-md border border-teal-100 uppercase tracking-wide">{item.subject.practicalPeriodsCount} Prac</span>
+                                                          )}
+                                                          {item.type === 'joint' && item.jointPeriod.practicalPeriodsCount > 0 && (
+                                                              <span className="text-[0.625rem] font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded-md border border-teal-100 uppercase tracking-wide">{item.jointPeriod.practicalPeriodsCount} Prac</span>
+                                                          )}
                                                           {item.groupName && (
                                                               <span className="text-[0.625rem] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md border border-purple-100 uppercase tracking-wide">{item.groupName}</span>
                                                           )}
@@ -700,6 +716,38 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
                             </button>
                         </div>
+                    </div>
+                    {/* Practical Period */}
+                    <div>
+                        <label className="flex items-center space-x-3 cursor-pointer p-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors">
+                            <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${isPracticalSubject ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)]' : 'border-slate-300 bg-white'}`}>
+                                {isPracticalSubject && <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
+                            </div>
+                            <input type="checkbox" checked={isPracticalSubject} onChange={(e) => setIsPracticalSubject(e.target.checked)} className="hidden" />
+                            <span className="text-sm font-bold text-slate-700">Contains Practical Periods</span>
+                        </label>
+                        {isPracticalSubject && (
+                            <div className="mt-3 ml-8 animate-fade-in">
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Number of Practical Periods / Week</label>
+                                <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl max-w-[12rem]">
+                                    <button 
+                                        type="button"
+                                        onClick={() => setPracticalPeriodsCount(Math.max(1, practicalPeriodsCount - 1))}
+                                        className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
+                                    </button>
+                                    <span className="text-base font-bold text-slate-800 w-10 text-center">{practicalPeriodsCount}</span>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setPracticalPeriodsCount(Math.min(periodsCount, practicalPeriodsCount + 1))}
+                                        className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     {/* Class */}
                     <div className="animate-fade-in">

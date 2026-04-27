@@ -161,7 +161,14 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, onDragStart, onDragEnd,
       <div className={`flex flex-col justify-between flex-grow ${groupInfo || period.jointPeriodId ? 'pt-3' : ''}`}>
         <div>
             {/* Subject: Larger, Black Font */}
-            <p className="font-black text-base leading-tight truncate">{subjectName}</p>
+            <p className="font-black text-base leading-tight truncate">
+                {subjectName}
+                {period.isPractical && (
+                  <span className="ml-1 text-[0.45rem] tracking-widest bg-teal-600 text-white font-black px-1 py-0.5 rounded-sm align-middle inline-block transform -translate-y-px">
+                      PRC
+                  </span>
+                )}
+            </p>
         </div>
         <div>
             {/* Teacher/Context: Smaller, Bold, Right Aligned */}

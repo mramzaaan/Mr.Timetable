@@ -380,7 +380,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                       const targetSlot = dayPeriods[targetPeriodIndex] || [];
                       const assignment = jointPeriodDef.assignments.find(a => a.classId === c.id);
                       if (assignment) {
-                          const newPeriod: Period = { id: generateUniqueId(), classId: c.id, subjectId: assignment.subjectId, teacherId: jointPeriodDef.teacherId, jointPeriodId: jointPeriodDef.id };
+                          const newPeriod: Period = { id: generateUniqueId(), classId: c.id, subjectId: assignment.subjectId, teacherId: jointPeriodDef.teacherId, jointPeriodId: jointPeriodDef.id, isPractical: periods[0].isPractical };
                           // If overwrite we append anyway since we manually removed explicit conflicts just above
                           dayPeriods[targetPeriodIndex] = [...targetSlot, newPeriod];
                           updatedC.timetable[targetDay] = dayPeriods;
@@ -538,7 +538,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
   
   const unscheduledPeriods = useMemo(() => {
       if (!selectedClass) return [];
-      const scheduledCounts = new Map<string, number>();
+      const scheduledNormalCounts = new Map<string, number>();
+      const scheduledPracticalCounts = new Map<string, number>();
       Object.keys(selectedClass.timetable).forEach(dayKey => {
           const day = dayKey as keyof TimetableGridData;
           const daySlots = selectedClass.timetable[day];
@@ -547,7 +548,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                   if (Array.isArray(slot)) {
                       slot.forEach(p => {
                           const key = p.jointPeriodId ? `jp-${p.jointPeriodId}` : p.subjectId;
-                          scheduledCounts.set(key, (scheduledCounts.get(key) || 0) + 1);
+                          if (p.isPractical) {
+                              scheduledPracticalCounts.set(key, (scheduledPracticalCounts.get(key) || 0) + 1);
+                          } else {
+                              scheduledNormalCounts.set(key, (scheduledNormalCounts.get(key) || 0) + 1);
+                          }
                       });
                   }
               });
@@ -557,19 +562,41 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
       selectedClass.subjects.forEach(sub => {
           const relevantJointPeriod = jointPeriods.find(jp => jp.assignments.some(a => a.classId === selectedClass.id && a.subjectId === sub.subjectId));
           if (relevantJointPeriod) return; 
-          const scheduled = scheduledCounts.get(sub.subjectId) || 0;
-          const remaining = sub.periodsPerWeek - scheduled;
-          for (let i = 0; i < remaining; i++) {
-              unscheduled.push({ id: generateUniqueId(), classId: selectedClass.id, subjectId: sub.subjectId, teacherId: sub.teacherId });
+          
+          const scheduledNormal = scheduledNormalCounts.get(sub.subjectId) || 0;
+          const scheduledPractical = scheduledPracticalCounts.get(sub.subjectId) || 0;
+          
+          const practicalTotal = sub.practicalPeriodsCount || 0;
+          const normalTotal = Math.max(0, sub.periodsPerWeek - practicalTotal);
+          
+          const normalRemaining = Math.max(0, normalTotal - scheduledNormal);
+          const practicalRemaining = Math.max(0, practicalTotal - scheduledPractical);
+          
+          for (let i = 0; i < normalRemaining; i++) {
+              unscheduled.push({ id: generateUniqueId(), classId: selectedClass.id, subjectId: sub.subjectId, teacherId: sub.teacherId, isPractical: false });
+          }
+          for (let i = 0; i < practicalRemaining; i++) {
+              unscheduled.push({ id: generateUniqueId(), classId: selectedClass.id, subjectId: sub.subjectId, teacherId: sub.teacherId, isPractical: true });
           }
       });
       jointPeriods.forEach(jp => {
           const assignment = jp.assignments.find(a => a.classId === selectedClass.id);
           if (assignment) {
-               const scheduled = scheduledCounts.get(`jp-${jp.id}`) || 0;
-               const remaining = jp.periodsPerWeek - scheduled;
-               for(let i=0; i<remaining; i++){
-                   unscheduled.push({ id: generateUniqueId(), classId: selectedClass.id, subjectId: assignment.subjectId, teacherId: jp.teacherId, jointPeriodId: jp.id });
+               const jpKey = `jp-${jp.id}`;
+               const scheduledNormal = scheduledNormalCounts.get(jpKey) || 0;
+               const scheduledPractical = scheduledPracticalCounts.get(jpKey) || 0;
+               
+               const practicalTotal = jp.practicalPeriodsCount || 0;
+               const normalTotal = Math.max(0, jp.periodsPerWeek - practicalTotal);
+               
+               const normalRemaining = Math.max(0, normalTotal - scheduledNormal);
+               const practicalRemaining = Math.max(0, practicalTotal - scheduledPractical);
+               
+               for(let i = 0; i < normalRemaining; i++){
+                   unscheduled.push({ id: generateUniqueId(), classId: selectedClass.id, subjectId: assignment.subjectId, teacherId: jp.teacherId, jointPeriodId: jp.id, isPractical: false });
+               }
+               for(let i = 0; i < practicalRemaining; i++){
+                   unscheduled.push({ id: generateUniqueId(), classId: selectedClass.id, subjectId: assignment.subjectId, teacherId: jp.teacherId, jointPeriodId: jp.id, isPractical: true });
                }
           }
       });
@@ -579,8 +606,9 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
   const groupedUnscheduled = useMemo(() => {
       return unscheduledPeriods.reduce((acc, p) => {
           const key = p.jointPeriodId ? `jp-${p.jointPeriodId}` : p.subjectId;
-          if (!acc[key]) acc[key] = [];
-          acc[key].push(p);
+          const finalKey = p.isPractical ? `${key}-prac` : key;
+          if (!acc[finalKey]) acc[finalKey] = [];
+          acc[finalKey].push(p);
           return acc;
       }, {} as Record<string, Period[]>);
   }, [unscheduledPeriods]);
@@ -1076,6 +1104,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                       const subject = subjects.find(s => s.id === group[0].subjectId);
                                       const teacher = teachers.find(t => t.id === group[0].teacherId);
 
+                                      const isPractical = group[0].isPractical;
+
                                       return (
                                           <div 
                                               key={`unscheduled-pc-${groupKey}-${index}`} 
@@ -1083,23 +1113,32 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
-                                              <div className="flex flex-col flex-1 min-w-0">
-                                                  <span className="text-sm md:text-base font-bold uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
-                                                      {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
-                                                  </span>
-                                                  <span className="text-xs md:text-sm font-medium text-black dark:text-white opacity-80 block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
-                                                      {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
-                                                  </span>
+                                              <div className="flex w-full items-center justify-between">
+                                                  <div className="flex flex-col flex-1 min-w-0">
+                                                      <span className="text-sm md:text-base font-bold uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                                          {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
+                                                      </span>
+                                                      <span className="text-xs md:text-sm font-medium text-black dark:text-white opacity-80 block w-full overflow-hidden whitespace-nowrap text-ellipsis" style={{ color: colorData.hex }}>
+                                                          {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
+                                                      </span>
+                                                  </div>
+                                                  <div className="flex items-center ml-1 flex-shrink-0">
+                                                      {group.length > 1 && (
+                                                          <span className="bg-blue-500/10 text-blue-800 dark:text-blue-200 w-5 h-5 mr-1 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
+                                                      )}
+                                                      <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
+                                                  </div>
                                               </div>
-                                              <div className="flex items-center ml-1 flex-shrink-0">
-                                                  {group.length > 1 && (
-                                                      <span className="bg-blue-500/10 text-blue-800 dark:text-blue-200 w-5 h-5 mr-1 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
-                                                  )}
-                                                  <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
-                                              </div>
+                                              {isPractical && (
+                                                  <div className="w-full pb-0.5">
+                                                      <span className="text-[0.55rem] font-black tracking-widest text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded border border-teal-200 dark:border-teal-700/50 uppercase">
+                                                          PRC
+                                                      </span>
+                                                  </div>
+                                              )}
                                           </div>
                                       );
                                   })}
@@ -1159,6 +1198,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                       // Only show max 8, then +Show More 
                                       if (index >= 8) return null;
 
+                                      const isPractical = group[0].isPractical;
+
                                       return (
                                           <div 
                                               key={`unscheduled-${groupKey}-${index}`} 
@@ -1166,23 +1207,32 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
-                                              <div className="flex flex-col flex-1 min-w-0">
-                                                  <span className="text-sm md:text-base font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis">
-                                                      {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
-                                                  </span>
-                                                  <span className="text-xs md:text-sm font-black text-black dark:text-white block w-full overflow-hidden whitespace-nowrap text-ellipsis">
-                                                      {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
-                                                  </span>
+                                              <div className="flex w-full items-center justify-between">
+                                                  <div className="flex flex-col flex-1 min-w-0">
+                                                      <span className="text-sm md:text-base font-bold text-[#1f4061] dark:text-gray-300 uppercase tracking-tight block w-full overflow-hidden whitespace-nowrap text-ellipsis">
+                                                          {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
+                                                      </span>
+                                                      <span className="text-xs md:text-sm font-black text-black dark:text-white block w-full overflow-hidden whitespace-nowrap text-ellipsis">
+                                                          {teacher ? (language === 'ur' ? teacher.nameUr : teacher.nameEn) : 'No Teacher'}
+                                                      </span>
+                                                  </div>
+                                                  <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+                                                      {group.length > 1 && (
+                                                          <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
+                                                      )}
+                                                      <svg width="12" height="18" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60 group-hover:opacity-100 transition-opacity"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
+                                                  </div>
                                               </div>
-                                              <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-                                                  {group.length > 1 && (
-                                                      <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
-                                                  )}
-                                                  <svg width="12" height="18" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60 group-hover:opacity-100 transition-opacity"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
-                                              </div>
+                                              {isPractical && (
+                                                  <div className="w-full pb-0.5">
+                                                      <span className="text-[0.55rem] font-black tracking-widest text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded border border-teal-200 dark:border-teal-700/50 uppercase">
+                                                          PRC
+                                                      </span>
+                                                  </div>
+                                              )}
                                           </div>
                                       );
                                   })}

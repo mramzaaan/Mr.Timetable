@@ -105,11 +105,11 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
   const handleDownloadJson = () => {
     if (!currentTimetableSession) return;
     const data = currentTimetableSession.attendance || {};
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `attendance_export_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `attendance_${selectedDate}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

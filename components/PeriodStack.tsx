@@ -222,12 +222,26 @@ const PeriodStack: React.FC<PeriodStackProps> = React.memo(({ periods, onDragSta
                     {/* Class Name (Context): Smaller, Top-Left */}
                     <p className="text-[0.625rem] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">{contextNameJsx}</p>
                     {/* Subject Name: Larger, Bottom-Left */}
-                    <p className="font-black text-sm truncate text-left leading-tight mt-0.5">{subjectNameJsx}</p>
+                    <p className="font-black text-sm truncate text-left leading-tight mt-0.5">
+                        {subjectNameJsx}
+                        {firstPeriod.isPractical && (
+                            <span className="ml-1 text-[0.45rem] tracking-widest bg-teal-600 text-white font-black px-1 py-0.5 rounded-sm align-middle inline-block transform -translate-y-px">
+                                PRC
+                            </span>
+                        )}
+                    </p>
                 </>
             ) : (
                 <>
                     {/* Subject Name: Smaller, Top-Left */}
-                    <p className="text-[0.625rem] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">{subjectNameJsx}</p>
+                    <p className="text-[0.625rem] font-bold uppercase tracking-wider truncate text-left leading-tight opacity-70">
+                        {subjectNameJsx}
+                        {firstPeriod.isPractical && (
+                            <span className="ml-1 text-[0.4rem] tracking-widest bg-teal-600 text-white font-black px-1 py-px rounded-sm align-middle inline-block transform -translate-y-px">
+                                PRC
+                            </span>
+                        )}
+                    </p>
                     {/* Teacher Name: Larger, Bottom-Left */}
                     <p className="font-black text-sm truncate text-left leading-tight mt-0.5">{contextNameJsx}</p>
                 </>

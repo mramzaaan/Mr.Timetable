@@ -934,7 +934,9 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
                 
                 const subjectsList = sortedPeriods.map(p => {
                     const sub = subjects.find(s => s.id === p.subjectId);
-                    return sub ? renderText(lang, sub.nameEn, sub.nameUr) : '';
+                    const name = sub ? renderText(lang, sub.nameEn, sub.nameUr) : '';
+                    const practicalLabel = p.isPractical ? ` <span style="font-size: 0.5em; background: #0d9488; color: white; padding: 2px 4px; border-radius: 4px; vertical-align: middle; line-height: 1; margin-left: 2px;">PRC</span>` : '';
+                    return name + practicalLabel;
                 }).filter(Boolean).join(' / ');
 
                 const teachersList = sortedPeriods.map(p => {
@@ -1139,7 +1141,11 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
                     if (!firstPeriod) firstPeriod = group.firstPeriod;
                     group.classNames.forEach(n => allClassNames.add(n));
                     const sub = subjects.find(s => s.id === group.subjectId);
-                    if (sub) allSubjectNames.add(renderText(lang, sub.nameEn, sub.nameUr));
+                    if (sub) {
+                        const name = renderText(lang, sub.nameEn, sub.nameUr);
+                        const practicalLabel = group.firstPeriod.isPractical ? ` <span style="font-size: 0.5em; background: #0d9488; color: white; padding: 2px 4px; border-radius: 4px; vertical-align: middle; line-height: 1; margin-left: 2px;">PRC</span>` : '';
+                        allSubjectNames.add(name + practicalLabel);
+                    }
                 });
 
                 const classList = Array.from(allClassNames).join(' / ');

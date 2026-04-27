@@ -566,10 +566,10 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
                     {cardData && (
                         <div className="w-full md:max-w-none md:flex-[1.2] bg-white/20 dark:bg-black/10 rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 border border-white/40 shadow-xl backdrop-blur-md transition-transform duration-300 hover:scale-[1.01] animate-alive flex flex-col justify-center" style={{ animationDelay: '1s' }}>
                             <div className="flex justify-between items-center mb-3 sm:mb-6">
-                                <h2 className="text-lg sm:text-2xl font-black text-gray-800 dark:text-white tracking-tight truncate pr-2">{cardData.title}</h2>
-                                <span className="px-3 sm:px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 dark:bg-indigo-900/30 text-[0.5rem] sm:text-[0.625rem] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 shadow-sm whitespace-nowrap">{cardData.badge}</span>
+                                <h2 className="text-base sm:text-xl font-black text-gray-800 dark:text-white tracking-tight truncate pr-2">{cardData.title}</h2>
+                                <span className="px-3 sm:px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 dark:bg-indigo-900/30 text-[0.4375rem] sm:text-[0.5625rem] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 shadow-sm whitespace-nowrap">{cardData.badge}</span>
                             </div>
-                            <div className="flex justify-between items-end text-[0.5625rem] sm:text-[0.75rem] font-black text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-widest gap-2">
+                            <div className="flex justify-between items-end text-[0.5rem] sm:text-[0.6875rem] font-black text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-widest gap-2">
                                 <span className="truncate">{cardData.left}</span>
                                 <span className="text-right truncate">{cardData.right}</span>
                             </div>
@@ -660,19 +660,29 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   
   const handleDownloadSession = () => {
     if (!currentTimetableSession) return;
+    
+    // Create a clean copy for export to reduce size
+    const { changeLogs, ...sessionData } = currentTimetableSession;
+    
     const exportData = {
-        ...currentTimetableSession,
+        ...sessionData,
         schoolLogoBase64: schoolConfig.schoolLogoBase64
     };
-    const dataStr = JSON.stringify(exportData, null, 2);
+
+    // Use JSON.stringify without indentation to reduce file size
+    const dataStr = JSON.stringify(exportData);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `timetable_session_${currentTimetableSession.name.replace(/\s+/g, '_')}.json`;
+    
+    // Use the session name directly as requested
+    link.download = `${currentTimetableSession.name}.json`;
+    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const workloadReportClick = () => { 
@@ -931,7 +941,22 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                             >
                                 {t.downloadSession}
                             </button>
-                            <input type="file" ref={uploadRef} className="hidden" accept=".json" onChange={(e) => e.target.files && (async (file: File) => { try { const data = JSON.parse(await file.text()); onUploadTimetableSession(data, data.schoolLogoBase64 ? { schoolLogoBase64: data.schoolLogoBase64 } : undefined); setFeedback({ message: t.sessionUploadedSuccessfully.replace('{name}', data.name), type: 'success' }); setIsSelectSessionModalOpen(false); } catch (error: any) { setFeedback({ message: t.failedToUploadSession.replace('{reason}', error.message), type: 'error' }); } })(e.target.files[0])} />
+                            <input type="file" ref={uploadRef} className="hidden" accept=".json" onChange={(e) => e.target.files && (async (file: File) => { 
+                                try { 
+                                    const rawData = JSON.parse(await file.text()); 
+                                    
+                                    // Extract logo and other session data
+                                    const { schoolLogoBase64, ...session } = rawData;
+                                    
+                                    onUploadTimetableSession(session, schoolLogoBase64 ? { schoolLogoBase64 } : undefined); 
+                                    
+                                    setFeedback({ message: t.sessionUploadedSuccessfully.replace('{name}', session.name), type: 'success' }); 
+                                    setIsSelectSessionModalOpen(false); 
+                                } catch (error: any) { 
+                                    setFeedback({ message: t.failedToUploadSession.replace('{reason}', error.message), type: 'error' }); 
+                                } 
+                                if (e.target) e.target.value = ''; // Clear for next upload
+                            })(e.target.files[0])} />
                         </div>
                     </div>
                 </div>

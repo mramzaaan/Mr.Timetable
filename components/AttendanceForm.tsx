@@ -195,7 +195,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
             className: classItem.nameEn,
             attendance: attendanceData 
         };
-        const jsonString = JSON.stringify(fileData, null, 2);
+        const jsonString = JSON.stringify(fileData);
         
         // Parse YYYY-MM-DD to DD-MM-YYYY for filename
         const [year, month, day] = currentDate.split('-');

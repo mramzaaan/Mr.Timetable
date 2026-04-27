@@ -536,8 +536,8 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
       try {
           const dataUrl = await toJpeg(multiTeacherSlipRef.current, { 
-              quality: 1.0,
-              pixelRatio: 2, 
+              quality: 0.85,
+              pixelRatio: 3, 
               backgroundColor: '#ffffff'
           });
           const blob = await (await fetch(dataUrl)).blob();
@@ -1026,7 +1026,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       if (slipRef.current) {
           try {
               const blob = await toBlob(slipRef.current, { 
-                  pixelRatio: 2, 
+                  pixelRatio: 3, 
                   backgroundColor: '#ffffff'
               });
               if (blob) {
@@ -1142,7 +1142,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
           if (leaveDetails?.[dStr]) dataToExport.leaveDetails[dStr] = leaveDetails[dStr];
       }
       
-      const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(dataToExport)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -1150,6 +1150,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
   };
 
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1406,7 +1407,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       if (teacherShareRef.current) {
           try {
               const blob = await toBlob(teacherShareRef.current, { 
-                  pixelRatio: 2, 
+                  pixelRatio: 3, 
                   backgroundColor: '#ffffff'
               });
               if (blob) {
@@ -1735,9 +1736,9 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                 `}} />
                 
                 <div className="text-center mb-6 border-b-2 border-slate-900 pb-4">
-                    <h2 className="text-[2.5rem] leading-tight font-black uppercase tracking-tight text-slate-900 oswald-font mb-1">{schoolConfig.schoolNameEn}</h2>
-                    <p className="text-[1.5rem] text-slate-600 oswald-font font-bold uppercase tracking-widest mb-1">DAILY SUBSTITUTION REPORT</p>
-                    <p className="text-[1.25rem] text-slate-500 font-medium oswald-font bg-slate-100 inline-block px-6 py-1 rounded-full uppercase tracking-tighter">
+                    <h2 className="text-[2.75rem] leading-tight font-black uppercase tracking-tight text-[#b01e51] oswald-font mb-1">{schoolConfig.schoolNameEn}</h2>
+                    <p className="text-[1.625rem] text-[#5c7bc0] oswald-font font-bold uppercase tracking-widest mb-1">DAILY SUBSTITUTION REPORT</p>
+                    <p className="text-[1.5rem] text-[#52446a] font-bold oswald-font bg-slate-100 inline-block px-6 py-1 rounded-full uppercase tracking-tighter">
                         {new Date(computedMultiTeacherSlipData.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                 </div>
@@ -1746,18 +1747,18 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     {computedMultiTeacherSlipData.teachers.map((teacher, idx) => (
                         <div key={idx} className="break-inside-avoid">
                             <div className="flex items-center mb-2">
-                                <h3 className="text-[1.5rem] font-bold text-slate-800 oswald-font">
-                                    Teacher on Leave: <span className="text-slate-900 font-black underline decoration-2 decoration-slate-400">{teacher.nameEn.toUpperCase()}</span> <span className="text-slate-500 ml-2">({teacher.substitutions.length} {teacher.substitutions.length === 1 ? 'Period' : 'Periods'})</span>
+                                <h3 className="text-[1.75rem] font-bold text-slate-800 oswald-font">
+                                    Teacher on Leave: <span className="text-[#a41a4a] font-black underline decoration-4 decoration-[#a41a4a]/20">{teacher.nameEn.toUpperCase()}</span> <span className="text-red-600 ml-2">({teacher.substitutions.length} {teacher.substitutions.length === 1 ? 'Period' : 'Periods'})</span>
                                 </h3>
                             </div>
                             
                             <div className="flex flex-col gap-0 w-full border-2 border-slate-900 rounded-xl overflow-hidden shadow-md">
                                 {/* Table Header */}
                                 <div className="flex w-full bg-slate-900">
-                                    <div className="w-[20%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700">PERIOD</div>
-                                    <div className="w-[30%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700">CLASS & ROOM</div>
-                                    <div className="w-[25%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700">SUBJECT</div>
-                                    <div className="w-[25%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest">SUBSTITUTE</div>
+                                    <div className="w-[26%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700 uppercase">T & P</div>
+                                    <div className="w-[20%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700 uppercase">Class</div>
+                                    <div className="w-[20%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700 uppercase">Subject</div>
+                                    <div className="w-[34%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest uppercase">Substitute Teacher</div>
                                 </div>
 
                                 {teacher.substitutions.length > 0 ? teacher.substitutions.map((sub, sIdx) => {
@@ -1791,30 +1792,31 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
                                     return (
                                         <div key={sIdx} className={`flex w-full border-t border-slate-300 ${sIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
-                                            <div className="w-[20%] px-3 py-3 flex flex-col items-center justify-center border-r border-slate-300">
-                                                <span className="text-[1.75rem] font-black text-slate-900 leading-none">{sub.periodIndex + 1}</span>
-                                                <span className="text-[0.875rem] font-bold text-slate-500 mt-1">{timeStr}</span>
+                                            <div className="w-[26%] px-2 py-1 flex items-center justify-center border-r border-slate-300 gap-2">
+                                                <span className="text-[2.5rem] font-black text-slate-900 leading-none">{sub.periodIndex + 1}</span>
+                                                <span className="text-slate-300 font-light text-2xl">|</span>
+                                                <span className="text-[1.375rem] font-bold text-slate-500 whitespace-nowrap">{timeStr}</span>
                                             </div>
-                                            <div className="w-[30%] px-3 py-3 flex flex-col justify-center border-r border-slate-300 bg-white">
-                                                <span className="text-[1.125rem] font-bold leading-tight text-slate-800 text-center">{classRoomStr || '-'}</span>
+                                            <div className="w-[20%] px-2 py-1 flex flex-col justify-center border-r border-slate-300 bg-white">
+                                                <span className="text-[1.5rem] font-bold leading-tight text-slate-800 text-center whitespace-nowrap overflow-hidden text-ellipsis">{classRoomStr || '-'}</span>
                                             </div>
-                                            <div className="w-[25%] px-3 py-3 flex flex-col justify-center border-r border-slate-300 bg-white">
-                                                <span className="text-[1.125rem] font-bold uppercase leading-tight text-slate-800 text-center">{sub.subjectInfo.en}</span>
+                                            <div className="w-[20%] px-2 py-1 flex flex-col justify-center border-r border-slate-300 bg-white">
+                                                <span className="text-[1.5rem] font-bold uppercase leading-tight text-slate-800 text-center whitespace-nowrap overflow-hidden text-ellipsis">{sub.subjectInfo.en}</span>
                                             </div>
-                                            <div className="w-[25%] px-3 py-3 flex flex-col justify-center items-center relative bg-white">
+                                            <div className="w-[34%] px-2 py-1 flex flex-col justify-center items-center relative bg-white">
                                                 {subTeacher ? (
                                                     <>
-                                                        <span className="text-[1.375rem] font-black uppercase leading-tight text-center text-indigo-700">{subTeacher.nameEn}</span>
+                                                        <span className="text-[2rem] font-black uppercase leading-tight text-center text-indigo-700 whitespace-nowrap overflow-hidden text-ellipsis w-full">{subTeacher.nameEn}</span>
                                                         {conflictData && (
-                                                            <div className="mt-1 w-full flex justify-center">
-                                                                <div className="flex items-center text-[0.7rem] font-bold uppercase tracking-wider bg-red-600 text-white px-2 py-0.5 rounded shadow-sm leading-none animate-pulse">
+                                                            <div className="mt-0.5 w-full flex justify-center">
+                                                                <div className="flex items-center text-[0.6rem] font-bold uppercase tracking-wider bg-red-600 text-white px-2 py-0.5 rounded shadow-sm leading-none animate-pulse">
                                                                     Conflict: {language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn}
                                                                 </div>
                                                             </div>
                                                         )}
                                                     </>
                                                 ) : (
-                                                    <span className="text-[1.25rem] font-bold text-red-500 italic">Unassigned</span>
+                                                    <span className="text-[1.5rem] font-bold text-red-500 italic whitespace-nowrap">Unassigned</span>
                                                 )}
                                             </div>
                                         </div>
