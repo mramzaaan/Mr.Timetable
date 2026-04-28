@@ -25,7 +25,7 @@ const createEmptyTimetable = (): TimetableGridData => ({
 const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, classes, onSetClasses, onDeleteClass }) => {
   const [nameEn, setNameEn] = useState('');
   const [nameUr, setNameUr] = useState('');
-  const [category, setCategory] = useState<'High' | 'Middle' | 'Primary' | ''>('');
+  const [academicLevel, setAcademicLevel] = useState<'Primary' | 'Elementary' | 'Secondary' | 'Higher Secondary' | ''>('');
   const [inCharge, setInCharge] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
   const [studentCount, setStudentCount] = useState('');
@@ -45,7 +45,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
   const resetForm = () => {
     setNameEn('');
     setNameUr('');
-    setCategory('');
+    setAcademicLevel('');
     setInCharge('');
     setRoomNumber('');
     setStudentCount('');
@@ -59,7 +59,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
         setIsFormOpen(true);
         setNameEn(editingClass.nameEn);
         setNameUr(editingClass.nameUr);
-        setCategory(editingClass.category || '');
+        setAcademicLevel(editingClass.academicLevel || '');
         setInCharge(editingClass.inCharge);
         setRoomNumber(editingClass.roomNumber);
         setStudentCount(String(editingClass.studentCount));
@@ -89,7 +89,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
             return;
         }
     } else {
-        if (!nameEn || !nameUr || !category || !inCharge || !roomNumber || !studentCount) {
+        if (!nameEn || !nameUr || !academicLevel || !inCharge || !roomNumber || !studentCount) {
             alert('Please fill out all required class details.');
             return;
         }
@@ -99,7 +99,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
         id: editingClass ? editingClass.id : generateUniqueId(),
         serialNumber: serialNumber ? parseInt(serialNumber, 10) : undefined,
         nameEn, nameUr, 
-        category: category as 'High' | 'Middle' | 'Primary',
+        academicLevel: academicLevel as 'Primary' | 'Elementary' | 'Secondary' | 'Higher Secondary',
         inCharge, roomNumber,
         studentCount: parseInt(studentCount, 10) || 0,
         // Preserve existing subjects and groups if editing
@@ -186,12 +186,13 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
                         {!isExtraRoom && (
                             <>
                                 <div>
-                                    <label htmlFor="classCategory" className="block text-sm font-medium text-[var(--text-secondary)]">{t.category}</label>
-                                    <select id="classCategory" value={category} onChange={(e) => setCategory(e.target.value as 'High' | 'Middle' | 'Primary' | '')} className={inputStyleClasses} required={!isExtraRoom}>
+                                    <label htmlFor="academicLevel" className="block text-sm font-medium text-[var(--text-secondary)]">{t.academicLevel}</label>
+                                    <select id="academicLevel" value={academicLevel} onChange={(e) => setAcademicLevel(e.target.value as any)} className={inputStyleClasses} required={!isExtraRoom}>
                                         <option value="">{t.select}</option>
-                                        <option value="High">{t.high}</option>
-                                        <option value="Middle">{t.middle}</option>
                                         <option value="Primary">{t.primary}</option>
+                                        <option value="Elementary">{t.elementary}</option>
+                                        <option value="Secondary">{t.secondary}</option>
+                                        <option value="Higher Secondary">{t.higherSecondary}</option>
                                     </select>
                                 </div>
                                 <div>
@@ -274,9 +275,9 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
                         <div className="flex-1">
                             <h4 className="font-bold text-gray-900 text-base">{c.nameEn} <span className="font-urdu text-sm font-normal text-gray-500">/ {c.nameUr}</span></h4>
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                                {c.category && (
+                                {c.academicLevel && (
                                     <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                                        {t[c.category.toLowerCase()]}
+                                        {t[c.academicLevel.includes(' ') ? c.academicLevel.split(' ').map((s, i) => i === 0 ? s.toLowerCase() : s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()).join('') : c.academicLevel.toLowerCase()]}
                                     </span>
                                 )}
                                 <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">

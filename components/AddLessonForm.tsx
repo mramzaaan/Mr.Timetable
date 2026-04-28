@@ -604,7 +604,8 @@ const AddLessonForm: React.FC<AddLessonFormProps> = ({
                               <div className="space-y-3">
                                   {entity.items.map((item: any, index: number) => {
                                       const periodsCount = item.type === 'single' ? item.subject.periodsPerWeek : item.jointPeriod.periodsPerWeek;
-                                      const colorData = getColorForId(item.displaySubject?.id || item.key);
+                                      const keyForColor = item.type === 'joint' ? String(item.jointPeriod.id) : String(item.displaySubject?.id || item.key);
+                                      const colorData = getColorForId(keyForColor);
                                       
                                       return (
                                           <div key={item.key} className="relative bg-white dark:bg-[#1a2332] rounded-[1.25rem] shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex justify-between items-start border-l-[0.375rem] hover:shadow-md transition-shadow" style={{ borderLeftColor: colorData.hex }}>

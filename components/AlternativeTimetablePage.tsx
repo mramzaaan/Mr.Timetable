@@ -122,8 +122,8 @@ const SignatureModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black/70 z-[120] flex items-center justify-center p-4 backdrop-blur-md">
-            <div className="bg-[var(--bg-secondary)] rounded-3xl shadow-2xl p-6 sm:p-10 w-full max-w-4xl animate-scale-in border border-[var(--border-primary)]" onClick={e => e.stopPropagation()}>
-                <div className="flex justify-between items-center mb-8">
+            <div className="bg-[var(--bg-secondary)] rounded-3xl shadow-2xl p-6 sm:p-10 w-full max-w-4xl animate-scale-in border border-[var(--border-primary)] max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center mb-4 sm:mb-8">
                     <div>
                         <h3 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tight">{t.signNow.toUpperCase()}</h3>
                         <p className="text-sm text-[var(--text-secondary)] mt-1 font-medium">Headmaster/Principal's signature for the substitution sheet.</p>
@@ -1204,12 +1204,12 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
     teachers.forEach(t => {
         const sections = new Set<string>();
         classes.forEach(c => {
-          if (c.category && (
+          if (c.academicLevel && (
             c.subjects.some(s => s.teacherId === t.id) || 
             c.inCharge === t.id ||
             jointPeriods.some(jp => jp.teacherId === t.id && jp.assignments.some(a => a.classId === c.id))
           )) {
-            sections.add(c.category);
+            sections.add(c.academicLevel);
           }
         });
         teacherSectionsMap.set(t.id, sections);
@@ -1303,16 +1303,18 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
         });
 
         // Apply section restriction
-        const classCategory = group.combinedClassIds.map(cid => classes.find(c => c.id === cid)?.category).filter(Boolean)[0];
+        const classAcademicLevel = group.combinedClassIds.map(cid => classes.find(c => c.id === cid)?.academicLevel).filter(Boolean)[0];
         const filteredBySection = eligibleCandidates.filter(cand => {
-            if (!classCategory) return true;
+            if (!classAcademicLevel) return true;
             const tSections = teacherSectionsMap.get(cand.teacher.id);
             if (!tSections) return false;
             
-            if (classCategory === 'Primary') {
+            if (classAcademicLevel === 'Primary') {
                 return tSections.has('Primary');
-            } else if (classCategory === 'Middle' || classCategory === 'High') {
-                return tSections.has('Middle') || tSections.has('High');
+            } else if (classAcademicLevel === 'Elementary') {
+                return tSections.has('Elementary');
+            } else if (classAcademicLevel === 'Secondary' || classAcademicLevel === 'Higher Secondary') {
+                return tSections.has('Secondary') || tSections.has('Higher Secondary');
             }
             return true;
         });
@@ -1997,13 +1999,13 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       </div>
       
       {modalState.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[110]" onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))}>
-          <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl w-full max-w-lg mx-4 flex flex-col border border-[var(--border-primary)] animate-scale-in" onClick={e => e.stopPropagation()}>
-             <div className="p-5 border-b border-[var(--border-primary)] flex justify-between items-center bg-[var(--bg-tertiary)]/50">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[110] p-4" onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))}>
+          <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl w-full max-w-lg flex flex-col border border-[var(--border-primary)] animate-scale-in max-h-[95vh]" onClick={e => e.stopPropagation()}>
+             <div className="p-4 sm:p-5 border-b border-[var(--border-primary)] flex justify-between items-center bg-[var(--bg-tertiary)]/50 shrink-0">
                <h3 className="font-bold text-lg text-[var(--text-primary)]">
                  {modalState.data.id ? t.edit : t.add} {modalState.mode === 'teacher' ? t.teacherOnLeave : 'Class Leave'}
                </h3>
-               <button onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))} className="text-[var(--text-secondary)] hover:text-red-500"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+               <button type="button" onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))} className="text-[var(--text-secondary)] hover:text-red-500"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
              </div>
              
              <div className="p-6 space-y-5 overflow-y-auto max-h-[70vh] custom-scrollbar">
@@ -2081,6 +2083,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                 {Array.from({length: periodsForDropdown}, (_, i) => i + 1).map(p => (
                                     <button
                                         key={p}
+                                        type="button"
                                         onClick={() => {
                                             const currentPeriods = modalState.data.periods || [];
                                             const newPeriods = currentPeriods.includes(p) 
@@ -2124,16 +2127,16 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
              </div>
 
              <div className="p-5 border-t border-[var(--border-primary)] flex justify-end gap-3 bg-[var(--bg-tertiary)]/30 rounded-b-2xl">
-                 <button onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))} className="px-5 py-2.5 text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors">{t.cancel}</button>
-                 <button onClick={handleSaveModal} className="px-6 py-2.5 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-xl shadow-lg transition-transform active:scale-95">{t.save}</button>
+                 <button type="button" onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))} className="px-5 py-2.5 text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors">{t.cancel}</button>
+                 <button type="button" onClick={handleSaveModal} className="px-6 py-2.5 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-xl shadow-lg transition-transform active:scale-95">{t.save}</button>
              </div>
           </div>
         </div>
       )}
       
       {isImportExportOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[110]" onClick={() => setIsImportExportOpen(false)}>
-            <div className="bg-[var(--bg-secondary)] p-6 rounded-xl shadow-lg w-full max-w-md animate-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[110] p-4" onClick={() => setIsImportExportOpen(false)}>
+            <div className="bg-[var(--bg-secondary)] p-6 rounded-xl shadow-lg w-full max-w-md animate-scale-in max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
                 <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">Import / Export Adjustments</h3>
                 
                 <div className="space-y-4">

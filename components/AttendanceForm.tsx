@@ -109,8 +109,8 @@ const SignatureModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black/70 z-[110] flex items-center justify-center p-4 backdrop-blur-md">
-            <div className="bg-[var(--bg-secondary)] rounded-3xl shadow-2xl p-6 sm:p-10 w-full max-w-4xl animate-scale-in border border-[var(--border-primary)]" onClick={e => e.stopPropagation()}>
-                <div className="flex justify-between items-center mb-8">
+            <div className="bg-[var(--bg-secondary)] rounded-3xl shadow-2xl p-6 sm:p-10 w-full max-w-4xl animate-scale-in border border-[var(--border-primary)] max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center mb-4 sm:mb-8">
                     <div>
                         <h3 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tight">{t.signNow.toUpperCase()}</h3>
                         <p className="text-sm text-[var(--text-secondary)] mt-1 font-medium">Please sign in the box below.</p>

@@ -267,7 +267,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
   const getCombinationColor = useCallback((periods: Period[]) => {
       if (!periods.length) return 'subject-default';
       const p = periods[0];
-      return getColorForId(p.jointPeriodId ? String(p.jointPeriodId) : `${p.classId}-${p.subjectId}`).name;
+      return getColorForId(p.jointPeriodId ? String(p.jointPeriodId) : String(p.subjectId)).name;
   }, []);
 
   // Construct Teacher's Timetable View from Class Data
@@ -1096,7 +1096,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
       Object.values(teacherTimetableData).forEach(daySlots => {
           (daySlots as any[])?.forEach(slot => {
               slot?.forEach((p: Period) => {
-                  const key = p.jointPeriodId ? String(p.jointPeriodId) : `${p.classId}-${p.subjectId}`;
+                  const key = p.jointPeriodId ? String(p.jointPeriodId) : String(p.subjectId);
                   if (!map.has(key)) {
                       map.set(key, getColorForId(key).name);
                   }
@@ -1404,9 +1404,9 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                     let content = null;
 
                                     if (isDisabled) {
-                                        content = <div className="flex-1 min-w-0 h-[2.75rem] sm:h-[3.25rem] md:h-[4.75rem] lg:h-[4.5rem] rounded-[0.5rem] sm:rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
+                                        content = <div className="flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
                                     } else {
-                                        let outerClasses = `flex-1 min-w-0 h-[3rem] sm:h-[3.5rem] md:h-[5rem] lg:h-[4.75rem] rounded-[0.5rem] sm:rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[0.09375rem] border-transparent cursor-pointer z-10`;
+                                        let outerClasses = `flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[0.09375rem] border-transparent cursor-pointer z-10`;
                                         if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
 
                                         if (slotPeriods.length === 0) {
@@ -1427,7 +1427,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                                 <div className="h-full flex flex-col relative z-10 w-full rounded-xl overflow-visible">
                                                     {groupedSlotPeriods.map((group, groupIndex) => {
                                                         const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
-                                                        const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : `${group[0].classId}-${group[0].subjectId}`;
+                                                        const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : String(group[0].subjectId);
                                                         const colorData = getColorForId(groupColorKey, false);
                                                         const subject = subjects.find(s => s.id === group[0].subjectId);
                                                         const schoolClass = classes.find(c => c.id === group[0].classId);
@@ -1452,13 +1452,13 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                                                     backgroundColor: isSelected ? `${colorData.hex}40` : `${colorData.hex}15`,
                                                                     boxShadow: isSelected ? `inset 0 0 0 2px ${colorData.hex}90` : 'none',
                                                                     top: groupedSlotPeriods.length > 1 ? `${(groupIndex / groupedSlotPeriods.length) * 100}%` : '0px',
-                                                                    height: groupedSlotPeriods.length > 1 ? `${100 / groupedSlotPeriods.length}%` : '100%',
+                                                                    height: groupedSlotPeriods.length > 1 ? `${100 / groupedSlotPeriods.length}%` : 'auto',
                                                                     left: '0px',
                                                                     right: '0px',
                                                                     zIndex: 10 + groupIndex
                                                                 }}
                                                             >
-                                                                    <div className="flex flex-col justify-center h-full w-full min-w-0">
+                                                                    <div className="flex flex-col justify-center py-0.5 sm:py-1 w-full min-w-0">
                                                                         <div className="flex justify-between items-start w-full relative min-w-0">
                                                                             <span className="font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis tracking-tight leading-none pt-[0.0625rem] pr-1 sm:pr-3 block w-full text-left" style={{ color: colorData.hex, fontSize: `calc(${groupedSlotPeriods.length > 1 ? 0.65 : 1} * 1rem * var(--content-scale))` }}>
                                                                                 {classNameStr}
@@ -1528,12 +1528,12 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                   <p className="text-sm text-[#1f4061] dark:text-gray-400 font-bold">{t.allLessonsScheduled}</p>
                               </div>
                           ) : (
-                              <div className="flex flex-row flex-wrap gap-2 period-stack-clickable overflow-y-auto custom-scrollbar pr-1 max-h-[60vh]">
+                              <div className="flex flex-row flex-wrap content-start items-start gap-2 period-stack-clickable overflow-y-auto custom-scrollbar pr-1 max-h-[60vh]">
                                   {sidebarItems.map((group, index) => {
                                       const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                       const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
                                       const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
-                                      const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : `${group[0].classId}-${group[0].subjectId}`;
+                                      const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : String(group[0].subjectId);
                                       const colorData = getColorForId(groupColorKey, theme === 'dark' || theme === 'amoled');
                                       const subject = subjects.find(s => s.id === group[0].subjectId);
                                       const schoolClass = classes.find(c => c.id === group[0].classId);
@@ -1595,12 +1595,12 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                       <p className="text-sm text-[#1f4061] dark:text-gray-400 font-bold">{t.allLessonsScheduled}</p>
                   </div>
                 ) : (
-                  <div className="flex flex-row flex-wrap gap-2 sm:gap-3 max-h-[18.75rem] md:max-h-[30rem] overflow-y-auto custom-scrollbar pr-2 period-stack-clickable">
+                  <div className="flex flex-row content-start items-start gap-2 sm:gap-3 overflow-x-auto custom-scrollbar pb-2 pr-2 period-stack-clickable">
                     {sidebarItems.map((group, index) => {
                         const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                         const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
                         const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
-                        const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : `${group[0].classId}-${group[0].subjectId}`;
+                        const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : String(group[0].subjectId);
                         const colorData = getColorForId(groupColorKey);
                         const subject = subjects.find(s => s.id === group[0].subjectId);
                         const schoolClass = classes.find(c => c.id === group[0].classId);
@@ -1614,7 +1614,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                 onDragStart={() => handleDragStart(group)}
                                 onDragEnd={handleDragEnd}
                                 onClick={() => handleStackClick(group)}
-                                className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] md:rounded-xl px-2.5 py-1.5 md:px-3 md:py-2 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] md:rounded-xl px-2.5 py-1.5 md:px-3 md:py-2 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                 style={{ borderLeftColor: colorData.hex }}
                             >
                                 <div className="flex w-full items-center justify-between">
@@ -1626,20 +1626,17 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                             {subject ? (language === 'ur' ? subject.nameUr : subject.nameEn) : (jp?.name || 'Unknown')}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                         {group.length > 1 && (
-                                            <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">x{group.length}</span>
+                                            <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 px-1 h-4 md:h-5 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold w-max">x{group.length}</span>
                                         )}
-                                        <svg width="8" height="12" viewBox="0 0 12 18" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 opacity-60"><circle cx="4" cy="3" r="2" fill="currentColor"/><circle cx="8" cy="3" r="2" fill="currentColor"/><circle cx="4" cy="9" r="2" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/><circle cx="4" cy="15" r="2" fill="currentColor"/><circle cx="8" cy="15" r="2" fill="currentColor"/></svg>
+                                        {isPractical && (
+                                            <span className="text-[0.55rem] font-black tracking-widest text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-1 py-0.5 rounded border border-teal-200 dark:border-teal-700/50 uppercase w-max">
+                                                PRC
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
-                                {isPractical && (
-                                    <div className="w-full pb-0.5">
-                                        <span className="text-[0.55rem] font-black tracking-widest text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded border border-teal-200 dark:border-teal-700/50 uppercase">
-                                            PRC
-                                        </span>
-                                    </div>
-                                )}
                             </div>
                         );
                     })}

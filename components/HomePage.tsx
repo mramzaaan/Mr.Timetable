@@ -609,7 +609,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const [selectedWeekDate, setSelectedWeekDate] = useState(new Date().toISOString().split('T')[0]);
   
   const [isBasicInfoSelectionOpen, setIsBasicInfoSelectionOpen] = useState(false);
-  const [selectedBasicInfoCategories, setSelectedBasicInfoCategories] = useState<string[]>(['Primary', 'Middle', 'High', 'Extra Rooms']);
+  const [selectedBasicInfoCategories, setSelectedBasicInfoCategories] = useState<string[]>(['Primary', 'Elementary', 'Secondary', 'Higher Secondary', 'Extra Rooms']);
   const [isClassSelectionForPrintOpen, setIsClassSelectionForPrintOpen] = useState(false);
   const [selectedClassIdsForPrint, setSelectedClassIdsForPrint] = useState<string[]>([]);
   const [isClassTimetablePreviewOpen, setIsClassTimetablePreviewOpen] = useState(false);
@@ -785,7 +785,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
             <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl max-w-md w-full p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
                 <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">Select Categories</h3>
                 <div className="space-y-3 mb-6">
-                    {['Primary', 'Middle', 'High', 'Extra Rooms'].map(cat => (
+                    {['Primary', 'Elementary', 'Secondary', 'Higher Secondary', 'Extra Rooms'].map(cat => (
                         <label key={cat} className="flex items-center space-x-3 cursor-pointer">
                             <input 
                                 type="checkbox" 

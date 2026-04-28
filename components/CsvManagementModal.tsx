@@ -138,7 +138,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
     switch (type) {
         case 'subjects': headers = ['nameEn', 'nameUr']; break;
         case 'teachers': headers = ['nameEn', 'nameUr', 'gender', 'contactNumber', 'serialNumber']; break;
-        case 'classes': headers = ['nameEn', 'nameUr', 'category', 'inChargeName', 'roomNumber', 'studentCount', 'serialNumber']; break;
+        case 'classes': headers = ['nameEn', 'nameUr', 'academicLevel', 'inChargeName', 'roomNumber', 'studentCount', 'serialNumber']; break;
         case 'lessons': headers = ['className', 'subjectName', 'periodsPerWeek', 'teacherName', 'groupSetName', 'groupName']; break;
         case 'timetable': headers = ['className', 'day', 'period', 'subjectName', 'teacherName']; break;
         case 'jointPeriods': headers = ['name', 'teacherName', 'periodsPerWeek']; break;
@@ -181,14 +181,14 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                 return {
                     nameEn: c.nameEn,
                     nameUr: c.nameUr,
-                    category: c.category || '',
+                    academicLevel: c.academicLevel || '',
                     inChargeName: inCharge ? inCharge.nameEn : '',
                     roomNumber: c.roomNumber,
                     studentCount: c.studentCount,
                     serialNumber: c.serialNumber
                 };
             });
-            headers = ['nameEn', 'nameUr', 'category', 'inChargeName', 'roomNumber', 'studentCount', 'serialNumber'];
+            headers = ['nameEn', 'nameUr', 'academicLevel', 'inChargeName', 'roomNumber', 'studentCount', 'serialNumber'];
             break;
         case 'lessons':
             headers = ['className', 'subjectName', 'periodsPerWeek', 'teacherName', 'groupSetName', 'groupName'];
@@ -513,7 +513,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
         case 'teachers': return { id, nameEn: row.nameEn || '', nameUr: row.nameUr || '', gender: row.gender === 'Female' ? 'Female' : 'Male', contactNumber: row.contactNumber || '', serialNumber: row.serialNumber ? parseInt(row.serialNumber) : undefined };
         case 'classes':
           const inChargeId = findIdByName(teachers, row.inChargeName || '');
-          return { id, nameEn: row.nameEn || '', nameUr: row.nameUr || '', category: row.category, inCharge: inChargeId || '', roomNumber: row.roomNumber || '', studentCount: parseInt(row.studentCount || '0', 10), subjects: [], timetable: createEmptyTimetable(), groupSets: [], serialNumber: row.serialNumber ? parseInt(row.serialNumber) : undefined };
+          return { id, nameEn: row.nameEn || '', nameUr: row.nameUr || '', academicLevel: row.academicLevel as any, inCharge: inChargeId || '', roomNumber: row.roomNumber || '', studentCount: parseInt(row.studentCount || '0', 10), subjects: [], timetable: createEmptyTimetable(), groupSets: [], serialNumber: row.serialNumber ? parseInt(row.serialNumber) : undefined };
         case 'jointPeriods':
             const teachId = findIdByName(teachers, row.teacherName || '');
             return { id, name: row.name || '', teacherId: teachId || '', periodsPerWeek: parseInt(row.periodsPerWeek || '1', 10), assignments: [] };
@@ -718,7 +718,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
   const renderDescription = (type: CsvDataType) => {
     const descs: any = {
         teachers: "Columns: nameEn, nameUr, gender, contactNumber, serialNumber",
-        classes: "Columns: nameEn, nameUr, category, inChargeName, roomNumber, studentCount, serialNumber",
+        classes: "Columns: nameEn, nameUr, academicLevel, inChargeName, roomNumber, studentCount, serialNumber",
         subjects: "Columns: nameEn, nameUr",
         lessons: "Columns: className, subjectName, periodsPerWeek, teacherName, groupSetName, groupName",
         groups: "Columns: className, groupSetName, groupName",

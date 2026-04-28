@@ -192,7 +192,7 @@ export interface SchoolClass {
   serialNumber?: number;
   nameEn: string;
   nameUr: string;
-  category?: 'High' | 'Middle' | 'Primary';
+  academicLevel?: 'Primary' | 'Elementary' | 'Secondary' | 'Higher Secondary';
   inCharge: string; 
   roomNumber: string;
   studentCount: number;

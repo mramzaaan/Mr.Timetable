@@ -1,7 +1,7 @@
 
 import type { SchoolClass, Adjustment, TimetableGridData, DownloadLanguage, DownloadDesignConfig, Teacher, SchoolConfig, Subject, PeriodTime, Break, Period, LeaveDetails, AttendanceData, TriangleCorner } from '../types';
 import { translations } from '../i18n';
-import { allDays } from '../types';
+import { allDays, getColorForId } from '../types';
 
 export interface WorkloadStats {
   dailyCounts: { [key: string]: number };
@@ -875,9 +875,6 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
     let currentDayIndex = 0;
     const totalPages = Math.ceil(totalDays / daysPerPage);
 
-    const colorMap = new Map<string, string>();
-    teachers.forEach((teacher, index) => { colorMap.set(teacher.id, teacherColorNames[index % teacherColorNames.length]); });
-
     const cardStyle = customDesign.table.cardStyle || 'full';
     const triangleCorner = customDesign.table.triangleCorner || 'bottom-left';
     const outlineWidth = customDesign.table.outlineWidth || 2;
@@ -945,7 +942,7 @@ export const generateClassTimetableHtml = (classItem: SchoolClass, lang: Downloa
                 }).filter(Boolean).join(' / ');
 
                 const firstPeriod = sortedPeriods[0];
-                const colorClass = colorMap.get(firstPeriod.teacherId) || 'subject-default';
+                const colorClass = firstPeriod ? getColorForId(firstPeriod.jointPeriodId ? String(firstPeriod.jointPeriodId) : String(firstPeriod.subjectId)).name : 'subject-default';
                 const triangleHtml = (cardStyle === 'triangle' || cardStyle === 'full') ? `<div class="card-triangle"></div>` : '';
                 
                 let separatorHtml = '';
@@ -1080,8 +1077,6 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
         triangleStyles = `bottom: 0; left: 0; border-width: ${triangleSize}px 0 0 ${triangleSize}px; border-color: transparent transparent transparent currentColor;`;
     }
 
-    const getCombinationColor = (p: Period) => { const key = `${p.classId}-${p.subjectId}-${p.jointPeriodId || ''}`; let hash = 0; for (let i = 0; i < key.length; i++) hash = key.charCodeAt(i) + ((hash << 5) - hash); return teacherColorNames[Math.abs(hash) % teacherColorNames.length]; };
-
     for (let i = 0; i < totalPages; i++) {
         const chunkDays = activeDays.slice(currentDayIndex, currentDayIndex + daysPerPage);
         currentDayIndex += daysPerPage;
@@ -1150,7 +1145,7 @@ export const generateTeacherTimetableHtml = (teacher: Teacher, lang: DownloadLan
 
                 const classList = Array.from(allClassNames).join(' / ');
                 const subjectName = Array.from(allSubjectNames).join(' / ');
-                const colorClass = firstPeriod ? getCombinationColor(firstPeriod) : 'subject-default';
+                const colorClass = firstPeriod ? getColorForId(firstPeriod.jointPeriodId ? String(firstPeriod.jointPeriodId) : String(firstPeriod.subjectId)).name : 'subject-default';
                 const triangleHtml = (cardStyle === 'triangle' || cardStyle === 'full') ? `<div class="card-triangle"></div>` : '';
                 
                 let separatorHtml = '';
@@ -1325,7 +1320,7 @@ export const generateAdjustmentsReportHtml = (
     return pages;
 };
 
-export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], teachers: Teacher[], schoolConfig: SchoolConfig, selectedCategories: string[] = ['Primary', 'Middle', 'High', 'Extra Rooms']): string | string[] => {
+export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, classes: SchoolClass[], teachers: Teacher[], schoolConfig: SchoolConfig, selectedCategories: string[] = ['Primary', 'Elementary', 'Secondary', 'Higher Secondary', 'Extra Rooms']): string | string[] => {
     const customDesign = JSON.parse(JSON.stringify(design));
     if (lang === 'ur') {
         if (customDesign.header?.schoolName) customDesign.header.schoolName.align = 'right';
@@ -1343,7 +1338,7 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
     const includesExtraRooms = selectedCategories.includes('Extra Rooms');
     const filteredClasses = classes.filter(c => {
         if (c.isExtraRoom) return includesExtraRooms;
-        const cat = c.category || '';
+        const cat = c.academicLevel || '';
         return selectedCategories.includes(cat);
     });
 
@@ -1368,11 +1363,15 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
         headers = [trLocal('#', '#'), trLocal('Class / Room', 'کلاس / کمرہ'), trLocal('In Charge', 'انچارج'), trLocal('Room No', 'کمرہ نمبر'), trLocal('Students', 'طلباء'), trLocal('Comments', 'تبصرے')];
     }
     const pages: string[] = [];
-    let highTotal = 0; let middleTotal = 0; let primaryTotal = 0; let grandTotal = 0;
+    let higherSecondaryTotal = 0; let secondaryTotal = 0; let elementaryTotal = 0; let primaryTotal = 0; let grandTotal = 0;
 
     standardClasses.forEach(c => {
         const count = parseInt(String(c.studentCount), 10) || 0; grandTotal += count;
-        const cat = (c.category || '').trim().toLowerCase(); if (cat === 'high') highTotal += count; else if (cat === 'middle') middleTotal += count; else if (cat === 'primary') primaryTotal += count;
+        const cat = (c.academicLevel || '').trim().toLowerCase(); 
+        if (cat === 'higher secondary') higherSecondaryTotal += count; 
+        else if (cat === 'secondary' || cat === 'high') secondaryTotal += count; 
+        else if (cat === 'elementary' || cat === 'middle') elementaryTotal += count; 
+        else if (cat === 'primary') primaryTotal += count;
     });
 
     let currentIdx = 0;
@@ -1409,9 +1408,9 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
         const isLastPage = i === totalPagesCount - 1;
         let summaryTable = '';
         if (isLastPage) {
-            const summaryHeaders = [trLocal('High', 'ہائی'), trLocal('Middle', 'مڈل'), trLocal('Primary', 'پرائمری'), trLocal('Grand Total', 'کل تعداد')];
-            const summaryValues = [highTotal, middleTotal, primaryTotal, grandTotal];
-            summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th style="width: 25%;">${h}</th>`).join('')}</tr></thead><tbody><tr>${summaryValues.map(v => `<td style="font-weight: bold; font-size: 1.2em;">${v}</td>`).join('')}</tr></tbody></table></div>`;
+            const summaryHeaders = [trLocal('Primary', 'پرائمری'), trLocal('Elementary', 'ایلیمنٹری'), trLocal('Secondary', 'سیکنڈری'), trLocal('Higher Secondary', 'ہائر سیکنڈری'), trLocal('Grand Total', 'کل تعداد')];
+            const summaryValues = [primaryTotal, elementaryTotal, secondaryTotal, higherSecondaryTotal, grandTotal];
+            summaryTable = `<div style="margin-top: 20px; break-inside: avoid;"><table style="width: 100%;"><thead><tr>${summaryHeaders.map(h => `<th style="width: 20%;">${h}</th>`).join('')}</tr></thead><tbody><tr>${summaryValues.map(v => `<td style="font-weight: bold; font-size: 1.2em;">${v}</td>`).join('')}</tr></tbody></table></div>`;
         }
 
         let customStyles = `<style>table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid ${customDesign?.table?.borderColor || '#000000'}; padding: ${customDesign?.table?.cellPadding || 8}px; text-align: center; line-height: ${customDesign?.table?.lineHeight || 1.1}; white-space: nowrap; } th { background-color: ${customDesign?.table?.headerBgColor || '#f3f4f6'}; color: ${customDesign?.table?.headerColor || '#000000'}; font-weight: bold; } tr:nth-child(even) { background-color: ${customDesign?.table?.altRowColor || '#f9fafb'}; } td.comments-col, th.comments-col { white-space: normal; width: 100%; text-align: left; }</style>`;
@@ -1423,7 +1422,7 @@ export const generateBasicInformationHtml = (t: any, lang: DownloadLanguage, des
     return pages.length === 1 ? pages[0] : pages;
 };
 
-export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[], selectedCategories: string[] = ['Primary', 'Middle', 'High', 'Extra Rooms']) => {
+export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, design: DownloadDesignConfig, schoolConfig: SchoolConfig, classes: SchoolClass[], teachers: Teacher[], selectedCategories: string[] = ['Primary', 'Elementary', 'Secondary', 'Higher Secondary', 'Extra Rooms']) => {
     const { en: enT, ur: urT } = translations;
     const trLocal = (key: string) => lang === 'ur' ? (urT as any)[key] : (enT as any)[key];
     
@@ -1437,11 +1436,11 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
     }
     const rows: (string | number)[][] = [header];
 
-    let highTotal = 0; let middleTotal = 0; let primaryTotal = 0; let grandTotal = 0;
+    let higherSecondaryTotal = 0; let secondaryTotal = 0; let elementaryTotal = 0; let primaryTotal = 0; let grandTotal = 0;
 
     const filteredClasses = classes.filter(c => {
         if (c.isExtraRoom) return includesExtraRooms;
-        const cat = c.category || '';
+        const cat = c.academicLevel || '';
         return selectedCategories.includes(cat);
     });
 
@@ -1463,9 +1462,10 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
             } else {
                 const count = parseInt(String(c.studentCount), 10) || 0;
                 grandTotal += count;
-                const cat = (c.category || '').trim().toLowerCase();
-                if (cat === 'high') highTotal += count;
-                else if (cat === 'middle') middleTotal += count;
+                const cat = (c.academicLevel || '').trim().toLowerCase();
+                if (cat === 'higher secondary') higherSecondaryTotal += count;
+                else if (cat === 'secondary' || cat === 'high') secondaryTotal += count;
+                else if (cat === 'elementary' || cat === 'middle') elementaryTotal += count;
                 else if (cat === 'primary') primaryTotal += count;
 
                 const tea = teachers.find(tea => tea.id === c.inCharge);
@@ -1479,9 +1479,10 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
             } else {
                 const count = parseInt(String(c.studentCount), 10) || 0;
                 grandTotal += count;
-                const cat = (c.category || '').trim().toLowerCase();
-                if (cat === 'high') highTotal += count;
-                else if (cat === 'middle') middleTotal += count;
+                const cat = (c.academicLevel || '').trim().toLowerCase();
+                if (cat === 'higher secondary') higherSecondaryTotal += count;
+                else if (cat === 'secondary' || cat === 'high') secondaryTotal += count;
+                else if (cat === 'elementary' || cat === 'middle') elementaryTotal += count;
                 else if (cat === 'primary') primaryTotal += count;
 
                 const tea = teachers.find(tea => tea.id === c.inCharge);
@@ -1493,8 +1494,8 @@ export const generateBasicInformationExcel = (t: any, lang: DownloadLanguage, de
     });
 
     rows.push([]);
-    rows.push([trLocal('high'), trLocal('middle'), trLocal('primary'), trLocal('grandTotal')]);
-    rows.push([highTotal, middleTotal, primaryTotal, grandTotal]);
+    rows.push([trLocal('primary'), trLocal('elementary'), trLocal('secondary'), trLocal('higherSecondary'), trLocal('grandTotal')]);
+    rows.push([primaryTotal, elementaryTotal, secondaryTotal, higherSecondaryTotal, grandTotal]);
 
     const finalRows = addExcelHeaderFooter(rows, schoolConfig, design, trLocal('Basic Information') || 'Basic Information', lang);
     downloadCsv(finalRows.map(toCsvRow).join('\n'), 'Basic_Information.csv');
@@ -1769,8 +1770,9 @@ export const generateAttendanceReportHtml = (
     ];
 
     const stats: Record<string, { total: number, absent: number, sick: number, leave: number, present: number }> = {
-        High: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
-        Middle: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
+        'Higher Secondary': { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
+        Secondary: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
+        Elementary: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
         Primary: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
         'Extra Rooms': { total: 0, absent: 0, sick: 0, leave: 0, present: 0 },
         GrandTotal: { total: 0, absent: 0, sick: 0, leave: 0, present: 0 }
@@ -1819,7 +1821,7 @@ export const generateAttendanceReportHtml = (
             const percentage = total > 0 ? ((present / total) * 100).toFixed(1) + '%' : '0.0%';
             const signature = data?.signature || '';
 
-            const cat = c.isExtraRoom ? 'Extra Rooms' : (c.category || 'Primary');
+            const cat = c.isExtraRoom ? 'Extra Rooms' : (c.academicLevel || 'Primary');
             if (stats[cat]) {
                 stats[cat].total += total;
                 stats[cat].absent += abs;
@@ -1858,7 +1860,7 @@ export const generateAttendanceReportHtml = (
         let summaryTable = '';
         if (isLastPage) {
             const summaryHeaders = [
-                trLocal('Category', 'زمرہ'),
+                trLocal('Academic Level', 'تعلیمی سطح'),
                 trLocal('Total', 'کل'),
                 trLocal('Absent', 'غیر حاضر'),
                 trLocal('Sick', 'بیمار'),
@@ -1867,8 +1869,8 @@ export const generateAttendanceReportHtml = (
                 '%'
             ];
             
-            const cats = ['High', 'Middle', 'Primary', 'Extra Rooms'];
-            const summaryRows = cats.map(cat => {
+            const academicLevels = ['Primary', 'Elementary', 'Secondary', 'Higher Secondary', 'Extra Rooms'];
+            const summaryRows = academicLevels.map(cat => {
                 const s = stats[cat];
                 if (!s || s.total === 0) return '';
                 const p = s.total > 0 ? ((s.present / s.total) * 100).toFixed(1) + '%' : '0.0%';

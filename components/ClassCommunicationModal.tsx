@@ -568,7 +568,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
 
                   // Use color of the subject
                   const firstPeriod = sortedPeriods[0];
-                  const colorKey = firstPeriod.jointPeriodId ? String(firstPeriod.jointPeriodId) : `${firstPeriod.classId}-${firstPeriod.subjectId}`;
+                  const colorKey = firstPeriod.jointPeriodId ? String(firstPeriod.jointPeriodId) : String(firstPeriod.subjectId);
                   const colorName = subjectColorMap.get(colorKey) || 'subject-default';
 
                   const triangleHtml = (cardStyle === 'triangle' || cardStyle === 'full') ? `<div class="card-triangle"></div>` : '';

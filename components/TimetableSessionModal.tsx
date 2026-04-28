@@ -59,14 +59,14 @@ const TimetableSessionModal: React.FC<TimetableSessionModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="timetableSessionModalTitle"
       onClick={onClose}
     >
       <div
-        className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-lg w-full mx-4 transform transition-all"
+        className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-lg w-full transform transition-all max-h-[95vh] overflow-y-auto custom-scrollbar"
         onClick={e => e.stopPropagation()}
       >
         <h3 id="timetableSessionModalTitle" className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">
