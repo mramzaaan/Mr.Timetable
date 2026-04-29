@@ -7,6 +7,7 @@ import { generateAdjustmentsExcel, generateAdjustmentsReportHtml } from './repor
 import { generateUniqueId, allDays } from '../types';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import { toJpeg, toBlob } from 'html-to-image';
+import { saveAndShareFile, openUrlBrowser } from './capacitorHelpers';
 import { Share2, ArrowUpDown, Printer, Calendar, ChevronDown as ChevronDownLucide, Trash2, Edit, Plus as PlusLucide, Check, Zap, RotateCcw } from 'lucide-react';
 
 // Icons
@@ -1022,28 +1023,6 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
   const handleWhatsAppNotify = async (adjustment: Adjustment) => {
       setSlipData(adjustment);
       await new Promise(resolve => setTimeout(resolve, 500)); // Increased delay for rendering
-      
-      if (slipRef.current) {
-          try {
-              const blob = await toBlob(slipRef.current, { 
-                  pixelRatio: 3, 
-                  backgroundColor: '#ffffff'
-              });
-              if (blob) {
-                  try {
-                      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-                      alert("Slip copied to clipboard!");
-                  } catch (err) {
-                      console.error("Clipboard write failed", err);
-                      alert("Could not auto-copy image. Please use screenshot.");
-                  }
-              }
-          } catch (err) {
-              console.error("Image generation failed", err);
-          }
-      }
-      
-      setTimeout(() => setSlipData(null), 1000); 
 
       const teacher = teachers.find(t => t.id === adjustment.substituteTeacherId);
       if (!teacher) return;
@@ -1085,9 +1064,48 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
             .replace('{originalTeacherName}', origName)
             .replace('{conflictClassName}', language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn);
       }
+      
+      let generatedBlob: Blob | null = null;
+      if (slipRef.current) {
+          try {
+              generatedBlob = await toBlob(slipRef.current, { 
+                  pixelRatio: 3, 
+                  backgroundColor: '#ffffff'
+              });
+          } catch (err) {
+              console.error("Image generation failed", err);
+          }
+      }
+      setTimeout(() => setSlipData(null), 1000); 
 
-      const url = `https://wa.me/${teacher.contactNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
+      let copied = false;
+      if (generatedBlob) {
+          try {
+              if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+                  await navigator.clipboard.write([new ClipboardItem({ [generatedBlob.type]: generatedBlob })]);
+                  copied = true;
+              }
+          } catch (err) {
+              console.error("Clipboard write failed", err);
+          }
+      }
+
+      let phoneNumber = teacher.contactNumber.replace(/[^0-9]/g, '');
+      if (phoneNumber.startsWith('0')) phoneNumber = '92' + phoneNumber.substring(1);
+      const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+      if (copied) {
+          alert("Slip copied to clipboard! Opening WhatsApp...");
+          setTimeout(() => { openUrlBrowser(waUrl); }, 500);
+      } else if (generatedBlob) {
+          const shared = await saveAndShareFile(generatedBlob, `slip_${selectedDate}.png`, 'Substitution Slip', message);
+          if (!shared) {
+               alert("Could not share image. Please use screenshot.");
+               setTimeout(() => { openUrlBrowser(waUrl); }, 500);
+          }
+      } else {
+          setTimeout(() => { openUrlBrowser(waUrl); }, 500);
+      }
   };
 
   const handleSaveModal = () => {

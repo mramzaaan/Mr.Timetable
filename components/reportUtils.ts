@@ -38,15 +38,21 @@ const renderText = (lang: DownloadLanguage, en: string, ur: string) => {
     return `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; line-height:1.1;"><span>${en}</span><span style="${urduStyle} font-size: 0.85em;">${ur}</span></div>`;
 };
 
+import { downloadFileNative } from './capacitorHelpers';
+
 // --- CSV Helper Functions ---
-const downloadCsv = (content: string, filename: string) => {
+const downloadCsv = async (content: string, filename: string) => {
     const blob = new Blob([`\uFEFF${content}`], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const downloaded = await downloadFileNative(blob, filename);
+    if (!downloaded) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(link.href), 100);
+    }
 };
 
 export const addExcelHeaderFooter = (

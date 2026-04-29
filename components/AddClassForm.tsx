@@ -11,6 +11,7 @@ interface AddClassFormProps {
   classes: SchoolClass[];
   onSetClasses: (classes: SchoolClass[]) => void;
   onDeleteClass: (classId: string) => void;
+  triggerOpenForm?: number;
 }
 
 const createEmptyTimetable = (): TimetableGridData => ({
@@ -22,7 +23,7 @@ const createEmptyTimetable = (): TimetableGridData => ({
   Saturday: Array.from({ length: 8 }, () => []),
 });
 
-const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, classes, onSetClasses, onDeleteClass }) => {
+const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, classes, onSetClasses, onDeleteClass, triggerOpenForm }) => {
   const [nameEn, setNameEn] = useState('');
   const [nameUr, setNameUr] = useState('');
   const [academicLevel, setAcademicLevel] = useState<'Primary' | 'Elementary' | 'Secondary' | 'Higher Secondary' | ''>('');
@@ -38,6 +39,14 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
   const [sortBy, setSortBy] = useState<'serial' | 'nameEn' | 'nameUr' | 'studentCount'>('serial');
   
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+     if (triggerOpenForm && triggerOpenForm > 0) {
+         setEditingClass(null);
+         resetForm();
+         setIsFormOpen(true);
+     }
+  }, [triggerOpenForm]);
 
   // Filter out pseudo-class 'non-teaching-duties'
   const visibleClasses = useMemo(() => classes.filter(c => c.id !== 'non-teaching-duties'), [classes]);
@@ -138,17 +147,6 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
 
   return (
     <div>
-      <button 
-          onClick={() => setIsFormOpen(true)}
-          className="w-full py-4 bg-blue-500 text-white font-bold text-lg rounded-full shadow-lg hover:bg-blue-600 hover:shadow-xl transition-all flex items-center justify-center gap-2 mb-8 transform active:scale-[0.98]"
-      >
-          <div className="bg-white/20 rounded-full p-1">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-          </div>
-          {t.addClass}
-      </button>
 
       {isFormOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity" onClick={handleCancel}>

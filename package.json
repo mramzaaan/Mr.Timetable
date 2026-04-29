@@ -10,6 +10,10 @@
     "lint": "echo 'No linter configured'"
   },
   "dependencies": {
+    "@capacitor/browser": "^8.0.3",
+    "@capacitor/core": "^8.3.1",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/share": "^8.0.1",
     "@google/genai": "^1.33.0",
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",

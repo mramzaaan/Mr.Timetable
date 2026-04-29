@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { toBlob, toJpeg } from 'html-to-image';
+import { downloadFileNative, isNative } from './capacitorHelpers';
 import type { DownloadLanguage, DownloadDesignConfig, FontFamily, CardStyle, TriangleCorner } from '../types';
 
 declare const jspdf: any;
@@ -1103,7 +1104,12 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
               if (i > 0) pdf.addPage(undefined, orientation);
               pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
           }
-          pdf.save(`${fileNameBase}.pdf`);
+          const pdfBlob = pdf.output('blob');
+          const finalName = `${fileNameBase}.pdf`;
+          const downloaded = await downloadFileNative(pdfBlob, finalName);
+          if (!downloaded) {
+              pdf.save(finalName);
+          }
       } catch (err) {
           console.error("PDF generation failed:", err);
           alert("Failed to generate PDF.");
@@ -1114,6 +1120,12 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
   };
 
   const handlePrint = useCallback(() => {
+      if (isNative) {
+          alert("Direct printing from the app is limited. The system will now download a PDF version instead, which you can open to print.");
+          handleDownloadPdf();
+          return;
+      }
+
       // Clean up any existing iframe first
       if (printIframeRef.current) {
           document.body.removeChild(printIframeRef.current);

@@ -9,9 +9,10 @@ interface AddTeacherFormProps {
   onAddTeacher: (teacher: Teacher) => void;
   onUpdateTeacher: (teacher: Teacher) => void;
   onDeleteTeacher: (teacherId: string) => void;
+  triggerOpenForm?: number;
 }
 
-const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeacher, onUpdateTeacher, onDeleteTeacher }) => {
+const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeacher, onUpdateTeacher, onDeleteTeacher, triggerOpenForm }) => {
   const [nameEn, setNameEn] = useState('');
   const [nameUr, setNameUr] = useState('');
   const [contactNumber, setContactNumber] = useState('');
@@ -23,6 +24,18 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
   const [sortBy, setSortBy] = useState<'serial' | 'nameEn' | 'nameUr'>('serial');
   
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+     if (triggerOpenForm && triggerOpenForm > 0) {
+         setEditingTeacher(null);
+         setNameEn('');
+         setNameUr('');
+         setContactNumber('');
+         setGender('');
+         setSerialNumber('');
+         setIsFormOpen(true);
+     }
+  }, [triggerOpenForm]);
 
   useEffect(() => {
     if (editingTeacher) {
@@ -98,18 +111,6 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
 
   return (
     <div>
-        <button 
-            onClick={() => setIsFormOpen(true)}
-            className="w-full py-4 bg-blue-500 text-white font-bold text-lg rounded-full shadow-lg hover:bg-blue-600 hover:shadow-xl transition-all flex items-center justify-center gap-2 mb-8 transform active:scale-[0.98]"
-        >
-            <div className="bg-white/20 rounded-full p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-            </div>
-            {t.addTeacher}
-        </button>
-
         {isFormOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity" onClick={handleCancel}>
                 <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-2xl w-full mx-4 transform transition-all border border-[var(--border-primary)]" onClick={e => e.stopPropagation()}>

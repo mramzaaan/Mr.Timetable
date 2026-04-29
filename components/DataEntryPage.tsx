@@ -66,6 +66,21 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
   onOpenSchoolInfo
 }) => {
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+  const [isFabOpen, setIsFabOpen] = useState(false);
+
+  const [triggerTeacher, setTriggerTeacher] = useState(0);
+  const [triggerSubject, setTriggerSubject] = useState(0);
+  const [triggerClass, setTriggerClass] = useState(0);
+
+  const handleFabClick = (tab: DataEntryTab) => {
+      onTabChange(tab);
+      setIsFabOpen(false);
+      setTimeout(() => {
+          if (tab === 'teacher') setTriggerTeacher(prev => prev + 1);
+          if (tab === 'subject') setTriggerSubject(prev => prev + 1);
+          if (tab === 'class') setTriggerClass(prev => prev + 1);
+      }, 50);
+  };
   
   if (!currentTimetableSession) {
     return <NoSessionPlaceholder t={t} />;
@@ -74,11 +89,11 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
   const renderTabContent = () => {
     switch (activeTab) {
       case 'class':
-        return <AddClassForm t={t} subjects={subjects} teachers={teachers} classes={classes} onSetClasses={onSetClasses} onDeleteClass={onDeleteClass} />;
+        return <AddClassForm t={t} subjects={subjects} teachers={teachers} classes={classes} onSetClasses={onSetClasses} onDeleteClass={onDeleteClass} triggerOpenForm={triggerClass} />;
       case 'teacher':
-        return <AddTeacherForm t={t} teachers={teachers} onAddTeacher={onAddTeacher} onUpdateTeacher={onUpdateTeacher} onDeleteTeacher={onDeleteTeacher} />;
+        return <AddTeacherForm t={t} teachers={teachers} onAddTeacher={onAddTeacher} onUpdateTeacher={onUpdateTeacher} onDeleteTeacher={onDeleteTeacher} triggerOpenForm={triggerTeacher} />;
       case 'subject':
-        return <AddSubjectForm t={t} subjects={subjects} onAddSubject={onAddSubject} onUpdateSubject={onUpdateSubject} onDeleteSubject={onDeleteSubject} />;
+        return <AddSubjectForm t={t} subjects={subjects} onAddSubject={onAddSubject} onUpdateSubject={onUpdateSubject} onDeleteSubject={onDeleteSubject} triggerOpenForm={triggerSubject} />;
       case 'structure':
         const structureKey = currentTimetableSession 
             ? `${currentTimetableSession.id}-${JSON.stringify(currentTimetableSession.periodTimings || {})}-${JSON.stringify(currentTimetableSession.breaks || {})}`
@@ -176,6 +191,57 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
         <div className="animate-fade-in bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 lg:p-8">{renderTabContent()}</div>
       </div>
       <CsvManagementModal t={t} isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} currentTimetableSession={currentTimetableSession} onUpdateTimetableSession={onUpdateTimetableSession} />
+
+      {/* Floating Action Button */}
+      <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[80] flex flex-col items-end">
+          {/* Menu Options */}
+          <div className={`flex flex-col gap-3 mb-4 transition-all duration-300 origin-bottom ${isFabOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-10 pointer-events-none'}`}>
+              <button 
+                  onClick={() => handleFabClick('class')}
+                  className="flex items-center justify-end gap-3 group"
+              >
+                  <span className="bg-white/90 backdrop-blur text-gray-800 font-bold px-3 py-1.5 rounded-lg shadow-sm text-sm group-hover:scale-105 transition-transform">{t.addClass || "Add Class"}</span>
+                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg group-hover:bg-blue-600 transition-colors">
+                      <ClassIcon />
+                  </div>
+              </button>
+              <button 
+                  onClick={() => handleFabClick('subject')}
+                  className="flex items-center justify-end gap-3 group"
+              >
+                  <span className="bg-white/90 backdrop-blur text-gray-800 font-bold px-3 py-1.5 rounded-lg shadow-sm text-sm group-hover:scale-105 transition-transform">{t.addSubject || "Add Subject"}</span>
+                  <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white shadow-lg group-hover:bg-purple-600 transition-colors">
+                      <SubjectIcon />
+                  </div>
+              </button>
+              <button 
+                  onClick={() => handleFabClick('teacher')}
+                  className="flex items-center justify-end gap-3 group"
+              >
+                  <span className="bg-white/90 backdrop-blur text-gray-800 font-bold px-3 py-1.5 rounded-lg shadow-sm text-sm group-hover:scale-105 transition-transform">{t.addTeacher || "Add Teacher"}</span>
+                  <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg group-hover:bg-emerald-600 transition-colors">
+                      <TeacherIcon />
+                  </div>
+              </button>
+          </div>
+          
+          {/* Main Button */}
+          <button 
+              onClick={() => setIsFabOpen(!isFabOpen)}
+              className={`w-16 h-16 rounded-full flex items-center justify-center text-white shadow-[0_8px_30px_rgb(0,0,0,0.3)] transition-all duration-300 transform active:scale-95 ${isFabOpen ? 'bg-gray-800 rotate-45' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-[0_8px_30px_rgba(79,70,229,0.5)] hover:-translate-y-1'}`}
+          >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+          </button>
+      </div>
+      {/* Overlay to close FAB when clicking outside */}
+      {isFabOpen && (
+          <div 
+              className="fixed inset-0 z-[70] bg-black/20 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsFabOpen(false)}
+          />
+      )}
     </div>
   );
 };

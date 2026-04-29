@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toJpeg } from 'html-to-image';
+import { downloadFileNative } from './capacitorHelpers';
 import type { DownloadFormat, DownloadLanguage, SchoolClass, Teacher, DownloadDesignConfig } from '../types';
 
 declare const jspdf: any;
@@ -230,7 +231,12 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
               }
           }
-          pdf.save(`${fileNameBase}_${downloadFormat}.pdf`);
+          const pdfBlob = pdf.output('blob');
+          const finalName = `${fileNameBase}_${downloadFormat}.pdf`;
+          const downloaded = await downloadFileNative(pdfBlob, finalName);
+          if (!downloaded) {
+              pdf.save(finalName);
+          }
         } catch (err) {
           console.error("PDF generation failed:", err);
           alert("Failed to generate PDF.");
@@ -307,7 +313,12 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
             const yOffset = (pdfHeight - finalHeight) / 2;
             pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight, undefined, 'FAST');
           }
-          pdf.save(`${fileNameBase}.pdf`);
+          const pdfBlob = pdf.output('blob');
+          const finalName = `${fileNameBase}.pdf`;
+          const downloaded = await downloadFileNative(pdfBlob, finalName);
+          if (!downloaded) {
+              pdf.save(finalName);
+          }
         } catch(err) {
           console.error("PDF generation failed:", err);
           alert("Failed to generate PDF.");

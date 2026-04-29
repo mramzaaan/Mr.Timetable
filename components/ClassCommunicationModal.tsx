@@ -1,11 +1,14 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { toBlob } from 'html-to-image';
+import { saveAndShareFile, downloadFileNative, openUrlBrowser } from './capacitorHelpers';
 import type { SchoolClass, Teacher, Subject, SchoolConfig, CardStyle, TriangleCorner } from '../types';
 import { allDays } from '../types';
 import { translations } from '../i18n';
 
 
+
+import { PositionSettingsModal } from './PositionSettingsModal';
 
 interface ClassCommunicationModalProps {
   t: any;
@@ -126,6 +129,9 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
   const [showCardBorder, setShowCardBorder] = useState(false);
   const [smoothDirection, setSmoothDirection] = useState<'left' | 'right' | 'top' | 'bottom'>('left');
   const [isUrdu, setIsUrdu] = useState(false);
+  const [isPositionModalOpen, setIsPositionModalOpen] = useState(false);
+  const [teacherPos, setTeacherPos] = useState({x: 0, y: 0});
+  const [subjectPos, setSubjectPos] = useState({x: 4, y: 4});
 
   // State for preview HTML
   const [previewHtml, setPreviewHtml] = useState<string>('');
@@ -425,14 +431,20 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             font-size: ${isUrdu ? 18 * 1.1 * subjectTextScale : 18 * 1.3 * subjectTextScale}px;
             text-transform: none; 
             line-height: normal;
-            text-align: ${isUrdu ? 'right' : 'left'};
+            text-align: center;
             margin: 0;
             color: inherit;
             white-space: nowrap;
             overflow: ${isUrdu ? 'visible' : 'hidden'};
             text-overflow: ${isUrdu ? 'clip' : 'ellipsis'};
             padding: 2px 4px;
-            ${!isUrdu ? 'transform: translateY(-2px);' : ''}
+            position: absolute;
+            left: ${subjectPos.x * 25}%;
+            top: ${subjectPos.y * 25}%;
+            transform: translate(-${subjectPos.x * 25}%, -${subjectPos.y * 25}%);
+            ${subjectPos.x === 0 ? 'margin-left: 4px;' : subjectPos.x === 4 ? 'margin-left: -4px;' : ''}
+            ${subjectPos.y === 0 ? 'margin-top: 4px;' : subjectPos.y === 4 ? 'margin-top: -4px;' : ''}
+            z-index: 10;
           }
           .period-teacher { 
             display: block;
@@ -440,7 +452,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             opacity: 0.95; 
             font-size: ${isUrdu ? 18 * 1.0 * subjectTextScale : 18 * subjectTextScale}px;
             line-height: normal;
-            text-align: ${isUrdu ? 'left' : 'right'};
+            text-align: center;
             margin: 0;
             color: inherit;
             white-space: nowrap;
@@ -448,6 +460,13 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             text-overflow: ${isUrdu ? 'clip' : 'ellipsis'};
             max-width: 100%;
             padding: 2px 4px;
+            position: absolute;
+            left: ${teacherPos.x * 25}%;
+            top: ${teacherPos.y * 25}%;
+            transform: translate(-${teacherPos.x * 25}%, -${teacherPos.y * 25}%);
+            ${teacherPos.x === 0 ? 'margin-left: 4px;' : teacherPos.x === 4 ? 'margin-left: -4px;' : ''}
+            ${teacherPos.y === 0 ? 'margin-top: 4px;' : teacherPos.y === 4 ? 'margin-top: -4px;' : ''}
+            z-index: 10;
           }
 
           .card-triangle {
@@ -810,33 +829,19 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
         return;
     }
 
-    const file = new File([blob], `timetable_${selectedClass.nameEn.replace(/\s/g, '_')}.png`, { type: 'image/png' });
-
-    if ((navigator as any).canShare && (navigator as any).canShare({ files: [file] })) {
-        try {
-            await (navigator as any).share({
-                files: [file],
-                title: 'Timetable',
-            });
-            setIsGenerating(false);
-            return;
-        } catch (error: any) {
-            if (error.name === 'AbortError') {
-                setIsGenerating(false);
-                return;
-            }
-            console.log("Share cancelled or failed, falling back to download.");
-        }
+    const fileName = `timetable_${selectedClass.nameEn.replace(/\s/g, '_')}.png`;
+    const shared = await saveAndShareFile(blob, fileName, 'Timetable');
+    
+    if (!shared) {
+        const dataUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(dataUrl);
     }
-
-    const dataUrl = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(dataUrl);
     
     setIsGenerating(false);
   };
@@ -851,6 +856,11 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
     const blob = await generateAndGetBlob();
 
     if (blob) {
+        let phoneNumber = inChargeTeacher.contactNumber.replace(/\D/g, '');
+        if (phoneNumber.startsWith('0')) phoneNumber = '92' + phoneNumber.substring(1);
+        
+        const fileName = `timetable_${selectedClass.nameEn.replace(/\s/g, '_')}.png`;
+
         let copied = false;
         try {
             if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
@@ -861,25 +871,26 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             console.warn("Clipboard write failed", clipboardError);
         }
 
-        if (!copied) {
-             const dataUrl = URL.createObjectURL(blob);
-             const link = document.createElement('a');
-             link.href = dataUrl;
-             link.download = `timetable_${selectedClass.nameEn.replace(/\s/g, '_')}.png`;
-             document.body.appendChild(link);
-             link.click();
-             document.body.removeChild(link);
-             URL.revokeObjectURL(dataUrl);
-             alert("Could not copy to clipboard. Image downloaded. Please attach manually in WhatsApp.");
+        if (copied) {
+            const url = `https://wa.me/${phoneNumber}`;
+            setTimeout(() => { openUrlBrowser(url); }, 500);
+        } else {
+            const shared = await saveAndShareFile(blob, fileName, 'Timetable', 'Please share this with the ' + selectedClass.nameEn + ' class');
+            
+            if (!shared) {
+                 const dataUrl = URL.createObjectURL(blob);
+                 const link = document.createElement('a');
+                 link.href = dataUrl;
+                 link.download = fileName;
+                 document.body.appendChild(link);
+                 link.click();
+                 document.body.removeChild(link);
+                 URL.revokeObjectURL(dataUrl);
+                 alert("Could not copy to clipboard. Image downloaded. Please attach manually in WhatsApp.");
+                 const url = `https://wa.me/${phoneNumber}`;
+                 setTimeout(() => { openUrlBrowser(url); }, 500);
+            }
         }
-
-        let phoneNumber = inChargeTeacher.contactNumber.replace(/\D/g, '');
-        if (phoneNumber.startsWith('0')) phoneNumber = '92' + phoneNumber.substring(1);
-        const url = `https://wa.me/${phoneNumber}`;
-        
-        setTimeout(() => {
-             window.open(url, '_blank');
-        }, 500);
     } else {
         alert("Failed to generate image.");
     }
@@ -903,6 +914,15 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             </div>
             
             <div className="flex items-center gap-3">
+                <button 
+                    onClick={() => setIsPositionModalOpen(true)} 
+                    className="px-3 py-1.5 text-sm font-medium bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-colors flex items-center gap-2 border border-emerald-500/30"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    Layout Pos
+                </button>
                 <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10">
                     <XIcon />
                 </button>
@@ -1102,6 +1122,17 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
 
         </div>
       </div>
+      <PositionSettingsModal
+        isOpen={isPositionModalOpen}
+        onClose={() => setIsPositionModalOpen(false)}
+        title={t.layoutPosition || "Layout Position"}
+        item1Label={t.subjectPosition || "Subject Position"}
+        item2Label={t.teacherPosition || "Teacher Position"}
+        item1Pos={subjectPos}
+        setItem1Pos={setSubjectPos}
+        item2Pos={teacherPos}
+        setItem2Pos={setTeacherPos}
+      />
     </div>
   );
 };
