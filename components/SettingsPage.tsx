@@ -71,6 +71,8 @@ const themeOptions: { id: Theme; name: string; colors: [string, string, string] 
 const appFontOptions = [
     { label: 'System Default', value: '' },
     { label: 'Sans-Serif', value: 'sans-serif' },
+    { label: 'Inter', value: 'Inter' },
+    { label: 'Roboto', value: 'Roboto' },
     { label: 'Serif', value: 'serif' },
     { label: 'Monospace', value: 'monospace' },
     { label: 'Bebas Neue', value: 'Bebas Neue' },

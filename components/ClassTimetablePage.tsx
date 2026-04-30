@@ -856,7 +856,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
           
           {/* Timetable Grid - Modern Styled */}
           <div className="flex-1 min-w-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-full">
-            <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-none sm:rounded-[2rem] p-1 sm:p-2 md:p-4 shadow-inner overflow-hidden border-y sm:border border-[#c5d3df] dark:border-[var(--border-primary)] pb-3 md:pb-6 w-full" ref={tableRef}>
+            <div className="bg-[var(--bg-secondary)] backdrop-blur-md rounded-none sm:rounded-oneui-lg p-1 sm:p-2 md:p-4 shadow-oneui overflow-hidden border-y sm:border border-[var(--border-primary)] pb-3 md:pb-6 w-full" ref={tableRef}>
                 <div className="w-full flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-2">
                     {/* Header Row */}
                     <div className="flex gap-0.5 sm:gap-1 md:gap-2 w-full pr-1">
@@ -1077,7 +1077,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                   
                   <div className="w-full">
                       <div 
-                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-[#c5d3df] dark:border-gray-700 rounded-[1.5rem] p-3 flex flex-col gap-2 min-h-[25rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
+                          className={`bg-[var(--bg-secondary)] backdrop-blur-md shadow-oneui border border-[var(--border-primary)] rounded-oneui-lg p-3 flex flex-col gap-2 min-h-[25rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
                           onDragOver={handleDragOver}
                           onDrop={handleSidebarDrop}
                           onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
@@ -1095,7 +1095,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                               </div>
                           ) : (
                               <div className="flex flex-row flex-wrap content-start items-start gap-2 period-stack-clickable overflow-y-auto custom-scrollbar pr-1 max-h-[60vh]">
-                                  {Object.values(groupedUnscheduled).map((group, index) => {
+                                  {Object.values(groupedUnscheduled).map((group: Period[], index) => {
                                       const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                       const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
                                       const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
@@ -1168,7 +1168,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                   
                   <div className={`transition-all duration-500 overflow-hidden ${isLessonListOpen ? 'max-h-[125rem] opacity-100' : 'max-h-0 opacity-0'}`}>
                       <div 
-                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-dashed border-[#a6b8ca] dark:border-gray-600 rounded-[1.5rem] p-4 flex flex-col gap-3 min-h-[9.375rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                          className={`bg-[var(--bg-secondary)] backdrop-blur-md shadow-oneui border border-[var(--border-primary)] rounded-oneui-lg p-4 flex flex-col gap-3 min-h-[9.375rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
                           onDragOver={handleDragOver}
                           onDrop={handleSidebarDrop}
                           onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
@@ -1186,7 +1186,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                               </div>
                           ) : (
                               <div className="flex flex-row content-start items-start gap-2 sm:gap-3 period-stack-clickable overflow-x-auto custom-scrollbar pb-2">
-                                  {Object.values(groupedUnscheduled).map((group, index) => {
+                                  {Object.values(groupedUnscheduled).map((group: Period[], index) => {
                                       const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                       const isSelected = moveSource && moveSource.periods[0].id === group[0].id;
                                       const groupKey = jp ? `jp-${jp.id}` : `sub-${group[0].subjectId}`;
@@ -1203,7 +1203,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
+                                              className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-[var(--bg-primary)] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
                                               <div className="flex w-full items-center justify-between">
@@ -1267,8 +1267,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
 
       {/* History Section (Logs) */}
       {selectedClass && hasActiveSession && (
-        <div className={`mt-8 mb-24 bg-white dark:bg-[#1e293b] rounded-[1.5rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[31.25rem]' : 'max-h-16 sm:max-h-[4.5rem]'}`}>
-            <div className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
+        <div className={`mt-8 mb-24 bg-[var(--bg-secondary)] backdrop-blur-md rounded-oneui p-1 sm:p-2 shadow-oneui border border-[var(--border-primary)]/20 overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[31.25rem]' : 'max-h-16 sm:max-h-[4.5rem]'}`}>
+            <div className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50/50 dark:hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer rounded-oneui" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
                 <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                     History / Logs
                     <span className="bg-[var(--accent-primary)] text-white text-xs px-2.5 py-0.5 rounded-full">{classLogs.length}</span>
@@ -1278,7 +1278,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                 </div>
             </div>
             
-            <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 overflow-y-auto custom-scrollbar max-h-[25rem]">
+            <div className="p-4 sm:p-6 bg-[var(--bg-primary)]/30 rounded-[1.5rem] mt-1 overflow-y-auto custom-scrollbar max-h-[25rem]">
                 {classLogs.length === 0 ? (
                     <div className="text-center py-8 opacity-50">
                          <div className="mb-3 mx-auto w-12 h-12 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-sm">

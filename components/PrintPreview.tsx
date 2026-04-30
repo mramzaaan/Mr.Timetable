@@ -858,7 +858,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
       } else if (selectedScope === 'column' && cellInfo) {
           const table = activeElement?.closest('table');
           if (table) {
-              targets = Array.from(table.rows).map(row => row.cells[cellInfo.col]).filter(Boolean) as HTMLElement[];
+              targets = Array.from(table.rows as HTMLCollectionOf<HTMLTableRowElement>).map(row => row.cells[cellInfo.col]).filter(Boolean) as HTMLElement[];
           }
       } else if (selectedScope === 'table') {
           const table = activeElement?.closest('table');

@@ -438,12 +438,6 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             overflow: ${isUrdu ? 'visible' : 'hidden'};
             text-overflow: ${isUrdu ? 'clip' : 'ellipsis'};
             padding: 2px 4px;
-            position: absolute;
-            left: ${subjectPos.x * 25}%;
-            top: ${subjectPos.y * 25}%;
-            transform: translate(-${subjectPos.x * 25}%, -${subjectPos.y * 25}%);
-            ${subjectPos.x === 0 ? 'margin-left: 4px;' : subjectPos.x === 4 ? 'margin-left: -4px;' : ''}
-            ${subjectPos.y === 0 ? 'margin-top: 4px;' : subjectPos.y === 4 ? 'margin-top: -4px;' : ''}
             z-index: 10;
           }
           .period-teacher { 
@@ -460,12 +454,6 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             text-overflow: ${isUrdu ? 'clip' : 'ellipsis'};
             max-width: 100%;
             padding: 2px 4px;
-            position: absolute;
-            left: ${teacherPos.x * 25}%;
-            top: ${teacherPos.y * 25}%;
-            transform: translate(-${teacherPos.x * 25}%, -${teacherPos.y * 25}%);
-            ${teacherPos.x === 0 ? 'margin-left: 4px;' : teacherPos.x === 4 ? 'margin-left: -4px;' : ''}
-            ${teacherPos.y === 0 ? 'margin-top: 4px;' : teacherPos.y === 4 ? 'margin-top: -4px;' : ''}
             z-index: 10;
           }
 
@@ -503,9 +491,10 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
               return `
                 .${name} { 
                     ${cardStyle === 'full' ? `background-color: ${textColor}; color: #ffffff;` : 
-                      isSmooth ? `background-color: ${textColor}15 !important; color: ${textColor}; ${sidePadding} padding-${smoothDirection}: 12px !important;` :
+                      isSmooth ? `background-color: ${baseColor} !important; color: ${textColor}; ${sidePadding} padding-${smoothDirection}: 12px !important;` :
                       cardStyle === 'outline' ? `background-color: #ffffff; color: ${textColor}; outline: 2px solid ${textColor}; outline-offset: -${outlineInset + 2}px;` :
-                      `background-color: #ffffff; color: ${textColor};`}
+                      cardStyle === 'badge' ? `background-color: #ffffff; color: ${textColor}; border: 1px solid ${baseColor};` :
+                      `background-color: ${baseColor} !important; color: ${textColor};`}
                 }
                 ${showCardBorder ? `
                 .${name}::after {
@@ -610,6 +599,9 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                          subjectBadgeStyle += ` background-color: ${TEXT_HEX_MAP[colorName] || '#000'}; color: #fff !important; padding: 4px 16px; border-radius: 16px; display: block; width: calc(100% - 16px); text-align: left; box-sizing: border-box; margin: 8px auto 4px auto;`;
                          teacherBadgeStyle += ` padding: 4px 16px 8px 16px; text-align: right; width: 100%; box-sizing: border-box; margin-top: auto;`;
                       }
+                  } else {
+                      subjectBadgeStyle += ` position: absolute; left: ${subjectPos.x * 25}%; top: ${subjectPos.y * 25}%; transform: translate(-${subjectPos.x * 25}%, -${subjectPos.y * 25}%); ${subjectPos.x === 0 ? 'margin-left: 4px;' : subjectPos.x === 4 ? 'margin-left: -4px;' : ''} ${subjectPos.y === 0 ? 'margin-top: 4px;' : subjectPos.y === 4 ? 'margin-top: -4px;' : ''} z-index: 10;`;
+                      teacherBadgeStyle += ` position: absolute; left: ${teacherPos.x * 25}%; top: ${teacherPos.y * 25}%; transform: translate(-${teacherPos.x * 25}%, -${teacherPos.y * 25}%); ${teacherPos.x === 0 ? 'margin-left: 4px;' : teacherPos.x === 4 ? 'margin-left: -4px;' : ''} ${teacherPos.y === 0 ? 'margin-top: 4px;' : teacherPos.y === 4 ? 'margin-top: -4px;' : ''} z-index: 10;`;
                   }
                   
                   const cardsContent = `
@@ -758,7 +750,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
         const html = generateTimetableImageHtml();
         setPreviewHtml(html);
     }
-  }, [isOpen, selectedCardStyle, selectedTriangleCorner, badgeTarget, mergePatterns, showStartTimes, selectedClass, themeColors, headerTextScale, footerTextScale, subjectTextScale, periodTextScale, isUrdu, showCardBorder, smoothDirection, slotPadding]);
+  }, [isOpen, selectedCardStyle, selectedTriangleCorner, badgeTarget, mergePatterns, showStartTimes, selectedClass, themeColors, headerTextScale, footerTextScale, subjectTextScale, periodTextScale, isUrdu, showCardBorder, smoothDirection, slotPadding, subjectPos, teacherPos, subjectColorMap]);
 
   // Adjust scale based on container width
   useEffect(() => {
@@ -901,36 +893,27 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[101] p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-[#1a2333] rounded-xl shadow-2xl w-full max-w-[95vw] md:max-w-2xl lg:max-w-4xl flex flex-col border border-white/10 max-h-[95vh] overflow-hidden transition-all" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[101] p-4 backdrop-blur-md" onClick={onClose}>
+      <div className="bg-[var(--bg-secondary)]/85 backdrop-blur-3xl rounded-oneui shadow-oneui w-full max-w-[95vw] md:max-w-2xl lg:max-w-4xl flex flex-col border border-[var(--border-primary)]/30 max-h-[95vh] overflow-hidden transition-all" onClick={e => e.stopPropagation()}>
         
         {/* Header */}
-        <div className="p-3 px-4 border-b border-white/10 bg-[#252f44] flex-shrink-0 flex justify-between items-center">
+        <div className="p-5 border-b border-[var(--border-primary)]/20 bg-transparent flex-shrink-0 flex justify-between items-center">
             <div className="flex items-baseline gap-2">
-                <h3 className="text-lg font-black text-white uppercase tracking-tight">
+                <h3 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
                     SEND TO IN-CHARGE
                 </h3>
-                <span className="text-sm text-gray-400 font-bold">{selectedClass.nameEn}</span>
+                <span className="text-sm text-[var(--text-secondary)] font-medium">{selectedClass.nameEn}</span>
             </div>
             
             <div className="flex items-center gap-3">
-                <button 
-                    onClick={() => setIsPositionModalOpen(true)} 
-                    className="px-3 py-1.5 text-sm font-medium bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-colors flex items-center gap-2 border border-emerald-500/30"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                    </svg>
-                    Layout Pos
-                </button>
-                <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10">
+                <button onClick={onClose} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-full hover:bg-[var(--bg-tertiary)]/50">
                     <XIcon />
                 </button>
             </div>
         </div>
         
         {/* Scrollable Content */}
-        <div className="flex-grow overflow-y-auto p-2 custom-scrollbar bg-[#1a2333]">
+        <div className="flex-grow overflow-y-auto p-4 custom-scrollbar bg-transparent">
 
             {/* Preview Section - Moved to Top */}
             <div className="flex flex-col items-center w-full mb-4" ref={previewContainerRef}>
@@ -1068,71 +1051,103 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
                     )}
                 </div>
 
+                {/* Inline Position Settings */}
+                <div className="mt-4 flex flex-col items-center justify-center p-3 bg-[#0f172a] rounded-xl border border-white/10 mx-auto w-full max-w-sm">
+                    <div className="flex gap-6 w-full justify-center">
+                        <div className="flex flex-col items-center gap-2">
+                            <h4 className="text-[0.55rem] sm:text-[0.625rem] font-black uppercase tracking-widest text-emerald-400">Sub Pos</h4>
+                            <div className="grid grid-cols-5 gap-1.5 w-[5.5rem] sm:w-[6rem]">
+                                {Array.from({ length: 5 }).map((_, y) => (
+                                    Array.from({ length: 5 }).map((_, x) => {
+                                        const isSelected = subjectPos.x === x && subjectPos.y === y;
+                                        return (
+                                            <button
+                                                key={`s-${x}-${y}`}
+                                                onClick={(e) => { e.stopPropagation(); setSubjectPos({x, y}); }}
+                                                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full mx-auto flex items-center justify-center transition-all ${isSelected ? 'bg-emerald-500 scale-125 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-gray-600 hover:bg-gray-500 hover:scale-110'}`}
+                                            />
+                                        );
+                                    })
+                                ))}
+                            </div>
+                        </div>
+                        <div className="w-px bg-white/10"></div>
+                        <div className="flex flex-col items-center gap-2">
+                            <h4 className="text-[0.55rem] sm:text-[0.625rem] font-black uppercase tracking-widest text-emerald-400">Teach Pos</h4>
+                            <div className="grid grid-cols-5 gap-1.5 w-[5.5rem] sm:w-[6rem]">
+                                {Array.from({ length: 5 }).map((_, y) => (
+                                    Array.from({ length: 5 }).map((_, x) => {
+                                        const isSelected = teacherPos.x === x && teacherPos.y === y;
+                                        return (
+                                            <button
+                                                key={`t-${x}-${y}`}
+                                                onClick={(e) => { e.stopPropagation(); setTeacherPos({x, y}); }}
+                                                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full mx-auto flex items-center justify-center transition-all ${isSelected ? 'bg-emerald-500 scale-125 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-gray-600 hover:bg-gray-500 hover:scale-110'}`}
+                                            />
+                                        );
+                                    })
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Buttons */}
-                <div className="flex gap-2 w-full mt-2 items-center">
-                    <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                        <span className="text-[0.5625rem] font-bold text-gray-400 uppercase tracking-wider">Urdu</span>
+                <div className="flex gap-2 w-full mt-4 items-center flex-wrap md:flex-nowrap">
+                    <div className="flex items-center gap-1.5 bg-[var(--bg-tertiary)]/50 px-3 py-2 rounded-xl border border-[var(--border-primary)]/30 backdrop-blur-md">
+                        <span className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Urdu</span>
                         <button 
                             onClick={() => setIsUrdu(!isUrdu)}
-                            className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isUrdu ? 'bg-blue-600' : 'bg-gray-600'}`}
+                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isUrdu ? 'bg-[var(--accent-primary)]' : 'bg-gray-400 dark:bg-gray-600'}`}
                         >
-                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isUrdu ? 'translate-x-3' : 'translate-x-0'}`} />
+                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isUrdu ? 'translate-x-4' : 'translate-x-0'}`} />
                         </button>
                     </div>
-                    <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                        <span className="text-[0.5625rem] font-bold text-gray-400 uppercase tracking-wider">Time</span>
+                    <div className="flex items-center gap-1.5 bg-[var(--bg-tertiary)]/50 px-3 py-2 rounded-xl border border-[var(--border-primary)]/30 backdrop-blur-md">
+                        <span className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Time</span>
                         <button 
                             onClick={() => setShowStartTimes(!showStartTimes)}
-                            className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showStartTimes ? 'bg-blue-600' : 'bg-gray-600'}`}
+                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showStartTimes ? 'bg-[var(--accent-primary)]' : 'bg-gray-400 dark:bg-gray-600'}`}
                         >
-                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showStartTimes ? 'translate-x-3' : 'translate-x-0'}`} />
+                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showStartTimes ? 'translate-x-4' : 'translate-x-0'}`} />
                         </button>
                     </div>
-                    <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                        <span className="text-[0.5625rem] font-bold text-gray-400 uppercase tracking-wider">Border</span>
+                    <div className="flex items-center gap-1.5 bg-[var(--bg-tertiary)]/50 px-3 py-2 rounded-xl border border-[var(--border-primary)]/30 backdrop-blur-md">
+                        <span className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Border</span>
                         <button 
                             onClick={() => setShowCardBorder(!showCardBorder)}
-                            className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showCardBorder ? 'bg-blue-600' : 'bg-gray-600'}`}
+                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showCardBorder ? 'bg-[var(--accent-primary)]' : 'bg-gray-400 dark:bg-gray-600'}`}
                         >
-                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showCardBorder ? 'translate-x-3' : 'translate-x-0'}`} />
+                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showCardBorder ? 'translate-x-4' : 'translate-x-0'}`} />
                         </button>
                     </div>
-                    <div className="flex items-center gap-1 bg-[#1a2333] px-2 py-1.5 rounded-lg border border-white/5 shadow-inner">
-                        <span className="text-[0.5625rem] font-bold text-gray-400 uppercase tracking-wider">Merge</span>
+                    <div className="flex items-center gap-1.5 bg-[var(--bg-tertiary)]/50 px-3 py-2 rounded-xl border border-[var(--border-primary)]/30 backdrop-blur-md">
+                        <span className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Merge</span>
                         <button 
                             onClick={() => setMergePatterns(!mergePatterns)}
-                            className={`relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${mergePatterns ? 'bg-blue-600' : 'bg-gray-600'}`}
+                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${mergePatterns ? 'bg-[var(--accent-primary)]' : 'bg-gray-400 dark:bg-gray-600'}`}
                         >
-                            <span className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${mergePatterns ? 'translate-x-3' : 'translate-x-0'}`} />
+                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${mergePatterns ? 'translate-x-4' : 'translate-x-0'}`} />
                         </button>
                     </div>
 
-                    <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[0.625rem] font-black uppercase tracking-wider bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
-                        {isGenerating ? (
-                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
-                        )}
-                    </button>
-                    <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-8 flex items-center justify-center gap-1 px-2 text-[0.625rem] font-black uppercase tracking-wider bg-[#128C7E] text-white rounded-md hover:bg-[#075e54] disabled:opacity-50 shadow transition-all transform active:scale-95 hover:-translate-y-0.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>
-                    </button>
+                    <div className="flex flex-1 gap-2">
+                        <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-10 flex items-center justify-center gap-2 px-3 text-[0.6875rem] font-bold uppercase tracking-wider bg-[var(--accent-primary)] text-white rounded-xl hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 shadow-md transition-all transform active:scale-95">
+                            {isGenerating ? (
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
+                            )}
+                        </button>
+                        <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-10 flex items-center justify-center gap-2 px-3 text-[0.6875rem] font-bold uppercase tracking-wider bg-[#128C7E] text-white rounded-xl hover:bg-[#075e54] disabled:opacity-50 shadow-md transition-all transform active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
         </div>
       </div>
-      <PositionSettingsModal
-        isOpen={isPositionModalOpen}
-        onClose={() => setIsPositionModalOpen(false)}
-        title={t.layoutPosition || "Layout Position"}
-        item1Label={t.subjectPosition || "Subject Position"}
-        item2Label={t.teacherPosition || "Teacher Position"}
-        item1Pos={subjectPos}
-        setItem1Pos={setSubjectPos}
-        item2Pos={teacherPos}
-        setItem2Pos={setTeacherPos}
-      />
     </div>
   );
 };

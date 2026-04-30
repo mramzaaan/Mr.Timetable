@@ -37,7 +37,7 @@ export const PositionSettingsModal: React.FC<PositionSettingsModalProps> = ({
                         return (
                             <button
                                 key={`${x}-${y}`}
-                                onClick={() => setPos({x, y})}
+                                onClick={(e) => { e.stopPropagation(); setPos({x, y}); }}
                                 className={`w-5 h-5 rounded-full mx-auto flex items-center justify-center transition-all ${isSelected ? activeColor + ' scale-125 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-gray-600 hover:bg-gray-500 hover:scale-110'}`}
                             />
                         );
@@ -70,7 +70,7 @@ export const PositionSettingsModal: React.FC<PositionSettingsModalProps> = ({
                 </div>
                 
                 <div className="p-4 border-t border-white/10 bg-[#1a2333] flex justify-end">
-                    <button onClick={onClose} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors shadow-lg w-full sm:w-auto">
+                    <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors shadow-lg w-full sm:w-auto">
                         Done
                     </button>
                 </div>

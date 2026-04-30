@@ -1,5 +1,5 @@
 
-import type { SchoolClass, Adjustment, TimetableGridData, DownloadLanguage, DownloadDesignConfig, Teacher, SchoolConfig, Subject, PeriodTime, Break, Period, LeaveDetails, AttendanceData, TriangleCorner } from '../types';
+import type { SchoolClass, Adjustment, TimetableGridData, DownloadLanguage, DownloadDesignConfig, Teacher, SchoolConfig, Subject, PeriodTime, Break, Period, LeaveDetails, AttendanceData, TriangleCorner, TimetableSession } from '../types';
 import { translations } from '../i18n';
 import { allDays, getColorForId } from '../types';
 
@@ -81,7 +81,7 @@ export const addExcelHeaderFooter = (
     };
     
     const headerRows: (string | number)[][] = [];
-    if (design?.header?.showSchoolName !== false) {
+    if (schoolName) {
         headerRows.push(padRow([schoolName || '']));
     }
     if (design?.header?.showTitle !== false) {
@@ -90,8 +90,8 @@ export const addExcelHeaderFooter = (
     if (design?.header?.showDate !== false && dateStr) {
         headerRows.push(padRow([dateStr]));
     }
-    if (design?.header?.details?.text) {
-        headerRows.push(padRow([design.header.details.text]));
+    if (design?.header?.subtitle) {
+        headerRows.push(padRow([design.header.subtitle]));
     }
     headerRows.push(padRow([])); // Empty row
     
@@ -1999,7 +1999,7 @@ export const formatClassName = (name: string, format?: 'default' | 'compact' | '
 export const generateTeachersTimetableSummaryHtml = (
     session: TimetableSession,
     schoolConfig: SchoolConfig,
-    language: string,
+    language: DownloadLanguage,
     summaryType: 'allDays' | 'byDays',
     selectedDays: string[],
     design: DownloadDesignConfig

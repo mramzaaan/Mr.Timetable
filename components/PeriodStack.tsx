@@ -29,7 +29,7 @@ const LinkIcon = () => (
     </svg>
 );
 
-const PeriodStack: React.FC<PeriodStackProps> = React.memo(({ periods, onDragStart, onDragEnd, onDeleteStack, onClick, colorName, language, subjects, teachers, classes, jointPeriods, displayContext, isHighlighted, isDimmed, isGhost, isSelected, className, showCount = true, jointPeriodName }) => {
+const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragEnd, onDeleteStack, onClick, colorName, language, subjects, teachers, classes, jointPeriods, displayContext, isHighlighted, isDimmed, isGhost, isSelected, className, showCount = true, jointPeriodName }) => {
   const firstPeriod = periods[0];
   const schoolClass = useMemo(() => {
     if (!firstPeriod) return undefined;

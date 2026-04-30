@@ -1773,7 +1773,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                                     {sortedHistory.leaves.map((item, idx) => (
                                                         <tr key={`l-${idx}`} className="hover:bg-[var(--bg-tertiary)]/50 transition-colors">
                                                             <td className="px-4 py-3 font-mono font-medium text-[var(--text-primary)]">
-                                                                {new Date(item.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                                {new Date(item.date).toLocaleDateString(language === 'ur' ? 'ur-PK' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                                                             </td>
                                                             <td className="px-4 py-3 text-[var(--text-secondary)]">{item.dayName}</td>
                                                             <td className="px-4 py-3">
@@ -1831,7 +1831,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                                     {sortedHistory.substitutions.map((item, idx) => (
                                                         <tr key={`s-${idx}`} className="hover:bg-[var(--bg-tertiary)]/50 transition-colors">
                                                             <td className="px-4 py-3 font-mono font-medium text-[var(--text-primary)]">
-                                                                {new Date(item.date).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                                {new Date(item.date).toLocaleDateString(language === 'ur' ? 'ur-PK' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                                                                 <div className="text-[0.625rem] text-[var(--text-secondary)] uppercase font-bold">{item.dayName}</div>
                                                             </td>
                                                             <td className="px-4 py-3 text-center font-bold text-[var(--text-primary)] bg-[var(--bg-tertiary)]/30">{item.period}</td>
