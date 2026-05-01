@@ -196,7 +196,7 @@ const PeriodStack: React.FC<PeriodStackProps> = ({ periods, onDragStart, onDragE
       onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
       onClick={handleClick}
-      className={`relative block p-2.5 rounded-xl text-left cursor-grab shadow-sm hover:shadow-md transition-all border border-[var(--border-secondary)] group flex flex-col flex-grow ${className || 'w-40'} ${isGhost ? 'period-ghost' : ''} ${isHighlighted ? highlightClasses : ''} ${isDimmed ? dimClasses : ''} ${isSelected ? selectedClasses : ''}`}
+      className={`relative block p-2.5 rounded-[2rem] text-left cursor-grab shadow-sm hover:shadow-md transition-all border border-[var(--border-secondary)] group flex flex-col flex-grow ${className || 'w-40'} ${isGhost ? 'period-ghost' : ''} ${isHighlighted ? highlightClasses : ''} ${isDimmed ? dimClasses : ''} ${isSelected ? selectedClasses : ''}`}
       style={isGhost ? {} : dynamicStyle}
       title={titleString}
     >

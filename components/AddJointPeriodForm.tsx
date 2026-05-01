@@ -129,14 +129,14 @@ const AddJointPeriodForm: React.FC<AddJointPeriodFormProps> = ({ t, jointPeriods
           .filter((s): s is Subject => !!s);
   };
 
-  const inputStyleClasses = "mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm";
+  const inputStyleClasses = "mt-1 block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm";
 
   return (
     <div>
       {!isFormOpen ? (
         <button 
             onClick={() => setIsFormOpen(true)}
-            className="w-full py-6 border-2 border-dashed border-[var(--border-secondary)] rounded-xl text-[var(--text-secondary)] font-bold text-lg hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-secondary)]/10 transition-all flex items-center justify-center gap-2 shadow-sm mb-8"
+            className="w-full py-6 border-2 border-dashed border-[var(--border-secondary)] rounded-[2rem] text-[var(--text-secondary)] font-bold text-lg hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-secondary)]/10 transition-all flex items-center justify-center gap-2  mb-8"
         >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -144,7 +144,7 @@ const AddJointPeriodForm: React.FC<AddJointPeriodFormProps> = ({ t, jointPeriods
             {t.addJointPeriod}
         </button>
       ) : (
-        <form ref={formRef} onSubmit={handleSubmit} className="p-6 bg-[var(--bg-secondary)] rounded-lg shadow-md space-y-6 border border-[var(--border-primary)] mb-8 animate-scale-in">
+        <form ref={formRef} onSubmit={handleSubmit} className="p-6 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem]  space-y-6  mb-8 animate-scale-in">
             <h3 className="text-xl font-bold text-[var(--text-primary)]">{editingJointPeriod ? t.edit : t.addJointPeriod}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-3">
@@ -171,7 +171,7 @@ const AddJointPeriodForm: React.FC<AddJointPeriodFormProps> = ({ t, jointPeriods
             <p className="text-sm text-[var(--text-secondary)] mb-4">{t.selectClassesAndSubjects}</p>
             <div className="space-y-3">
                 {assignments.map((assignment, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-center p-3 bg-[var(--bg-tertiary)] rounded-md">
+                <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-center p-3 bg-[var(--bg-tertiary)] rounded-[1rem]">
                     <select value={assignment.classId} onChange={e => handleAssignmentChange(index, 'classId', e.target.value)} className={inputStyleClasses} required disabled={!teacherId}>
                     <option value="">{teacherId ? t.selectAClass : 'Select teacher first'}</option>
                     {classes.map(c => <option key={c.id} value={c.id}>{c.nameEn}</option>)}
@@ -186,19 +186,19 @@ const AddJointPeriodForm: React.FC<AddJointPeriodFormProps> = ({ t, jointPeriods
                 </div>
                 ))}
             </div>
-            <button type="button" onClick={addAssignment} className="mt-4 px-4 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent-secondary-hover)] transition-colors">+ Add Assignment</button>
+            <button type="button" onClick={addAssignment} className="mt-4 px-4 py-2 text-sm font-semibold bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)] transition-colors">+ Add Assignment</button>
             </div>
 
             <div className="flex justify-end space-x-4">
-                <button type="button" onClick={handleCancel} className="px-6 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-lg hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button>
-                <button type="submit" className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-lg shadow-md hover:bg-[var(--accent-primary-hover)]">{editingJointPeriod ? t.update : t.save}</button>
+                <button type="button" onClick={handleCancel} className="px-6 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button>
+                <button type="submit" className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-[1.25rem]  hover:bg-[var(--accent-primary-hover)]">{editingJointPeriod ? t.update : t.save}</button>
             </div>
         </form>
       )}
 
       <div className="mt-10">
         <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">{t.existingJointPeriods}</h3>
-        <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)]">
+        <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem]  ">
           <ul className="divide-y divide-[var(--border-primary)]">
             {jointPeriods.map((jp, index) => (
               <li key={jp.id} className="hover:bg-[var(--bg-tertiary)] transition-colors">
@@ -225,7 +225,7 @@ const AddJointPeriodForm: React.FC<AddJointPeriodFormProps> = ({ t, jointPeriods
                                   {item.assignments.map(a => {
                                       const c = classes.find(cls => cls.id === a.classId);
                                       const s = subjects.find(sub => sub.id === a.subjectId);
-                                      return <span key={`${a.classId}-${a.subjectId}`} className="inline-block bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-full px-2 py-0.5">{c?.nameEn}/{s?.nameEn}</span>;
+                                      return <span key={`${a.classId}-${a.subjectId}`} className="inline-block bg-[var(--bg-tertiary)]  rounded-full px-2 py-0.5">{c?.nameEn}/{s?.nameEn}</span>;
                                   })}
                                 </div>
                               </div>

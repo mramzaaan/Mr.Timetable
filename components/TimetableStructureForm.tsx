@@ -272,7 +272,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
   };
 
   return (
-    <div className="p-6 bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] space-y-6">
+    <div className="p-6 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem]   space-y-6">
         <PrintPreview
             t={t}
             isOpen={isPrintPreviewOpen}
@@ -306,20 +306,20 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center  relative overflow-hidden">
                 <div className="absolute -right-4 -top-4 opacity-10">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
-                <span className="text-5xl font-black text-blue-600 mb-2 drop-shadow-sm">
+                <span className="text-5xl font-black text-blue-600 mb-2 drop-">
                     {allDays.reduce((acc, day) => acc + (localDaysConfig[day]?.active ? localDaysConfig[day].periodCount : 0), 0)}
                 </span>
                 <span className="text-sm font-bold text-blue-800 tracking-widest uppercase">Weekly Periods</span>
             </div>
-            <div className="bg-gradient-to-br from-rose-50 to-rose-100 border border-rose-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
+            <div className="bg-gradient-to-br from-rose-50 to-rose-100 border border-rose-200 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center  relative overflow-hidden">
                 <div className="absolute -right-4 -top-4 opacity-10">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
                 </div>
-                <span className="text-5xl font-black text-rose-600 mb-2 drop-shadow-sm">
+                <span className="text-5xl font-black text-rose-600 mb-2 drop-">
                     {(() => {
                         let days = 0;
                         localVacations.forEach(v => {
@@ -346,22 +346,22 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
             </div>
             
             {isAddingVacation && (
-                <div className="mb-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100 animate-scale-in grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div className="mb-4 p-4 bg-white rounded-[2rem]  border border-gray-100 animate-scale-in grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
                         <label className="block text-xs font-bold text-gray-500 mb-1">{t.vacationName}</label>
-                        <input type="text" value={newVacation.name} onChange={e => setNewVacation({...newVacation, name: e.target.value})} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 focus:ring-2 focus:ring-[#005f5f] focus:outline-none" placeholder="e.g. Winter Vacation" />
+                        <input type="text" value={newVacation.name} onChange={e => setNewVacation({...newVacation, name: e.target.value})} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-[1.25rem] text-sm text-gray-800 focus:ring-2 focus:ring-[#005f5f] focus:outline-none" placeholder="e.g. Winter Vacation" />
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-gray-500 mb-1">{t.startDate}</label>
-                        <input type="date" value={newVacation.startDate} onChange={e => setNewVacation({...newVacation, startDate: e.target.value})} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 focus:ring-2 focus:ring-[#005f5f] focus:outline-none" />
+                        <input type="date" value={newVacation.startDate} onChange={e => setNewVacation({...newVacation, startDate: e.target.value})} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-[1.25rem] text-sm text-gray-800 focus:ring-2 focus:ring-[#005f5f] focus:outline-none" />
                     </div>
                     <div>
                         <label className="block text-xs font-bold text-gray-500 mb-1">{t.endDate}</label>
-                        <input type="date" value={newVacation.endDate} onChange={e => setNewVacation({...newVacation, endDate: e.target.value})} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 focus:ring-2 focus:ring-[#005f5f] focus:outline-none" />
+                        <input type="date" value={newVacation.endDate} onChange={e => setNewVacation({...newVacation, endDate: e.target.value})} className="w-full p-2 bg-gray-50 border border-gray-200 rounded-[1.25rem] text-sm text-gray-800 focus:ring-2 focus:ring-[#005f5f] focus:outline-none" />
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={handleConfirmAddVacation} className="flex-1 py-2 bg-[#005f5f] text-white rounded-lg font-bold text-sm hover:bg-[#004c4c]">Save</button>
-                        <button onClick={() => setIsAddingVacation(false)} className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold text-sm hover:bg-gray-300">Cancel</button>
+                        <button onClick={handleConfirmAddVacation} className="flex-1 py-2 bg-[#005f5f] text-white rounded-[1.25rem] font-bold text-sm hover:bg-[#004c4c]">Save</button>
+                        <button onClick={() => setIsAddingVacation(false)} className="flex-1 py-2 bg-gray-200 text-gray-800 rounded-[1.25rem] font-bold text-sm hover:bg-gray-300">Cancel</button>
                     </div>
                 </div>
             )}
@@ -371,7 +371,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
             ) : (
                 <div className="space-y-3">
                     {localVacations.map(vacation => (
-                        <div key={vacation.id} className="flex justify-between items-center p-4 bg-white border border-gray-100 shadow-sm rounded-xl">
+                        <div key={vacation.id} className="flex justify-between items-center p-4 bg-white border border-gray-100  rounded-[2rem]">
                             <div className="flex items-center gap-4">
                                 <span className="text-2xl">⛄</span>
                                 <div className="flex flex-col">
@@ -388,7 +388,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
             )}
         </div>
 
-        <div className="mb-8 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="mb-8 bg-white rounded-[2rem] border border-gray-200  overflow-hidden">
             <button 
                 onClick={() => setIsDaysConfigOpen(!isDaysConfigOpen)}
                 className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
@@ -403,7 +403,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                     {allDays.map(day => {
                         const config = localDaysConfig[day] || { active: true, periodCount: 8 };
                         return (
-                            <div key={day} className={`flex items-center justify-between p-4 rounded-xl transition-colors ${config.active ? 'bg-white border border-gray-100 shadow-sm' : 'bg-gray-50 border border-dashed border-gray-200'}`}>
+                            <div key={day} className={`flex items-center justify-between p-4 rounded-[2rem] transition-colors ${config.active ? 'bg-white border border-gray-100 ' : 'bg-gray-50 border border-dashed border-gray-200'}`}>
                                 <div className="flex items-center gap-4">
                                     <button 
                                         onClick={() => handleDayConfigChange(day, 'active', !config.active)}
@@ -440,16 +440,16 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
         </div>
 
         <div className="pt-6">
-            <div className="flex bg-gray-50 p-1 rounded-xl mb-8">
+            <div className="flex bg-gray-50 p-1 rounded-[2rem] mb-8">
                 <button 
-                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-colors ${activeTimingTab === 'default' ? 'bg-white text-[#005f5f] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 py-3 text-sm font-bold rounded-[1.25rem] transition-colors ${activeTimingTab === 'default' ? 'bg-white text-[#005f5f] ' : 'text-gray-400 hover:text-gray-600'}`}
                     onClick={() => setActiveTimingTab('default')}
                 >
                     Regular Days
                 </button>
                 {isFridayActive && (
                     <button 
-                        className={`flex-1 py-3 text-sm font-bold rounded-lg transition-colors ${activeTimingTab === 'friday' ? 'bg-white text-[#005f5f] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`flex-1 py-3 text-sm font-bold rounded-[1.25rem] transition-colors ${activeTimingTab === 'friday' ? 'bg-white text-[#005f5f] ' : 'text-gray-400 hover:text-gray-600'}`}
                         onClick={() => setActiveTimingTab('friday')}
                     >
                         Friday
@@ -462,11 +462,11 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                     <h5 className="font-bold text-xl text-gray-900">Configuration</h5>
                     <div className="flex gap-2">
                         {!localAssembly[activeTimingTab] && (
-                            <button onClick={handleToggleAssembly} className="text-sm font-bold bg-[#2563eb] text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-1 shadow-sm">
+                            <button onClick={handleToggleAssembly} className="text-sm font-bold bg-[#2563eb] text-white px-4 py-2 rounded-[1.25rem] hover:bg-blue-700 flex items-center gap-1 ">
                                 + Enable Assembly
                             </button>
                         )}
-                        <button onClick={handleAddBreak} className="text-sm font-bold bg-[#2563eb] text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-1 shadow-sm">
+                        <button onClick={handleAddBreak} className="text-sm font-bold bg-[#2563eb] text-white px-4 py-2 rounded-[1.25rem] hover:bg-blue-700 flex items-center gap-1 ">
                             + Add Break
                         </button>
                     </div>
@@ -474,7 +474,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                 
                 <div className="flex flex-wrap gap-3 mb-6">
                     {localAssembly[activeTimingTab] && (
-                        <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border-l-4 border-[#2563eb] min-w-[9.375rem]">
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-[2rem]  border-l-4 border-[#2563eb] min-w-[9.375rem]">
                             <div className="flex flex-col flex-1">
                                 <span className="text-xs font-bold text-gray-400 tracking-wider uppercase">Active</span>
                                 <span className="text-base font-bold text-gray-900">Assembly</span>
@@ -483,7 +483,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                         </div>
                     )}
                     {localBreaks[activeTimingTab].map((b, idx) => (
-                        <div key={b.id} className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border-l-4 border-[#059669] min-w-[12.5rem]">
+                        <div key={b.id} className="flex items-center gap-3 p-3 bg-white rounded-[2rem]  border-l-4 border-[#059669] min-w-[12.5rem]">
                             <div className="flex flex-col flex-1">
                                 <span className="text-xs font-bold text-gray-400 tracking-wider uppercase">Active</span>
                                 <input 
@@ -510,7 +510,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                 </div>
             </div>
             
-            <div className="bg-gray-50 rounded-2xl p-4">
+            <div className="bg-gray-50 rounded-[2rem] p-4">
                 <div className="flex justify-between items-center px-4 mb-4">
                     <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">Period / Event</span>
                     <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">Time Duration</span>
@@ -528,7 +528,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                         if (item.type === 'period') {
                             const duration = calculateDuration(item.data.start, item.data.end);
                             return (
-                                <div key={`p-${item.index}`} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3 rounded-xl shadow-sm border-l-4 border-blue-200 gap-3">
+                                <div key={`p-${item.index}`} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3 rounded-[2rem]  border-l-4 border-blue-200 gap-3">
                                     <div className="flex items-center gap-3 pl-2 w-full sm:w-auto">
                                         <input 
                                             type="text" 
@@ -538,7 +538,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                                             placeholder={`Period ${item.index + 1}`}
                                         />
                                     </div>
-                                    <div className="flex items-center bg-gray-50 rounded-lg px-3 py-1.5 w-full sm:w-auto overflow-x-auto">
+                                    <div className="flex items-center bg-gray-50 rounded-[1.25rem] px-3 py-1.5 w-full sm:w-auto overflow-x-auto">
                                         {duration && <span className="text-sm font-medium text-gray-600 mr-2 pr-2 border-r border-gray-300 shrink-0">{duration}</span>}
                                         <input 
                                             type="time" 
@@ -558,12 +558,12 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                             );
                         } else if (item.type === 'assembly') {
                             return (
-                                <div key="assembly" className="flex flex-col sm:flex-row sm:items-center justify-between bg-[#eff6ff] p-3 rounded-xl shadow-sm border-l-4 border-[#2563eb] gap-3">
+                                <div key="assembly" className="flex flex-col sm:flex-row sm:items-center justify-between bg-[#eff6ff] p-3 rounded-[2rem]  border-l-4 border-[#2563eb] gap-3">
                                     <div className="flex items-center gap-3 pl-2 text-[#2563eb] w-full sm:w-auto">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" /></svg>
                                         <span className="text-base font-bold">Assembly</span>
                                     </div>
-                                    <div className="flex items-center bg-white rounded-lg px-3 py-1.5 shadow-sm w-full sm:w-auto overflow-x-auto">
+                                    <div className="flex items-center bg-white rounded-[1.25rem] px-3 py-1.5  w-full sm:w-auto overflow-x-auto">
                                         <input 
                                             type="time" 
                                             value={item.data.start} 
@@ -594,12 +594,12 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                             );
 
                             return (
-                                <div key={`b-${item.index}`} className={`flex flex-col sm:flex-row sm:items-center justify-between ${bgColor} p-3 rounded-xl shadow-sm border-l-4 ${borderColor} gap-3`}>
+                                <div key={`b-${item.index}`} className={`flex flex-col sm:flex-row sm:items-center justify-between ${bgColor} p-3 rounded-[2rem]  border-l-4 ${borderColor} gap-3`}>
                                     <div className={`flex items-center gap-3 pl-2 ${textColor} w-full sm:w-auto`}>
                                         <div className="shrink-0">{icon}</div>
                                         <span className="text-base font-bold">{item.data.name}</span>
                                     </div>
-                                    <div className="flex flex-wrap items-center bg-white rounded-lg px-3 py-1.5 shadow-sm w-full sm:w-auto">
+                                    <div className="flex flex-wrap items-center bg-white rounded-[1.25rem] px-3 py-1.5  w-full sm:w-auto">
                                         <input 
                                             type="time" 
                                             value={item.data.startTime} 
@@ -628,11 +628,11 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
 
             {/* Bottom Action Buttons */}
             <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
-                <button onClick={() => setIsPrintPreviewOpen(true)} className="px-6 py-2 bg-white border border-[#005f5f] text-[#005f5f] font-semibold rounded-lg shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2">
+                <button onClick={() => setIsPrintPreviewOpen(true)} className="px-6 py-2 bg-white border border-[#005f5f] text-[#005f5f] font-semibold rounded-[1.25rem]  hover:bg-gray-50 transition-colors flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     Print View
                 </button>
-                <button onClick={handleSave} className="px-6 py-2 bg-[#005f5f] text-white font-semibold rounded-lg shadow-md hover:bg-[#004c4c] transition-colors flex items-center gap-2">
+                <button onClick={handleSave} className="px-6 py-2 bg-[#005f5f] text-white font-semibold rounded-[1.25rem]  hover:bg-[#004c4c] transition-colors flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                     Save
                 </button>

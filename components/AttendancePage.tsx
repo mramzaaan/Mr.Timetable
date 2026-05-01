@@ -97,7 +97,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
     // Mini feedback
     const toast = document.createElement('div');
     toast.textContent = t.attendanceSaved;
-    toast.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-full shadow-2xl font-bold z-[200] animate-bounce-short';
+    toast.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-full  font-bold z-[200] animate-bounce-short';
     document.body.appendChild(toast);
     setTimeout(() => { if (toast.parentNode) document.body.removeChild(toast); }, 3000);
   };
@@ -210,7 +210,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
         <div className="w-16 h-1 bg-indigo-500 mx-auto opacity-80 rounded-full"></div>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-gray-200 shadow-2xl p-8 sm:p-12 mb-10 flex flex-col items-center gap-8">
+      <div className="bg-white rounded-[2rem] border border-gray-200  p-8 sm:p-12 mb-10 flex flex-col items-center gap-8">
         <div className="flex flex-wrap items-center justify-center gap-10 w-full">
             <div className="flex flex-col gap-2">
             <label className="text-[0.6875rem] font-black uppercase text-gray-400 px-1 tracking-widest text-center">SELECT DATE</label>
@@ -221,7 +221,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
                     onChange={(e) => setSelectedDate(e.target.value)}
                     className="absolute inset-0 opacity-0 cursor-pointer z-10" 
                 />
-                <div className="flex items-center gap-4 bg-[var(--bg-secondary)] px-5 py-2.5 rounded-2xl border-2 border-[var(--border-secondary)] shadow-sm group-hover:border-[var(--accent-primary)] transition-all min-w-[150px]">
+                <div className="flex items-center gap-4 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 px-5 py-2.5 rounded-[2rem] border-2 border-[var(--border-secondary)]  group-hover:border-[var(--accent-primary)] transition-all min-w-[150px]">
                     <div className="flex flex-col items-center border-r border-[var(--border-secondary)] pr-4">
                         <span className="text-[0.65rem] font-black text-[#6366f1] uppercase leading-none tracking-wider">
                             {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'short' })}
@@ -246,7 +246,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
             <select 
                 value={selectedClassId || ''} 
                 onChange={(e) => setSelectedClassId(e.target.value)}
-                className="px-6 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-bold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all min-w-[15rem]"
+                className="px-6 py-3 bg-gray-50 border border-gray-200 rounded-[2rem] text-gray-900 font-bold focus:ring-2 focus:ring-indigo-500 outline-none  transition-all min-w-[15rem]"
             >
                 {visibleClasses.map(c => (
                 <option key={c.id} value={c.id}>{c.nameEn} / {c.nameUr}</option>
@@ -259,14 +259,14 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
             <button 
                 onClick={handleDownloadJson}
                 title={t.downloadAttendanceJson}
-                className="p-4 bg-gray-100 text-gray-600 border border-gray-200 rounded-2xl shadow-md hover:bg-gray-200 transition-all hover:scale-105 active:scale-95"
+                className="p-4 bg-gray-100 text-gray-600 border border-gray-200 rounded-[2rem]  hover:bg-gray-200 transition-all hover:scale-105 active:scale-95"
             >
                 <DownloadIcon />
             </button>
             <button 
                 onClick={() => fileInputRef.current?.click()}
                 title={t.uploadAttendanceJson}
-                className="p-4 bg-gray-100 text-gray-600 border border-gray-200 rounded-2xl shadow-md hover:bg-gray-200 transition-all hover:scale-105 active:scale-95"
+                className="p-4 bg-gray-100 text-gray-600 border border-gray-200 rounded-[2rem]  hover:bg-gray-200 transition-all hover:scale-105 active:scale-95"
             >
                 <UploadIcon />
                 <input type="file" ref={fileInputRef} onChange={handleUploadJson} accept=".json" className="hidden" />
@@ -274,7 +274,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
             <button 
                 onClick={() => setIsPrintPreviewOpen(true)}
                 title={t.printViewAction}
-                className="p-4 bg-indigo-600 text-white border border-indigo-700 rounded-2xl shadow-lg hover:bg-indigo-700 transition-all hover:scale-105 active:scale-95"
+                className="p-4 bg-indigo-600 text-white border border-indigo-700 rounded-[2rem]  hover:bg-indigo-700 transition-all hover:scale-105 active:scale-95"
             >
                 <PrintIcon />
             </button>
@@ -282,7 +282,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
       </div>
 
       {vacationToday && (
-          <div className="mb-8 p-6 bg-orange-100 border-l-4 border-orange-500 text-orange-700 rounded-r-lg shadow-md animate-scale-in">
+          <div className="mb-8 p-6 bg-orange-100 border-l-4 border-orange-500 text-orange-700 rounded-r-lg  animate-scale-in">
               <h3 className="font-bold text-lg mb-1">{t.onVacation}: {vacationToday.name}</h3>
               <p className="text-sm">Attendance submission is disabled for school vacation days.</p>
           </div>

@@ -1227,7 +1227,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
              )}
 
              {isTeacherDropdownOpen && (
-                 <div className="absolute top-[100%] mt-4 w-full min-w-[17.5rem] md:min-w-[20rem] max-w-md bg-white dark:bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-3xl shadow-2xl p-4 animate-scale-in z-50">
+                 <div className="absolute top-[100%] mt-4 w-full min-w-[17.5rem] md:min-w-[20rem] max-w-md bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[2rem]  p-4 animate-scale-in z-50">
                      {/* Search */}
                      <div className="relative mb-3 w-full">
                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5">
@@ -1238,13 +1238,13 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                              placeholder="Search teachers..."
                              value={teacherSearchQuery}
                              onChange={(e) => setTeacherSearchQuery(e.target.value)}
-                             className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] border border-gray-200 dark:border-[var(--border-secondary)] rounded-2xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
+                             className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] border border-gray-200 dark:border-[var(--border-secondary)] rounded-[2rem] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
                              autoFocus
                          />
                      </div>
                      
                      {/* Sort Controls */}
-                     <div className="flex gap-2 mb-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] p-1.5 rounded-xl">
+                     <div className="flex gap-2 mb-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] p-1.5 rounded-[2rem]">
                          {(['serial', 'name', 'periods', 'unscheduled'] as const).map(key => (
                              <button
                                  key={key}
@@ -1256,7 +1256,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                          setSortDirection('asc');
                                      }
                                  }}
-                                 className={`flex-1 text-[0.625rem] font-bold uppercase py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 ${teacherSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-gray-500 hover:text-black dark:text-gray-400 hover:bg-white dark:hover:bg-[var(--bg-secondary)]'}`}
+                                 className={`flex-1 text-[0.625rem] font-bold uppercase py-1.5 rounded-[1.25rem] transition-colors flex items-center justify-center gap-1 ${teacherSortBy === key ? 'bg-[var(--accent-primary)] text-white ' : 'text-gray-500 hover:text-black dark:text-gray-400 hover:bg-white dark:hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10'}`}
                              >
                                  {key === 'serial' ? '#' : key === 'unscheduled' ? 'Unsch' : key.toUpperCase()}
                                  {teacherSortBy === key && (
@@ -1278,11 +1278,11 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                          onSelectedTeacherChange(t.id);
                                          setIsTeacherDropdownOpen(false);
                                      }}
-                                     className={`w-full text-left px-4 py-3 rounded-xl text-sm flex items-center gap-3 transition-colors ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : 'hover:bg-gray-50 dark:hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
+                                     className={`w-full text-left px-4 py-3 rounded-[2rem] text-sm flex items-center gap-3 transition-colors ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : 'hover:bg-gray-50 dark:hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
                                  >
-                                     <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-md ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-100 dark:bg-[var(--bg-secondary)]'}`}>#{t.serialNumber ?? '-'}</span>
+                                     <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-[1rem] ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-100 dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10'}`}>#{t.serialNumber ?? '-'}</span>
                                      <span className="font-bold flex-grow text-base break-words text-left">{language === 'ur' ? t.nameUr : t.nameEn}</span>
-                                     <span className={`text-[0.625rem] opacity-70 whitespace-nowrap min-w-[3.75rem] text-center px-2 py-1 rounded-md border ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]' : 'bg-white border-gray-200 dark:bg-[var(--bg-secondary)] dark:border-[var(--border-secondary)]'}`}>{teacherPeriodCounts.get(t.id) || 0} Sch | {teacherUnscheduledCounts.get(t.id) || 0} Unsch</span>
+                                     <span className={`text-[0.625rem] opacity-70 whitespace-nowrap min-w-[3.75rem] text-center px-2 py-1 rounded-[1rem] border ${selectedTeacherId === t.id ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]' : 'bg-white border-gray-200 dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 dark:border-[var(--border-secondary)]'}`}>{teacherPeriodCounts.get(t.id) || 0} Sch | {teacherUnscheduledCounts.get(t.id) || 0} Unsch</span>
                                  </button>
                              ))
                          )}
@@ -1305,19 +1305,19 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                 </button>
                 
                 {isHeaderMoreOpen && (
-                    <div className="absolute right-0 top-[100%] mt-2 flex flex-col justify-center items-center gap-1 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
-                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedTeacher} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
+                    <div className="absolute right-0 top-[100%] mt-2 flex flex-col justify-center items-center gap-1 bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
+                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedTeacher} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
                             <Printer className="w-5 h-5 flex-shrink-0" />
                             <span className="text-sm font-semibold whitespace-nowrap hidden lg:block">Print</span>
                         </button>
                         {onUndo && (
-                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
+                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
                                 <Undo2 className="w-5 h-5 flex-shrink-0" />
                                 <span className="text-sm font-semibold whitespace-nowrap hidden lg:block">Undo</span>
                             </button>
                         )}
                         {onRedo && (
-                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
+                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
                                 <Redo2 className="w-5 h-5 flex-shrink-0" />
                                 <span className="text-sm font-semibold whitespace-nowrap hidden lg:block">Redo</span>
                             </button>
@@ -1338,7 +1338,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
           <div className="relative flex flex-col lg:flex-row gap-6 items-start w-full mt-4">
             {/* Timetable Grid - Modern Styled */}
             <div className="flex-1 min-w-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-full">
-              <div className="bg-[#f9f9f9] dark:bg-[var(--bg-secondary)] rounded-none sm:rounded-[2rem] p-1 sm:p-2 md:p-4 shadow-inner overflow-hidden border-y sm:border border-[#c5d3df] dark:border-[var(--border-primary)] pb-3 md:pb-6 w-full">
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md rounded-none sm:rounded-oneui-lg p-1 sm:p-2 md:p-4 shadow-oneui overflow-hidden border-y sm: pb-3 md:pb-6 w-full">
                   <div className="w-full flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-2">
                     {/* Header Row */}
                     <div className="flex gap-0.5 sm:gap-1 md:gap-2 w-full pr-1">
@@ -1404,15 +1404,15 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                     let content = null;
 
                                     if (isDisabled) {
-                                        content = <div className="flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
+                                        content = <div className="flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-[2rem] bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
                                     } else {
-                                        let outerClasses = `flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[0.09375rem] border-transparent cursor-pointer z-10`;
-                                        if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
+                                        let outerClasses = `flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-[2rem] relative transition-all duration-300 group timetable-slot flex flex-col border-[0.09375rem] border-transparent cursor-pointer z-10`;
+                                        if (isTarget) outerClasses += ' hover:scale-105 hover: ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
 
                                         if (slotPeriods.length === 0) {
                                              outerClasses += ' bg-white/40 dark:bg-[#1e293b]/40 border-dashed border-[#a6b8ca] dark:border-gray-600';
                                         } else if (slotPeriods.length > 0) {
-                                             outerClasses += ' shadow-sm';
+                                             outerClasses += ' ';
                                         }
 
                                         content = (
@@ -1424,7 +1424,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                                 style={{ transform: `scale(${contentScale})`, transformOrigin: 'top left' }}
                                             >
                                                 {/* Card Content or Stack */}
-                                                <div className="h-full flex flex-col relative z-10 w-full rounded-xl overflow-visible">
+                                                <div className="h-full flex flex-col relative z-10 w-full rounded-[2rem] overflow-visible">
                                                     {groupedSlotPeriods.map((group, groupIndex) => {
                                                         const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                                         const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : String(group[0].subjectId);
@@ -1446,7 +1446,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                                                 onDragStart={(e) => { e.stopPropagation(); handleDragStart(group, day, periodIndex); }}
                                                                 onDragEnd={handleDragEnd}
                                                                 onClick={(e) => { e.stopPropagation(); handleStackClick(group, day, periodIndex); }}
-                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-grab active:cursor-grabbing overflow-hidden shadow-sm ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
+                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-[2rem] transition-all duration-300 hover:scale-105 hover: cursor-grab active:cursor-grabbing overflow-hidden  ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
                                                                 style={{ 
                                                                     borderLeftColor: colorData.hex, 
                                                                     backgroundColor: isSelected ? `${colorData.hex}40` : `${colorData.hex}15`,
@@ -1511,13 +1511,13 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                   
                   <div className="w-full">
                       <div 
-                          className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-[#c5d3df] dark:border-gray-700 rounded-[1.5rem] p-3 flex flex-col gap-2 min-h-[25rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
+                          className={`bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md shadow-oneui rounded-oneui-lg p-3 flex flex-col gap-2 min-h-[25rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
                           onDragOver={handleDragOver}
                           onDrop={handleSidebarDrop}
                           onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
                       >
                           {moveSource && moveSource.sourceDay && (
-                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-xl text-center animate-pulse cursor-pointer shadow-sm">
+                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-[2rem] text-center animate-pulse cursor-pointer ">
                                   <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
                               </div>
                           )}
@@ -1545,7 +1545,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[2rem] px-2.5 py-1.5 flex items-center justify-between gap-1  cursor-grab active:cursor-grabbing border-l-4 transition-all hover: hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
                                               <div className="flex flex-col flex-1 min-w-0">
@@ -1575,7 +1575,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
             {/* Mobile/Tablet Unscheduled (Hidden on lg screens) */}
             <div className="w-full flex-col mt-2 lg:hidden flex">
               <div 
-                  className={`bg-[#dbe4eb] dark:bg-[var(--bg-secondary)] border-2 border-[#c5d3df] dark:border-gray-700 rounded-[1.5rem] p-3 md:p-4 shadow-sm flex flex-col gap-3 min-h-[9.375rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50 cursor-pointer' : ''}`}
+                  className={`bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md shadow-oneui rounded-oneui-lg p-3 md:p-4  flex flex-col gap-3 min-h-[9.375rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50 cursor-pointer' : ''}`}
                   onDragOver={handleDragOver}
                   onDrop={handleSidebarDrop}
                   onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
@@ -1614,7 +1614,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                 onDragStart={() => handleDragStart(group)}
                                 onDragEnd={handleDragEnd}
                                 onClick={() => handleStackClick(group)}
-                                className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] md:rounded-xl px-2.5 py-1.5 md:px-3 md:py-2 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] md:rounded-[2rem] px-2.5 py-1.5 md:px-3 md:py-2 flex flex-col items-center justify-between gap-1  cursor-grab active:cursor-grabbing border-l-4 transition-all hover: hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                 style={{ borderLeftColor: colorData.hex }}
                             >
                                 <div className="flex w-full items-center justify-between">
@@ -1670,7 +1670,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
 
       {/* History Section (Moved Here) */}
       {selectedTeacher && hasActiveSession && (
-        <div className="mt-8 bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] overflow-hidden">
+        <div className="mt-8 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem]   overflow-hidden">
             <div className="w-full flex items-center justify-between p-4 bg-[var(--bg-tertiary)]/50 hover:bg-[var(--bg-tertiary)] transition-colors border-b border-[var(--border-primary)]">
                 <button 
                     onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
@@ -1685,7 +1685,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                 {isHistoryExpanded && (
                     <button 
                         onClick={resetHistorySort}
-                        className="p-1.5 rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider border border-transparent hover:border-[var(--border-secondary)]"
+                        className="p-1.5 rounded-[1.25rem] hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors flex items-center gap-1 text-xs font-bold uppercase tracking-wider border border-transparent hover:border-[var(--border-secondary)]"
                         title="Reset Sort to Date"
                     >
                         <SortIcon />
@@ -1695,17 +1695,17 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
             </div>
             
             {isHistoryExpanded && (
-                <div className="p-4 bg-[var(--bg-secondary)]">
-                    <div className="flex space-x-1 bg-[var(--bg-tertiary)] p-1 rounded-lg mb-4 border border-[var(--border-secondary)] w-fit">
+                <div className="p-4 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10">
+                    <div className="flex space-x-1 bg-[var(--bg-tertiary)] p-1 rounded-[1.25rem] mb-4  w-fit">
                         <button
                             onClick={() => setHistoryTab('timeline')}
-                            className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-colors ${historyTab === 'timeline' ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                            className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-[1rem] transition-colors ${historyTab === 'timeline' ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)] ' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                         >
                             Timeline
                         </button>
                         <button
                             onClick={() => setHistoryTab('attendance')}
-                            className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md transition-colors ${historyTab === 'attendance' ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                            className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-[1rem] transition-colors ${historyTab === 'attendance' ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)] ' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                         >
                             Leaves & Subs
                         </button>
@@ -1723,7 +1723,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                             ) : (
                                 <ul className="space-y-2">
                                     {teacherLogs.map((log) => (
-                                        <li key={log.id} className={`p-3 rounded-xl border shadow-sm hover:shadow-md transition-all ${
+                                        <li key={log.id} className={`p-3 rounded-[2rem] border  hover: transition-all ${
                                             log.type === 'delete' ? 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50' :
                                             log.type === 'add' ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50' :
                                             'bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/50'
@@ -1759,13 +1759,13 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                         <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-3 border-b-2 border-red-200 pb-1 flex items-center gap-2 text-red-600">
                                             {t.leavesTaken || 'Leaves'} ({sortedHistory.leaves.length})
                                         </h4>
-                                        <div className="overflow-x-auto rounded-lg border border-[var(--border-secondary)]">
+                                        <div className="overflow-x-auto rounded-[1.25rem] ">
                                             <table className="w-full text-sm text-left">
                                                 <thead className="text-xs text-[var(--text-secondary)] uppercase bg-[var(--bg-tertiary)] border-b border-[var(--border-secondary)]">
                                                     <tr>
-                                                        <th className="px-4 py-3 font-bold w-32 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors" onClick={() => handleSort('date')}>Date {historySortField === 'date' && (historySortOrder === 'asc' ? '↑' : '↓')}</th>
+                                                        <th className="px-4 py-3 font-bold w-32 cursor-pointer hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors" onClick={() => handleSort('date')}>Date {historySortField === 'date' && (historySortOrder === 'asc' ? '↑' : '↓')}</th>
                                                         <th className="px-4 py-3 font-bold w-24">Day</th>
-                                                        <th className="px-4 py-3 font-bold w-24 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors" onClick={() => handleSort('type')}>Type {historySortField === 'type' && (historySortOrder === 'asc' ? '↑' : '↓')}</th>
+                                                        <th className="px-4 py-3 font-bold w-24 cursor-pointer hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors" onClick={() => handleSort('type')}>Type {historySortField === 'type' && (historySortOrder === 'asc' ? '↑' : '↓')}</th>
                                                         <th className="px-4 py-3 font-bold">Details / Reason</th>
                                                     </tr>
                                                 </thead>
@@ -1794,7 +1794,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                 )}
 
                                 {sortedHistory.substitutions.length > 0 && (
-                                    <div className="border-2 border-red-200 rounded-xl overflow-hidden shadow-sm">
+                                    <div className="border-2 border-red-200 rounded-[2rem] overflow-hidden ">
                                         <h4 className="text-sm font-bold text-red-700 uppercase tracking-wider px-4 py-2 bg-red-50 border-b border-red-100 flex items-center gap-2">
                                             {t.substitution || 'Substitutions'} ({sortedHistory.substitutions.length})
                                         </h4>
@@ -1802,13 +1802,13 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                             <table className="w-full text-sm text-left">
                                                 <thead className="text-xs text-[var(--text-secondary)] uppercase bg-[var(--bg-tertiary)] border-b border-[var(--border-secondary)]">
                                                     <tr>
-                                                        <th className="px-4 py-3 font-bold w-32 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('date')}>
+                                                        <th className="px-4 py-3 font-bold w-32 cursor-pointer hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors select-none" onClick={() => handleSort('date')}>
                                                             Date {historySortField === 'date' && (historySortOrder === 'asc' ? '↑' : '↓')}
                                                         </th>
-                                                        <th className="px-4 py-3 font-bold w-16 text-center cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('period')}>
+                                                        <th className="px-4 py-3 font-bold w-16 text-center cursor-pointer hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors select-none" onClick={() => handleSort('period')}>
                                                             Pd {historySortField === 'period' && (historySortOrder === 'asc' ? '↑' : '↓')}
                                                         </th>
-                                                        <th className="px-4 py-3 font-bold w-24 cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('type')}>
+                                                        <th className="px-4 py-3 font-bold w-24 cursor-pointer hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors select-none" onClick={() => handleSort('type')}>
                                                             Type {historySortField === 'type' && (historySortOrder === 'asc' ? '↑' : '↓')}
                                                         </th>
                                                         <th className="px-4 py-3 font-bold cursor-default">
@@ -1822,7 +1822,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                                                 </span>
                                                             </div>
                                                         </th>
-                                                        <th className="px-4 py-3 font-bold cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors select-none" onClick={() => handleSort('teacher')}>
+                                                        <th className="px-4 py-3 font-bold cursor-pointer hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 transition-colors select-none" onClick={() => handleSort('teacher')}>
                                                             Teacher {historySortField === 'teacher' && (historySortOrder === 'asc' ? '↑' : '↓')}
                                                         </th>
                                                     </tr>

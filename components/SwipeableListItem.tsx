@@ -84,7 +84,7 @@ const SwipeableListItem = <T extends { id: string }>({
         </button>
 
         {isMenuOpen && (
-          <div className={`absolute right-0 w-48 rounded-md shadow-lg bg-[var(--bg-secondary)] ring-1 ring-black ring-opacity-5 focus:outline-none z-[60] animate-scale-in ${
+          <div className={`absolute right-0 w-48 rounded-[1rem]  bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 ring-1 ring-black ring-opacity-5 focus:outline-none z-[60] animate-scale-in ${
             opensUpward
               ? 'bottom-full origin-bottom-right mb-2'
               : 'top-full origin-top-right mt-2'

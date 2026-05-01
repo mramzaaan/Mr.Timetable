@@ -109,7 +109,7 @@ const SignatureModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black/70 z-[110] flex items-center justify-center p-4 backdrop-blur-md">
-            <div className="bg-[var(--bg-secondary)] rounded-3xl shadow-2xl p-6 sm:p-10 w-full max-w-4xl animate-scale-in border border-[var(--border-primary)] max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  p-6 sm:p-10 w-full max-w-4xl animate-scale-in  max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center mb-4 sm:mb-8">
                     <div>
                         <h3 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tight">{t.signNow.toUpperCase()}</h3>
@@ -120,7 +120,7 @@ const SignatureModal: React.FC<{
                     </button>
                 </div>
                 
-                <div className="border-4 border-dashed border-gray-200 rounded-3xl bg-white overflow-hidden touch-none shadow-inner mb-8">
+                <div className="border-4 border-dashed border-gray-200 rounded-[2rem] bg-white overflow-hidden touch-none shadow-inner mb-8">
                     <canvas 
                         ref={canvasRef}
                         width={1200}
@@ -140,7 +140,7 @@ const SignatureModal: React.FC<{
                     <button 
                         onClick={handleSave}
                         disabled={isSubmitting}
-                        className="w-full h-16 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-4 text-lg disabled:opacity-70 disabled:transform-none"
+                        className="w-full h-16 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black uppercase tracking-widest rounded-[2rem]  hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-4 text-lg disabled:opacity-70 disabled:transform-none"
                     >
                         {isSubmitting ? (
                             <div className="flex items-center gap-3">
@@ -220,10 +220,10 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
 
     const inputRowClass = "flex flex-col gap-1 w-full min-w-0";
     const labelClass = "text-[0.5625rem] sm:text-[0.6875rem] font-black uppercase text-[var(--text-placeholder)] px-1 tracking-widest truncate";
-    const valueContainerClass = "w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl sm:rounded-2xl text-[var(--text-primary)] font-black text-center text-xl sm:text-2xl shadow-inner transition-all";
+    const valueContainerClass = "w-full py-3 sm:py-4 bg-[var(--bg-tertiary)]  rounded-[2rem] sm:rounded-[2rem] text-[var(--text-primary)] font-black text-center text-xl sm:text-2xl shadow-inner transition-all";
 
     return (
-        <div className="max-w-2xl mx-auto bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[2.5rem] shadow-2xl p-6 sm:p-10 relative overflow-hidden">
+        <div className="max-w-2xl mx-auto bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[2.5rem]  p-6 sm:p-10 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-indigo-500 to-violet-500"></div>
             
             <SignatureModal 
@@ -235,7 +235,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
             />
             
             <div className="flex flex-col gap-6 mt-4">
-                <div className="bg-[var(--bg-tertiary)]/50 p-4 rounded-2xl border border-[var(--border-secondary)]">
+                <div className="bg-[var(--bg-tertiary)]/50 p-4 rounded-[2rem] ">
                     <span className="text-[0.625rem] font-black uppercase text-[var(--text-placeholder)] block mb-1">Submitted By</span>
                     <div className="text-lg font-bold text-[var(--accent-primary)] flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -253,7 +253,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
 
                     <div className={inputRowClass}>
                         <label className={`${labelClass} text-emerald-600`}>{t.present.toUpperCase()}</label>
-                        <div className="w-full py-3 sm:py-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl sm:rounded-2xl text-emerald-700 dark:text-emerald-400 font-black text-center text-xl sm:text-2xl flex items-center justify-center">
+                        <div className="w-full py-3 sm:py-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-[2rem] sm:rounded-[2rem] text-emerald-700 dark:text-emerald-400 font-black text-center text-xl sm:text-2xl flex items-center justify-center">
                             {presentCount}
                         </div>
                     </div>
@@ -264,7 +264,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                             type="number" 
                             value={absent === 0 ? '' : absent} 
                             onChange={(e) => setAbsent(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
-                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-red-100 dark:border-red-900 rounded-xl sm:rounded-2xl text-red-700 dark:text-red-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-red-400 transition-all shadow-inner"
+                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-red-100 dark:border-red-900 rounded-[2rem] sm:rounded-[2rem] text-red-700 dark:text-red-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-red-400 transition-all shadow-inner"
                         />
                     </div>
 
@@ -274,7 +274,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                             type="number" 
                             value={sick === 0 ? '' : sick} 
                             onChange={(e) => setSick(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
-                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-amber-100 dark:border-amber-900 rounded-xl sm:rounded-2xl text-amber-700 dark:text-amber-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-amber-400 transition-all shadow-inner"
+                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-amber-100 dark:border-amber-900 rounded-[2rem] sm:rounded-[2rem] text-amber-700 dark:text-amber-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-amber-400 transition-all shadow-inner"
                         />
                     </div>
 
@@ -284,7 +284,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                             type="number" 
                             value={leave === 0 ? '' : leave} 
                             onChange={(e) => setLeave(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
-                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-blue-100 dark:border-blue-900 rounded-xl sm:rounded-2xl text-blue-700 dark:text-blue-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-blue-400 transition-all shadow-inner"
+                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-blue-100 dark:border-blue-900 rounded-[2rem] sm:rounded-[2rem] text-blue-700 dark:text-blue-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-blue-400 transition-all shadow-inner"
                         />
                     </div>
                 </div>
@@ -292,7 +292,7 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                 <div className="mt-4">
                     <button 
                         onClick={() => setIsSignModalOpen(true)}
-                        className={`w-full h-24 rounded-3xl border-4 transition-all duration-500 flex items-center justify-center ${signature ? 'border-emerald-500 bg-emerald-50/50' : 'border-dashed border-emerald-400 bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500'}`}
+                        className={`w-full h-24 rounded-[2rem] border-4 transition-all duration-500 flex items-center justify-center ${signature ? 'border-emerald-500 bg-emerald-50/50' : 'border-dashed border-emerald-400 bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500'}`}
                     >
                         {signature ? (
                             <div className="flex flex-col items-center gap-2">

@@ -140,7 +140,7 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, onDragStart, onDragEnd,
       draggable
       onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
-      className={`relative w-full p-1.5 rounded-lg text-xs cursor-grab shadow-sm hover:shadow-md transition-all flex flex-col flex-grow border group ${isGhost ? 'period-ghost' : ''} ${isHighlighted ? highlightClasses : ''} ${isDimmed ? dimClasses : ''} ${hasConflict ? 'period-conflict' : ''}`}
+      className={`relative w-full p-1.5 rounded-[1.25rem] text-xs cursor-grab shadow-sm hover:shadow-md transition-all flex flex-col flex-grow border group ${isGhost ? 'period-ghost' : ''} ${isHighlighted ? highlightClasses : ''} ${isDimmed ? dimClasses : ''} ${hasConflict ? 'period-conflict' : ''}`}
       style={isGhost ? {} : dynamicStyle}
     >
        {/* Joint Period Badge */}

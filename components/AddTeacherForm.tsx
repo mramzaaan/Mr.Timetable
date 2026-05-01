@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import type { Teacher } from '../types';
 import SwipeableListItem from './SwipeableListItem';
 
@@ -111,9 +112,9 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
 
   return (
     <div>
-        {isFormOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity" onClick={handleCancel}>
-                <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-2xl w-full mx-4 transform transition-all border border-[var(--border-primary)]" onClick={e => e.stopPropagation()}>
+        {isFormOpen && createPortal(
+            <div className="fixed inset-0 w-screen h-[100dvh] bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[200] transition-opacity" onClick={handleCancel}>
+                <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem] max-w-2xl w-full mx-4 max-h-[90dvh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
                     <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                         <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">{editingTeacher ? t.edit : t.addTeacher}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -124,7 +125,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
                                     id="teacherNameEn"
                                     value={nameEn}
                                     onChange={(e) => setNameEn(e.target.value)}
-                                    className="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
+                                    className="mt-1 block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
                                     required
                                 />
                             </div>
@@ -135,7 +136,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
                                     id="teacherNameUr"
                                     value={nameUr}
                                     onChange={(e) => setNameUr(e.target.value)}
-                                    className="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm font-urdu"
+                                    className="mt-1 block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm font-urdu"
                                     dir="rtl"
                                     placeholder="مثلاً سمیع اللہ"
                                     required
@@ -148,7 +149,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
                                     id="serialNumber"
                                     value={serialNumber}
                                     onChange={(e) => setSerialNumber(e.target.value)}
-                                    className="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
+                                    className="mt-1 block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
                                     placeholder="e.g., 1"
                                 />
                             </div>
@@ -159,7 +160,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
                                     id="contactNumber"
                                     value={contactNumber}
                                     onChange={(e) => setContactNumber(e.target.value)}
-                                    className="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
+                                    className="mt-1 block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
                                     placeholder="e.g., 0300-1234567"
                                     required
                                 />
@@ -170,7 +171,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
                                     id="gender"
                                     value={gender}
                                     onChange={(e) => setGender(e.target.value as 'Male' | 'Female' | '')}
-                                    className="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
+                                    className="mt-1 block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
                                     required
                                 >
                                     <option value="">{t.select}</option>
@@ -180,16 +181,17 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
                             </div>
                         </div>
                         <div className="flex justify-end space-x-4 pt-4">
-                            <button type="button" onClick={handleCancel} className="px-6 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-lg hover:bg-[var(--accent-secondary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors">
+                            <button type="button" onClick={handleCancel} className="px-6 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors">
                                 {t.cancel}
                             </button>
-                            <button type="submit" className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-lg shadow-md hover:bg-[var(--accent-primary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)] transition-colors">
+                            <button type="submit" className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-[1.25rem]  hover:bg-[var(--accent-primary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)] transition-colors">
                                 {editingTeacher ? t.update : t.save}
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
+            </div>,
+            document.body
         )}
 
       <div className="mt-8">
@@ -211,7 +213,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
         
         <div className="flex flex-col gap-3">
             {sortedTeachers.map((teacher) => (
-              <div key={teacher.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+              <div key={teacher.id} className="bg-white/40 dark:bg-black/20 backdrop-blur-lg rounded-[2rem] border border-white/40 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
                 <SwipeableListItem
                   t={t}
                   item={teacher}

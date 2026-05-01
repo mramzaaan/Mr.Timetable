@@ -163,23 +163,23 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ t, language, classes, teach
                     value={query}
                     onChange={(e) => { setQuery(e.target.value); setIsOpen(true); }}
                     onFocus={() => setIsOpen(true)}
-                    className="block w-full pl-12 pr-4 py-4 bg-[var(--bg-secondary)] border-2 border-transparent rounded-2xl text-lg text-[var(--text-primary)] placeholder-[var(--text-placeholder)] shadow-2xl focus:outline-none focus:border-[var(--accent-primary)] transition-all"
+                    className="block w-full pl-12 pr-4 py-4 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 border-2 border-transparent rounded-[2rem] text-lg text-[var(--text-primary)] placeholder-[var(--text-placeholder)]  focus:outline-none focus:border-[var(--accent-primary)] transition-all"
                     aria-label="Global search"
                     aria-haspopup="listbox"
                     aria-expanded={isOpen && hasResults}
                 />
             </div>
             {isOpen && (
-                <div className="absolute top-full mt-3 w-full bg-[var(--bg-secondary)] rounded-2xl shadow-2xl border border-[var(--border-primary)] z-50 max-h-96 overflow-hidden animate-scale-in flex flex-col" role="listbox">
+                <div className="absolute top-full mt-3 w-full bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]   z-50 max-h-96 overflow-hidden animate-scale-in flex flex-col" role="listbox">
                     {/* Filter Tabs */}
                     <div className="flex p-2 gap-2 border-b border-[var(--border-secondary)] bg-[var(--bg-tertiary)]/30 overflow-x-auto no-scrollbar">
                         {(['all', 'class', 'teacher', 'subject'] as const).map(type => (
                             <button
                                 key={type}
                                 onClick={() => setFilterType(type)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                                className={`px-3 py-1.5 rounded-[1.25rem] text-xs font-bold uppercase tracking-wider transition-colors whitespace-nowrap flex items-center gap-1.5 ${
                                     filterType === type 
-                                    ? 'bg-[var(--accent-primary)] text-white shadow-sm' 
+                                    ? 'bg-[var(--accent-primary)] text-white ' 
                                     : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
                                 }`}
                             >
@@ -202,7 +202,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ t, language, classes, teach
                                                 {groupedResults[category].map(item => (
                                                     <li key={item.id} role="option" aria-selected="false">
                                                         <button onClick={() => handleItemClick(item.type, item.id)} className="w-full text-left flex items-center gap-3 px-5 py-3 text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] transition-colors border-l-4 border-transparent hover:border-[var(--accent-primary)] group">
-                                                            <div className="p-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--accent-primary)] group-hover:bg-white group-hover:shadow-sm transition-all">
+                                                            <div className="p-2 rounded-[1.25rem] bg-[var(--bg-tertiary)] text-[var(--accent-primary)] group-hover:bg-white group-hover: transition-all">
                                                                 {ICONS[item.type]}
                                                             </div>
                                                             <div className="flex-grow min-w-0">

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import type { SchoolClass, Subject, Teacher, TimetableGridData } from '../types';
 import { generateUniqueId } from '../types';
 import SwipeableListItem from './SwipeableListItem';
@@ -133,7 +134,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
     setIsFormOpen(false);
   };
   
-  const inputStyleClasses = "mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm";
+  const inputStyleClasses = "mt-1 block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm";
 
   const sortedClasses = useMemo(() => {
     return [...visibleClasses].sort((a, b) => {
@@ -148,9 +149,9 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
   return (
     <div>
 
-      {isFormOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity" onClick={handleCancel}>
-            <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-3xl w-full mx-4 transform transition-all border border-[var(--border-primary)]" onClick={e => e.stopPropagation()}>
+      {isFormOpen && createPortal(
+        <div className="fixed inset-0 w-screen h-[100dvh] bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[200] transition-opacity" onClick={handleCancel}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem] max-w-3xl w-full mx-4 max-h-[90dvh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
                 <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
@@ -229,12 +230,12 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
                     </div>
                     
                     <div className="flex justify-end space-x-4 pt-4 border-t border-[var(--border-primary)]">
-                        <button type="button" onClick={handleCancel} className="px-6 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-lg hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button>
-                        <button type="submit" className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-lg shadow-md hover:bg-[var(--accent-primary-hover)]">{editingClass ? t.update : t.save}</button>
+                        <button type="button" onClick={handleCancel} className="px-6 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button>
+                        <button type="submit" className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-[1.25rem]  hover:bg-[var(--accent-primary-hover)]">{editingClass ? t.update : t.save}</button>
                     </div>
                 </form>
             </div>
-        </div>
+        </div>, document.body
       )}
 
       <div className="mt-6">
@@ -257,7 +258,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
         
         <div className="flex flex-col gap-3">
             {sortedClasses.map((schoolClass) => (
-              <div key={schoolClass.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+              <div key={schoolClass.id} className="bg-white/40 dark:bg-black/20 backdrop-blur-lg rounded-[2rem] border border-white/40 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
                 <SwipeableListItem
                   t={t}
                   item={schoolClass}

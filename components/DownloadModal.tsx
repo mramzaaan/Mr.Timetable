@@ -338,14 +338,14 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity" onClick={onClose}>
-      <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-2xl w-full mx-4 transform transition-all flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+      <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem]  max-w-2xl w-full mx-4 transform transition-all flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
         <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)] flex-shrink-0">{title}</h3>
 
         <div className={`grid grid-cols-1 ${isMultiItemMode ? 'md:grid-cols-2' : ''} gap-6 flex-grow overflow-hidden`}>
             {isMultiItemMode && items && (
                 <div className="flex flex-col min-h-0">
                     <label className="text-md font-semibold text-[var(--text-secondary)] mb-2 flex-shrink-0">{itemSelectionTitle}</label>
-                    <div className="flex-grow border border-[var(--border-primary)] bg-[var(--bg-tertiary)] rounded-lg overflow-y-auto p-3 space-y-2">
+                    <div className="flex-grow  bg-[var(--bg-tertiary)] rounded-[1.25rem] overflow-y-auto p-3 space-y-2">
                         <label className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer border-b border-[var(--border-secondary)] sticky top-0 bg-[var(--bg-tertiary)] z-10">
                         <input
                             type="checkbox"
@@ -356,7 +356,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                         <span className="font-semibold text-[var(--text-primary)]">{t.selectAll}</span>
                     </label>
                     {items.map(item => (
-                        <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-md hover:bg-[var(--accent-secondary-hover)]">
+                        <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-[1rem] hover:bg-[var(--accent-secondary-hover)]">
                             <input
                                 type="checkbox"
                                 className="form-checkbox text-[var(--accent-primary)] rounded"
@@ -375,21 +375,21 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
                 <label className="text-md font-semibold text-[var(--text-secondary)]">{t.format}</label>
                 <div className="mt-2 flex flex-col gap-2">
                   {isWorkloadReport ? (
-                      <button onClick={() => setDownloadFormat('pdf-summary')} className={`w-full px-4 py-2 text-sm font-medium border rounded-lg transition bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]`}>
+                      <button onClick={() => setDownloadFormat('pdf-summary')} className={`w-full px-4 py-2 text-sm font-medium border rounded-[1.25rem] transition bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]`}>
                           {summaryButtonLabel}
                       </button>
                   ) : (
                     <>
                       {isMultiItemMode ? (
                         <>
-                          <button onClick={() => setDownloadFormat('pdf-full')} className={`w-full px-4 py-2 text-sm font-medium border rounded-lg transition ${ downloadFormat === 'pdf-full' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>{t.fullTimetable}</button>
-                          {generateSummaryPageHtml && <button onClick={() => setDownloadFormat('pdf-summary')} className={`w-full px-4 py-2 text-sm font-medium border rounded-lg transition ${ downloadFormat === 'pdf-summary' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>{summaryButtonLabel || t.weeklySummary}</button>}
+                          <button onClick={() => setDownloadFormat('pdf-full')} className={`w-full px-4 py-2 text-sm font-medium border rounded-[1.25rem] transition ${ downloadFormat === 'pdf-full' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>{t.fullTimetable}</button>
+                          {generateSummaryPageHtml && <button onClick={() => setDownloadFormat('pdf-summary')} className={`w-full px-4 py-2 text-sm font-medium border rounded-[1.25rem] transition ${ downloadFormat === 'pdf-summary' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>{summaryButtonLabel || t.weeklySummary}</button>}
                         </>
                       ) : (
-                        <button onClick={() => setDownloadFormat('pdf-full')} className={`w-full px-4 py-2 text-sm font-medium border rounded-lg transition ${ downloadFormat === 'pdf-full' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>PDF</button>
+                        <button onClick={() => setDownloadFormat('pdf-full')} className={`w-full px-4 py-2 text-sm font-medium border rounded-[1.25rem] transition ${ downloadFormat === 'pdf-full' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>PDF</button>
                       )}
                       {(generateExcel || onGenerateExcel) && (
-                        <button onClick={() => setDownloadFormat('excel')} className={`w-full px-4 py-2 text-sm font-medium border rounded-lg transition ${ downloadFormat === 'excel' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>Excel</button>
+                        <button onClick={() => setDownloadFormat('excel')} className={`w-full px-4 py-2 text-sm font-medium border rounded-[1.25rem] transition ${ downloadFormat === 'excel' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>Excel</button>
                       )}
                     </>
                   )}
@@ -399,22 +399,22 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
               <div>
                 <label className="text-md font-semibold text-[var(--text-secondary)]">{t.language}</label>
                 <div className="mt-2 grid grid-cols-3 gap-2">
-                  <button onClick={() => setDownloadLanguage('en')} className={`px-2 py-2 text-sm font-medium border rounded-lg transition ${ downloadLanguage === 'en' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>English</button>
-                  <button onClick={() => setDownloadLanguage('ur')} className={`px-2 py-2 text-sm font-medium border rounded-lg transition ${ downloadLanguage === 'ur' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>اردو</button>
-                  <button onClick={() => setDownloadLanguage('both')} className={`px-2 py-2 text-sm font-medium border rounded-lg transition ${ downloadLanguage === 'both' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>Both</button>
+                  <button onClick={() => setDownloadLanguage('en')} className={`px-2 py-2 text-sm font-medium border rounded-[1.25rem] transition ${ downloadLanguage === 'en' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>English</button>
+                  <button onClick={() => setDownloadLanguage('ur')} className={`px-2 py-2 text-sm font-medium border rounded-[1.25rem] transition ${ downloadLanguage === 'ur' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>اردو</button>
+                  <button onClick={() => setDownloadLanguage('both')} className={`px-2 py-2 text-sm font-medium border rounded-[1.25rem] transition ${ downloadLanguage === 'both' ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--accent-secondary-hover)] border-[var(--border-secondary)]' }`}>Both</button>
                 </div>
               </div>
             </div>
         </div>
         
         <div className="flex justify-end gap-4 pt-6 border-t border-[var(--border-primary)] mt-6 flex-shrink-0">
-            <button onClick={onClose} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-lg hover:bg-[var(--accent-secondary-hover)] transition">
+            <button onClick={onClose} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)] transition">
               {t.cancel}
             </button>
             <button
               onClick={handleDownload}
               disabled={isGenerating || selectedIds.length === 0}
-              className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-lg hover:bg-[var(--accent-primary-hover)] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-[1.25rem] hover:bg-[var(--accent-primary-hover)] transition  disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGenerating ? 'Generating...' : `${t.download}${isMultiItemMode ? ` (${selectedIds.length})` : ''}`}
             </button>

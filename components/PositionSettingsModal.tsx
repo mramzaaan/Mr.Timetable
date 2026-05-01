@@ -30,7 +30,7 @@ export const PositionSettingsModal: React.FC<PositionSettingsModalProps> = ({
 
     const renderGrid = (currentPos: Position, setPos: (pos: Position) => void, activeColor: string) => {
         return (
-            <div className="grid grid-cols-5 gap-1.5 w-36 mx-auto p-3 bg-[#1a2333] rounded-xl border border-white/10 shadow-inner">
+            <div className="grid grid-cols-5 gap-1.5 w-36 mx-auto p-3 bg-[#1a2333] rounded-[2rem] border border-white/10 shadow-inner">
                 {Array.from({ length: 5 }).map((_, y) => (
                     Array.from({ length: 5 }).map((_, x) => {
                         const isSelected = currentPos.x === x && currentPos.y === y;
@@ -49,7 +49,7 @@ export const PositionSettingsModal: React.FC<PositionSettingsModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-[150]" onClick={(e) => { e.stopPropagation(); onClose(); }}>
-            <div className="bg-[#252f44] w-full max-w-sm rounded-2xl shadow-2xl flex flex-col border border-white/10 mx-4 overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-[#252f44] w-full max-w-sm rounded-[2rem] shadow-2xl flex flex-col border border-white/10 mx-4 overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
                 <div className="p-4 border-b border-white/10 flex justify-between items-center bg-[#1a2333]">
                     <h3 className="text-xl font-bold text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10">
@@ -70,7 +70,7 @@ export const PositionSettingsModal: React.FC<PositionSettingsModalProps> = ({
                 </div>
                 
                 <div className="p-4 border-t border-white/10 bg-[#1a2333] flex justify-end">
-                    <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors shadow-lg w-full sm:w-auto">
+                    <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[1.25rem] font-medium transition-colors shadow-lg w-full sm:w-auto">
                         Done
                     </button>
                 </div>

@@ -13,7 +13,7 @@ const NoSessionPlaceholder = ({ t }: { t: any }) => (
       <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-50 pointer-events-none"></div>
       
       <div className="relative z-10 flex flex-col items-center">
-        <div className="w-28 h-28 bg-gradient-to-br from-[var(--accent-primary)] to-cyan-400 rounded-3xl flex items-center justify-center mb-8 shadow-xl shadow-[var(--accent-primary)]/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ease-out border border-white/20">
+        <div className="w-28 h-28 bg-gradient-to-br from-[var(--accent-primary)] to-cyan-400 rounded-[2rem] flex items-center justify-center mb-8 shadow-xl shadow-[var(--accent-primary)]/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ease-out border border-white/20">
            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
            </svg>

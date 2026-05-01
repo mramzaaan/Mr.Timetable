@@ -128,7 +128,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ currentSession }) => {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed z-[90] bottom-24 left-4 xl:bottom-8 xl:left-8 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-purple-300 ${
+        className={`fixed z-[90] bottom-24 left-4 xl:bottom-8 xl:left-8 flex items-center justify-center w-14 h-14 rounded-full  transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-purple-300 ${
           isOpen ? 'bg-red-500 rotate-90 text-white' : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white'
         }`}
         title="AI Assistant (Thinking Mode)"
@@ -138,7 +138,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ currentSession }) => {
 
       {/* Chat Window */}
       <div
-        className={`fixed z-[90] bottom-40 left-4 xl:bottom-24 xl:left-8 w-[90vw] sm:w-96 max-w-[25rem] flex flex-col bg-[var(--bg-secondary)] rounded-2xl shadow-2xl border border-[var(--border-primary)] transition-all duration-300 origin-bottom-left overflow-hidden ${
+        className={`fixed z-[90] bottom-40 left-4 xl:bottom-24 xl:left-8 w-[90vw] sm:w-96 max-w-[25rem] flex flex-col bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]   transition-all duration-300 origin-bottom-left overflow-hidden ${
           isOpen
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 translate-y-10 pointer-events-none'
@@ -146,7 +146,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ currentSession }) => {
         style={{ maxHeight: 'calc(100vh - 180px)', height: '600px' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md">
+        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white ">
           <div className="flex items-center gap-2">
             <SparklesIcon />
             <div>
@@ -177,10 +177,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ currentSession }) => {
               className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-sm whitespace-pre-wrap ${
+                className={`max-w-[85%] rounded-[2rem] px-4 py-2.5 text-sm  whitespace-pre-wrap ${
                   msg.role === 'user'
                     ? 'bg-purple-600 text-white rounded-br-none'
-                    : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-secondary)] rounded-bl-none'
+                    : 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)]  rounded-bl-none'
                 }`}
               >
                 {msg.text}
@@ -190,7 +190,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ currentSession }) => {
           
           {isLoading && (
             <div className="flex justify-start w-full">
-              <div className="bg-[var(--bg-secondary)] border border-[var(--border-secondary)] text-[var(--text-primary)] rounded-2xl rounded-bl-none px-4 py-3 shadow-sm flex items-center gap-2">
+              <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  text-[var(--text-primary)] rounded-[2rem] rounded-bl-none px-4 py-3  flex items-center gap-2">
                 <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -204,20 +204,20 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ currentSession }) => {
         </div>
 
         {/* Input Area */}
-        <form onSubmit={handleSend} className="p-3 bg-[var(--bg-secondary)] border-t border-[var(--border-primary)] flex gap-2">
+        <form onSubmit={handleSend} className="p-3 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 border-t border-[var(--border-primary)] flex gap-2">
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about the timetable..."
-            className="flex-grow px-4 py-2.5 bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-secondary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+            className="flex-grow px-4 py-2.5 bg-[var(--bg-tertiary)] text-[var(--text-primary)]  rounded-[2rem] focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="p-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+            className="p-2.5 bg-purple-600 text-white rounded-[2rem] hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors "
           >
             <SendIcon />
           </button>

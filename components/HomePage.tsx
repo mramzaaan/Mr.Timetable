@@ -54,10 +54,10 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[110] transition-opacity" onClick={onCancel}>
-      <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 transform flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+      <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem]  max-w-md w-full mx-4 transform flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
         <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">{title}</h3>
         {children}
-        <div className="flex-grow border border-[var(--border-primary)] bg-[var(--bg-tertiary)] rounded-lg overflow-y-auto p-3 space-y-2 custom-scrollbar">
+        <div className="flex-grow  bg-[var(--bg-tertiary)] rounded-[1.25rem] overflow-y-auto p-3 space-y-2 custom-scrollbar">
           <label className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer border-b border-[var(--border-secondary)] sticky top-0 bg-[var(--bg-tertiary)] z-10">
             <input
               type="checkbox"
@@ -68,7 +68,7 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
             <span className="font-semibold text-[var(--text-primary)]">{t.selectAll}</span>
           </label>
           {items.map(item => (
-            <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-md hover:bg-[var(--accent-secondary-hover)]">
+            <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-[1rem] hover:bg-[var(--accent-secondary-hover)]">
               <input
                 type="checkbox"
                 className="form-checkbox text-[var(--accent-primary)] rounded"
@@ -80,8 +80,8 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
           ))}
         </div>
         <div className="flex justify-end gap-4 pt-6 border-t border-[var(--border-primary)] mt-6">
-          <button onClick={onCancel} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-lg hover:bg-[var(--accent-secondary-hover)] transition-colors">{t.cancel}</button>
-          <button onClick={onConfirm} disabled={selectedIds.length === 0} className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-lg hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 transition-colors shadow-sm">{confirmLabel}</button>
+          <button onClick={onCancel} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)] transition-colors">{t.cancel}</button>
+          <button onClick={onConfirm} disabled={selectedIds.length === 0} className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-[1.25rem] hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 transition-colors ">{confirmLabel}</button>
         </div>
       </div>
     </div>
@@ -162,7 +162,7 @@ const DocumentCard: React.FC<{
             className="group relative w-full mt-6 focus:outline-none min-h-[11.25rem]"
         >
             {/* Filter Container for Drop Shadow */}
-            <div className="relative w-full h-full drop-shadow-xl transition-transform duration-300 group-hover:scale-[1.02]">
+            <div className="relative w-full h-full drop- transition-transform duration-300 group-hover:scale-[1.02]">
                 
                 {/* Colored Accent Layer (Back) */}
                 <div 
@@ -191,7 +191,7 @@ const DocumentCard: React.FC<{
 
             {/* Floating Icon (Outside Clip) */}
             <div className="absolute -top-4 left-6 z-20">
-                <div className="relative w-16 h-16 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center p-1.5 transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative w-16 h-16 rounded-full bg-white dark:bg-gray-800  flex items-center justify-center p-1.5 transition-transform duration-300 group-hover:-translate-y-1">
                     <div className={`w-full h-full rounded-full ${theme.bg} flex items-center justify-center text-white shadow-inner`}>
                          {React.isValidElement(icon) 
                             ? React.cloneElement(icon as React.ReactElement<any>, { className: "h-7 w-7 stroke-[2]" }) 
@@ -279,7 +279,7 @@ const FeatureCard: React.FC<{
             <Fireflies colorClass={color.firefly} isMixed={color.isMixed} />
             <div className="h-full flex flex-col items-center justify-center p-2 sm:p-4 relative z-10">
                 {/* Icon */}
-                <div className={`mb-2 sm:mb-4 ${color.text} transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`}>
+                <div className={`mb-2 sm:mb-4 ${color.text} transform group-hover:scale-110 transition-transform duration-300 drop- dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`}>
                     <IconComponent className="h-12 w-12 sm:h-16 sm:w-16" />
                 </div>
 
@@ -550,7 +550,7 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
 
     return (
         <div className="w-full max-w-[90rem] mx-auto mb-4 px-3 sm:px-4">
-            <div className="relative overflow-hidden w-full bg-white/60 dark:bg-black/20 backdrop-blur-xl border border-white/50 shadow-2xl rounded-[2rem] sm:rounded-[3rem] transition-all duration-300 hover:shadow-cyan-500/10">
+            <div className="relative overflow-hidden w-full bg-white/60 dark:bg-black/20 backdrop-blur-xl border border-white/50  rounded-[2rem] sm:rounded-[3rem] transition-all duration-300 hover:shadow-cyan-500/10">
                 <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full blur-[5rem] opacity-10 animate-pulse pointer-events-none"></div>
                 <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur-[5rem] opacity-10 animate-pulse pointer-events-none" style={{ animationDelay: '2s' }}></div>
                 <div className="relative z-10 p-5 sm:p-8 lg:p-12 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 lg:gap-12 text-center md:text-left">
@@ -564,10 +564,10 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
                         </div>
                     </div>
                     {cardData && (
-                        <div className="w-full md:max-w-none md:flex-[1.2] bg-white/20 dark:bg-black/10 rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 border border-white/40 shadow-xl backdrop-blur-md transition-transform duration-300 hover:scale-[1.01] animate-alive flex flex-col justify-center" style={{ animationDelay: '1s' }}>
+                        <div className="w-full md:max-w-none md:flex-[1.2] bg-white/20 dark:bg-black/10 rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 border border-white/40  backdrop-blur-md transition-transform duration-300 hover:scale-[1.01] animate-alive flex flex-col justify-center" style={{ animationDelay: '1s' }}>
                             <div className="flex justify-between items-center mb-3 sm:mb-6">
                                 <h2 className="text-base sm:text-xl font-black text-gray-800 dark:text-white tracking-tight truncate pr-2">{cardData.title}</h2>
-                                <span className="px-3 sm:px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 dark:bg-indigo-900/30 text-[0.4375rem] sm:text-[0.5625rem] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300 shadow-sm whitespace-nowrap">{cardData.badge}</span>
+                                <span className="px-3 sm:px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 dark:bg-indigo-900/30 text-[0.4375rem] sm:text-[0.5625rem] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300  whitespace-nowrap">{cardData.badge}</span>
                             </div>
                             <div className="flex justify-between items-end text-[0.5rem] sm:text-[0.6875rem] font-black text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-widest gap-2">
                                 <span className="truncate">{cardData.left}</span>
@@ -623,6 +623,16 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const [isTeachersTimetableSummaryPreviewOpen, setIsTeachersTimetableSummaryPreviewOpen] = useState(false);
   const [teachersTimetableSummaryType, setTeachersTimetableSummaryType] = useState<'allDays' | 'byDays'>('allDays');
   const [selectedDaysForSummary, setSelectedDaysForSummary] = useState<string[]>(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
+  
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const touchStartRef = useRef<number | null>(null);
   const lastWheelTime = useRef<number>(0);
@@ -749,7 +759,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
 
       {isReportsModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={() => setIsReportsModalOpen(false)}>
-            <div className="bg-[var(--bg-secondary)] rounded-[2.5rem] shadow-2xl max-w-5xl w-full p-6 sm:p-8 animate-scale-in flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2.5rem]  max-w-5xl w-full p-6 sm:p-8 animate-scale-in flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center mb-6 px-2">
                     <h3 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tighter">DOCUMENTS</h3>
                     <button onClick={() => setIsReportsModalOpen(false)} className="p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-full transition-colors"><CloseIcon /></button>
@@ -782,7 +792,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
 
       {isBasicInfoSelectionOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4" onClick={() => setIsBasicInfoSelectionOpen(false)}>
-            <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl max-w-md w-full p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  max-w-md w-full p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
                 <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">Select Categories</h3>
                 <div className="space-y-3 mb-6">
                     {['Primary', 'Elementary', 'Secondary', 'Higher Secondary', 'Extra Rooms'].map(cat => (
@@ -804,11 +814,11 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                     ))}
                 </div>
                 <div className="flex justify-end space-x-3">
-                    <button onClick={() => setIsBasicInfoSelectionOpen(false)} className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors">Cancel</button>
+                    <button onClick={() => setIsBasicInfoSelectionOpen(false)} className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-[1.25rem] transition-colors">Cancel</button>
                     <button onClick={() => {
                         setIsBasicInfoSelectionOpen(false);
                         setIsBasicInfoPreviewOpen(true);
-                    }} className="px-4 py-2 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-lg transition-colors shadow-md">Generate Report</button>
+                    }} className="px-4 py-2 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-[1.25rem] transition-colors ">Generate Report</button>
                 </div>
             </div>
         </div>
@@ -816,7 +826,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
 
       {isTeachersTimetableSummarySelectionOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4" onClick={() => setIsTeachersTimetableSummarySelectionOpen(false)}>
-            <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl max-w-md w-full p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  max-w-md w-full p-6 animate-scale-in" onClick={e => e.stopPropagation()}>
                 <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">Teachers Timetable Summary</h3>
                 <div className="space-y-3 mb-6">
                     <label className="flex items-center space-x-3 cursor-pointer">
@@ -842,7 +852,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 </div>
 
                 {teachersTimetableSummaryType === 'byDays' && (
-                    <div className="mb-6 p-4 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border-secondary)]">
+                    <div className="mb-6 p-4 bg-[var(--bg-tertiary)] rounded-[2rem] ">
                         <h4 className="text-sm font-bold text-[var(--text-primary)] mb-3">Select Days</h4>
                         <div className="grid grid-cols-2 gap-2">
                             {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => {
@@ -871,11 +881,11 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 )}
 
                 <div className="flex justify-end space-x-3">
-                    <button onClick={() => setIsTeachersTimetableSummarySelectionOpen(false)} className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors">Cancel</button>
+                    <button onClick={() => setIsTeachersTimetableSummarySelectionOpen(false)} className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-[1.25rem] transition-colors">Cancel</button>
                     <button onClick={() => {
                         setIsTeachersTimetableSummarySelectionOpen(false);
                         setIsTeachersTimetableSummaryPreviewOpen(true);
-                    }} className="px-4 py-2 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-lg transition-colors shadow-md">Generate Report</button>
+                    }} className="px-4 py-2 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-[1.25rem] transition-colors ">Generate Report</button>
                 </div>
             </div>
         </div>
@@ -885,23 +895,23 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
         <>
             <SelectionModal isOpen={isTeacherSelectionForWorkloadOpen} title={t.selectTeachersToDownload} items={teacherItems} selectedIds={selectedTeacherIdsForWorkload} onSelect={(id, checked) => setSelectedTeacherIdsForWorkload(prev => checked ? [...prev, id] : prev.filter(tid => tid !== id))} onSelectAll={(checked) => setSelectedTeacherIdsForWorkload(checked ? teachers.map(t => t.id) : [])} onConfirm={handleWorkloadConfirm} onCancel={() => setIsTeacherSelectionForWorkloadOpen(false)} confirmLabel={t.workloadReport} t={t}>
                 <div className="mb-4 space-y-4">
-                    <div className="flex bg-[var(--bg-tertiary)] p-1 rounded-lg border border-[var(--border-secondary)]">
-                        <button onClick={() => setWorkloadReportMode('weekly')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${workloadReportMode === 'weekly' ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>Weekly Summary</button>
-                        <button onClick={() => setWorkloadReportMode('range')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${workloadReportMode === 'range' ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>Date Range</button>
+                    <div className="flex bg-[var(--bg-tertiary)] p-1 rounded-[1.25rem] ">
+                        <button onClick={() => setWorkloadReportMode('weekly')} className={`flex-1 py-2 text-sm font-bold rounded-[1rem] transition-colors ${workloadReportMode === 'weekly' ? 'bg-[var(--accent-primary)] text-white ' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>Weekly Summary</button>
+                        <button onClick={() => setWorkloadReportMode('range')} className={`flex-1 py-2 text-sm font-bold rounded-[1rem] transition-colors ${workloadReportMode === 'range' ? 'bg-[var(--accent-primary)] text-white ' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>Date Range</button>
                     </div>
                     {workloadReportMode === 'weekly' && (
-                        <div className="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-secondary)] animate-scale-in">
+                        <div className="bg-[var(--bg-tertiary)] p-3 rounded-[1.25rem]  animate-scale-in">
                             <label className="block text-xs text-[var(--text-secondary)] mb-1">Select Week (Any date)</label>
-                            <input type="date" value={selectedWeekDate} onChange={(e) => setSelectedWeekDate(e.target.value)} className="block w-full px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md text-sm text-[var(--text-primary)]" />
+                            <input type="date" value={selectedWeekDate} onChange={(e) => setSelectedWeekDate(e.target.value)} className="block w-full px-2 py-1.5 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem] text-sm text-[var(--text-primary)]" />
                             <p className="text-[0.625rem] text-[var(--text-secondary)] mt-1">
                                 Week: {workloadStartDate} to {workloadEndDate}
                             </p>
                         </div>
                     )}
                     {workloadReportMode === 'range' && (
-                        <div className="grid grid-cols-2 gap-3 bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-secondary)] animate-scale-in">
-                            <div><label className="block text-xs text-[var(--text-secondary)] mb-1">{t.startDate}</label><input type="date" value={workloadStartDate} onChange={(e) => setWorkloadStartDate(e.target.value)} className="block w-full px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md text-sm text-[var(--text-primary)]" /></div>
-                            <div><label className="block text-xs text-[var(--text-secondary)] mb-1">{t.endDate}</label><input type="date" value={workloadEndDate} onChange={(e) => setWorkloadEndDate(e.target.value)} className="block w-full px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md text-sm text-[var(--text-primary)]" /></div>
+                        <div className="grid grid-cols-2 gap-3 bg-[var(--bg-tertiary)] p-3 rounded-[1.25rem]  animate-scale-in">
+                            <div><label className="block text-xs text-[var(--text-secondary)] mb-1">{t.startDate}</label><input type="date" value={workloadStartDate} onChange={(e) => setWorkloadStartDate(e.target.value)} className="block w-full px-2 py-1.5 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem] text-sm text-[var(--text-primary)]" /></div>
+                            <div><label className="block text-xs text-[var(--text-secondary)] mb-1">{t.endDate}</label><input type="date" value={workloadEndDate} onChange={(e) => setWorkloadEndDate(e.target.value)} className="block w-full px-2 py-1.5 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem] text-sm text-[var(--text-primary)]" /></div>
                         </div>
                     )}
                 </div>
@@ -924,7 +934,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
       
       {isSelectSessionModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity" onClick={() => setIsSelectSessionModalOpen(false)}>
-            <div className="bg-[var(--bg-secondary)] rounded-3xl shadow-2xl max-w-2xl w-full mx-4 transform transition-all flex flex-col max-h-[90vh] border border-[var(--border-primary)]" onClick={e => e.stopPropagation()}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  max-w-2xl w-full mx-4 transform transition-all flex flex-col max-h-[90vh] " onClick={e => e.stopPropagation()}>
                 <div className="p-8 border-b border-[var(--border-primary)]">
                     <div className="flex flex-wrap justify-between items-center gap-6">
                         <div>
@@ -932,12 +942,12 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                             <p className="text-[var(--text-secondary)] mt-1 font-bold text-xs uppercase tracking-widest">{t.selectOrCreateDescription}</p>
                         </div>
                         <div className="flex items-center gap-3 flex-wrap">
-                            <button onClick={handleCreateNew} className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--accent-primary)] text-white rounded-2xl shadow-lg hover:bg-[var(--accent-primary-hover)] transition-all transform hover:-translate-y-1">{t.newTimetableSession}</button>
-                            <button onClick={() => uploadRef.current?.click()} className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-2xl hover:bg-[var(--accent-secondary-hover)] transition-all transform hover:-translate-y-1 border border-[var(--border-primary)]">{t.uploadSession}</button>
+                            <button onClick={handleCreateNew} className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--accent-primary)] text-white rounded-[2rem]  hover:bg-[var(--accent-primary-hover)] transition-all transform hover:-translate-y-1">{t.newTimetableSession}</button>
+                            <button onClick={() => uploadRef.current?.click()} className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-[2rem] hover:bg-[var(--accent-secondary-hover)] transition-all transform hover:-translate-y-1 ">{t.uploadSession}</button>
                             <button 
                                 onClick={handleDownloadSession} 
                                 disabled={!currentTimetableSession}
-                                className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-2xl hover:bg-[var(--accent-secondary-hover)] transition-all transform hover:-translate-y-1 border border-[var(--border-primary)] disabled:opacity-50 disabled:transform-none"
+                                className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-[2rem] hover:bg-[var(--accent-secondary-hover)] transition-all transform hover:-translate-y-1  disabled:opacity-50 disabled:transform-none"
                             >
                                 {t.downloadSession}
                             </button>
@@ -961,27 +971,27 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                     </div>
                 </div>
                 <div className="p-8 flex-grow overflow-y-auto custom-scrollbar">
-                    {feedback.message && <div className={`p-4 rounded-2xl text-sm font-bold mb-6 animate-scale-in flex items-center gap-3 ${ feedback.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }`}><div className={`w-2 h-2 rounded-full ${feedback.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}></div>{feedback.message}</div>}
+                    {feedback.message && <div className={`p-4 rounded-[2rem] text-sm font-bold mb-6 animate-scale-in flex items-center gap-3 ${ feedback.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }`}><div className={`w-2 h-2 rounded-full ${feedback.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}></div>{feedback.message}</div>}
                     {timetableSessions.length === 0 ? <div className="text-center py-16 opacity-40 flex flex-col items-center gap-4"><div className="w-16 h-16 rounded-full border-4 border-dashed border-current flex items-center justify-center"><CloseIcon /></div><p className="font-bold text-lg uppercase tracking-widest">{t.noTimetableSessions}</p></div> : (
                         <div className="space-y-4">
                         {timetableSessions.map(session => (
-                            <div key={session.id} className={`group p-6 rounded-[2rem] flex items-center justify-between transition-all duration-300 cursor-pointer ${session.id === currentTimetableSessionId ? 'bg-[var(--accent-secondary)] border-2 border-[var(--accent-primary)] shadow-2xl' : 'bg-[var(--bg-tertiary)] border-2 border-transparent hover:bg-[var(--bg-tertiary)]/80 hover:scale-[1.01]'}`} onClick={() => { setCurrentTimetableSessionId(session.id); setIsSelectSessionModalOpen(false); }}>
+                            <div key={session.id} className={`group p-6 rounded-[2rem] flex items-center justify-between transition-all duration-300 cursor-pointer ${session.id === currentTimetableSessionId ? 'bg-[var(--accent-secondary)] border-2 border-[var(--accent-primary)] ' : 'bg-[var(--bg-tertiary)] border-2 border-transparent hover:bg-[var(--bg-tertiary)]/80 hover:scale-[1.01]'}`} onClick={() => { setCurrentTimetableSessionId(session.id); setIsSelectSessionModalOpen(false); }}>
                                 <div className="flex items-center gap-6">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg transition-transform group-hover:rotate-12 ${session.id === currentTimetableSessionId ? 'bg-[var(--accent-primary)] text-white' : 'bg-white dark:bg-black/20 text-[var(--text-secondary)]'}`}>
+                                    <div className={`w-12 h-12 rounded-[2rem] flex items-center justify-center font-black text-xl  transition-transform group-hover:rotate-12 ${session.id === currentTimetableSessionId ? 'bg-[var(--accent-primary)] text-white' : 'bg-white dark:bg-black/20 text-[var(--text-secondary)]'}`}>
                                         {(session.name || '?').charAt(0).toUpperCase()}
                                     </div>
                                     <div>
                                         <h4 className="font-black text-xl text-[var(--text-primary)] uppercase tracking-tight leading-none mb-2">{session.name}</h4>
                                         <div className="flex items-center gap-3 text-[0.625rem] font-black text-[var(--text-secondary)] uppercase tracking-widest opacity-70">
-                                            <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-lg">{new Date(session.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                            <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-[1.25rem]">{new Date(session.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                             <span className="text-[var(--accent-primary)]">➔</span>
-                                            <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-lg">{new Date(session.endDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                            <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-[1.25rem]">{new Date(session.endDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
-                                    <button onClick={() => handleEditSession(session)} className="p-3 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-full hover:bg-white transition-all shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
-                                    <button onClick={() => onDeleteTimetableSession(session.id)} className="p-3 text-[var(--text-secondary)] hover:text-red-600 rounded-full hover:bg-red-50 transition-all shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" /></svg></button>
+                                    <button onClick={() => handleEditSession(session)} className="p-3 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-full hover:bg-white transition-all "><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
+                                    <button onClick={() => onDeleteTimetableSession(session.id)} className="p-3 text-[var(--text-secondary)] hover:text-red-600 rounded-full hover:bg-red-50 transition-all "><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" /></svg></button>
                                 </div>
                             </div>
                         ))}
@@ -989,37 +999,59 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                     )}
                 </div>
                 <div className="p-8 border-t border-[var(--border-primary)] flex justify-end">
-                    <button onClick={() => setIsSelectSessionModalOpen(false)} className="px-8 py-3 text-sm font-black uppercase tracking-widest text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-2xl hover:bg-[var(--accent-secondary-hover)] transition-all">{t.close}</button>
+                    <button onClick={() => setIsSelectSessionModalOpen(false)} className="px-8 py-3 text-sm font-black uppercase tracking-widest text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[2rem] hover:bg-[var(--accent-secondary-hover)] transition-all">{t.close}</button>
                 </div>
             </div>
         </div>
       )}
 
       <div className="min-h-screen flex flex-col overflow-x-hidden">
-        {/* Header - Visible on Home since SideNavBar is hidden */}
-        <header className="fixed top-0 left-0 right-0 z-40 bg-transparent border-none shadow-none transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none opacity-50"></div>
-          <div className="container mx-auto px-4 py-3 flex justify-between items-center relative z-10">
-            <div className="flex items-center gap-3">
-               {schoolConfig.schoolLogoBase64 && <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full shadow-lg border-2 border-white/20" />}
-               <div className="flex flex-col justify-center"><span className="text-2xl font-black text-gray-900 dark:text-white leading-none tracking-tighter">Mr. Timetable</span><span className="text-[0.6rem] font-black text-indigo-500 uppercase tracking-widest leading-none mt-1">Timetable Management System</span></div>
-            </div>
-            <div className="flex items-center gap-3 ml-auto">
-                {currentTimetableSession && (
-                    <button onClick={() => setIsSearchOpen(true)} className="p-3 text-gray-400 bg-white/20 dark:bg-white/5 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-white shadow-xl backdrop-blur-md border border-white/40 transition-all duration-300" title="Search"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></button>
-                )}
+        {/* Header - Collapsing One UI Style */}
+        <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out ${isScrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md  border-b border-gray-200 dark:border-gray-800' : 'bg-transparent pt-10 sm:pt-14 pb-2'}`}>
+          <div className="absolute inset-0 pointer-events-none opacity-50"></div>
+          <div className="container mx-auto px-4 sm:px-6 flex justify-between items-end relative z-10">
+            <div className={`flex items-end gap-4 transition-all duration-300 ease-in-out w-full ${isScrolled ? 'py-3' : 'py-0'}`}>
+                {/* Logo or School Icon */}
+                <div className={`transition-all duration-300 flex-shrink-0 ${isScrolled ? 'h-10 w-10 opacity-100' : 'h-0 w-0 opacity-0 overflow-hidden'}`}>
+                    {schoolConfig.schoolLogoBase64 ? (
+                        <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full  border-2 border-white/20" />
+                    ) : (
+                        <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl">M</div>
+                    )}
+                </div>
+                
+                {/* Titles */}
+                <div className={`flex flex-col flex-grow transition-all duration-300 transform origin-left`}>
+                    <span className={`font-black text-gray-900 dark:text-white tracking-tight transition-all duration-300 ease-in-out max-w-[80vw] ${isScrolled ? 'text-2xl leading-none truncate' : 'text-4xl sm:text-5xl lg:text-[3.5rem] leading-[1.1] pb-1'}`}>
+                        Mr. Timetable
+                    </span>
+                    <span className={`font-bold text-indigo-600 dark:text-indigo-400 tracking-wide transition-all duration-300 ease-in-out min-w-[200px] ${isScrolled ? 'text-[0.6rem] uppercase mt-0.5 max-h-4 opacity-100' : 'text-sm sm:text-base max-h-10 mt-1 opacity-80'}`}>
+                        Timetable Management System
+                    </span>
+                </div>
+                
+                {/* Actions */}
+                <div className={`flex items-center gap-3 transition-all duration-300 ${isScrolled ? 'mb-1' : 'mb-2'}`}>
+                    {currentTimetableSession && (
+                        <button onClick={() => setIsSearchOpen(true)} className={`p-3 text-gray-500 bg-white/40 dark:bg-white/10 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-white  backdrop-blur-md border border-white/50 transition-all duration-300 hover:scale-105 active:scale-95`} title="Search">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                    )}
+                </div>
             </div>
           </div>
         </header>
 
         {isSearchOpen && currentTimetableSession && (
             <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-start justify-center pt-20 animate-fade-in px-4" onClick={() => setIsSearchOpen(false)}>
-                <div className="w-full max-w-2xl transform transition-all" onClick={e => e.stopPropagation()}><GlobalSearch t={t} language={language} classes={currentTimetableSession.classes} teachers={currentTimetableSession.teachers} subjects={currentTimetableSession.subjects} onResultClick={(type, id) => { onSearchResultClick(type, id); setIsSearchOpen(false); }} autoFocus={true} className="shadow-2xl" /></div>
+                <div className="w-full max-w-2xl transform transition-all" onClick={e => e.stopPropagation()}><GlobalSearch t={t} language={language} classes={currentTimetableSession.classes} teachers={currentTimetableSession.teachers} subjects={currentTimetableSession.subjects} onResultClick={(type, id) => { onSearchResultClick(type, id); setIsSearchOpen(false); }} autoFocus={true} className="" /></div>
             </div>
         )}
 
-        <main className="flex-grow container mx-auto px-4 pt-20 pb-4 flex flex-col items-center justify-center min-h-[90vh]">
-            <div className="w-full animate-scale-in max-w-7xl relative flex flex-col items-center">
+        <main className={`flex-grow container mx-auto px-4 flex flex-col items-center justify-center min-h-[90vh] transition-all duration-300 ${isScrolled ? 'pt-24 pb-4' : 'pt-32 sm:pt-40 pb-4'}`}>
+            <div className="w-full animate-scale-in max-w-7xl relative flex flex-col items-center mt-4">
                 <DigitalClock language={language} schoolConfig={schoolConfig} t={t} vacations={currentTimetableSession?.vacations} />
                 
                 {/* Active Session Card */}
@@ -1027,9 +1059,9 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                     <div className="mb-8 relative group max-w-lg mx-auto w-full px-4">
                         <div 
                           onClick={() => setIsSelectSessionModalOpen(true)}
-                          className="relative cursor-pointer group/card rounded-[2rem] py-2 px-4 shadow-sm border-2 border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
+                          className="relative cursor-pointer group/card rounded-[2rem] py-2 px-4  border-2 border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
                         >
-                            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)] flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
+                            <div className="w-12 h-12 rounded-[2rem] bg-[var(--accent-primary)] flex items-center justify-center text-white font-black text-xl  shrink-0">
                                 {currentTimetableSession.name ? currentTimetableSession.name.charAt(0).toUpperCase() : '?'}
                             </div>
                             <div className="flex flex-col items-start justify-center flex-grow">
@@ -1048,9 +1080,9 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                     <div className="mb-8 relative group max-w-lg mx-auto w-full px-4">
                         <div 
                           onClick={() => setIsSelectSessionModalOpen(true)}
-                          className="relative cursor-pointer group/card rounded-[2rem] py-2 px-4 shadow-sm border-2 border-dashed border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
+                          className="relative cursor-pointer group/card rounded-[2rem] py-2 px-4  border-2 border-dashed border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
                         >
-                            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)]/20 flex items-center justify-center text-[var(--accent-primary)] font-black text-2xl shadow-sm shrink-0">
+                            <div className="w-12 h-12 rounded-[2rem] bg-[var(--accent-primary)]/20 flex items-center justify-center text-[var(--accent-primary)] font-black text-2xl  shrink-0">
                                 +
                             </div>
                             <div className="flex flex-col items-start justify-center flex-grow">
@@ -1073,7 +1105,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 >
                     <button 
                         onClick={scrollToFeatures}
-                        className="group relative p-2.5 rounded-2xl bg-white/40 dark:bg-white/5 backdrop-blur-md border border-white/40 shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 animate-bounce hidden md:block lg:hidden mb-8"
+                        className="group relative p-2.5 rounded-[2rem] bg-white/40 dark:bg-white/5 backdrop-blur-md border border-white/40  transition-all duration-300 hover:scale-110 active:scale-95 animate-bounce hidden md:block lg:hidden mb-8"
                         aria-label="Scroll to features"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600 dark:text-indigo-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

@@ -66,7 +66,7 @@ const TimetableSessionModal: React.FC<TimetableSessionModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-lg w-full transform transition-all max-h-[95vh] overflow-y-auto custom-scrollbar"
+        className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem]  max-w-lg w-full transform transition-all max-h-[95vh] overflow-y-auto custom-scrollbar"
         onClick={e => e.stopPropagation()}
       >
         <h3 id="timetableSessionModalTitle" className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">
@@ -83,7 +83,7 @@ const TimetableSessionModal: React.FC<TimetableSessionModalProps> = ({
               id="session-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"
+              className="block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"
               required
             />
           </div>
@@ -97,7 +97,7 @@ const TimetableSessionModal: React.FC<TimetableSessionModalProps> = ({
               id="start-date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"
+              className="block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"
               required
             />
           </div>
@@ -111,7 +111,7 @@ const TimetableSessionModal: React.FC<TimetableSessionModalProps> = ({
               id="end-date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"
+              className="block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"
               required
             />
           </div>
@@ -120,13 +120,13 @@ const TimetableSessionModal: React.FC<TimetableSessionModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-lg hover:bg-[var(--accent-secondary-hover)] transition"
+              className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)] transition"
             >
               {t.cancel}
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-lg hover:bg-[var(--accent-primary-hover)] transition shadow-sm"
+              className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-[1.25rem] hover:bg-[var(--accent-primary-hover)] transition "
             >
               {session ? t.update : t.create}
             </button>

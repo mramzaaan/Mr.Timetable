@@ -123,7 +123,7 @@ const SignatureModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black/70 z-[120] flex items-center justify-center p-4 backdrop-blur-md">
-            <div className="bg-[var(--bg-secondary)] rounded-3xl shadow-2xl p-6 sm:p-10 w-full max-w-4xl animate-scale-in border border-[var(--border-primary)] max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  p-6 sm:p-10 w-full max-w-4xl animate-scale-in  max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center mb-4 sm:mb-8">
                     <div>
                         <h3 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tight">{t.signNow.toUpperCase()}</h3>
@@ -134,7 +134,7 @@ const SignatureModal: React.FC<{
                     </button>
                 </div>
                 
-                <div className="border-4 border-dashed border-gray-200 rounded-3xl bg-white overflow-hidden touch-none shadow-inner mb-8">
+                <div className="border-4 border-dashed border-gray-200 rounded-[2rem] bg-white overflow-hidden touch-none shadow-inner mb-8">
                     <canvas 
                         ref={canvasRef}
                         width={1200}
@@ -154,7 +154,7 @@ const SignatureModal: React.FC<{
                     <button 
                         onClick={handleSave}
                         disabled={isSubmitting}
-                        className="w-full h-16 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-4 text-lg disabled:opacity-70 disabled:transform-none"
+                        className="w-full h-16 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black uppercase tracking-widest rounded-[2rem]  hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-4 text-lg disabled:opacity-70 disabled:transform-none"
                     >
                         {isSubmitting ? (
                             <div className="flex items-center gap-3">
@@ -278,10 +278,10 @@ const SubstitutePicker: React.FC<SubstitutePickerProps> = ({ teachersWithStatus,
         <div className="relative w-full" ref={dropdownRef}>
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full text-left rounded-xl px-3 py-2 text-xs font-bold flex justify-between items-center transition-all outline-none focus:ring-2 focus:ring-emerald-500/50 ${
+                className={`w-full text-left rounded-[2rem] px-3 py-2 text-xs font-bold flex justify-between items-center transition-all outline-none focus:ring-2 focus:ring-emerald-500/50 ${
                     selectedId 
                     ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' 
-                    : 'bg-white dark:bg-gray-800 border border-[var(--border-secondary)] text-[var(--text-primary)] hover:border-[var(--accent-primary)] shadow-sm'
+                    : 'bg-white dark:bg-gray-800  text-[var(--text-primary)] hover:border-[var(--accent-primary)] '
                 }`}
             >
                 <span className="truncate flex-grow">
@@ -295,7 +295,7 @@ const SubstitutePicker: React.FC<SubstitutePickerProps> = ({ teachersWithStatus,
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-[var(--border-secondary)] rounded-lg shadow-xl max-h-80 overflow-y-auto custom-scrollbar animate-scale-in">
+                <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800  rounded-[1.25rem]  max-h-80 overflow-y-auto custom-scrollbar animate-scale-in">
                     {teachersWithStatus.map(({ teacher, status }) => {
                         const name = language === 'ur' ? teacher.nameUr : teacher.nameEn;
                         const teacherStats = allStats[teacher.id] || Array(7).fill(0);
@@ -391,23 +391,23 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
     const isLegacy = group.isLegacy;
 
     return (
-        <div className={`relative p-3 rounded-2xl border transition-all flex flex-col gap-3 group 
+        <div className={`relative p-3 rounded-[2rem] border transition-all flex flex-col gap-3 group 
             ${group.isClassAbsent
                 ? 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800/50 opacity-80'
                 : currentSubstituteId 
-                    ? 'bg-[var(--bg-secondary)] border-emerald-500/30 shadow-md' 
+                    ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 border-emerald-500/30 ' 
                     : 'bg-[var(--bg-tertiary)]/30 border-[var(--border-secondary)]'
             }
             ${isLegacy ? 'ring-2 ring-orange-400 ring-offset-2 ring-offset-[var(--bg-primary)]' : ''}
             `}
         >
             {group.isClassAbsent && (
-                <div className="absolute -top-2 -left-2 bg-red-500 text-white border border-red-600 px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1">
+                <div className="absolute -top-2 -left-2 bg-red-500 text-white border border-red-600 px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase tracking-wider  z-20 flex items-center gap-1">
                     {language === 'ur' ? <span className="font-urdu">کلاس بند ہے</span> : 'Class Closed'}
                 </div>
             )}
             {isLegacy && (
-                <div className="absolute -top-2 -right-2 bg-orange-500 text-white border border-orange-600 px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase tracking-wider shadow-sm z-20 flex items-center gap-1">
+                <div className="absolute -top-2 -right-2 bg-orange-500 text-white border border-orange-600 px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase tracking-wider  z-20 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 00-1-1v3a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
@@ -416,7 +416,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
             )}
 
             <div className="flex items-center gap-3 mb-1">
-               <div className={`flex flex-col items-center justify-center border rounded-xl w-11 h-11 flex-shrink-0 ${group.isClassAbsent ? 'bg-red-100/50 dark:bg-red-900/30 border-red-200 dark:border-red-800' : 'bg-[var(--bg-tertiary)] border-[var(--border-secondary)]'}`}>
+               <div className={`flex flex-col items-center justify-center border rounded-[2rem] w-11 h-11 flex-shrink-0 ${group.isClassAbsent ? 'bg-red-100/50 dark:bg-red-900/30 border-red-200 dark:border-red-800' : 'bg-[var(--bg-tertiary)] border-[var(--border-secondary)]'}`}>
                     <span className={`text-[0.5rem] font-bold uppercase tracking-wider leading-none mb-0.5 ${group.isClassAbsent ? 'text-red-500' : 'text-[var(--text-secondary)]'}`}>PD</span>
                     <span className={`text-xl font-black leading-none ${group.isClassAbsent ? 'text-red-600 dark:text-red-400' : currentSubstituteId ? 'text-emerald-600' : 'text-[var(--accent-primary)]'}`}>
                         {group.periodIndex + 1}
@@ -436,7 +436,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
                    {currentSubstituteId && !group.isClassAbsent && (
                        <button 
                            onClick={() => onSubstituteChange(group, '')}
-                           className="w-8 h-8 flex items-center justify-center text-[var(--text-placeholder)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                           className="w-8 h-8 flex items-center justify-center text-[var(--text-placeholder)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-[1.25rem] transition-colors"
                            title="Clear Assignment"
                        >
                            <TrashIcon />
@@ -447,7 +447,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
 
             <div className="relative z-10 w-full">
                 {group.isClassAbsent ? (
-                    <div className="flex items-center justify-center h-10 bg-red-100/50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800/50 text-xs font-bold uppercase tracking-wider">
+                    <div className="flex items-center justify-center h-10 bg-red-100/50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-[1.25rem] border border-red-200 dark:border-red-800/50 text-xs font-bold uppercase tracking-wider">
                         {language === 'ur' ? <span className="font-urdu">کلاس غیر حاضر ہے</span> : 'Class is Absent'}
                     </div>
                 ) : (
@@ -467,7 +467,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
                             <button 
                                 onClick={handleNotifyClick} 
                                 disabled={isSending}
-                                className={`h-full aspect-square flex items-center justify-center rounded-lg transition-all shadow-sm ${
+                                className={`h-full aspect-square flex items-center justify-center rounded-[1.25rem] transition-all  ${
                                     isSent 
                                     ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                                     : 'bg-[var(--bg-tertiary)] text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800'
@@ -488,7 +488,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
             </div>
             
             {assignedAdj?.conflictDetails && (
-                <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/40 text-[0.5625rem] text-red-600 font-bold animate-pulse">
+                <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-[1.25rem] border border-red-100 dark:border-red-900/40 text-[0.5625rem] text-red-600 font-bold animate-pulse">
                     <DoubleBookedWarningIcon />
                     <span className="truncate">{t.doubleBook}: {language === 'ur' ? assignedAdj.conflictDetails.classNameUr : assignedAdj.conflictDetails.classNameEn}</span>
                 </div>
@@ -1532,7 +1532,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     </div>
 
                     {/* Main Card */}
-                    <div className="w-full bg-slate-50 border-2 border-slate-100 rounded-[3rem] p-12 shadow-sm">
+                    <div className="w-full bg-slate-50 border-2 border-slate-100 rounded-[3rem] p-12 ">
                         
                         {/* Date Header */}
                         <div className="text-center mb-10">
@@ -1548,19 +1548,19 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                         {/* 3 Col Grid */}
                         <div className="grid grid-cols-3 gap-8 mb-8">
                             {/* Period */}
-                            <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center">
+                            <div className="bg-white rounded-[2rem] p-8  border border-slate-100 text-center">
                                 <p className="text-lg font-bold text-slate-400 uppercase tracking-widest mb-2">Period</p>
                                 <p className="text-6xl font-black text-indigo-600">{slipData.periodIndex + 1}</p>
                             </div>
                             {/* Time */}
-                            <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center">
+                            <div className="bg-white rounded-[2rem] p-8  border border-slate-100 text-center">
                                 <p className="text-lg font-bold text-slate-400 uppercase tracking-widest mb-2">Time</p>
                                 <p className="text-5xl font-black text-emerald-500 mt-2">
                                     {(slipData.day === 'Friday' ? schoolConfig.periodTimings.friday : schoolConfig.periodTimings.default)[slipData.periodIndex]?.start || '--:--'}
                                 </p>
                             </div>
                             {/* Room */}
-                            <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center">
+                            <div className="bg-white rounded-[2rem] p-8  border border-slate-100 text-center">
                                 <p className="text-lg font-bold text-slate-400 uppercase tracking-widest mb-2">Room</p>
                                 <p className="text-6xl font-black text-orange-500">
                                     {classes.find(c => c.id === slipData.classId)?.roomNumber || '-'}
@@ -1569,7 +1569,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                         </div>
 
                         {/* Class / Subject Row */}
-                        <div className="bg-white rounded-3xl p-10 shadow-sm border border-slate-100 flex justify-between items-center mb-12">
+                        <div className="bg-white rounded-[2rem] p-10  border border-slate-100 flex justify-between items-center mb-12">
                             <div>
                                 <p className="text-lg font-bold text-slate-400 uppercase tracking-widest mb-1">Class</p>
                                 <p className="text-5xl font-black text-slate-900">{classes.find(c => c.id === slipData.classId)?.nameEn}</p>
@@ -1621,8 +1621,8 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                              const conflictData = activeConflict || assignedAdj?.conflictDetails;
 
                             return (
-                                <div key={idx} className="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 relative">
-                                    <div className="flex flex-col items-center justify-center bg-white rounded-xl w-12 h-12 border border-slate-200 mr-4 shadow-sm flex-shrink-0">
+                                <div key={idx} className="flex items-center p-4 bg-slate-50 rounded-[2rem] border border-slate-100 relative">
+                                    <div className="flex flex-col items-center justify-center bg-white rounded-[2rem] w-12 h-12 border border-slate-200 mr-4  flex-shrink-0">
                                         <span className="text-[0.625rem] font-bold text-slate-400 uppercase">PD</span>
                                         <span className="text-xl font-black text-slate-700">{group.periodIndex + 1}</span>
                                     </div>
@@ -1674,7 +1674,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
 
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-black/60 z-[150] flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setIsShareModalOpen(false)}>
-            <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl w-full max-w-md border border-[var(--border-primary)] overflow-hidden animate-scale-in" onClick={e => e.stopPropagation()}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  w-full max-w-md  overflow-hidden animate-scale-in" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-[var(--border-secondary)] bg-[var(--bg-tertiary)] flex justify-between items-center">
                     <h3 className="font-bold text-lg text-[var(--text-primary)]">Generate Substitution Slip</h3>
                     <button onClick={() => { setIsShareModalOpen(false); setGeneratedShareBlob(null); }} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
@@ -1697,7 +1697,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     </div>
                     <div className="space-y-2">
                         {absentTeachers.map(teacher => (
-                            <label key={teacher.id} className="flex items-center gap-3 p-3 rounded-xl border border-[var(--border-secondary)] hover:bg-[var(--bg-tertiary)] cursor-pointer transition-colors">
+                            <label key={teacher.id} className="flex items-center gap-3 p-3 rounded-[2rem]  hover:bg-[var(--bg-tertiary)] cursor-pointer transition-colors">
                                 <input 
                                     type="checkbox" 
                                     checked={selectedTeachersForSlip.includes(teacher.id)}
@@ -1719,7 +1719,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                         <button 
                             onClick={handleGenerateMultiSlip}
                             disabled={selectedTeachersForSlip.length === 0 || isGeneratingShare}
-                            className="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:shadow-teal-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2 text-lg relative"
+                            className="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-bold rounded-[2rem]  hover:shadow-teal-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2 text-lg relative"
                         >
                             {isGeneratingShare ? (
                                 <>
@@ -1735,7 +1735,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     ) : (
                         <button 
                             onClick={handleShareClick}
-                            className="w-full py-3 relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2 text-lg"
+                            className="w-full py-3 relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-[2rem]  shadow-blue-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2 text-lg"
                         >
                             <span className="absolute inset-0 w-full h-full bg-gradient-to-tr from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></span>
                             <ShareIcon /> Share Image Now!
@@ -1749,7 +1749,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       {/* Hidden Multi-Teacher Slip */}
       <div style={{ position: 'fixed', top: 0, left: 0, zIndex: -50, pointerEvents: 'none', opacity: 0 }}>
         {computedMultiTeacherSlipData && (
-            <div ref={multiTeacherSlipRef} className="w-[56.25rem] bg-white font-sans text-slate-800 p-6 pt-8 rounded-2xl">
+            <div ref={multiTeacherSlipRef} className="w-[56.25rem] bg-white font-sans text-slate-800 p-6 pt-8 rounded-[2rem]">
                 <style dangerouslySetInnerHTML={{__html: `
                     @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap');
                     .oswald-font { font-family: 'Oswald', sans-serif; }
@@ -1772,7 +1772,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                 </h3>
                             </div>
                             
-                            <div className="flex flex-col gap-0 w-full border-2 border-slate-900 rounded-xl overflow-hidden shadow-md">
+                            <div className="flex flex-col gap-0 w-full border-2 border-slate-900 rounded-[2rem] overflow-hidden ">
                                 {/* Table Header */}
                                 <div className="flex w-full bg-slate-900">
                                     <div className="w-[26%] text-white py-2 px-3 text-center font-bold text-sm oswald-font tracking-widest border-r border-slate-700 uppercase">T & P</div>
@@ -1829,7 +1829,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                                         <span className="text-[2rem] font-black uppercase leading-tight text-center text-indigo-700 whitespace-nowrap overflow-hidden text-ellipsis w-full">{subTeacher.nameEn}</span>
                                                         {conflictData && (
                                                             <div className="mt-0.5 w-full flex justify-center">
-                                                                <div className="flex items-center text-[0.6rem] font-bold uppercase tracking-wider bg-red-600 text-white px-2 py-0.5 rounded shadow-sm leading-none animate-pulse">
+                                                                <div className="flex items-center text-[0.6rem] font-bold uppercase tracking-wider bg-red-600 text-white px-2 py-0.5 rounded  leading-none animate-pulse">
                                                                     Conflict: {language === 'ur' ? conflictData.classNameUr : conflictData.classNameEn}
                                                                 </div>
                                                             </div>
@@ -1865,7 +1865,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     onChange={(e) => onSelectionChange(prev => ({ ...prev, date: e.target.value }))} 
                     className="absolute inset-0 opacity-0 cursor-pointer z-10" 
                 />
-                <div className="flex items-center gap-4 bg-[var(--bg-secondary)] px-5 py-2.5 rounded-2xl border-2 border-[var(--border-secondary)] shadow-sm group-hover:border-[var(--accent-primary)] transition-all min-w-[150px]">
+                <div className="flex items-center gap-4 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 px-5 py-2.5 rounded-[2rem] border-2 border-[var(--border-secondary)]  group-hover:border-[var(--accent-primary)] transition-all min-w-[150px]">
                     <div className="flex flex-col items-center border-r border-[var(--border-secondary)] pr-4">
                         <span className="text-[0.65rem] font-black text-[#6366f1] uppercase leading-none tracking-wider">
                             {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'short' })}
@@ -1889,7 +1889,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
         <div className="flex items-center gap-3 flex-wrap">
             <button 
                 onClick={autoAssignSubstitutes} 
-                className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm transition-all transform hover:-translate-y-0.5 active:scale-95" 
+                className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2rem] font-bold  transition-all transform hover:-translate-y-0.5 active:scale-95" 
                 title={t.autoAssign}
             >
                 <AutoIcon />
@@ -1897,22 +1897,22 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
             </button>
             <button 
                 onClick={clearAllAdjustments} 
-                className="flex items-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold border border-red-200 transition-all active:scale-95" 
+                className="flex items-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-[2rem] font-bold border border-red-200 transition-all active:scale-95" 
                 title={t.clearAll}
             >
                 <ResetIcon />
                 <span className="hidden sm:inline">{t.clearAll}</span>
             </button>
             <div className="w-px h-8 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
-            <button onClick={() => { setSelectedTeachersForSlip(absentTeachers.map(t => t.id)); setIsShareModalOpen(true); }} className="p-3 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Share Slips"><ShareIcon /></button>
-            <button onClick={() => setIsImportExportOpen(true)} className="p-3 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Import/Export Adjustments"><ImportExportIcon /></button>
-            <button onClick={() => setIsPrintPreviewOpen(true)} className="p-3 text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors border border-[var(--border-secondary)] shadow-sm" title={t.printViewAction}><PrintIcon /></button>
+            <button onClick={() => { setSelectedTeachersForSlip(absentTeachers.map(t => t.id)); setIsShareModalOpen(true); }} className="p-3 text-[var(--text-secondary)] hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem] transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Share Slips"><ShareIcon /></button>
+            <button onClick={() => setIsImportExportOpen(true)} className="p-3 text-[var(--text-secondary)] hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem] transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Import/Export Adjustments"><ImportExportIcon /></button>
+            <button onClick={() => setIsPrintPreviewOpen(true)} className="p-3 text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-[2rem] transition-colors  " title={t.printViewAction}><PrintIcon /></button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
          <div className="mb-2">
-             <button onClick={() => openModal('teacher')} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
+             <button onClick={() => openModal('teacher')} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[2rem] font-bold text-lg  transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
                  <PlusIcon /> 
                  <span>{t.add || 'Add'} Absence</span>
              </button>
@@ -1929,7 +1929,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     return (
                         <div key={entity.id} className="animate-fade-in group">
                             <div 
-                                className={`w-full flex items-center justify-between p-3 bg-[var(--bg-secondary)] border-l-4 ${isClass ? 'border-l-blue-500' : 'border-l-red-500'} border border-gray-200 dark:border-gray-700 rounded-r-lg shadow-sm transition-all cursor-pointer hover:shadow-md mb-0.5`}
+                                className={`w-full flex items-center justify-between p-3 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 border-l-4 ${isClass ? 'border-l-blue-500' : 'border-l-red-500'} border border-gray-200 dark:border-gray-700 rounded-r-lg  transition-all cursor-pointer hover: mb-0.5`}
                                 onClick={() => toggleTeacherCollapse(entity.id)}
                             >
                                 <div className="flex items-center gap-3">
@@ -1943,14 +1943,14 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                     <div className="flex items-center gap-1 opacity-100 transition-opacity">
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); openModal(entity.type, entity.id); }} 
-                                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-[1.25rem] transition-colors"
                                             title="Edit Leave"
                                         >
                                             <EditIcon />
                                         </button>
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); handleDeleteItem(entity.id, entity.type); }} 
-                                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[1.25rem] transition-colors"
                                             title="Remove Leave / Clear Substitutions"
                                         >
                                             <TrashIcon />
@@ -1977,9 +1977,9 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                             return (
                                                 <div key={cardId} className={activeDropdownCardId === cardId ? 'z-30' : 'z-0'}>
                                                     {isClass ? (
-                                                        <div className="p-3 rounded-2xl border bg-blue-50/50 border-blue-200 dark:border-blue-800 flex flex-col gap-2">
+                                                        <div className="p-3 rounded-[2rem] border bg-blue-50/50 border-blue-200 dark:border-blue-800 flex flex-col gap-2">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="flex flex-col items-center justify-center bg-white dark:bg-black/20 rounded-xl w-10 h-10 border border-blue-100">
+                                                                <div className="flex flex-col items-center justify-center bg-white dark:bg-black/20 rounded-[2rem] w-10 h-10 border border-blue-100">
                                                                     <span className="text-[0.5rem] font-bold text-blue-400 uppercase">PD</span>
                                                                     <span className="text-lg font-black text-blue-600">{group.periodIndex + 1}</span>
                                                                 </div>
@@ -2012,13 +2012,13 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                     );
                 })}
             </div>
-            ) : <div className="text-center py-12 bg-[var(--bg-secondary)] rounded-lg border border-dashed border-[var(--border-secondary)]"><p className="text-[var(--text-secondary)]">{t.noClassesScheduled}</p></div>
-         ) : <div className="text-center py-12 bg-[var(--bg-secondary)] rounded-lg border border-dashed border-[var(--border-secondary)]"><p className="text-[var(--text-secondary)]">Please select a date to begin.</p></div>}
+            ) : <div className="text-center py-12 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem] border border-dashed border-[var(--border-secondary)]"><p className="text-[var(--text-secondary)]">{t.noClassesScheduled}</p></div>
+         ) : <div className="text-center py-12 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem] border border-dashed border-[var(--border-secondary)]"><p className="text-[var(--text-secondary)]">Please select a date to begin.</p></div>}
       </div>
       
       {modalState.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[110] p-4" onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))}>
-          <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl w-full max-w-lg flex flex-col border border-[var(--border-primary)] animate-scale-in max-h-[95vh]" onClick={e => e.stopPropagation()}>
+          <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  w-full max-w-lg flex flex-col  animate-scale-in max-h-[95vh]" onClick={e => e.stopPropagation()}>
              <div className="p-4 sm:p-5 border-b border-[var(--border-primary)] flex justify-between items-center bg-[var(--bg-tertiary)]/50 shrink-0">
                <h3 className="font-bold text-lg text-[var(--text-primary)]">
                  {modalState.data.id ? t.edit : t.add} {modalState.mode === 'teacher' ? t.teacherOnLeave : 'Class Leave'}
@@ -2028,18 +2028,18 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
              
              <div className="p-6 space-y-5 overflow-y-auto max-h-[70vh] custom-scrollbar">
                 {!modalState.data.id && (
-                    <div className="flex p-1 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-secondary)]">
+                    <div className="flex p-1 bg-[var(--bg-tertiary)] rounded-[1.25rem] ">
                         <button 
                             type="button"
                             onClick={() => handleModeChange('teacher')}
-                            className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${modalState.mode === 'teacher' ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                            className={`flex-1 py-2 text-sm font-bold rounded-[1rem] transition-colors ${modalState.mode === 'teacher' ? 'bg-[var(--accent-primary)] text-white ' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                         >
                             Teacher
                         </button>
                         <button 
                             type="button"
                             onClick={() => handleModeChange('class')}
-                            className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${modalState.mode === 'class' ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                            className={`flex-1 py-2 text-sm font-bold rounded-[1rem] transition-colors ${modalState.mode === 'class' ? 'bg-[var(--accent-primary)] text-white ' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                         >
                             Class
                         </button>
@@ -2053,7 +2053,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                    <select 
                        value={modalState.data.id} 
                        onChange={(e) => setModalState(prev => ({ ...prev, data: { ...prev.data, id: e.target.value } }))}
-                       className="w-full p-3 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-xl text-sm font-medium focus:ring-2 focus:ring-[var(--accent-primary)] outline-none"
+                       className="w-full p-3 bg-[var(--bg-tertiary)]  rounded-[2rem] text-sm font-medium focus:ring-2 focus:ring-[var(--accent-primary)] outline-none"
                        disabled={!!modalState.data.id && !!absenteeDetails[modalState.mode === 'class' ? `CLASS_${modalState.data.id}` : modalState.data.id]} 
                    >
                        <option value="">Select...</option>
@@ -2072,17 +2072,17 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">Start Date</label>
-                        <input type="date" value={modalState.data.startDate} onChange={(e) => setModalState(prev => ({...prev, data: {...prev.data, startDate: e.target.value}}))} className="w-full p-2 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm" />
+                        <input type="date" value={modalState.data.startDate} onChange={(e) => setModalState(prev => ({...prev, data: {...prev.data, startDate: e.target.value}}))} className="w-full p-2 bg-[var(--bg-tertiary)]  rounded-[1.25rem] text-sm" />
                     </div>
                     {modalState.data.isMultiDay && (
                         <div>
                             <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">End Date</label>
-                            <input type="date" value={modalState.data.endDate} onChange={(e) => setModalState(prev => ({...prev, data: {...prev.data, endDate: e.target.value}}))} className="w-full p-2 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm" />
+                            <input type="date" value={modalState.data.endDate} onChange={(e) => setModalState(prev => ({...prev, data: {...prev.data, endDate: e.target.value}}))} className="w-full p-2 bg-[var(--bg-tertiary)]  rounded-[1.25rem] text-sm" />
                         </div>
                     )}
                 </div>
 
-                <div className="bg-[var(--bg-tertiary)]/30 p-3 rounded-xl border border-[var(--border-secondary)]">
+                <div className="bg-[var(--bg-tertiary)]/30 p-3 rounded-[2rem] ">
                     <div className="flex gap-4 mb-3">
                          <label className="flex items-center gap-2 cursor-pointer">
                              <input type="radio" name="leaveType" checked={modalState.data.leaveType === 'full'} onChange={() => setModalState(prev => ({...prev, data: {...prev.data, leaveType: 'full'}}))} className="form-radio text-[var(--accent-primary)]" />
@@ -2111,8 +2111,8 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                         }}
                                         className={`w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center border transition-all ${
                                             (modalState.data.periods || []).includes(p)
-                                            ? 'bg-red-500 text-white border-red-600 shadow-md transform scale-110'
-                                            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-secondary)] hover:border-[var(--accent-primary)]'
+                                            ? 'bg-red-500 text-white border-red-600  transform scale-110'
+                                            : 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-secondary)] border-[var(--border-secondary)] hover:border-[var(--accent-primary)]'
                                         }`}
                                     >
                                         {p}
@@ -2128,7 +2128,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                    <select 
                         value={modalState.data.reason} 
                         onChange={(e) => setModalState(prev => ({...prev, data: {...prev.data, reason: e.target.value}}))}
-                        className="w-full p-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm mb-2"
+                        className="w-full p-2.5 bg-[var(--bg-tertiary)]  rounded-[1.25rem] text-sm mb-2"
                    >
                        {LEAVE_REASONS.map(r => <option key={r} value={r}>{r}</option>)}
                    </select>
@@ -2138,15 +2138,15 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                            placeholder="Specify reason..."
                            value={modalState.data.customReason}
                            onChange={(e) => setModalState(prev => ({...prev, data: {...prev.data, customReason: e.target.value}}))}
-                           className="w-full p-2.5 bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] rounded-lg text-sm"
+                           className="w-full p-2.5 bg-[var(--bg-tertiary)]  rounded-[1.25rem] text-sm"
                        />
                    )}
                 </div>
              </div>
 
              <div className="p-5 border-t border-[var(--border-primary)] flex justify-end gap-3 bg-[var(--bg-tertiary)]/30 rounded-b-2xl">
-                 <button type="button" onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))} className="px-5 py-2.5 text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors">{t.cancel}</button>
-                 <button type="button" onClick={handleSaveModal} className="px-6 py-2.5 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-xl shadow-lg transition-transform active:scale-95">{t.save}</button>
+                 <button type="button" onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))} className="px-5 py-2.5 text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded-[2rem] transition-colors">{t.cancel}</button>
+                 <button type="button" onClick={handleSaveModal} className="px-6 py-2.5 text-sm font-bold text-white bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] rounded-[2rem]  transition-transform active:scale-95">{t.save}</button>
              </div>
           </div>
         </div>
@@ -2154,7 +2154,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
       
       {isImportExportOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[110] p-4" onClick={() => setIsImportExportOpen(false)}>
-            <div className="bg-[var(--bg-secondary)] p-6 rounded-xl shadow-lg w-full max-w-md animate-scale-in max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 rounded-[2rem]  w-full max-w-md animate-scale-in max-h-[95vh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
                 <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">Import / Export Adjustments</h3>
                 
                 <div className="space-y-4">

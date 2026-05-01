@@ -103,7 +103,7 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
                         )}
                         
                         <div className={`flex items-center z-10 w-full transition-transform duration-200 group-hover:scale-110 ${isActive ? 'scale-105' : 'scale-100'} ${isHovered ? 'justify-start' : 'justify-center'}`}>
-                            <span className={`transition-colors duration-200 p-2.5 rounded-2xl flex-shrink-0
+                            <span className={`transition-colors duration-200 p-2.5 rounded-[2rem] flex-shrink-0
                                 ${isActive ? '' : 'text-white/80 group-hover:text-white'}
                             `}
                             style={{ color: isActive ? item.color : undefined }}

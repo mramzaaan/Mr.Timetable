@@ -122,7 +122,7 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">Share Online Teachers Schedule</h2>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -144,7 +144,7 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
                                 <button
                                     key={teacher.id}
                                     onClick={() => toggleTeacher(teacher.id)}
-                                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
+                                    className={`w-full text-left px-3 py-2 rounded-[1.25rem] text-sm flex items-center gap-2 transition-colors ${
                                         selectedTeacherIds.has(teacher.id) 
                                             ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200' 
                                             : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
@@ -161,7 +161,7 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
 
                     {/* Preview Area */}
                     <div className="w-full md:w-2/3 bg-gray-100 dark:bg-gray-900 p-4 overflow-y-auto flex items-start justify-center">
-                        <div ref={contentRef} className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg mx-auto min-h-[18.75rem]">
+                        <div ref={contentRef} className="bg-white p-6 rounded-[2rem] shadow-lg w-full max-w-lg mx-auto min-h-[18.75rem]">
                             {/* Header */}
                             <div className="text-center mb-6 border-b-2 border-gray-100 pb-4">
                                 <h1 className="text-2xl font-black text-gray-800 uppercase tracking-tight mb-1">{schoolConfig.schoolNameEn}</h1>
@@ -212,11 +212,11 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
                 </div>
 
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-gray-900/50 rounded-b-2xl">
-                    <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+                    <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-[1.25rem] transition-colors">Cancel</button>
                     <button 
                         onClick={handleShare} 
                         disabled={selectedTeacherIds.size === 0 || isGenerating}
-                        className="px-6 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-6 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-[1.25rem] shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                         {isGenerating ? (
                             <>

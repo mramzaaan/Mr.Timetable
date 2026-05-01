@@ -109,7 +109,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
         />;
       case 'importExport':
         return (
-            <div className="flex flex-col items-center justify-center p-12 bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border-primary)] shadow-sm text-center">
+            <div className="flex flex-col items-center justify-center p-12 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]   text-center">
                 <div className="bg-[var(--bg-tertiary)] p-8 rounded-full mb-6 text-[var(--accent-primary)] shadow-inner">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79-8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
@@ -120,7 +120,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                 
                 <button 
                     onClick={() => setIsCsvModalOpen(true)}
-                    className="px-10 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98]"
+                    className="px-10 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black uppercase tracking-[0.2em] rounded-[2rem]  hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98]"
                 >
                     {t.openCsvManager}
                 </button>
@@ -136,9 +136,9 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
     return (
         <button
           onClick={() => onTabChange(tabName)}
-          className={`flex items-center justify-center px-4 sm:px-8 py-2.5 text-xs sm:text-sm font-bold rounded-full transition-all duration-200 whitespace-nowrap min-w-[5rem] sm:min-w-[6.25rem] ${
+          className={`flex items-center justify-center px-4 sm:px-8 py-3 text-sm sm:text-base font-bold rounded-full transition-all duration-200 whitespace-nowrap min-w-[5rem] sm:min-w-[6.25rem] ${
             isActive
-              ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5'
+              ? 'bg-white text-blue-600  ring-1 ring-black/5 shadow-sm'
               : 'text-slate-500 hover:text-slate-700'
           }`}
         >
@@ -160,7 +160,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
             <div className="grid grid-cols-2 sm:flex sm:flex-row gap-4">
                  <button 
                     onClick={() => setIsCsvModalOpen(true)} 
-                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#10b981] text-white rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#10b981] text-white rounded-[2rem]  hover: hover:-translate-y-0.5 transition-all group"
                  >
                     <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
                         <TransferIcon />
@@ -169,7 +169,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                  </button>
                  <button 
                     onClick={onOpenSchoolInfo} 
-                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#f59e0b] text-white rounded-2xl shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#f59e0b] text-white rounded-[2rem]  hover: hover:-translate-y-0.5 transition-all group"
                  >
                     <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
                         <SchoolIcon />
@@ -179,8 +179,8 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
             </div>
         </div>
 
-        <div className="flex justify-start md:justify-center mb-8 overflow-x-auto no-scrollbar pb-2">
-            <div className="inline-flex bg-slate-100 p-1.5 rounded-full shadow-inner flex-nowrap">
+        <div className="flex justify-center mb-8 overflow-x-auto no-scrollbar pb-2">
+            <div className="inline-flex bg-slate-100 p-1.5 rounded-full shadow-inner flex-nowrap min-w-max">
                 <TabButton tabName="teacher" label={t.teacher} />
                 <TabButton tabName="subject" label={t.subject} />
                 <TabButton tabName="class" label={t.class} />
@@ -188,7 +188,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
             </div>
         </div>
         
-        <div className="animate-fade-in bg-[var(--bg-secondary)] backdrop-blur-md rounded-oneui-lg shadow-oneui border border-[var(--border-primary)] p-4 sm:p-6 lg:p-8">{renderTabContent()}</div>
+        <div className="animate-fade-in bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md rounded-oneui-lg shadow-oneui  p-4 sm:p-6 lg:p-8">{renderTabContent()}</div>
       </div>
       <CsvManagementModal t={t} isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} currentTimetableSession={currentTimetableSession} onUpdateTimetableSession={onUpdateTimetableSession} />
 
@@ -200,8 +200,8 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                   onClick={() => handleFabClick('class')}
                   className="flex items-center justify-end gap-3 group"
               >
-                  <span className="bg-[var(--bg-secondary)]/90 backdrop-blur text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-xl shadow-md text-sm group-hover:scale-105 transition-transform">{t.addClass || "Add Class"}</span>
-                  <div className="w-9 h-9 bg-[var(--accent-secondary)] rounded-full flex items-center justify-center text-[var(--accent-primary)] shadow-md group-hover:bg-[var(--accent-secondary-hover)] transition-colors">
+                  <span className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addClass || "Add Class"}</span>
+                  <div className="w-9 h-9 bg-[var(--accent-secondary)] rounded-full flex items-center justify-center text-[var(--accent-primary)]  group-hover:bg-[var(--accent-secondary-hover)] transition-colors">
                       <ClassIcon />
                   </div>
               </button>
@@ -209,8 +209,8 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                   onClick={() => handleFabClick('subject')}
                   className="flex items-center justify-end gap-3 group"
               >
-                  <span className="bg-[var(--bg-secondary)]/90 backdrop-blur text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-xl shadow-md text-sm group-hover:scale-105 transition-transform">{t.addSubject || "Add Subject"}</span>
-                  <div className="w-9 h-9 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400 shadow-md group-hover:bg-purple-500/30 transition-colors">
+                  <span className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addSubject || "Add Subject"}</span>
+                  <div className="w-9 h-9 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400  group-hover:bg-purple-500/30 transition-colors">
                       <SubjectIcon />
                   </div>
               </button>
@@ -218,8 +218,8 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                   onClick={() => handleFabClick('teacher')}
                   className="flex items-center justify-end gap-3 group"
               >
-                  <span className="bg-[var(--bg-secondary)]/90 backdrop-blur text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-xl shadow-md text-sm group-hover:scale-105 transition-transform">{t.addTeacher || "Add Teacher"}</span>
-                  <div className="w-9 h-9 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-md group-hover:bg-emerald-500/30 transition-colors">
+                  <span className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addTeacher || "Add Teacher"}</span>
+                  <div className="w-9 h-9 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400  group-hover:bg-emerald-500/30 transition-colors">
                       <TeacherIcon />
                   </div>
               </button>

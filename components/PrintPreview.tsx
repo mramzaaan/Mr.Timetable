@@ -102,7 +102,7 @@ const triangleCornerOptions: { label: string, value: TriangleCorner }[] = [
 const ControlGroup = ({ label, children, defaultOpen = true }: any) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="bg-[#22252a] rounded-2xl p-3 flex flex-col gap-3">
+        <div className="bg-[#22252a] rounded-[2rem] p-3 flex flex-col gap-3">
             <button 
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between text-[0.625rem] text-teal-400 font-black uppercase tracking-widest px-1"
@@ -153,7 +153,7 @@ const SelectInput = ({ label, path, value, options: opts, onChange }: any) => (
 const MarginInput = ({ options, onChange }: any) => (
     <div className="grid grid-cols-4 gap-2">
         {['top', 'right', 'bottom', 'left'].map(side => (
-            <div key={side} className="bg-[#1a1d21] p-2 rounded-xl flex flex-col items-center justify-center gap-1 border border-transparent focus-within:border-teal-500">
+            <div key={side} className="bg-[#1a1d21] p-2 rounded-[2rem] flex flex-col items-center justify-center gap-1 border border-transparent focus-within:border-teal-500">
                 <label className="text-[0.625rem] text-gray-500 font-bold uppercase tracking-wider">{side}</label>
                 <input 
                     type="number" 
@@ -217,11 +217,11 @@ const ModernColorPicker = ({ value, onChange, label, hideLabel = false }: { valu
             <div className="flex items-center gap-2">
                 <button 
                     onClick={() => setIsOpen(!isOpen)}
-                    className="relative w-7 h-7 rounded-lg shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 group cursor-pointer transition-transform hover:scale-110 active:scale-95"
+                    className="relative w-7 h-7 rounded-[1.25rem] shadow-sm border border-gray-700 overflow-hidden flex-shrink-0 group cursor-pointer transition-transform hover:scale-110 active:scale-95"
                 >
                     <div className="absolute inset-0 w-full h-full" style={{ backgroundColor: value }}></div>
                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-lg pointer-events-none" />}
+                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-[1.25rem] pointer-events-none" />}
                 </button>
                 <input 
                     type="text" 
@@ -233,20 +233,20 @@ const ModernColorPicker = ({ value, onChange, label, hideLabel = false }: { valu
             </div>
 
             {isOpen && (
-                <div className="absolute z-50 mt-2 p-3 bg-[#1a1d21] border border-gray-700 rounded-xl shadow-2xl animate-scale-in w-40 right-0 top-full">
+                <div className="absolute z-50 mt-2 p-3 bg-[#1a1d21] border border-gray-700 rounded-[2rem] shadow-2xl animate-scale-in w-40 right-0 top-full">
                     <div className="grid grid-cols-4 gap-2 mb-3">
                         {presets.map(p => (
                             <button
                                 key={p}
                                 onClick={() => { onChange(p); setIsOpen(false); }}
-                                className={`w-6 h-6 rounded-md transition-transform hover:scale-110 active:scale-90 border border-black/20 ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-[#1a1d21]' : ''}`}
+                                className={`w-6 h-6 rounded-[1rem] transition-transform hover:scale-110 active:scale-90 border border-black/20 ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-[#1a1d21]' : ''}`}
                                 style={{ backgroundColor: p }}
                             />
                         ))}
                     </div>
                     <div className="relative pt-2 border-t border-gray-700">
                         <label className="flex items-center gap-2 cursor-pointer group">
-                            <div className="w-full h-7 rounded-md bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 relative overflow-hidden flex items-center justify-center">
+                            <div className="w-full h-7 rounded-[1rem] bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 relative overflow-hidden flex items-center justify-center">
                                 <span className="text-[10px] font-bold text-white drop-shadow-md">CUSTOM</span>
                                 <input 
                                     type="color" 
@@ -399,7 +399,7 @@ const SettingsSidebar: React.FC<{
                                 <label className="text-[10px] text-gray-500 font-black uppercase tracking-widest block px-1">Margins (mm)</label>
                                 <div className="grid grid-cols-4 gap-1">
                                     {['top', 'bottom', 'left', 'right'].map(side => (
-                                        <div key={side} className="bg-black/20 rounded-xl p-2 flex flex-col items-center">
+                                        <div key={side} className="bg-black/20 rounded-[2rem] p-2 flex flex-col items-center">
                                             <span className="text-[8px] text-gray-600 font-black uppercase mb-1">{side}</span>
                                             <input 
                                                 type="number" 
@@ -555,7 +555,7 @@ const SettingsSidebar: React.FC<{
                         </div>
 
                         {/* --- Group A: Header Formatting --- */}
-                        <div className={`flex flex-col gap-3 p-4 rounded-3xl border transition-all ${activeElement?.closest('.print-header') ? 'bg-indigo-500/5 border-indigo-500/30' : 'bg-[#22252a] border-gray-800'}`}>
+                        <div className={`flex flex-col gap-3 p-4 rounded-[2rem] border transition-all ${activeElement?.closest('.print-header') ? 'bg-indigo-500/5 border-indigo-500/30' : 'bg-[#22252a] border-gray-800'}`}>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Icons.Header className="w-3.5 h-3.5 text-indigo-400" />
@@ -566,7 +566,7 @@ const SettingsSidebar: React.FC<{
                             
                             <div className="grid grid-cols-2 gap-2">
                                 {/* Font & Size */}
-                                <div className="bg-black/20 rounded-2xl p-2.5 flex flex-col gap-2">
+                                <div className="bg-black/20 rounded-[2rem] p-2.5 flex flex-col gap-2">
                                     <select 
                                         value={activeElementStyles.fontFamily.replace(/['"]/g, '')}
                                         onChange={(e) => onApplyStyle('fontFamily', e.target.value)}
@@ -583,7 +583,7 @@ const SettingsSidebar: React.FC<{
                                 </div>
 
                                 {/* Colors */}
-                                <div className="bg-black/20 rounded-2xl p-2.5 flex items-center justify-around">
+                                <div className="bg-black/20 rounded-[2rem] p-2.5 flex items-center justify-around">
                                     <ManualColorInput label="" hideLabel value={activeElementStyles.color} onChange={(val: string) => onExecCmd('foreColor', val)} />
                                     <div className="w-px h-4 bg-white/5" />
                                     <ManualColorInput label="" hideLabel value={activeElementStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? activeElementStyles.backgroundColor : '#ffffff'} onChange={(val: string) => onExecCmd('hiliteColor', val)} />
@@ -592,7 +592,7 @@ const SettingsSidebar: React.FC<{
                         </div>
 
                          {/* --- Group B: Table Formatting --- */}
-                         <div className={`flex flex-col gap-3 p-4 rounded-3xl border transition-all ${activeElement?.closest('table') ? 'bg-teal-500/5 border-teal-500/30' : 'bg-[#22252a] border-gray-800'}`}>
+                         <div className={`flex flex-col gap-3 p-4 rounded-[2rem] border transition-all ${activeElement?.closest('table') ? 'bg-teal-500/5 border-teal-500/30' : 'bg-[#22252a] border-gray-800'}`}>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Icons.Table className="w-3.5 h-3.5 text-teal-400" />
@@ -602,28 +602,28 @@ const SettingsSidebar: React.FC<{
                             </div>
 
                             {/* Scope Grid */}
-                            <div className="grid grid-cols-4 gap-1 p-1 bg-black/20 rounded-xl border border-white/5">
+                            <div className="grid grid-cols-4 gap-1 p-1 bg-black/20 rounded-[2rem] border border-white/5">
                                 {(['element', 'row', 'column', 'table'] as const).map(s => (
                                     <button 
                                         key={s}
                                         onClick={() => onScopeChange(s)}
-                                        className={`py-1.5 text-[0.625rem] font-bold rounded-lg transition-all capitalize ${selectedScope === s ? 'bg-teal-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-400'}`}
+                                        className={`py-1.5 text-[0.625rem] font-bold rounded-[1.25rem] transition-all capitalize ${selectedScope === s ? 'bg-teal-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-400'}`}
                                     >
                                         {s}
                                     </button>
                                 ))}
                             </div>
 
-                            <div className="bg-black/20 rounded-2xl p-3 flex flex-col gap-4">
+                            <div className="bg-black/20 rounded-[2rem] p-3 flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex gap-1">
-                                        <button onClick={onToggleBold} disabled={!activeElement} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${activeElementStyles.fontWeight === 'bold' || parseInt(activeElementStyles.fontWeight) >= 600 ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-white/5'}`}><Icons.Bold /></button>
-                                        <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-white/5 italic"><Icons.Italic /></button>
+                                        <button onClick={onToggleBold} disabled={!activeElement} className={`w-8 h-8 rounded-[1.25rem] flex items-center justify-center transition-all ${activeElementStyles.fontWeight === 'bold' || parseInt(activeElementStyles.fontWeight) >= 600 ? 'bg-teal-600 text-white' : 'text-gray-500 hover:bg-white/5'}`}><Icons.Bold /></button>
+                                        <button onClick={() => onExecCmd('italic')} disabled={!activeElement} className="w-8 h-8 rounded-[1.25rem] flex items-center justify-center text-gray-500 hover:bg-white/5 italic"><Icons.Italic /></button>
                                     </div>
-                                    <div className="flex gap-1 bg-black/30 rounded-lg p-0.5">
-                                        <button onClick={() => onApplyStyle('textAlign', 'left')} className={`w-7 h-7 flex items-center justify-center rounded-md ${activeElementStyles.textAlign === 'left' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignLeft /></button>
-                                        <button onClick={() => onApplyStyle('textAlign', 'center')} className={`w-7 h-7 flex items-center justify-center rounded-md ${activeElementStyles.textAlign === 'center' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignCenter /></button>
-                                        <button onClick={() => onApplyStyle('textAlign', 'right')} className={`w-7 h-7 flex items-center justify-center rounded-md ${activeElementStyles.textAlign === 'right' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignRight /></button>
+                                    <div className="flex gap-1 bg-black/30 rounded-[1.25rem] p-0.5">
+                                        <button onClick={() => onApplyStyle('textAlign', 'left')} className={`w-7 h-7 flex items-center justify-center rounded-[1rem] ${activeElementStyles.textAlign === 'left' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignLeft /></button>
+                                        <button onClick={() => onApplyStyle('textAlign', 'center')} className={`w-7 h-7 flex items-center justify-center rounded-[1rem] ${activeElementStyles.textAlign === 'center' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignCenter /></button>
+                                        <button onClick={() => onApplyStyle('textAlign', 'right')} className={`w-7 h-7 flex items-center justify-center rounded-[1rem] ${activeElementStyles.textAlign === 'right' ? 'text-teal-400' : 'text-gray-600'}`}><Icons.AlignRight /></button>
                                     </div>
                                 </div>
                                 
@@ -641,7 +641,7 @@ const SettingsSidebar: React.FC<{
                         </div>
 
                         {/* --- Group C: Footer Formatting --- */}
-                        <div className={`flex flex-col gap-3 p-4 rounded-3xl border transition-all ${activeElement?.closest('.print-footer') ? 'bg-pink-500/5 border-pink-500/30' : 'bg-[#22252a] border-gray-800'}`}>
+                        <div className={`flex flex-col gap-3 p-4 rounded-[2rem] border transition-all ${activeElement?.closest('.print-footer') ? 'bg-pink-500/5 border-pink-500/30' : 'bg-[#22252a] border-gray-800'}`}>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Icons.Footer className="w-3.5 h-3.5 text-pink-400" />
@@ -650,7 +650,7 @@ const SettingsSidebar: React.FC<{
                                 {activeElement?.closest('.print-footer') && <div className="px-2 py-0.5 bg-pink-500/20 text-pink-400 text-[10px] font-bold rounded-full">ACTIVE</div>}
                             </div>
                             
-                            <div className="flex items-center justify-between bg-black/20 rounded-2xl p-3">
+                            <div className="flex items-center justify-between bg-black/20 rounded-[2rem] p-3">
                                 <div className="flex items-center gap-4">
                                      <button onClick={() => onApplyStyle('fontSize', `${parseInt(activeElementStyles.fontSize) - 1}px`)} className="text-pink-400 font-black">-</button>
                                      <span className="text-xs text-gray-300 font-bold">{parseInt(activeElementStyles.fontSize) || '--'}</span>
@@ -665,10 +665,10 @@ const SettingsSidebar: React.FC<{
 
                         {/* Global Quick Actions */}
                         <div className="grid grid-cols-2 gap-2 mt-2">
-                            <button onClick={() => onExecCmd('removeFormat')} disabled={!activeElement} className="flex-1 py-3 bg-red-900/10 text-red-400 rounded-2xl border border-red-900/20 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider disabled:opacity-30">
+                            <button onClick={() => onExecCmd('removeFormat')} disabled={!activeElement} className="flex-1 py-3 bg-red-900/10 text-red-400 rounded-[2rem] border border-red-900/20 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider disabled:opacity-30">
                                 <Icons.Eraser className="w-3.5 h-3.5" /> Clear All
                             </button>
-                            <button onClick={() => setActiveSection('layout')} className="flex-1 py-3 bg-gray-800 text-gray-300 rounded-2xl border border-gray-700 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider">
+                            <button onClick={() => setActiveSection('layout')} className="flex-1 py-3 bg-gray-800 text-gray-300 rounded-[2rem] border border-gray-700 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-wider">
                                 <Icons.Settings className="w-3.5 h-3.5" /> Full Cell
                             </button>
                         </div>
@@ -679,10 +679,10 @@ const SettingsSidebar: React.FC<{
 
             <div className="p-4 border-t border-gray-800 bg-[#1a1d21] flex flex-col gap-4">
                  <div className="flex gap-2">
-                    <button onClick={resetToDefaults} className="flex-1 py-3 text-xs font-bold text-gray-400 bg-[#22252a] border border-gray-700 rounded-2xl hover:bg-gray-700 hover:text-white transition-all active:scale-95">
+                    <button onClick={resetToDefaults} className="flex-1 py-3 text-xs font-bold text-gray-400 bg-[#22252a] border border-gray-700 rounded-[2rem] hover:bg-gray-700 hover:text-white transition-all active:scale-95">
                         <div className="flex items-center justify-center gap-2"><Icons.Reset className="w-4 h-4" /> Reset</div>
                     </button>
-                    <button onClick={handleSave} className="flex-1 py-3 text-xs font-bold text-white bg-teal-600 rounded-2xl hover:bg-teal-700 transition-all shadow-lg active:scale-95">
+                    <button onClick={handleSave} className="flex-1 py-3 text-xs font-bold text-white bg-teal-600 rounded-[2rem] hover:bg-teal-700 transition-all shadow-lg active:scale-95">
                         <div className="flex items-center justify-center gap-2">{isSaving ? <Icons.Check className="w-4 h-4" /> : null} {isSaving ? 'Saved' : 'Save Design'}</div>
                     </button>
                  </div>
@@ -1290,17 +1290,17 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                     
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pl-2">
                         {/* Language Selector */}
-                        <div className="flex bg-gray-800 rounded-lg border border-gray-700 p-0.5 mr-1 flex-shrink-0">
-                            <button onClick={() => setLang('en')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-md transition-colors ${lang === 'en' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>En</button>
-                            <button onClick={() => setLang('ur')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-md transition-colors ${lang === 'ur' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>Ur</button>
-                            <button onClick={() => setLang('both')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-md transition-colors ${lang === 'both' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>Both</button>
+                        <div className="flex bg-gray-800 rounded-[1.25rem] border border-gray-700 p-0.5 mr-1 flex-shrink-0">
+                            <button onClick={() => setLang('en')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-[1rem] transition-colors ${lang === 'en' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>En</button>
+                            <button onClick={() => setLang('ur')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-[1rem] transition-colors ${lang === 'ur' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>Ur</button>
+                            <button onClick={() => setLang('both')} className={`px-2 py-1 text-[0.625rem] font-bold uppercase rounded-[1rem] transition-colors ${lang === 'both' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-white'}`}>Both</button>
                         </div>
 
-                        <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700 p-1 gap-1 flex-shrink-0">
+                        <div className="flex items-center bg-gray-800 rounded-[1.25rem] border border-gray-700 p-1 gap-1 flex-shrink-0">
                             <button onClick={() => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }} className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white" title="Toggle Fullscreen"><FullscreenIcon /></button>
                         </div>
 
-                        <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700 p-1 gap-1 flex-shrink-0">
+                        <div className="flex items-center bg-gray-800 rounded-[1.25rem] border border-gray-700 p-1 gap-1 flex-shrink-0">
                             <button onClick={() => setZoomLevel(z => Math.max(20, z - 10))} className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white" title="Zoom Out"><ZoomOutIcon /></button>
                             <span className="text-xs font-bold text-gray-400 w-8 text-center">{zoomLevel}%</span>
                             <button onClick={() => setZoomLevel(z => Math.min(200, z + 10))} className="p-1.5 hover:bg-gray-700 rounded text-gray-400 hover:text-white" title="Zoom In"><ZoomInIcon /></button>
@@ -1310,7 +1310,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                         <div className="w-px h-6 bg-gray-700 mx-1 flex-shrink-0"></div>
 
                         {/* Action Buttons */}
-                        <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700 p-1 gap-1 flex-shrink-0">
+                        <div className="flex items-center bg-gray-800 rounded-[1.25rem] border border-gray-700 p-1 gap-1 flex-shrink-0">
                             <button onClick={handleUndo} disabled={historyIndex <= 0} className="p-1.5 hover:bg-gray-700 rounded disabled:opacity-30 text-gray-400 hover:text-white" title="Undo"><UndoIcon /></button>
                             <div className="w-px h-4 bg-gray-700"></div>
                             <button onClick={handleRedo} disabled={historyIndex >= history.length - 1} className="p-1.5 hover:bg-gray-700 rounded disabled:opacity-30 text-gray-400 hover:text-white" title="Redo"><RedoIcon /></button>
@@ -1319,7 +1319,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                         <button 
                             onClick={handleDownloadPdf}
                             disabled={isGenerating}
-                            className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
+                            className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-[1.25rem] hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
                             title="Download PDF"
                         >
                             <Icons.Download />
@@ -1329,7 +1329,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                         <button 
                             onClick={handleShare} 
                             disabled={isGenerating}
-                            className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50"
+                            className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-[1.25rem] hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50"
                         >
                             {isGenerating ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Icons.Share />}
                             <span className="text-xs font-bold uppercase tracking-wider hidden md:inline">Share</span>
@@ -1345,7 +1345,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                                         alert("Failed to generate Excel file.");
                                     }
                                 }} 
-                                className="flex-shrink-0 p-2 text-green-400 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition shadow-sm" 
+                                className="flex-shrink-0 p-2 text-green-400 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-[1.25rem] transition shadow-sm" 
                                 title="Export Excel"
                             >
                                 <Icons.Excel />
@@ -1354,7 +1354,7 @@ const PrintPreview: React.FC<PrintPreviewProps> = ({ t, isOpen, onClose, title, 
                         
                         <button 
                             onClick={handlePrint} 
-                            className="flex-shrink-0 p-2 text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition shadow-sm" 
+                            className="flex-shrink-0 p-2 text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-[1.25rem] transition shadow-sm" 
                             title="Print"
                         >
                             <Icons.Print />

@@ -648,7 +648,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
 
       {pendingMove && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={(e) => { e.stopPropagation(); setPendingMove(null); setDraggedData(null); setMoveSource(null); }}>
-              <div className="bg-white dark:bg-[var(--bg-secondary)] rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-scale-in" onClick={e => e.stopPropagation()}>
+              <div className="bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  w-full max-w-md overflow-hidden animate-scale-in" onClick={e => e.stopPropagation()}>
                   <div className="p-6 border-b border-gray-100 dark:border-gray-800">
                       <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
@@ -658,7 +658,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                   <div className="p-6 bg-gray-50 dark:bg-[var(--bg-tertiary)]">
                       <div className="flex flex-col gap-3 mb-6">
                           {pendingMove.conflicts.map((conflict, i) => (
-                              <div key={i} className="flex items-start gap-3 p-3 bg-white dark:bg-[var(--bg-secondary)] rounded-xl border border-red-200 dark:border-red-800/30 shadow-sm">
+                              <div key={i} className="flex items-start gap-3 p-3 bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem] border border-red-200 dark:border-red-800/30 ">
                                   <div className="mt-0.5 text-red-500"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg></div>
                                   <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{conflict.message}</p>
                               </div>
@@ -668,8 +668,8 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                           Would you like to replace the existing card(s)? The currently scheduled card(s) will be unscheduled dynamically and placed back into the queue.
                       </p>
                       <div className="flex items-center gap-3">
-                          <button onClick={() => { setPendingMove(null); setDraggedData(null); setMoveSource(null); }} className="flex-1 py-3 px-4 bg-white dark:bg-[var(--bg-primary)] border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm">Cancel</button>
-                          <button onClick={() => executePendingMove(true, pendingMove.conflicts)} className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-transform active:scale-95 shadow-lg shadow-red-600/20">Yes, Replace</button>
+                          <button onClick={() => { setPendingMove(null); setDraggedData(null); setMoveSource(null); }} className="flex-1 py-3 px-4 bg-white dark:bg-[var(--bg-primary)] border border-gray-200 dark:border-gray-700 rounded-[2rem] text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ">Cancel</button>
+                          <button onClick={() => executePendingMove(true, pendingMove.conflicts)} className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-[2rem] text-sm font-bold transition-transform active:scale-95  shadow-red-600/20">Yes, Replace</button>
                       </div>
                   </div>
               </div>
@@ -731,7 +731,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
              )}
 
              {isClassDropdownOpen && (
-                 <div className="absolute top-[100%] mt-4 w-full min-w-[17.5rem] md:min-w-[20rem] max-w-md bg-white dark:bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-3xl shadow-2xl p-4 animate-scale-in z-50">
+                 <div className="absolute top-[100%] mt-4 w-full min-w-[17.5rem] md:min-w-[20rem] max-w-md bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[2rem]  p-4 animate-scale-in z-50">
                      {/* Search */}
                      <div className="relative mb-3 w-full">
                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5">
@@ -742,12 +742,12 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                              placeholder="Search classes..."
                              value={classSearchQuery}
                              onChange={(e) => setClassSearchQuery(e.target.value)}
-                             className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] border border-gray-200 dark:border-[var(--border-secondary)] rounded-2xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
+                             className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] border border-gray-200 dark:border-[var(--border-secondary)] rounded-[2rem] text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all"
                              autoFocus
                          />
                      </div>
                      
-                     <div className="flex gap-2 mb-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] p-1.5 rounded-xl">
+                     <div className="flex gap-2 mb-3 bg-gray-50 dark:bg-[var(--bg-tertiary)] p-1.5 rounded-[2rem]">
                         {(['serial', 'name', 'room'] as const).map(key => (
                             <button
                                 key={key}
@@ -759,7 +759,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                         setSortDirection('asc');
                                     }
                                 }}
-                                className={`flex-1 text-xs font-bold uppercase py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1 ${classSortBy === key ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-gray-500 hover:text-black dark:text-gray-400 hover:bg-white dark:hover:bg-[var(--bg-secondary)]'}`}
+                                className={`flex-1 text-xs font-bold uppercase py-1.5 rounded-[1.25rem] transition-colors flex items-center justify-center gap-1 ${classSortBy === key ? 'bg-[var(--accent-primary)] text-white ' : 'text-gray-500 hover:text-black dark:text-gray-400 hover:bg-white dark:hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10'}`}
                             >
                                 {key === 'serial' ? '#' : key}
                                 {classSortBy === key && (
@@ -780,11 +780,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                          onSelectionChange(prev => ({ ...prev, classId: c.id }));
                                          setIsClassDropdownOpen(false);
                                      }}
-                                     className={`w-full text-left px-4 py-3 rounded-xl text-sm flex items-center gap-3 transition-colors ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : 'hover:bg-gray-50 dark:hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
+                                     className={`w-full text-left px-4 py-3 rounded-[2rem] text-sm flex items-center gap-3 transition-colors ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' : 'hover:bg-gray-50 dark:hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}
                                  >
-                                     <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-md ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-100 dark:bg-[var(--bg-secondary)]'}`}>#{c.serialNumber ?? '-'}</span>
+                                     <span className={`font-mono text-xs opacity-50 w-8 text-center flex-shrink-0 py-1 rounded-[1rem] ${selectedClassId === c.id ? 'bg-[var(--accent-primary)]/20' : 'bg-gray-100 dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10'}`}>#{c.serialNumber ?? '-'}</span>
                                      <span className="font-bold flex-grow text-base break-words text-left">{language === 'ur' ? c.nameUr : c.nameEn}</span>
-                                     {c.roomNumber && <span className="text-[0.625rem] opacity-70 whitespace-nowrap px-2 py-1 rounded-md bg-white border border-gray-200 dark:bg-[var(--bg-secondary)] dark:border-[var(--border-secondary)]">Rm {c.roomNumber}</span>}
+                                     {c.roomNumber && <span className="text-[0.625rem] opacity-70 whitespace-nowrap px-2 py-1 rounded-[1rem] bg-white border border-gray-200 dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 dark:border-[var(--border-secondary)]">Rm {c.roomNumber}</span>}
                                  </button>
                              ))
                          )}
@@ -807,20 +807,20 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                 </button>
                 
                 {isHeaderMoreOpen && (
-                    <div className="absolute right-0 top-[100%] mt-2 flex justify-center items-center gap-1 bg-white dark:bg-[var(--bg-secondary)] rounded-2xl shadow-xl p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
-                        <button onClick={() => { setIsCopyModalOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.copyTimetable || 'Copy'}>
+                    <div className="absolute right-0 top-[100%] mt-2 flex justify-center items-center gap-1 bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
+                        <button onClick={() => { setIsCopyModalOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.copyTimetable || 'Copy'}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                         </button>
-                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
+                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
                             <Printer className="w-5 h-5" />
                         </button>
                         {onUndo && (
-                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
+                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
                                 <Undo2 className="w-5 h-5" />
                             </button>
                         )}
                         {onRedo && (
-                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-xl disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
+                            <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
                                 <Redo2 className="w-5 h-5" />
                             </button>
                         )}
@@ -840,7 +840,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                 });
                             }); 
                             setIsHeaderMoreOpen(false); 
-                        }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/50 flex items-center justify-center rounded-xl text-red-600 transition-colors" title="Clear">
+                        }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/50 flex items-center justify-center rounded-[2rem] text-red-600 transition-colors" title="Clear">
                             <Trash2 className="w-5 h-5" />
                         </button>
                     </div>
@@ -856,7 +856,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
           
           {/* Timetable Grid - Modern Styled */}
           <div className="flex-1 min-w-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] w-full">
-            <div className="bg-[var(--bg-secondary)] backdrop-blur-md rounded-none sm:rounded-oneui-lg p-1 sm:p-2 md:p-4 shadow-oneui overflow-hidden border-y sm:border border-[var(--border-primary)] pb-3 md:pb-6 w-full" ref={tableRef}>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md rounded-none sm:rounded-oneui-lg p-1 sm:p-2 md:p-4 shadow-oneui overflow-hidden border-y sm: pb-3 md:pb-6 w-full" ref={tableRef}>
                 <div className="w-full flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-2">
                     {/* Header Row */}
                     <div className="flex gap-0.5 sm:gap-1 md:gap-2 w-full pr-1">
@@ -922,10 +922,10 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                     let content = null;
 
                                     if (isDisabled) {
-                                        content = <div className="flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-xl bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
+                                        content = <div className="flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-[2rem] bg-gray-300/30 dark:bg-gray-800/30 opacity-50 cursor-not-allowed" style={{ transform: `scale(${contentScale})` }}></div>;
                                     } else {
-                                        let outerClasses = `flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-xl relative transition-all duration-300 group timetable-slot flex flex-col border-[0.09375rem] border-transparent cursor-pointer z-10`;
-                                        if (isTarget) outerClasses += ' hover:scale-105 hover:shadow-xl ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
+                                        let outerClasses = `flex-1 min-w-0 h-[2.5rem] sm:h-[3rem] md:h-[4rem] lg:h-[4rem] rounded-[0.5rem] sm:rounded-[2rem] relative transition-all duration-300 group timetable-slot flex flex-col border-[0.09375rem] border-transparent cursor-pointer z-10`;
+                                        if (isTarget) outerClasses += ' hover:scale-105 hover: ring-inset ring-2 ring-[var(--accent-primary)]/50 hover:bg-white/50 z-30';
 
                                         let availData;
                                         if (teacherAvailabilityMap) {
@@ -945,7 +945,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                         if (slotPeriods.length === 0 && !teacherAvailabilityMap) {
                                              outerClasses += ' bg-white/40 dark:bg-[#1e293b]/40 border-dashed border-[#a6b8ca] dark:border-gray-600';
                                         } else if (slotPeriods.length > 0 && !teacherAvailabilityMap) {
-                                             outerClasses += ' shadow-sm';
+                                             outerClasses += ' ';
                                         }
 
                                         content = (
@@ -960,22 +960,22 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                                 {teacherAvailabilityMap && (
                                                     <>
                                                         {availData?.status === 'elsewhere' && (
-                                                            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl z-[40] overflow-hidden bg-red-100/95 dark:bg-red-900/95 border-2 border-red-500 shadow-xl backdrop-blur-[0.0625rem] p-0.5 pointer-events-none">
+                                                            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-[2rem] z-[40] overflow-hidden bg-red-100/95 dark:bg-red-900/95 border-2 border-red-500  backdrop-blur-[0.0625rem] p-0.5 pointer-events-none">
                                                                 <span className="text-[0.4375rem] sm:text-[0.5rem] md:text-[0.59375rem] font-bold text-red-900 dark:text-red-100 uppercase leading-none text-center truncate w-[95%]">{availData.conflictSubject}</span>
-                                                                <span className="text-[0.375rem] sm:text-[0.40625rem] md:text-[0.46875rem] font-black text-white bg-red-600 rounded px-1 py-0.5 my-0.5 leading-none text-center break-words line-clamp-2 max-w-[95%] shadow-sm w-full">{availData.conflictClass}</span>
+                                                                <span className="text-[0.375rem] sm:text-[0.40625rem] md:text-[0.46875rem] font-black text-white bg-red-600 rounded px-1 py-0.5 my-0.5 leading-none text-center break-words line-clamp-2 max-w-[95%]  w-full">{availData.conflictClass}</span>
                                                                 <span className="text-[0.3125rem] sm:text-[0.375rem] md:text-[0.4375rem] font-semibold text-red-800 dark:text-red-200 uppercase leading-none text-center truncate w-[95%] opacity-90">{availData.conflictTeacher}</span>
                                                             </div>
                                                         )}
                                                         {availData?.status !== 'elsewhere' && slotPeriods.length === 0 && (
-                                                            <div className="absolute inset-0 flex items-center justify-center rounded-xl z-20 overflow-hidden bg-[#f9f5e8]/90 border border-dashed border-green-500 pointer-events-none">
-                                                                <span className="text-[0.46875rem] font-bold text-green-700 uppercase tracking-widest bg-white/80 px-1 py-0.5 rounded shadow-sm border border-green-200 truncate max-w-[90%]">Avail</span>
+                                                            <div className="absolute inset-0 flex items-center justify-center rounded-[2rem] z-20 overflow-hidden bg-[#f9f5e8]/90 border border-dashed border-green-500 pointer-events-none">
+                                                                <span className="text-[0.46875rem] font-bold text-green-700 uppercase tracking-widest bg-white/80 px-1 py-0.5 rounded  border border-green-200 truncate max-w-[90%]">Avail</span>
                                                             </div>
                                                         )}
                                                     </>
                                                 )}
                                                 
                                                 {/* Card Content or Stack */}
-                                                <div className="h-full flex flex-col relative z-10 w-full rounded-xl overflow-visible">
+                                                <div className="h-full flex flex-col relative z-10 w-full rounded-[2rem] overflow-visible">
                                                     {groupedSlotPeriods.map((group, groupIndex) => {
                                                         const jp = group[0].jointPeriodId ? jointPeriods.find(j => j.id === group[0].jointPeriodId) : undefined;
                                                         const groupColorKey = group[0].jointPeriodId ? String(group[0].jointPeriodId) : String(group[0].subjectId);
@@ -1005,7 +1005,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                                                 onDragStart={(e) => { e.stopPropagation(); handleDragStart(group, day, periodIndex); }}
                                                                 onDragEnd={handleDragEnd}
                                                                 onClick={(e) => { e.stopPropagation(); handleStackClick(group, day, periodIndex); }}
-                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-grab active:cursor-grabbing overflow-hidden shadow-sm ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
+                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-[2rem] transition-all duration-300 hover:scale-105 hover: cursor-grab active:cursor-grabbing overflow-hidden  ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
                                                                 style={{ 
                                                                     borderLeftColor: colorData.hex, 
                                                                     backgroundColor: isSelected ? `${colorData.hex}40` : `${colorData.hex}15`,
@@ -1035,7 +1035,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                                                         </span>
                                                                         {/* Combined/Multiple Indicator */}
                                                                         {group.length > 1 && (
-                                                                            <div className="absolute right-0.5 bottom-0.5 w-[0.625rem] h-[0.625rem] sm:w-[0.75rem] sm:h-[0.75rem] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[0.375rem] sm:text-[0.4375rem] font-bold shadow-sm">
+                                                                            <div className="absolute right-0.5 bottom-0.5 w-[0.625rem] h-[0.625rem] sm:w-[0.75rem] sm:h-[0.75rem] bg-blue-500/20 text-blue-800 dark:text-blue-200 rounded-full flex items-center justify-center text-[0.375rem] sm:text-[0.4375rem] font-bold ">
                                                                                 {group.length}
                                                                             </div>
                                                                         )}
@@ -1077,13 +1077,13 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                   
                   <div className="w-full">
                       <div 
-                          className={`bg-[var(--bg-secondary)] backdrop-blur-md shadow-oneui border border-[var(--border-primary)] rounded-oneui-lg p-3 flex flex-col gap-2 min-h-[25rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
+                          className={`bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md shadow-oneui  rounded-oneui-lg p-3 flex flex-col gap-2 min-h-[25rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
                           onDragOver={handleDragOver}
                           onDrop={handleSidebarDrop}
                           onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
                       >
                           {moveSource && moveSource.sourceDay && (
-                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-xl text-center animate-pulse cursor-pointer shadow-sm">
+                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-[2rem] text-center animate-pulse cursor-pointer ">
                                   <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
                               </div>
                           )}
@@ -1113,7 +1113,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-xl px-2.5 py-1.5 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[2rem] px-2.5 py-1.5 flex flex-col items-center justify-between gap-1  cursor-grab active:cursor-grabbing border-l-4 transition-all hover: hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
                                               <div className="flex w-full items-center justify-between">
@@ -1154,7 +1154,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
               
               {/* Unscheduled */}
               <div className="w-full flex flex-col">
-                  <div className="flex items-center gap-3 mb-4 px-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg py-1 cursor-pointer transition-colors" onClick={() => setIsLessonListOpen(!isLessonListOpen)}>
+                  <div className="flex items-center gap-3 mb-4 px-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-[1.25rem] py-1 cursor-pointer transition-colors" onClick={() => setIsLessonListOpen(!isLessonListOpen)}>
                       <h2 className="text-xl sm:text-2xl font-black text-[#1f4061] dark:text-gray-300 uppercase tracking-widest flex items-center gap-2">
                           UNSCHEDULED 
                           <span className="bg-[#8b0000] text-white rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center font-bold text-sm sm:text-base">
@@ -1168,13 +1168,13 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                   
                   <div className={`transition-all duration-500 overflow-hidden ${isLessonListOpen ? 'max-h-[125rem] opacity-100' : 'max-h-0 opacity-0'}`}>
                       <div 
-                          className={`bg-[var(--bg-secondary)] backdrop-blur-md shadow-oneui border border-[var(--border-primary)] rounded-oneui-lg p-4 flex flex-col gap-3 min-h-[9.375rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
+                          className={`bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md shadow-oneui  rounded-oneui-lg p-4 flex flex-col gap-3 min-h-[9.375rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50' : ''}`}
                           onDragOver={handleDragOver}
                           onDrop={handleSidebarDrop}
                           onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
                       >
                           {moveSource && moveSource.sourceDay && (
-                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-center animate-pulse cursor-pointer shadow-sm">
+                              <div className="px-3 py-2 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-[2rem] text-center animate-pulse cursor-pointer ">
                                   <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wide">Drop here to Unschedule</span>
                               </div>
                           )}
@@ -1203,7 +1203,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                               onDragStart={() => handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
                                               onClick={() => handleStackClick(group)}
-                                              className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-[var(--bg-primary)] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex flex-col items-center justify-between gap-1 shadow-sm cursor-grab active:cursor-grabbing border-l-4 transition-all hover:shadow-md hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
+                                              className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-[var(--bg-primary)] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex flex-col items-center justify-between gap-1  cursor-grab active:cursor-grabbing border-l-4 transition-all hover: hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
                                               <div className="flex w-full items-center justify-between">
@@ -1267,7 +1267,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
 
       {/* History Section (Logs) */}
       {selectedClass && hasActiveSession && (
-        <div className={`mt-8 mb-24 bg-[var(--bg-secondary)] backdrop-blur-md rounded-oneui p-1 sm:p-2 shadow-oneui border border-[var(--border-primary)]/20 overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[31.25rem]' : 'max-h-16 sm:max-h-[4.5rem]'}`}>
+        <div className={`mt-8 mb-24 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md rounded-oneui p-1 sm:p-2 shadow-oneui /20 overflow-hidden transition-all duration-300 ${isHistoryExpanded ? 'max-h-[31.25rem]' : 'max-h-16 sm:max-h-[4.5rem]'}`}>
             <div className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50/50 dark:hover:bg-[var(--bg-tertiary)] transition-colors cursor-pointer rounded-oneui" onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}>
                 <h3 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white flex items-center gap-3">
                     History / Logs
@@ -1281,7 +1281,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
             <div className="p-4 sm:p-6 bg-[var(--bg-primary)]/30 rounded-[1.5rem] mt-1 overflow-y-auto custom-scrollbar max-h-[25rem]">
                 {classLogs.length === 0 ? (
                     <div className="text-center py-8 opacity-50">
-                         <div className="mb-3 mx-auto w-12 h-12 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-sm">
+                         <div className="mb-3 mx-auto w-12 h-12 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center ">
                             <HistoryIcon />
                         </div>
                         <p className="text-sm text-gray-500 font-bold">No recent changes.</p>
@@ -1289,7 +1289,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                 ) : (
                     <ul className="space-y-3">
                         {classLogs.map((log) => (
-                            <li key={log.id} className={`p-4 rounded-[1rem] border shadow-sm transition-all ${
+                            <li key={log.id} className={`p-4 rounded-[1rem] border  transition-all ${
                                 log.type === 'delete' ? 'bg-red-50/80 dark:bg-red-900/10 border-red-100 dark:border-red-800/50' :
                                 log.type === 'add' ? 'bg-emerald-50/80 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/50' :
                                 'bg-blue-50/80 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/50'

@@ -131,26 +131,26 @@ const ThemeCard: React.FC<{
     return (
         <button
             onClick={() => setTheme(id)}
-            className={`group relative p-4 rounded-xl transition-all duration-300 overflow-hidden bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 ${
+            className={`group relative p-4 rounded-[2rem] transition-all duration-300 overflow-hidden bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 ${
                 isSelected 
                 ? 'shadow-[0_4px_12px_rgba(0,0,0,0.15)] ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-secondary)]' 
-                : 'shadow-sm hover:shadow-md hover:-translate-y-0.5'
+                : ' hover: hover:-translate-y-0.5'
             }`}
         >
             <div className="flex flex-col h-full justify-between relative z-10">
                 <div className="flex justify-between items-center mb-3">
                     <span className={`font-bold text-sm ${isSelected ? 'text-[var(--accent-primary)]' : 'text-gray-700 dark:text-gray-300'}`}>{name}</span>
                     {isSelected && (
-                        <div className="bg-[var(--accent-primary)] text-white rounded-full p-0.5 shadow-sm">
+                        <div className="bg-[var(--accent-primary)] text-white rounded-full p-0.5 ">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                         </div>
                     )}
                 </div>
                 
                 <div className="flex gap-2">
-                    <div className="h-6 w-6 rounded-full shadow-sm border border-gray-300 dark:border-gray-600" style={{ backgroundColor: colors[0] }} title="Background"></div>
-                    <div className="h-6 w-6 rounded-full shadow-sm border border-gray-300 dark:border-gray-600" style={{ backgroundColor: colors[1] }} title="Accent"></div>
-                    <div className="h-6 w-6 rounded-full shadow-sm border border-gray-300 dark:border-gray-600" style={{ backgroundColor: colors[2] }} title="Text"></div>
+                    <div className="h-6 w-6 rounded-full  border border-gray-300 dark:border-gray-600" style={{ backgroundColor: colors[0] }} title="Background"></div>
+                    <div className="h-6 w-6 rounded-full  border border-gray-300 dark:border-gray-600" style={{ backgroundColor: colors[1] }} title="Accent"></div>
+                    <div className="h-6 w-6 rounded-full  border border-gray-300 dark:border-gray-600" style={{ backgroundColor: colors[2] }} title="Text"></div>
                 </div>
             </div>
         </button>
@@ -160,7 +160,7 @@ const ThemeCard: React.FC<{
 
 
 interface SelectionModalProps { title: string; items: { id: string; label: React.ReactNode }[]; selectedIds: string[]; onSelect: (id: string, isChecked: boolean) => void; onSelectAll: (isChecked: boolean) => void; onConfirm: () => void; onCancel: () => void; confirmLabel: string; isOpen: boolean; t: any; children?: React.ReactNode; }
-const SelectionModal: React.FC<SelectionModalProps> = ({ title, items, selectedIds, onSelect, onSelectAll, onConfirm, onCancel, confirmLabel, isOpen, t, children }) => { if (!isOpen) return null; return ( <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity" onClick={onCancel}> <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 transform flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}> <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">{title}</h3> {children} <div className="flex-grow border border-[var(--border-primary)] bg-[var(--bg-tertiary)] rounded-lg overflow-y-auto p-3 space-y-2"> <label className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer border-b border-[var(--border-secondary)] sticky top-0 bg-[var(--bg-tertiary)] z-10"> <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => onSelectAll(e.target.checked)} /> <span className="font-semibold text-[var(--text-primary)]">{t.selectAll}</span> </label> {items.map(item => ( <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-md hover:bg-[var(--accent-secondary-hover)]"> <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={selectedIds.includes(item.id)} onChange={(e) => onSelect(item.id, e.target.checked)} /> <span className="text-[var(--text-primary)]">{item.label}</span> </label> ))} </div> <div className="flex justify-end gap-4 pt-6 border-t border-[var(--border-primary)] mt-6"> <button onClick={onCancel} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-lg hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button> <button onClick={onConfirm} disabled={selectedIds.length === 0} className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-lg hover:bg-[var(--accent-primary-hover)] disabled:opacity-50">{confirmLabel}</button> </div> </div> </div> ); };
+const SelectionModal: React.FC<SelectionModalProps> = ({ title, items, selectedIds, onSelect, onSelectAll, onConfirm, onCancel, confirmLabel, isOpen, t, children }) => { if (!isOpen) return null; return ( <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity" onClick={onCancel}> <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem]  max-w-md w-full mx-4 transform flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}> <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">{title}</h3> {children} <div className="flex-grow  bg-[var(--bg-tertiary)] rounded-[1.25rem] overflow-y-auto p-3 space-y-2"> <label className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer border-b border-[var(--border-secondary)] sticky top-0 bg-[var(--bg-tertiary)] z-10"> <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => onSelectAll(e.target.checked)} /> <span className="font-semibold text-[var(--text-primary)]">{t.selectAll}</span> </label> {items.map(item => ( <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-[1rem] hover:bg-[var(--accent-secondary-hover)]"> <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={selectedIds.includes(item.id)} onChange={(e) => onSelect(item.id, e.target.checked)} /> <span className="text-[var(--text-primary)]">{item.label}</span> </label> ))} </div> <div className="flex justify-end gap-4 pt-6 border-t border-[var(--border-primary)] mt-6"> <button onClick={onCancel} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button> <button onClick={onConfirm} disabled={selectedIds.length === 0} className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-[1.25rem] hover:bg-[var(--accent-primary-hover)] disabled:opacity-50">{confirmLabel}</button> </div> </div> </div> ); };
 
 const ModernColorPicker = ({ value, onChange, label, hideLabel = false }: { value: string, onChange: (val: string) => void, label?: string, hideLabel?: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -188,37 +188,37 @@ const ModernColorPicker = ({ value, onChange, label, hideLabel = false }: { valu
             <div className="flex items-center gap-2">
                 <button 
                     onClick={() => setIsOpen(!isOpen)}
-                    className="relative w-10 h-10 rounded-xl shadow-sm border border-[var(--border-secondary)] overflow-hidden flex-shrink-0 group cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                    className="relative w-10 h-10 rounded-[2rem]   overflow-hidden flex-shrink-0 group cursor-pointer transition-transform hover:scale-105 active:scale-95"
                 >
                     <div className="absolute inset-0 w-full h-full" style={{ backgroundColor: value }}></div>
                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-xl pointer-events-none" />}
+                    {value.toLowerCase() === '#ffffff' && <div className="absolute inset-0 border border-black/5 rounded-[2rem] pointer-events-none" />}
                 </button>
                 <input 
                     type="text" 
                     value={value} 
                     onChange={(e) => onChange(e.target.value)}
-                    className="flex-grow px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-xl text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] uppercase tracking-wider"
+                    className="flex-grow px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[2rem] text-xs font-mono text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] uppercase tracking-wider"
                     maxLength={7}
                 />
             </div>
 
             {isOpen && (
-                <div className="absolute z-50 mt-2 p-3 bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-2xl shadow-2xl animate-scale-in w-48 left-0 top-full">
+                <div className="absolute z-50 mt-2 p-3 bg-[var(--bg-primary)]  rounded-[2rem]  animate-scale-in w-48 left-0 top-full">
                     <div className="grid grid-cols-5 gap-2 mb-3">
                         {presets.map(p => (
                             <button
                                 key={p}
                                 onClick={() => { onChange(p); setIsOpen(false); }}
-                                className={`w-6 h-6 rounded-lg transition-transform hover:scale-110 active:scale-90 border border-black/10 ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-primary)]' : ''}`}
+                                className={`w-6 h-6 rounded-[1.25rem] transition-transform hover:scale-110 active:scale-90 border border-black/10 ${value.toLowerCase() === p.toLowerCase() ? 'ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-primary)]' : ''}`}
                                 style={{ backgroundColor: p }}
                             />
                         ))}
                     </div>
                     <div className="relative pt-2 border-t border-[var(--border-secondary)]">
                         <label className="flex items-center gap-2 cursor-pointer group">
-                            <div className="w-full h-8 rounded-lg bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 relative overflow-hidden flex items-center justify-center">
-                                <span className="text-[10px] font-bold text-white drop-shadow-md">CUSTOM</span>
+                            <div className="w-full h-8 rounded-[1.25rem] bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 relative overflow-hidden flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-white drop-">CUSTOM</span>
                                 <input 
                                     type="color" 
                                     value={value} 
@@ -241,7 +241,7 @@ const ColorPickerInput = ({ label, value, onChange }: { label: string, value: st
 const OpacityControl = ({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) => (
     <div className="space-y-2">
         <label className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">{label}</label>
-        <div className="flex items-center bg-[var(--bg-primary)] rounded-xl border border-[var(--border-secondary)] h-10 px-1 w-full shadow-inner">
+        <div className="flex items-center bg-[var(--bg-primary)] rounded-[2rem]  h-10 px-1 w-full shadow-inner">
             <button 
                 onClick={() => onChange(Math.max(0, parseFloat((value - 0.05).toFixed(2))))} 
                 className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold"
@@ -271,9 +271,9 @@ const ReportCard: React.FC<{
     return (
         <button 
             onClick={onClick} 
-            className="group flex items-center gap-4 p-4 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:shadow-md transition-all text-left w-full"
+            className="group flex items-center gap-4 p-4 bg-[var(--bg-tertiary)] rounded-[2rem]  hover:border-[var(--accent-primary)] hover: transition-all text-left w-full"
         >
-            <div className={`h-12 w-12 flex-shrink-0 rounded-lg bg-gradient-to-br ${colorGradient} text-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
+            <div className={`h-12 w-12 flex-shrink-0 rounded-[1.25rem] bg-gradient-to-br ${colorGradient} text-white flex items-center justify-center  group-hover:scale-110 transition-transform`}>
                 {icon}
             </div>
             <div className="flex-grow min-w-0">
@@ -356,20 +356,20 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 pb-24">
        {/* ... (Previous modals remain unchanged) ... */}
-       {isAboutOpen && (<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4 animate-fade-in" onClick={() => setIsAboutOpen(false)}><div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl p-8 max-w-sm w-full transform transition-all scale-100" onClick={e => e.stopPropagation()}><div className="text-center mb-8"><div className="flex justify-center mb-4">{schoolConfig.schoolLogoBase64 ? (<img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="w-64 h-64 object-contain rounded-xl shadow-sm bg-white p-1" />) : (<div className="w-48 h-48 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>)}</div><h3 className="text-2xl font-bold text-[var(--text-primary)] mb-1">About Mr. TMS</h3><p className="text-[var(--text-secondary)] text-sm">Timetable Management System</p></div><div className="space-y-4"><a href="https://wa.me/923009541797" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-[#e9f5e9] hover:bg-[#dceddd] border border-[#c8e6c9] rounded-xl transition-all group"><div className="p-2 bg-white rounded-full text-[#25D366] shadow-sm"><WhatsAppLogo /></div><div className="text-left"><div className="font-bold text-gray-800 text-sm">Contact Support</div><div className="text-xs text-gray-600">+92 300 9541797</div></div></a><a href="https://whatsapp.com/channel/0029VaU50UPADTOEpHNSJa0r" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-[#e9f5e9] hover:bg-[#dceddd] border border-[#c8e6c9] rounded-xl transition-all group"><div className="p-2 bg-white rounded-full text-[#25D366] shadow-sm"><BroadcastIcon /></div><div className="text-left"><div className="font-bold text-gray-800 text-sm">WhatsApp Channel</div><div className="text-xs text-gray-600">Stay updated with news</div></div></a></div><button onClick={() => setIsAboutOpen(false)} className="mt-8 w-full py-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Close</button></div></div>)}
+       {isAboutOpen && (<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4 animate-fade-in" onClick={() => setIsAboutOpen(false)}><div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  p-8 max-w-sm w-full transform transition-all scale-100" onClick={e => e.stopPropagation()}><div className="text-center mb-8"><div className="flex justify-center mb-4">{schoolConfig.schoolLogoBase64 ? (<img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="w-64 h-64 object-contain rounded-[2rem]  bg-white p-1" />) : (<div className="w-48 h-48 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>)}</div><h3 className="text-2xl font-bold text-[var(--text-primary)] mb-1">About Mr. TMS</h3><p className="text-[var(--text-secondary)] text-sm">Timetable Management System</p></div><div className="space-y-4"><a href="https://wa.me/923009541797" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-[#e9f5e9] hover:bg-[#dceddd] border border-[#c8e6c9] rounded-[2rem] transition-all group"><div className="p-2 bg-white rounded-full text-[#25D366] "><WhatsAppLogo /></div><div className="text-left"><div className="font-bold text-gray-800 text-sm">Contact Support</div><div className="text-xs text-gray-600">+92 300 9541797</div></div></a><a href="https://whatsapp.com/channel/0029VaU50UPADTOEpHNSJa0r" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-[#e9f5e9] hover:bg-[#dceddd] border border-[#c8e6c9] rounded-[2rem] transition-all group"><div className="p-2 bg-white rounded-full text-[#25D366] "><BroadcastIcon /></div><div className="text-left"><div className="font-bold text-gray-800 text-sm">WhatsApp Channel</div><div className="text-xs text-gray-600">Stay updated with news</div></div></a></div><button onClick={() => setIsAboutOpen(false)} className="mt-8 w-full py-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">Close</button></div></div>)}
        
        {/* ... (Other selection modals) ... */}
        <SelectionModal isOpen={isTeacherSelectionForWorkloadOpen} title={t.selectTeachersToDownload} items={teacherItems} selectedIds={selectedTeacherIdsForWorkload} onSelect={(id, checked) => setSelectedTeacherIdsForWorkload(prev => checked ? [...prev, id] : prev.filter(tid => tid !== id))} onSelectAll={(checked) => setSelectedTeacherIdsForWorkload(checked ? teachers.map(t => t.id) : [])} onConfirm={handleWorkloadConfirm} onCancel={() => setIsTeacherSelectionForWorkloadOpen(false)} confirmLabel={t.workloadReport} t={t}>
             <div className="mb-4 space-y-4">
-                <div className="flex bg-[var(--bg-tertiary)] p-1 rounded-lg border border-[var(--border-secondary)]">
-                    <button onClick={() => setWorkloadReportMode('weekly')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${workloadReportMode === 'weekly' ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>Weekly Summary</button>
-                    <button onClick={() => setWorkloadReportMode('range')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${workloadReportMode === 'range' ? 'bg-[var(--accent-primary)] text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>Date Range</button>
+                <div className="flex bg-[var(--bg-tertiary)] p-1 rounded-[1.25rem] ">
+                    <button onClick={() => setWorkloadReportMode('weekly')} className={`flex-1 py-2 text-sm font-bold rounded-[1rem] transition-colors ${workloadReportMode === 'weekly' ? 'bg-[var(--accent-primary)] text-white ' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>Weekly Summary</button>
+                    <button onClick={() => setWorkloadReportMode('range')} className={`flex-1 py-2 text-sm font-bold rounded-[1rem] transition-colors ${workloadReportMode === 'range' ? 'bg-[var(--accent-primary)] text-white ' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>Date Range</button>
                 </div>
                 
                 {workloadReportMode === 'weekly' && (
-                    <div className="bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-secondary)] animate-scale-in">
+                    <div className="bg-[var(--bg-tertiary)] p-3 rounded-[1.25rem]  animate-scale-in">
                         <label className="block text-xs text-[var(--text-secondary)] mb-1">Select Week (Any date)</label>
-                        <input type="date" value={selectedWeekDate} onChange={(e) => setSelectedWeekDate(e.target.value)} className="block w-full px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md text-sm text-[var(--text-primary)]" />
+                        <input type="date" value={selectedWeekDate} onChange={(e) => setSelectedWeekDate(e.target.value)} className="block w-full px-2 py-1.5 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem] text-sm text-[var(--text-primary)]" />
                         <p className="text-[0.625rem] text-[var(--text-secondary)] mt-1">
                             Week: {workloadStartDate} to {workloadEndDate}
                         </p>
@@ -377,14 +377,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                 )}
 
                 {workloadReportMode === 'range' && (
-                    <div className="grid grid-cols-2 gap-3 bg-[var(--bg-tertiary)] p-3 rounded-lg border border-[var(--border-secondary)] animate-scale-in">
+                    <div className="grid grid-cols-2 gap-3 bg-[var(--bg-tertiary)] p-3 rounded-[1.25rem]  animate-scale-in">
                         <div>
                             <label className="block text-xs text-[var(--text-secondary)] mb-1">{t.startDate}</label>
-                            <input type="date" value={workloadStartDate} onChange={(e) => setWorkloadStartDate(e.target.value)} className="block w-full px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg text-[var(--text-primary)] focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] shadow-sm" />
+                            <input type="date" value={workloadStartDate} onChange={(e) => setWorkloadStartDate(e.target.value)} className="block w-full px-2 py-1.5 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1.25rem] text-[var(--text-primary)] focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] " />
                         </div>
                         <div>
                             <label className="block text-xs text-[var(--text-secondary)] mb-1">{t.endDate}</label>
-                            <input type="date" value={workloadEndDate} onChange={(e) => setWorkloadEndDate(e.target.value)} className="block w-full px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-lg text-[var(--text-primary)] focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] shadow-sm" />
+                            <input type="date" value={workloadEndDate} onChange={(e) => setWorkloadEndDate(e.target.value)} className="block w-full px-2 py-1.5 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1.25rem] text-[var(--text-primary)] focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] " />
                         </div>
                     </div>
                 )}
@@ -421,7 +421,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             <h2 className="text-3xl font-bold text-[var(--text-primary)]">{t.settings}</h2>
         </div>
         
-        <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-sm border border-[var(--border-primary)] mb-8 overflow-hidden">
+        <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]   mb-8 overflow-hidden">
             <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsThemeOptionsOpen(!isThemeOptionsOpen)}>
                 <div>
                     <h3 className="text-xl font-bold text-[var(--text-primary)]">Appearance</h3>
@@ -442,9 +442,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                         const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                                         setTheme(isSystemDark ? 'dark' : 'light');
                                     }}
-                                    className="group flex flex-col items-center gap-3 p-4 rounded-xl border border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
+                                    className="group flex flex-col items-center gap-3 p-4 rounded-[2rem]  hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
                                 >
-                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-gray-300 to-gray-800 shadow-sm flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-r from-gray-300 to-gray-800  flex items-center justify-center">
                                         <div className="w-6 h-6 bg-white/20 backdrop-blur-sm rounded-full border border-white/30"></div>
                                     </div>
                                     <span className="text-sm font-semibold text-[var(--text-primary)]">System</span>
@@ -452,9 +452,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
                                 <button 
                                     onClick={() => setTheme('light')}
-                                    className={`group flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${theme === 'light' || theme === 'mint' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
+                                    className={`group flex flex-col items-center gap-3 p-4 rounded-[2rem] border transition-all ${theme === 'light' || theme === 'mint' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
                                 >
-                                    <div className="w-12 h-12 rounded-lg bg-[#f8fafc] shadow-sm flex items-center justify-center border border-gray-200">
+                                    <div className="w-12 h-12 rounded-[1.25rem] bg-[#f8fafc]  flex items-center justify-center border border-gray-200">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                     </div>
                                     <span className={`text-sm font-semibold ${theme === 'light' || theme === 'mint' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Light</span>
@@ -462,9 +462,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
                                 <button 
                                     onClick={() => setTheme('dark')}
-                                    className={`group flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${theme === 'dark' || theme === 'amoled' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
+                                    className={`group flex flex-col items-center gap-3 p-4 rounded-[2rem] border transition-all ${theme === 'dark' || theme === 'amoled' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
                                 >
-                                    <div className="w-12 h-12 rounded-lg bg-[#0f172a] shadow-sm flex items-center justify-center border border-gray-700">
+                                    <div className="w-12 h-12 rounded-[1.25rem] bg-[#0f172a]  flex items-center justify-center border border-gray-700">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                                     </div>
                                     <span className={`text-sm font-semibold ${theme === 'dark' || theme === 'amoled' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Dark</span>
@@ -492,7 +492,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                         style={{ backgroundColor: color }}
                                     >
                                         {themeColors.accentPrimary === color && (
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white drop-" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                                         )}
                                     </button>
                                 ))}
@@ -538,13 +538,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                         <div className="flex gap-4 pt-4">
                             <button 
                                 onClick={() => setIsThemeOptionsOpen(false)}
-                                className="flex-1 py-3 rounded-xl border border-[var(--border-secondary)] text-[var(--text-primary)] font-semibold hover:bg-[var(--bg-tertiary)] transition-colors"
+                                className="flex-1 py-3 rounded-[2rem]  text-[var(--text-primary)] font-semibold hover:bg-[var(--bg-tertiary)] transition-colors"
                             >
                                 Cancel
                             </button>
                             <button 
                                 onClick={() => setIsThemeOptionsOpen(false)}
-                                className="flex-1 py-3 rounded-xl bg-[var(--accent-primary)] text-white font-semibold hover:bg-[var(--accent-primary-hover)] shadow-lg shadow-[var(--accent-primary)]/20 transition-all hover:-translate-y-0.5"
+                                className="flex-1 py-3 rounded-[2rem] bg-[var(--accent-primary)] text-white font-semibold hover:bg-[var(--accent-primary-hover)]  shadow-[var(--accent-primary)]/20 transition-all hover:-translate-y-0.5"
                             >
                                 Save Changes
                             </button>
@@ -557,7 +557,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
 
 
-        <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-primary)] mb-8 overflow-hidden">
+        <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem]   mb-8 overflow-hidden">
             <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsInterfaceOptionsOpen(!isInterfaceOptionsOpen)}>
                 <h3 className="text-xl font-bold text-[var(--text-primary)]">{t.interfaceSettings}</h3>
                 <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isInterfaceOptionsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
@@ -570,21 +570,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                          <div>
                             <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4 ml-1">{t.general}</h4>
                             <div className="mb-4">
-                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
+                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5  flex items-center justify-between ">
                                     <div>
                                         <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">{t.appLanguage}</h5>
                                         <p className="text-xs text-[var(--text-secondary)]">{t.switchLanguageDesc}</p>
                                     </div>
-                                    <div className="flex bg-[var(--bg-primary)] rounded-lg p-1 border border-[var(--border-secondary)] shadow-inner">
+                                    <div className="flex bg-[var(--bg-primary)] rounded-[1.25rem] p-1  shadow-inner">
                                         <button
                                             onClick={() => setLanguage('en')}
-                                            className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${language === 'en' ? 'bg-[var(--bg-secondary)] text-[var(--accent-primary)] shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                                            className={`px-4 py-1.5 rounded-[1rem] text-sm font-bold transition-all ${language === 'en' ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--accent-primary)]  ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                                         >
                                             English
                                         </button>
                                         <button
                                             onClick={() => setLanguage('ur')}
-                                            className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all font-urdu ${language === 'ur' ? 'bg-[var(--bg-secondary)] text-[var(--accent-primary)] shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                                            className={`px-4 py-1.5 rounded-[1rem] text-sm font-bold transition-all font-urdu ${language === 'ur' ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--accent-primary)]  ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                                         >
                                             اردو
                                         </button>
@@ -593,14 +593,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm lg:col-span-1">
+                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5  flex items-center justify-between  lg:col-span-1">
                                     <div>
                                         <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">App Font</h5>
                                         <p className="text-xs text-[var(--text-secondary)]">Select the global font</p>
                                     </div>
                                     <div className="relative" ref={fontDropdownRef}>
                                         <div 
-                                            className="appearance-none bg-[var(--bg-primary)] border border-[var(--border-secondary)] text-[var(--text-primary)] text-sm rounded-lg focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] block w-40 sm:w-48 p-2.5 pr-8 cursor-pointer relative"
+                                            className="appearance-none bg-[var(--bg-primary)]  text-[var(--text-primary)] text-sm rounded-[1.25rem] focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] block w-40 sm:w-48 p-2.5 pr-8 cursor-pointer relative"
                                             style={{ fontFamily: appFont || 'inherit' }}
                                             onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}
                                         >
@@ -610,7 +610,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                             </div>
                                         </div>
                                         {isFontDropdownOpen && (
-                                            <div className="absolute z-50 mt-1 w-48 max-h-60 overflow-auto bg-[var(--bg-primary)] border border-[var(--border-secondary)] rounded-lg shadow-lg">
+                                            <div className="absolute z-50 mt-1 w-48 max-h-60 overflow-auto bg-[var(--bg-primary)]  rounded-[1.25rem] ">
                                                 {appFontOptions.map(font => (
                                                     <div 
                                                         key={font.value} 
@@ -629,12 +629,12 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                     </div>
                                 </div>
 
-                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm lg:col-span-1">
+                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5  flex items-center justify-between  lg:col-span-1">
                                     <div>
                                         <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">Font Size</h5>
                                         <p className="text-xs text-[var(--text-secondary)]">Current: {fontSize}px</p>
                                     </div>
-                                    <div className="flex items-center gap-3 bg-[var(--bg-primary)] p-1 rounded-xl border border-[var(--border-secondary)] h-10 px-1 w-40 sm:w-48 shadow-inner">
+                                    <div className="flex items-center gap-3 bg-[var(--bg-primary)] p-1 rounded-[2rem]  h-10 px-1 w-40 sm:w-48 shadow-inner">
                                         <button 
                                             onClick={() => setFontSize(Math.max(8, fontSize - 1))} 
                                             className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold"
@@ -654,7 +654,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                 </div>
 
 
-                                <div className="bg-[var(--bg-tertiary)] rounded-2xl p-5 border border-[var(--border-secondary)] flex items-center justify-between shadow-sm">
+                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5  flex items-center justify-between ">
                                     <div>
                                         <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">Auto-hide Navigation</h5>
                                         <p className="text-xs text-[var(--text-secondary)]">Hide navigation bar when scrolling down</p>
@@ -677,7 +677,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
 
 
-        <button onClick={() => setIsAboutOpen(true)} className="fixed bottom-24 right-6 xl:bottom-8 xl:right-8 z-40 bg-[var(--accent-primary)] text-white w-12 h-12 rounded-full shadow-lg hover:shadow-xl hover:bg-[var(--accent-primary-hover)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center" title="About Mr. TMS"><AboutIcon /></button>
+        <button onClick={() => setIsAboutOpen(true)} className="fixed bottom-24 right-6 xl:bottom-8 xl:right-8 z-40 bg-[var(--accent-primary)] text-white w-12 h-12 rounded-full  hover: hover:bg-[var(--accent-primary-hover)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center" title="About Mr. TMS"><AboutIcon /></button>
       </div>
     </div>
   );

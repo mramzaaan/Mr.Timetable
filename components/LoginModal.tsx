@@ -22,7 +22,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ t, onLogin }) => {
       aria-modal="true"
       aria-labelledby="loginModalTitle"
     >
-      <div className="bg-[var(--bg-secondary)] p-8 rounded-xl shadow-2xl max-w-sm w-full mx-4 transform scale-95 opacity-0 animate-scale-in">
+      <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-8 rounded-[2rem]  max-w-sm w-full mx-4 transform scale-95 opacity-0 animate-scale-in">
         <h3 id="loginModalTitle" className="text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">
           {t.loginTitle}
         </h3>
@@ -37,7 +37,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ t, onLogin }) => {
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
+              className="mt-1 block w-full px-4 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm"
               placeholder="e.g., JohnDoe"
               required
             />
@@ -46,7 +46,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ t, onLogin }) => {
           <div className="flex justify-end pt-4">
             <button
               type="submit"
-              className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-lg shadow-md hover:bg-[var(--accent-primary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)] transition-colors"
+              className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-[1.25rem]  hover:bg-[var(--accent-primary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)] transition-colors"
             >
               {t.login}
             </button>

@@ -733,14 +733,14 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[101]" onClick={onClose}>
-      <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] mx-4 transform flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  w-full max-w-4xl h-[90vh] mx-4 transform flex flex-col" onClick={e => e.stopPropagation()}>
         <h3 className="text-xl font-bold p-6 border-b border-[var(--border-primary)] text-[var(--text-primary)] flex-shrink-0">{t.dataImportExportCsv}</h3>
 
         <div className="flex-grow flex min-h-0">
           <aside className="w-1/4 border-r border-[var(--border-primary)] p-4 flex flex-col gap-2 overflow-y-auto">
             {TABS.map(tab => (
               <button key={tab.id} onClick={() => { setActiveTab(tab.id); resetUploadState(); }}
-                className={`w-full text-left px-3 py-2 text-sm font-medium rounded-md transition-colors ${ activeTab === tab.id ? 'bg-[var(--accent-secondary)] text-[var(--accent-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]'}`}>
+                className={`w-full text-left px-3 py-2 text-sm font-medium rounded-[1rem] transition-colors ${ activeTab === tab.id ? 'bg-[var(--accent-secondary)] text-[var(--accent-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]'}`}>
                 {tab.label}
               </button>
             ))}
@@ -749,7 +749,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
           <main className="w-3/4 flex-grow flex flex-col p-6 overflow-y-auto">
             {!parsedData ? (
                 <div onDrop={handleDrop} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
-                    className={`flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full transition-colors ${isDragging ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]' : 'border-[var(--border-secondary)]'}`}>
+                    className={`flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-[1.25rem] h-full transition-colors ${isDragging ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]' : 'border-[var(--border-secondary)]'}`}>
                     <input type="file" id="csv-upload" className="hidden" accept=".csv,text/csv,application/vnd.ms-excel" onChange={handleFileSelect} />
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[var(--text-placeholder)] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                     <label htmlFor="csv-upload" className="cursor-pointer text-sm font-semibold text-[var(--text-primary)]">
@@ -761,7 +761,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                         <button onClick={() => handleDownloadData(activeTab)} className="text-sm text-[var(--accent-primary)] hover:underline">{t.downloadCsv}</button>
                         <button onClick={() => handleDownloadTemplate(activeTab)} className="text-sm text-[var(--accent-primary)] hover:underline">{t.downloadTemplate}</button>
                     </div>
-                    {feedback.message && feedback.type === 'error' && <div className="mt-4 p-2 w-full bg-red-100 text-red-700 text-xs rounded-md">{feedback.message}</div>}
+                    {feedback.message && feedback.type === 'error' && <div className="mt-4 p-2 w-full bg-red-100 text-red-700 text-xs rounded-[1rem]">{feedback.message}</div>}
                 </div>
             ) : (
                 <div className="animate-scale-in">
@@ -773,15 +773,15 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                     {isEntity && (
                         <div className="mb-4">
                             <label className="text-sm font-medium text-[var(--text-secondary)] mr-4">{t.importMode}:</label>
-                            <div className="inline-flex rounded-md shadow-sm">
-                                <button onClick={() => setImportMode('replace')} className={`px-4 py-2 text-sm font-medium rounded-l-lg border ${importMode === 'replace' ? 'bg-[var(--accent-primary)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-primary)]'}`}>{t.replaceAll}</button>
-                                <button onClick={() => setImportMode('append')} className={`px-4 py-2 text-sm font-medium rounded-r-lg border ${importMode === 'append' ? 'bg-[var(--accent-primary)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-primary)]'}`}>{t.addAndUpdate}</button>
+                            <div className="inline-flex rounded-[1rem] ">
+                                <button onClick={() => setImportMode('replace')} className={`px-4 py-2 text-sm font-medium rounded-l-lg border ${importMode === 'replace' ? 'bg-[var(--accent-primary)] text-white' : 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)]'}`}>{t.replaceAll}</button>
+                                <button onClick={() => setImportMode('append')} className={`px-4 py-2 text-sm font-medium rounded-r-lg border ${importMode === 'append' ? 'bg-[var(--accent-primary)] text-white' : 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)]'}`}>{t.addAndUpdate}</button>
                             </div>
                         </div>
                     )}
 
                     {importAnalysis && (
-                        <div className="p-4 bg-[var(--bg-tertiary)] rounded-lg mb-4 text-sm space-y-1">
+                        <div className="p-4 bg-[var(--bg-tertiary)] rounded-[1.25rem] mb-4 text-sm space-y-1">
                             <h5 className="font-bold text-base mb-2">{t.analysis}</h5>
                             <div className="grid grid-cols-4 gap-2 text-center">
                                 <div className="text-green-600"><span className="font-bold">{importAnalysis.newItems.length}</span> {t.new}</div>
@@ -801,11 +801,11 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                                     </label>
                                 </div>
                             )}
-                            {showErrors && importAnalysis.errors.length > 0 && <ul className="mt-2 text-xs bg-red-50 p-2 rounded-md max-h-24 overflow-y-auto">{importAnalysis.errors.map(err => <li key={err.rowIndex}><strong>Row {err.rowIndex}:</strong> {err.message}</li>)}</ul>}
+                            {showErrors && importAnalysis.errors.length > 0 && <ul className="mt-2 text-xs bg-red-50 p-2 rounded-[1rem] max-h-24 overflow-y-auto">{importAnalysis.errors.map(err => <li key={err.rowIndex}><strong>Row {err.rowIndex}:</strong> {err.message}</li>)}</ul>}
                         </div>
                     )}
                     
-                    <div className="overflow-auto border border-[var(--border-primary)] rounded-lg max-h-80 relative">
+                    <div className="overflow-auto  rounded-[1.25rem] max-h-80 relative">
                       <table className="w-full text-xs">
                           <thead className="bg-[var(--bg-tertiary)] sticky top-0 z-10">
                             <tr>
@@ -829,7 +829,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                                 const error = importAnalysis?.errors.find(e => e.rowIndex === index + 2);
                                 const isNew = importAnalysis?.newItems.includes(row);
                                 const isUpdate = importAnalysis?.updatedItems.some(u => u.newItem === row);
-                                let rowClass = 'bg-[var(--bg-secondary)]'; let statusClass = ''; let textClass = 'text-[var(--text-primary)]';
+                                let rowClass = 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10'; let statusClass = ''; let textClass = 'text-[var(--text-primary)]';
                                 if (error) { rowClass = 'bg-red-100'; textClass = 'text-red-900'; } 
                                 else if (isNew) { statusClass = 'border-l-4 border-green-500'; } 
                                 else if (isUpdate) { statusClass = 'border-l-4 border-blue-500'; }
@@ -863,11 +863,11 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
             {feedback.message && feedback.type === 'success' && <p className={`text-sm text-green-600`}>{feedback.message}</p>}
             {parsedData && (
                 <button onClick={() => handleConfirmImport(activeTab)} disabled={!importAnalysis || selectedRows.size === 0 || (!skipErrors && parsedData.some((_, index) => selectedRows.has(index) && importAnalysis.errors.some(e => e.rowIndex === index + 2)))}
-                    className="px-6 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-lg hover:bg-[var(--accent-primary-hover)] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                    className="px-6 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-[1.25rem] hover:bg-[var(--accent-primary-hover)] transition  disabled:opacity-50 disabled:cursor-not-allowed">
                     {t.confirmImport}
                 </button>
             )}
-             <button onClick={onClose} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-lg hover:bg-[var(--accent-secondary-hover)] transition">
+             <button onClick={onClose} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)] transition">
               {t.close}
             </button>
         </div>

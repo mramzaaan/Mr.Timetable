@@ -125,7 +125,7 @@ const CopyTimetableModal: React.FC<CopyTimetableModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-lg w-full mx-4 transform transition-all"
+        className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem]  max-w-lg w-full mx-4 transform transition-all"
         onClick={e => e.stopPropagation()}
       >
         <h3 id="copyTimetableModalTitle" className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">
@@ -141,7 +141,7 @@ const CopyTimetableModal: React.FC<CopyTimetableModalProps> = ({
               id="source-class-select"
               value={selectedSourceClassId}
               onChange={(e) => setSelectedSourceClassId(e.target.value)}
-              className="block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-secondary)] rounded-md shadow-sm text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"
+              className="block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)]"
             >
               <option value="">{t.selectSourceClass}</option>
               {classes.map(c => (
@@ -156,7 +156,7 @@ const CopyTimetableModal: React.FC<CopyTimetableModalProps> = ({
             <label className="block text-md font-semibold text-[var(--text-secondary)] mb-2">
               {t.targetClasses}
             </label>
-            <div className="max-h-48 overflow-y-auto border border-[var(--border-primary)] rounded-md p-3 bg-[var(--bg-tertiary)]">
+            <div className="max-h-48 overflow-y-auto  rounded-[1rem] p-3 bg-[var(--bg-tertiary)]">
               {classes
                 .filter(c => c.id !== selectedSourceClassId)
                 .map(c => (
@@ -180,7 +180,7 @@ const CopyTimetableModal: React.FC<CopyTimetableModalProps> = ({
 
           {feedback.message && (
             <div
-              className={`p-3 rounded-md text-sm ${
+              className={`p-3 rounded-[1rem] text-sm ${
                 feedback.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
               }`}
               role="alert"
@@ -192,14 +192,14 @@ const CopyTimetableModal: React.FC<CopyTimetableModalProps> = ({
           <div className="flex justify-end gap-4 mt-8">
             <button
               onClick={onClose}
-              className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-lg hover:bg-[var(--accent-secondary-hover)] transition"
+              className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)] transition"
             >
               {t.cancel}
             </button>
             <button
               onClick={handleCopy}
               disabled={!sourceClass || selectedTargetClassIds.length === 0}
-              className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-lg hover:bg-[var(--accent-primary-hover)] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-[1.25rem] hover:bg-[var(--accent-primary-hover)] transition  disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t.copy}
             </button>
