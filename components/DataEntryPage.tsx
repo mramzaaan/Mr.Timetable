@@ -138,8 +138,8 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
           onClick={() => onTabChange(tabName)}
           className={`flex items-center justify-center px-4 sm:px-8 py-3 text-sm sm:text-base font-bold rounded-full transition-all duration-200 whitespace-nowrap min-w-[5rem] sm:min-w-[6.25rem] ${
             isActive
-              ? 'bg-white text-blue-600  ring-1 ring-black/5 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
+              ? 'bg-[var(--bg-primary)] text-[var(--accent-primary)]  ring-1 ring-[var(--border-primary)] shadow-sm'
+              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)]'
           }`}
         >
           {label}
@@ -180,7 +180,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
         </div>
 
         <div className="flex justify-center mb-8 overflow-x-auto no-scrollbar pb-2">
-            <div className="inline-flex bg-slate-100 p-1.5 rounded-full shadow-inner flex-nowrap min-w-max">
+            <div className="inline-flex bg-[var(--bg-tertiary)] p-1.5 rounded-full shadow-inner flex-nowrap min-w-max">
                 <TabButton tabName="teacher" label={t.teacher} />
                 <TabButton tabName="subject" label={t.subject} />
                 <TabButton tabName="class" label={t.class} />
@@ -188,7 +188,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
             </div>
         </div>
         
-        <div className="animate-fade-in bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md rounded-oneui-lg shadow-oneui  p-4 sm:p-6 lg:p-8">{renderTabContent()}</div>
+        <div className="animate-fade-in bg-[var(--bg-secondary)] backdrop-blur-[30px] border border-[var(--border-primary)] rounded-[2.5rem] p-4 sm:p-6 lg:p-8">{renderTabContent()}</div>
       </div>
       <CsvManagementModal t={t} isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} currentTimetableSession={currentTimetableSession} onUpdateTimetableSession={onUpdateTimetableSession} />
 
@@ -200,7 +200,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                   onClick={() => handleFabClick('class')}
                   className="flex items-center justify-end gap-3 group"
               >
-                  <span className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addClass || "Add Class"}</span>
+                  <span className="bg-[var(--bg-secondary)] border border-[var(--border-secondary)] shadow-xl text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addClass || "Add Class"}</span>
                   <div className="w-9 h-9 bg-[var(--accent-secondary)] rounded-full flex items-center justify-center text-[var(--accent-primary)]  group-hover:bg-[var(--accent-secondary-hover)] transition-colors">
                       <ClassIcon />
                   </div>
@@ -209,7 +209,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                   onClick={() => handleFabClick('subject')}
                   className="flex items-center justify-end gap-3 group"
               >
-                  <span className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addSubject || "Add Subject"}</span>
+                  <span className="bg-[var(--bg-secondary)] border border-[var(--border-secondary)] shadow-xl text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addSubject || "Add Subject"}</span>
                   <div className="w-9 h-9 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400  group-hover:bg-purple-500/30 transition-colors">
                       <SubjectIcon />
                   </div>
@@ -218,7 +218,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                   onClick={() => handleFabClick('teacher')}
                   className="flex items-center justify-end gap-3 group"
               >
-                  <span className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addTeacher || "Add Teacher"}</span>
+                  <span className="bg-[var(--bg-secondary)] border border-[var(--border-secondary)] shadow-xl text-[var(--text-primary)] font-bold px-3 py-1.5 rounded-[2rem] text-sm group-hover:scale-105 transition-transform">{t.addTeacher || "Add Teacher"}</span>
                   <div className="w-9 h-9 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400  group-hover:bg-emerald-500/30 transition-colors">
                       <TeacherIcon />
                   </div>
@@ -228,7 +228,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
           {/* Main Button */}
           <button 
               onClick={() => setIsFabOpen(!isFabOpen)}
-              className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-white shadow-oneui transition-all duration-300 transform active:scale-95 ${isFabOpen ? 'bg-gray-600 rotate-45' : 'bg-[var(--accent-primary)] hover:-translate-y-1'}`}
+              className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-white shadow-oneui transition-all duration-300 transform active:scale-95 ${isFabOpen ? 'bg-[var(--text-secondary)] rotate-45' : 'bg-[var(--accent-primary)] hover:-translate-y-1'}`}
           >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

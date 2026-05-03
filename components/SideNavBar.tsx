@@ -46,7 +46,7 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
       <aside 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`fixed top-4 left-4 bottom-4 z-50 bg-[#8b5cf6] rounded-[2rem] shadow-2xl transition-all duration-300 ease-in-out flex flex-col items-center py-6
+        className={`fixed top-4 left-4 bottom-4 z-50 bg-[var(--accent-primary)] rounded-[2rem] shadow-2xl transition-all duration-300 ease-in-out flex flex-col items-center py-6
           ${isHovered ? 'w-64' : 'w-22'} 
           hidden md:landscape:flex lg:flex
         `}
@@ -93,11 +93,11 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
                             >
                                 {/* Top Inverted Corner - Larger coverage to prevent sub-pixel lines */}
                                 <div className="absolute -top-6 right-0 w-10 h-6 bg-[var(--bg-primary)]">
-                                    <div className="w-full h-full bg-[#8b5cf6] rounded-br-[2rem]" />
+                                    <div className="w-full h-full bg-[var(--accent-primary)] rounded-br-[2rem]" />
                                 </div>
                                 {/* Bottom Inverted Corner */}
                                 <div className="absolute -bottom-6 right-0 w-10 h-6 bg-[var(--bg-primary)]">
-                                    <div className="w-full h-full bg-[#8b5cf6] rounded-tr-[2rem]" />
+                                    <div className="w-full h-full bg-[var(--accent-primary)] rounded-tr-[2rem]" />
                                 </div>
                             </motion.div>
                         )}

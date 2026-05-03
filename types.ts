@@ -9,6 +9,7 @@ export type NavShape = 'circle' | 'pill' | 'leaf' | 'squircle' | 'diamond' | 'ar
 
 export interface Subject {
   id: string;
+  serialNumber?: number;
   nameEn: string;
   nameUr: string;
   isPractical?: boolean;
@@ -22,6 +23,8 @@ export interface Teacher {
   nameUr: string;
   gender: 'Male' | 'Female';
   contactNumber: string;
+  email?: string;
+  countryCode?: string;
 }
 
 export interface Group {
@@ -192,6 +195,7 @@ export interface SchoolClass {
   serialNumber?: number;
   nameEn: string;
   nameUr: string;
+  section?: string;
   academicLevel?: 'Primary' | 'Elementary' | 'Secondary' | 'Higher Secondary';
   inCharge: string; 
   roomNumber: string;
@@ -207,7 +211,14 @@ export interface SchoolClass {
 
 export type DownloadFormat = 'pdf-full' | 'pdf-summary' | 'excel';
 export type DownloadLanguage = 'en' | 'ur' | 'both';
-export type FontFamily = 'sans-serif' | 'serif' | 'monospace' | 'Bebas Neue' | 'Fjalla One' | 'Oswald' | 'Playfair Display' | 'Zeyada' | 'League Gothic' | 'Amatic SC' | 'Yellowtail' | 'Instrument Serif' | 'Gulzar' | 'Noto Nastaliq Urdu' | 'Pinyon Script' | 'Italianno' | 'Alex Brush';
+export type FontFamily = string; // Allows default and custom fonts
+
+export interface CustomFont {
+  id: string;
+  name: string;
+  data?: string; // base64 string - optional because we store it separately now
+  type: 'ttf' | 'otf' | 'woff' | 'woff2';
+}
 
 export type CardStyle = 'full' | 'outline' | 'text' | 'triangle' | 'glass' | 'gradient' | 'minimal-left' | 'badge' | 'smooth' | 'smooth-left' | 'smooth-right' | 'smooth-up' | 'smooth-down';
 export type TriangleCorner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -331,6 +342,10 @@ export interface SchoolConfig {
   schoolNameUr: string;
   schoolLogoBase64: string | null;
   appFontFamily?: FontFamily;
+  appFontSize?: number; // Added for app font size
+  customFonts?: CustomFont[]; // Uploaded custom fonts
+  hiddenFonts?: string[]; // Fonts deleted/hidden by user
+  language?: string; // Language setting
   downloadDesigns: DownloadDesigns;
   daysConfig: Record<keyof TimetableGridData, DayConfig>;
   periodTimings: {

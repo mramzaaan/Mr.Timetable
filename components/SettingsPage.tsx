@@ -5,6 +5,7 @@ import type { Theme, ThemeColors } from '../App';
 import type { NavPosition, NavDesign, NavShape } from '../types';
 import { allDays } from '../types';
 import PrintPreview from './PrintPreview';
+import AdvancedColorPicker, { ColorProperty } from './AdvancedColorPicker';
 import { 
   generateBasicInformationHtml, 
   generateBasicInformationExcel, 
@@ -74,6 +75,8 @@ const appFontOptions = [
     { label: 'Inter', value: 'Inter' },
     { label: 'Roboto', value: 'Roboto' },
     { label: 'Serif', value: 'serif' },
+    { label: 'Jameel Noori Kasheeda (Kishida)', value: 'Jameel Noori Kasheeda' },
+    { label: 'Jameel Noori Nastaleeq', value: 'Jameel Noori Nastaleeq' },
     { label: 'Monospace', value: 'monospace' },
     { label: 'Bebas Neue', value: 'Bebas Neue' },
     { label: 'Fjalla One', value: 'Fjalla One' },
@@ -95,6 +98,8 @@ const appFontOptions = [
     { label: 'Italianno', value: 'Italianno' },
     { label: 'Alex Brush', value: 'Alex Brush' },
 ];
+
+const protectedFonts = ['', 'Roboto', 'Inter', 'Fjalla One', 'serif', 'sans-serif', 'Jameel Noori Kasheeda', 'Jameel Noori Nastaleeq'];
 
 const AboutIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -160,7 +165,40 @@ const ThemeCard: React.FC<{
 
 
 interface SelectionModalProps { title: string; items: { id: string; label: React.ReactNode }[]; selectedIds: string[]; onSelect: (id: string, isChecked: boolean) => void; onSelectAll: (isChecked: boolean) => void; onConfirm: () => void; onCancel: () => void; confirmLabel: string; isOpen: boolean; t: any; children?: React.ReactNode; }
-const SelectionModal: React.FC<SelectionModalProps> = ({ title, items, selectedIds, onSelect, onSelectAll, onConfirm, onCancel, confirmLabel, isOpen, t, children }) => { if (!isOpen) return null; return ( <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity" onClick={onCancel}> <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem]  max-w-md w-full mx-4 transform flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}> <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">{title}</h3> {children} <div className="flex-grow  bg-[var(--bg-tertiary)] rounded-[1.25rem] overflow-y-auto p-3 space-y-2"> <label className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer border-b border-[var(--border-secondary)] sticky top-0 bg-[var(--bg-tertiary)] z-10"> <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => onSelectAll(e.target.checked)} /> <span className="font-semibold text-[var(--text-primary)]">{t.selectAll}</span> </label> {items.map(item => ( <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-[1rem] hover:bg-[var(--accent-secondary-hover)]"> <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={selectedIds.includes(item.id)} onChange={(e) => onSelect(item.id, e.target.checked)} /> <span className="text-[var(--text-primary)]">{item.label}</span> </label> ))} </div> <div className="flex justify-end gap-4 pt-6 border-t border-[var(--border-primary)] mt-6"> <button onClick={onCancel} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button> <button onClick={onConfirm} disabled={selectedIds.length === 0} className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-[1.25rem] hover:bg-[var(--accent-primary-hover)] disabled:opacity-50">{confirmLabel}</button> </div> </div> </div> ); };
+const SelectionModal: React.FC<SelectionModalProps> = ({ title, items, selectedIds, onSelect, onSelectAll, onConfirm, onCancel, confirmLabel, isOpen, t, children }) => { 
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
+  if (!isOpen) return null; 
+  
+  return ( 
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity" onClick={onCancel}> 
+      <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem]  max-w-md w-full mx-4 transform flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}> 
+        <h3 className="text-xl sm:text-2xl font-bold mb-6 text-center text-[var(--text-primary)]">{title}</h3> 
+        {children} 
+        <div className="flex-grow  bg-[var(--bg-tertiary)] rounded-[1.25rem] overflow-y-auto p-3 space-y-2"> 
+          <label className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer border-b border-[var(--border-secondary)] sticky top-0 bg-[var(--bg-tertiary)] z-10"> 
+            <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => onSelectAll(e.target.checked)} /> 
+            <span className="font-semibold text-[var(--text-primary)]">{t.selectAll}</span> 
+          </label> 
+          {items.map(item => ( 
+            <label key={item.id} className="flex items-center space-x-2 py-1.5 px-2 cursor-pointer rounded-[1rem] hover:bg-[var(--accent-secondary-hover)]"> 
+              <input type="checkbox" className="form-checkbox text-[var(--accent-primary)] rounded" checked={selectedIds.includes(item.id)} onChange={(e) => onSelect(item.id, e.target.checked)} /> 
+              <span className="text-[var(--text-primary)]">{item.label}</span> 
+            </label> 
+          ))} 
+        </div> 
+        <div className="flex justify-end gap-4 pt-6 border-t border-[var(--border-primary)] mt-6"> 
+          <button onClick={onCancel} className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] bg-[var(--bg-tertiary)] rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button> 
+          <button onClick={onConfirm} disabled={selectedIds.length === 0} className="px-5 py-2 text-sm font-semibold text-white bg-[var(--accent-primary)] rounded-[1.25rem] hover:bg-[var(--accent-primary-hover)] disabled:opacity-50">{confirmLabel}</button> 
+        </div> 
+      </div> 
+    </div> 
+  ); 
+};
 
 const ModernColorPicker = ({ value, onChange, label, hideLabel = false }: { value: string, onChange: (val: string) => void, label?: string, hideLabel?: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -288,9 +326,23 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   t, language, setLanguage, theme, setTheme, themeColors, onColorChange, onResetTheme, navDesign, setNavDesign, navShape, setNavShape, navBtnAlphaSelected, setNavBtnAlphaSelected, navBtnAlphaUnselected, setNavBtnAlphaUnselected, navBarAlpha, setNavBarAlpha, navBarColor, setNavBarColor, navAnimation, setNavAnimation, fontSize, setFontSize, appFont, setAppFont, schoolConfig, onUpdateSchoolConfig, classes, teachers, subjects, adjustments, leaveDetails, attendance
 }) => {
   const [isThemeOptionsOpen, setIsThemeOptionsOpen] = useState(false); 
+  const [isTypographyOpen, setIsTypographyOpen] = useState(false);
   const [isInterfaceOptionsOpen, setIsInterfaceOptionsOpen] = useState(false);
   const [isPrintSectionOpen, setIsPrintSectionOpen] = useState(false);
   const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
+  
+  // Advanced Color Picker State
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerProperty, setPickerProperty] = useState<ColorProperty>('accent');
+  const [recentlyUsedColors, setRecentlyUsedColors] = useState<string[]>(() => {
+    const saved = localStorage.getItem('mrtimetable_recentlyUsedColors');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  useEffect(() => {
+    localStorage.setItem('mrtimetable_recentlyUsedColors', JSON.stringify(recentlyUsedColors));
+  }, [recentlyUsedColors]);
+  
   const fontDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -304,7 +356,87 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [fontDropdownRef]);
-  
+
+  const handleCustomFontUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Limit to 15MB to avoid storage/memory issues
+    if (file.size > 15 * 1024 * 1024) {
+      alert('Font file is too large. Please upload smaller files (under 15MB).');
+      if (e.target) e.target.value = '';
+      return;
+    }
+
+    const fileType = file.name.split('.').pop()?.toLowerCase();
+    if (!['ttf', 'otf', 'woff', 'woff2'].includes(fileType || '')) {
+      alert('Only TTF, OTF, WOFF and WOFF2 files are supported.');
+      if (e.target) e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64Data = event.target?.result as string;
+      if (base64Data) {
+        const fontName = file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, ' ').trim();
+        const fontId = Math.random().toString(36).substr(2, 9);
+        const newFontMetadata = {
+          id: fontId,
+          name: fontName,
+          type: fileType as 'ttf' | 'otf' | 'woff' | 'woff2'
+        };
+        
+        // Save large data to separate IDB store
+        try {
+          const { get, set } = await import('idb-keyval');
+          const currentFontsData = await get<Record<string, string>>('mrtimetable_customFontsData') || {};
+          await set('mrtimetable_customFontsData', { ...currentFontsData, [fontId]: base64Data });
+          
+          // Update metadata in schoolConfig
+          const updatedCustomFonts = [...(schoolConfig.customFonts || []), newFontMetadata];
+          onUpdateSchoolConfig({ customFonts: updatedCustomFonts });
+        } catch (error) {
+          console.error("Failed to save font data", error);
+          alert("Failed to save font. Storage may be full.");
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = ''; // Reset input
+  };
+
+  const handleHideBuiltInFont = (fontValue: string) => {
+    const updatedHiddenFonts = [...(schoolConfig.hiddenFonts || []), fontValue];
+    onUpdateSchoolConfig({ hiddenFonts: updatedHiddenFonts });
+  };
+
+  const handleDeleteCustomFont = async (id: string) => {
+    const fontToDelete = schoolConfig.customFonts?.find(f => f.id === id);
+    const updatedCustomFonts = (schoolConfig.customFonts || []).filter(f => f.id !== id);
+    
+    // Remove from metadata
+    onUpdateSchoolConfig({ customFonts: updatedCustomFonts });
+    
+    // Remove from separate IDB store
+    try {
+      const { get, set } = await import('idb-keyval');
+      const currentFontsData = await get<Record<string, string>>('mrtimetable_customFontsData') || {};
+      if (currentFontsData[id]) {
+        const newData = { ...currentFontsData };
+        delete newData[id];
+        await set('mrtimetable_customFontsData', newData);
+      }
+    } catch (error) {
+       console.error("Failed to delete font data", error);
+    }
+
+    if (fontToDelete && appFont === fontToDelete.name) {
+      setAppFont('');
+    }
+  };
+
   const [workloadReportMode, setWorkloadReportMode] = useState<'weekly' | 'range'>('weekly');
   const [workloadStartDate, setWorkloadStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [workloadEndDate, setWorkloadEndDate] = useState(new Date().toISOString().split('T')[0]);
@@ -436,103 +568,107 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                         {/* THEME MODE */}
                         <div>
                             <h4 className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">THEME MODE</h4>
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-3 gap-3">
                                 <button 
-                                    onClick={() => {
-                                        const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                                        setTheme(isSystemDark ? 'dark' : 'light');
-                                    }}
-                                    className="group flex flex-col items-center gap-3 p-4 rounded-[2rem]  hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)] transition-all"
+                                    onClick={() => setTheme('system')}
+                                    className={`group flex flex-col items-center gap-2 p-3 rounded-[2rem] border transition-all ${theme === 'system' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
                                 >
-                                    <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-r from-gray-300 to-gray-800  flex items-center justify-center">
-                                        <div className="w-6 h-6 bg-white/20 backdrop-blur-sm rounded-full border border-white/30"></div>
+                                    <div className="w-10 h-10 rounded-[1.25rem] bg-gradient-to-r from-gray-300 to-gray-800 flex items-center justify-center">
+                                        <div className="w-5 h-5 bg-white/20 backdrop-blur-sm rounded-full border border-white/30"></div>
                                     </div>
-                                    <span className="text-sm font-semibold text-[var(--text-primary)]">System</span>
+                                    <span className={`text-[0.6rem] sm:text-xs font-bold leading-tight text-center ${theme === 'system' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Auto</span>
                                 </button>
 
                                 <button 
                                     onClick={() => setTheme('light')}
-                                    className={`group flex flex-col items-center gap-3 p-4 rounded-[2rem] border transition-all ${theme === 'light' || theme === 'mint' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
+                                    className={`group flex flex-col items-center gap-2 p-3 rounded-[2rem] border transition-all ${theme === 'light' || theme === 'mint' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
                                 >
-                                    <div className="w-12 h-12 rounded-[1.25rem] bg-[#f8fafc]  flex items-center justify-center border border-gray-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                    <div className="w-10 h-10 rounded-[1.25rem] bg-[#f8fafc] flex items-center justify-center border border-gray-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                     </div>
-                                    <span className={`text-sm font-semibold ${theme === 'light' || theme === 'mint' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Light</span>
+                                    <span className={`text-[0.6rem] sm:text-xs font-bold leading-tight text-center ${theme === 'light' || theme === 'mint' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Light</span>
                                 </button>
 
                                 <button 
                                     onClick={() => setTheme('dark')}
-                                    className={`group flex flex-col items-center gap-3 p-4 rounded-[2rem] border transition-all ${theme === 'dark' || theme === 'amoled' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
+                                    className={`group flex flex-col items-center gap-2 p-3 rounded-[2rem] border transition-all ${theme === 'dark' || theme === 'amoled' ? 'border-[var(--accent-primary)] bg-[var(--accent-secondary)]/10 ring-1 ring-[var(--accent-primary)]' : 'border-[var(--border-secondary)] hover:border-[var(--accent-primary)] hover:bg-[var(--bg-tertiary)]'}`}
                                 >
-                                    <div className="w-12 h-12 rounded-[1.25rem] bg-[#0f172a]  flex items-center justify-center border border-gray-700">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                                    <div className="w-10 h-10 rounded-[1.25rem] bg-[#0f172a] flex items-center justify-center border border-gray-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                                     </div>
-                                    <span className={`text-sm font-semibold ${theme === 'dark' || theme === 'amoled' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Dark</span>
+                                    <span className={`text-[0.6rem] sm:text-xs font-bold leading-tight text-center ${theme === 'dark' || theme === 'amoled' ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>Dark</span>
                                 </button>
                             </div>
                         </div>
 
                         {/* COLOR PALETTE */}
                         <div>
-                            <h4 className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">COLOR PALETTE</h4>
-                            <div className="flex flex-wrap gap-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h4 className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">CORE THEME COLORS</h4>
+                                <button onClick={onResetTheme} className="text-[0.6rem] font-bold text-rose-500 hover:underline uppercase tracking-tight">Reset to default</button>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 {[
-                                    '#6366f1', // Indigo
-                                    '#ef4444', // Red
-                                    '#f59e0b', // Amber
-                                    '#10b981', // Emerald
-                                    '#06b6d4', // Cyan
-                                    '#8b5cf6', // Violet
-                                    '#ec4899', // Pink
-                                ].map((color) => (
+                                    { key: 'bgPrimary' as keyof ThemeColors, label: 'Background', color: themeColors.bgPrimary, prop: 'background' as ColorProperty },
+                                    { key: 'bgSecondary' as keyof ThemeColors, label: 'Surface', color: themeColors.bgSecondary, prop: 'surface' as ColorProperty },
+                                    { key: 'accentPrimary' as keyof ThemeColors, label: 'Accent', color: themeColors.accentPrimary, prop: 'accent' as ColorProperty },
+                                    { key: 'textPrimary' as keyof ThemeColors, label: 'Typography', color: themeColors.textPrimary, prop: 'text' as ColorProperty },
+                                ].map((item) => (
                                     <button
-                                        key={color}
-                                        onClick={() => onColorChange('accentPrimary', color)}
-                                        className={`w-10 h-10 rounded-full transition-all flex items-center justify-center ${themeColors.accentPrimary === color ? 'ring-2 ring-offset-2 ring-[var(--accent-primary)] ring-offset-[var(--bg-secondary)] scale-110' : 'hover:scale-110'}`}
-                                        style={{ backgroundColor: color }}
+                                        key={item.key}
+                                        onClick={() => {
+                                            setPickerProperty(item.prop);
+                                            setPickerOpen(true);
+                                        }}
+                                        className="group relative flex flex-col items-center gap-2 p-3 rounded-[2rem] bg-[var(--bg-tertiary)] border border-[var(--border-secondary)] hover:border-[var(--accent-primary)] transition-all overflow-hidden"
                                     >
-                                        {themeColors.accentPrimary === color && (
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white drop-" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                        )}
+                                        <div className="w-10 h-10 p-1 bg-white/50 backdrop-blur-sm rounded-full shadow-inner group-hover:scale-110 transition-transform">
+                                            <div className="w-full h-full rounded-full border border-black/10" style={{ backgroundColor: item.color }} />
+                                        </div>
+                                        <span className="text-[0.65rem] font-bold uppercase tracking-widest text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">{item.label}</span>
+                                        <div className="absolute right-2 top-2 p-1 bg-white/50 dark:bg-black/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                        </div>
                                     </button>
                                 ))}
-                                <div className="relative w-10 h-10 rounded-full overflow-hidden cursor-pointer hover:scale-110 transition-transform ring-1 ring-[var(--border-secondary)]">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-red-500 via-green-500 to-blue-500"></div>
-                                    <input 
-                                        type="color" 
-                                        value={themeColors.accentPrimary} 
-                                        onChange={(e) => onColorChange('accentPrimary', e.target.value)} 
-                                        className="opacity-0 absolute inset-0 cursor-pointer" 
-                                    />
-                                </div>
                             </div>
                         </div>
 
-                        {/* CUSTOMIZE DETAILS */}
-                        <div className="border-t border-[var(--border-secondary)] pt-6">
-                            <details className="group">
-                                <summary className="flex justify-between items-center cursor-pointer list-none">
-                                    <h4 className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">CUSTOMIZE DETAILS</h4>
-                                    <div className="flex items-center gap-2 text-xs font-semibold text-[var(--accent-primary)]">
-                                        Show Inputs
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        {/* PRESETS (Simplified) */}
+                        <div>
+                            <h4 className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4">QUICK ACCENTS</h4>
+                            <div className="flex flex-wrap gap-3">
+                                {[
+                                    '#6366f1', '#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#8b5cf6', '#ec4899',
+                                ].map((color) => (
+                                    <button
+                                        key={color}
+                                        onClick={() => {
+                                            onColorChange('accentPrimary', color);
+                                            if (!recentlyUsedColors.includes(color)) {
+                                                setRecentlyUsedColors(prev => [color, ...prev].slice(0, 10));
+                                            }
+                                        }}
+                                        className={`w-8 h-8 rounded-full transition-all flex items-center justify-center ${themeColors.accentPrimary === color ? 'ring-2 ring-offset-2 ring-[var(--accent-primary)] ring-offset-[var(--bg-secondary)] scale-110' : 'hover:scale-110 shadow-sm'}`}
+                                        style={{ backgroundColor: color }}
+                                    >
+                                        {themeColors.accentPrimary === color && (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                        )}
+                                    </button>
+                                ))}
+                                <button 
+                                    onClick={() => { setPickerProperty('accent'); setPickerOpen(true); }}
+                                    className="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 via-green-400 to-blue-400 p-0.5"
+                                >
+                                    <div className="w-full h-full rounded-full bg-white/20 dark:bg-black/20 backdrop-blur-sm flex items-center justify-center text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
                                     </div>
-                                </summary>
-                                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 animate-fade-in">
-                                    <ColorPickerInput label="Background" value={themeColors.bgPrimary} onChange={(val) => onColorChange('bgPrimary', val)} />
-                                    <ColorPickerInput label="Surface (Cards)" value={themeColors.bgSecondary} onChange={(val) => onColorChange('bgSecondary', val)} />
-                                    <ColorPickerInput label="Text Color" value={themeColors.textPrimary} onChange={(val) => onColorChange('textPrimary', val)} />
-                                    <ColorPickerInput label="Accent Color" value={themeColors.accentPrimary} onChange={(val) => onColorChange('accentPrimary', val)} />
-                                    
-                                    <div className="col-span-1 sm:col-span-2 flex justify-end mt-2">
-                                        <button onClick={onResetTheme} className="text-xs text-red-500 hover:text-red-700 font-semibold hover:underline flex items-center gap-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                            Reset to Default
-                                        </button>
-                                    </div>
-                                </div>
-                            </details>
+                                </button>
+                            </div>
                         </div>
+
+                        {/* REMOVED OLD CUSTOMIZE DETAILS TO CLEAN UP */}
 
                         {/* ACTION BUTTONS */}
                         <div className="flex gap-4 pt-4">
@@ -555,6 +691,165 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             </div>
         </div>
 
+        {/* Advanced Color Picker */}
+        <AdvancedColorPicker 
+            isOpen={pickerOpen}
+            onClose={() => setPickerOpen(false)}
+            property={pickerProperty}
+            initialColor={(() => {
+                switch(pickerProperty) {
+                    case 'background': return themeColors.bgPrimary;
+                    case 'surface': return themeColors.bgSecondary;
+                    case 'text': return themeColors.textPrimary;
+                    case 'accent': return themeColors.accentPrimary;
+                    default: return themeColors.accentPrimary;
+                }
+            })()}
+            surfaceColor={pickerProperty === 'text' ? themeColors.bgSecondary : undefined}
+            recentlyUsed={recentlyUsedColors}
+            onAddRecentlyUsed={(c) => {
+                if (!recentlyUsedColors.includes(c)) {
+                    setRecentlyUsedColors(prev => [c, ...prev].slice(0, 10));
+                }
+            }}
+            onSetColor={(color) => {
+                switch(pickerProperty) {
+                    case 'background': onColorChange('bgPrimary', color); break;
+                    case 'surface': onColorChange('bgSecondary', color); break;
+                    case 'text': onColorChange('textPrimary', color); break;
+                    case 'accent': onColorChange('accentPrimary', color); break;
+                }
+            }}
+        />
+
+        <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem]   mb-8 overflow-hidden">
+            <button className="w-full flex justify-between items-center p-6 text-left" onClick={() => setIsTypographyOpen(!isTypographyOpen)}>
+                <h3 className="text-xl font-bold text-[var(--text-primary)]">App Typography & Language</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform text-[var(--text-secondary)] ${isTypographyOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            <div className={`grid transition-all duration-500 ${isTypographyOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                <div className="overflow-hidden">
+                    <div className="p-6 pt-0 space-y-8">
+                        <div>
+                            <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4 ml-1">Language & Typography</h4>
+                            
+                            {/* App Language */}
+                            <div className="mb-4">
+                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5 flex items-center justify-between ">
+                                    <div>
+                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">{t.appLanguage}</h5>
+                                        <p className="text-xs text-[var(--text-secondary)]">{t.switchLanguageDesc}</p>
+                                    </div>
+                                    <div className="flex bg-[var(--bg-primary)] rounded-[1.25rem] p-1  shadow-inner">
+                                        <button
+                                            onClick={() => setLanguage('en')}
+                                            className={`px-4 py-1.5 rounded-[1rem] text-sm font-bold transition-all ${language === 'en' ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--accent-primary)] ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                                        >
+                                            English
+                                        </button>
+                                        <button
+                                            onClick={() => setLanguage('ur')}
+                                            className={`px-4 py-1.5 rounded-[1rem] text-sm font-bold transition-all font-urdu ${language === 'ur' ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--accent-primary)] ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                                        >
+                                            اردو
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 gap-4">
+                                {/* Font Size */}
+                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5 flex items-center justify-between">
+                                    <div>
+                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">Font Size</h5>
+                                        <p className="text-xs text-[var(--text-secondary)]">Current: {fontSize}px</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 bg-[var(--bg-primary)] p-1 rounded-[2rem] h-10 px-1 w-40 sm:w-48 shadow-inner">
+                                        <button 
+                                            onClick={() => setFontSize(Math.max(8, fontSize - 1))} 
+                                            className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold"
+                                        >—</button>
+                                        <div className="flex-grow text-center text-sm font-bold text-[var(--text-primary)] tabular-nums">{fontSize}px</div>
+                                        <button 
+                                            onClick={() => setFontSize(Math.min(fontSize + 1, 32))} 
+                                            className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold"
+                                        >+</button>
+                                    </div>
+                                </div>
+
+                                {/* Custom Font / Existing Fonts */}
+                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5 flex flex-col gap-4">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">App Font</h5>
+                                            <p className="text-xs text-[var(--text-secondary)]">Select, hide, or upload a custom font</p>
+                                        </div>
+                                        <div>
+                                            <label className="cursor-pointer bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white text-sm font-bold py-2 px-4 rounded-[1rem] shadow-sm transition-all focus:outline-none">
+                                                Upload TTF/OTF
+                                                <input type="file" accept=".ttf,.otf" className="hidden" onChange={handleCustomFontUpload} />
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[24rem] overflow-y-auto custom-scrollbar pr-2">
+                                        {/* Built-in Fonts list */}
+                                        {appFontOptions.filter(f => !(schoolConfig.hiddenFonts || []).includes(f.value)).map(font => (
+                                            <div key={font.value} className={`relative flex justify-between items-center bg-[var(--bg-primary)] shadow-sm rounded-[1rem] p-3 border ${appFont === font.value ? 'border-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]' : 'border-transparent'}`}>
+                                                <div 
+                                                    className="cursor-pointer flex-1 truncate" 
+                                                    onClick={() => setAppFont(font.value)}
+                                                    style={{ fontFamily: font.value || 'inherit' }}
+                                                >
+                                                    <span className={`text-sm ${appFont === font.value ? 'font-bold text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>
+                                                        {font.label}
+                                                    </span>
+                                                </div>
+                                                {(!protectedFonts.includes(font.value)) && (
+                                                    <button onClick={() => handleHideBuiltInFont(font.value)} className="p-1.5 text-xs text-red-500 hover:bg-red-50 rounded-full transition-colors ml-2" title="Hide Font">
+                                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+
+                                        {/* Custom Fonts list */}
+                                        {(schoolConfig.customFonts || []).map(font => (
+                                            <div key={font.id} className={`relative flex justify-between items-center bg-[var(--bg-primary)] shadow-sm rounded-[1rem] p-3 border ${appFont === font.name ? 'border-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]' : 'border-transparent'}`}>
+                                                <div 
+                                                    className="cursor-pointer flex-1 truncate" 
+                                                    onClick={() => setAppFont(font.name)}
+                                                    style={{ fontFamily: font.name }}
+                                                >
+                                                    <span className={`text-sm tracking-tight ${appFont === font.name ? 'font-bold text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>
+                                                        {font.name} <span className="text-[0.625rem] text-[var(--text-secondary)] uppercase bg-[var(--bg-tertiary)] px-1 py-0.5 rounded ml-1">{font.type}</span>
+                                                    </span>
+                                                </div>
+                                                <button onClick={() => handleDeleteCustomFont(font.id)} className="p-1.5 text-xs text-red-500 hover:bg-red-50 rounded-full transition-colors ml-2" title="Delete Uploaded Font">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    {(schoolConfig.hiddenFonts && schoolConfig.hiddenFonts.length > 0) && (
+                                        <div className="mt-2 text-right">
+                                            <button 
+                                                onClick={() => onUpdateSchoolConfig({ hiddenFonts: [] })} 
+                                                className="text-xs text-blue-500 hover:underline"
+                                            >
+                                                Restore hidden default fonts
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
 
         <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem]   mb-8 overflow-hidden">
@@ -566,94 +861,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                 {/* ... (Interface Settings content unchanged) ... */}
                 <div className="overflow-hidden">
                     <div className="p-6 pt-0 space-y-8">
-                         {/* GENERAL */}
+                         {/* GENERAL (Now only contains Navigation toggle) */}
                          <div>
-                            <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4 ml-1">{t.general}</h4>
-                            <div className="mb-4">
-                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5  flex items-center justify-between ">
-                                    <div>
-                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">{t.appLanguage}</h5>
-                                        <p className="text-xs text-[var(--text-secondary)]">{t.switchLanguageDesc}</p>
-                                    </div>
-                                    <div className="flex bg-[var(--bg-primary)] rounded-[1.25rem] p-1  shadow-inner">
-                                        <button
-                                            onClick={() => setLanguage('en')}
-                                            className={`px-4 py-1.5 rounded-[1rem] text-sm font-bold transition-all ${language === 'en' ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--accent-primary)]  ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                                        >
-                                            English
-                                        </button>
-                                        <button
-                                            onClick={() => setLanguage('ur')}
-                                            className={`px-4 py-1.5 rounded-[1rem] text-sm font-bold transition-all font-urdu ${language === 'ur' ? 'bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 text-[var(--accent-primary)]  ring-1 ring-black/5 dark:ring-white/10' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                                        >
-                                            اردو
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5  flex items-center justify-between  lg:col-span-1">
-                                    <div>
-                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">App Font</h5>
-                                        <p className="text-xs text-[var(--text-secondary)]">Select the global font</p>
-                                    </div>
-                                    <div className="relative" ref={fontDropdownRef}>
-                                        <div 
-                                            className="appearance-none bg-[var(--bg-primary)]  text-[var(--text-primary)] text-sm rounded-[1.25rem] focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] block w-40 sm:w-48 p-2.5 pr-8 cursor-pointer relative"
-                                            style={{ fontFamily: appFont || 'inherit' }}
-                                            onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}
-                                        >
-                                            <span className="block truncate">{appFontOptions.find(f => f.value === appFont)?.label || 'System Default'}</span>
-                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[var(--text-secondary)]">
-                                                <svg className={`w-4 h-4 transition-transform ${isFontDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                            </div>
-                                        </div>
-                                        {isFontDropdownOpen && (
-                                            <div className="absolute z-50 mt-1 w-48 max-h-60 overflow-auto bg-[var(--bg-primary)]  rounded-[1.25rem] ">
-                                                {appFontOptions.map(font => (
-                                                    <div 
-                                                        key={font.value} 
-                                                        className={`px-4 py-2 cursor-pointer text-[var(--text-primary)] hover:bg-[var(--accent-secondary)] hover:text-[var(--accent-text)] ${appFont === font.value ? 'bg-[var(--accent-secondary)]/50 text-[var(--accent-primary)] font-bold' : ''}`}
-                                                        style={{ fontFamily: font.value || 'inherit' }}
-                                                        onClick={() => {
-                                                            setAppFont(font.value);
-                                                            setIsFontDropdownOpen(false);
-                                                        }}
-                                                    >
-                                                        {font.label}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5  flex items-center justify-between  lg:col-span-1">
-                                    <div>
-                                        <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">Font Size</h5>
-                                        <p className="text-xs text-[var(--text-secondary)]">Current: {fontSize}px</p>
-                                    </div>
-                                    <div className="flex items-center gap-3 bg-[var(--bg-primary)] p-1 rounded-[2rem]  h-10 px-1 w-40 sm:w-48 shadow-inner">
-                                        <button 
-                                            onClick={() => setFontSize(Math.max(8, fontSize - 1))} 
-                                            className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold"
-                                        >
-                                            —
-                                        </button>
-                                        <div className="flex-grow text-center text-sm font-bold text-[var(--text-primary)] tabular-nums">
-                                            {fontSize}px
-                                        </div>
-                                        <button 
-                                            onClick={() => setFontSize(Math.min(fontSize + 1, 32))} 
-                                            className="w-10 h-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors text-lg font-bold"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-
-
+                            <h4 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-4 ml-1">General</h4>
+                            
+                            <div className="grid grid-cols-1 gap-4">
                                 <div className="bg-[var(--bg-tertiary)] rounded-[2rem] p-5  flex items-center justify-between ">
                                     <div>
                                         <h5 className="text-base font-bold text-[var(--text-primary)] mb-1">Auto-hide Navigation</h5>

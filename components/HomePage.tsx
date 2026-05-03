@@ -175,7 +175,7 @@ const DocumentCard: React.FC<{
 
                 {/* White Card Layer (Front) */}
                 <div 
-                    className="absolute inset-0 bg-white dark:bg-gray-800 flex flex-col pt-12 pb-6 pl-6 pr-12 text-left"
+                    className="absolute inset-0 bg-[var(--bg-secondary)] flex flex-col pt-12 pb-6 pl-6 pr-12 text-left"
                     style={{ 
                         clipPath: 'polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)'
                     }}
@@ -183,15 +183,15 @@ const DocumentCard: React.FC<{
                     {/* Content */}
                     <div className="mt-2 flex flex-col items-start gap-2 w-full">
                         <h4 className={`text-lg font-black ${theme.text} uppercase tracking-tight leading-tight line-clamp-2`}>{title}</h4>
-                        <div className="w-12 h-1 rounded-full bg-gray-100 dark:bg-white/10 my-1"></div>
-                        <p className="text-[0.625rem] font-bold text-gray-400 uppercase tracking-widest leading-relaxed line-clamp-3">{subtitle}</p>
+                        <div className="w-12 h-1 rounded-full bg-[var(--bg-tertiary)] my-1"></div>
+                        <p className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-widest leading-relaxed line-clamp-3">{subtitle}</p>
                     </div>
                 </div>
             </div>
 
             {/* Floating Icon (Outside Clip) */}
             <div className="absolute -top-4 left-6 z-20">
-                <div className="relative w-16 h-16 rounded-full bg-white dark:bg-gray-800  flex items-center justify-center p-1.5 transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative w-16 h-16 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-secondary)]  flex items-center justify-center p-1.5 transition-transform duration-300 group-hover:-translate-y-1">
                     <div className={`w-full h-full rounded-full ${theme.bg} flex items-center justify-center text-white shadow-inner`}>
                          {React.isValidElement(icon) 
                             ? React.cloneElement(icon as React.ReactElement<any>, { className: "h-7 w-7 stroke-[2]" }) 
@@ -285,10 +285,10 @@ const FeatureCard: React.FC<{
 
                 {/* Text */}
                 <div className="text-center">
-                    <h3 className={`text-sm sm:text-lg font-medium text-gray-800 dark:text-white/90 tracking-wide mb-0.5 sm:mb-1`}>
+                    <h3 className={`text-sm sm:text-lg font-medium text-[var(--text-primary)] tracking-wide mb-0.5 sm:mb-1`}>
                         {label}
                     </h3>
-                    <p className="hidden sm:block text-[0.625rem] sm:text-xs text-gray-500 dark:text-white/50 font-light leading-relaxed line-clamp-1">
+                    <p className="hidden sm:block text-[0.625rem] sm:text-xs text-[var(--text-secondary)] font-light leading-relaxed line-clamp-1">
                         {description}
                     </p>
                 </div>
@@ -555,21 +555,21 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
                 <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur-[5rem] opacity-10 animate-pulse pointer-events-none" style={{ animationDelay: '2s' }}></div>
                 <div className="relative z-10 p-5 sm:p-8 lg:p-12 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 lg:gap-12 text-center md:text-left">
                     <div className="flex flex-col items-center md:items-start md:flex-[0.8] md:min-w-0">
-                        <h1 className="text-[4rem] xs:text-[5rem] sm:text-[6.5rem] md:text-[3rem] lg:text-[3.5rem] xl:text-[4.5rem] font-black tracking-tighter text-gray-900 dark:text-white select-none whitespace-normal sm:whitespace-nowrap animate-alive leading-none mb-1 flex-shrink-0" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        <h1 className="text-[4rem] xs:text-[5rem] sm:text-[6.5rem] md:text-[3rem] lg:text-[3.5rem] xl:text-[4.5rem] font-black tracking-tighter text-[var(--text-primary)] select-none whitespace-normal sm:whitespace-nowrap animate-alive leading-none mb-1 flex-shrink-0" style={{ fontVariantNumeric: 'tabular-nums' }}>
                             {time.toLocaleTimeString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
                         </h1>
                         <div className="flex flex-col items-center md:items-start w-full gap-0 sm:gap-1">
                             <p className="text-xs sm:text-xl lg:text-lg font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-indigo-500 select-none mt-1 truncate w-full">{formattedDay}</p>
-                            <p className="text-[0.5625rem] sm:text-lg lg:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-gray-400 select-none truncate w-full">{formattedDateOnly}</p>
+                            <p className="text-[0.5625rem] sm:text-lg lg:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[var(--text-secondary)] select-none truncate w-full">{formattedDateOnly}</p>
                         </div>
                     </div>
                     {cardData && (
                         <div className="w-full md:max-w-none md:flex-[1.2] bg-white/20 dark:bg-black/10 rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 border border-white/40  backdrop-blur-md transition-transform duration-300 hover:scale-[1.01] animate-alive flex flex-col justify-center" style={{ animationDelay: '1s' }}>
                             <div className="flex justify-between items-center mb-3 sm:mb-6">
-                                <h2 className="text-base sm:text-xl font-black text-gray-800 dark:text-white tracking-tight truncate pr-2">{cardData.title}</h2>
+                                <h2 className="text-base sm:text-xl font-black text-[var(--text-primary)] tracking-tight truncate pr-2">{cardData.title}</h2>
                                 <span className="px-3 sm:px-4 py-1.5 rounded-full border border-indigo-100 bg-indigo-50 dark:bg-indigo-900/30 text-[0.4375rem] sm:text-[0.5625rem] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-300  whitespace-nowrap">{cardData.badge}</span>
                             </div>
-                            <div className="flex justify-between items-end text-[0.5rem] sm:text-[0.6875rem] font-black text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-widest gap-2">
+                            <div className="flex justify-between items-end text-[0.5rem] sm:text-[0.6875rem] font-black text-[var(--text-secondary)] mb-2 sm:mb-3 uppercase tracking-widest gap-2">
                                 <span className="truncate">{cardData.left}</span>
                                 <span className="text-right truncate">{cardData.right}</span>
                             </div>
@@ -623,16 +623,6 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
   const [isTeachersTimetableSummaryPreviewOpen, setIsTeachersTimetableSummaryPreviewOpen] = useState(false);
   const [teachersTimetableSummaryType, setTeachersTimetableSummaryType] = useState<'allDays' | 'byDays'>('allDays');
   const [selectedDaysForSummary, setSelectedDaysForSummary] = useState<string[]>(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
-  
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const touchStartRef = useRef<number | null>(null);
   const lastWheelTime = useRef<number>(0);
@@ -1006,35 +996,34 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
       )}
 
       <div className="min-h-screen flex flex-col overflow-x-hidden">
-        {/* Header - Collapsing One UI Style */}
-        <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out ${isScrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md  border-b border-gray-200 dark:border-gray-800' : 'bg-transparent pt-10 sm:pt-14 pb-2'}`}>
-          <div className="absolute inset-0 pointer-events-none opacity-50"></div>
-          <div className="container mx-auto px-4 sm:px-6 flex justify-between items-end relative z-10">
-            <div className={`flex items-end gap-4 transition-all duration-300 ease-in-out w-full ${isScrolled ? 'py-3' : 'py-0'}`}>
+        {/* Header - Static */}
+        <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 py-3">
+          <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center relative z-10">
+            <div className="flex items-center gap-4 w-full">
                 {/* Logo or School Icon */}
-                <div className={`transition-all duration-300 flex-shrink-0 ${isScrolled ? 'h-10 w-10 opacity-100' : 'h-0 w-0 opacity-0 overflow-hidden'}`}>
+                <div className="flex-shrink-0 h-10 w-10">
                     {schoolConfig.schoolLogoBase64 ? (
-                        <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full  border-2 border-white/20" />
+                        <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full border-2 border-[var(--border-primary)]" />
                     ) : (
                         <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl">M</div>
                     )}
                 </div>
                 
                 {/* Titles */}
-                <div className={`flex flex-col flex-grow transition-all duration-300 transform origin-left`}>
-                    <span className={`font-black text-gray-900 dark:text-white tracking-tight transition-all duration-300 ease-in-out max-w-[80vw] ${isScrolled ? 'text-2xl leading-none truncate' : 'text-4xl sm:text-5xl lg:text-[3.5rem] leading-[1.1] pb-1'}`}>
+                <div className="flex flex-col flex-grow">
+                    <span className="font-black text-gray-900 dark:text-white tracking-tight max-w-[80vw] text-2xl leading-none truncate">
                         Mr. Timetable
                     </span>
-                    <span className={`font-bold text-indigo-600 dark:text-indigo-400 tracking-wide transition-all duration-300 ease-in-out min-w-[200px] ${isScrolled ? 'text-[0.6rem] uppercase mt-0.5 max-h-4 opacity-100' : 'text-sm sm:text-base max-h-10 mt-1 opacity-80'}`}>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400 tracking-wide mt-0.5 text-[0.6rem] uppercase">
                         Timetable Management System
                     </span>
                 </div>
                 
                 {/* Actions */}
-                <div className={`flex items-center gap-3 transition-all duration-300 ${isScrolled ? 'mb-1' : 'mb-2'}`}>
+                <div className="flex items-center gap-3">
                     {currentTimetableSession && (
-                        <button onClick={() => setIsSearchOpen(true)} className={`p-3 text-gray-500 bg-white/40 dark:bg-white/10 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-white  backdrop-blur-md border border-white/50 transition-all duration-300 hover:scale-105 active:scale-95`} title="Search">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <button onClick={() => setIsSearchOpen(true)} className="p-2.5 text-gray-500 bg-white/40 dark:bg-white/10 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-white backdrop-blur-md border border-white/50 transition-all duration-300 hover:scale-105 active:scale-95" title="Search">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </button>
@@ -1045,12 +1034,12 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
         </header>
 
         {isSearchOpen && currentTimetableSession && (
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-start justify-center pt-20 animate-fade-in px-4" onClick={() => setIsSearchOpen(false)}>
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[200] flex items-start justify-center pt-20 animate-fade-in px-4" onClick={() => setIsSearchOpen(false)}>
                 <div className="w-full max-w-2xl transform transition-all" onClick={e => e.stopPropagation()}><GlobalSearch t={t} language={language} classes={currentTimetableSession.classes} teachers={currentTimetableSession.teachers} subjects={currentTimetableSession.subjects} onResultClick={(type, id) => { onSearchResultClick(type, id); setIsSearchOpen(false); }} autoFocus={true} className="" /></div>
             </div>
         )}
 
-        <main className={`flex-grow container mx-auto px-4 flex flex-col items-center justify-center min-h-[90vh] transition-all duration-300 ${isScrolled ? 'pt-24 pb-4' : 'pt-32 sm:pt-40 pb-4'}`}>
+        <main className="flex-grow container mx-auto px-4 flex flex-col items-center justify-center min-h-[90vh] pt-24 pb-4">
             <div className="w-full animate-scale-in max-w-7xl relative flex flex-col items-center mt-4">
                 <DigitalClock language={language} schoolConfig={schoolConfig} t={t} vacations={currentTimetableSession?.vacations} />
                 
@@ -1142,8 +1131,8 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
               t={t}
               isOpen={isCsvModalOpen}
               onClose={() => setIsCsvModalOpen(false)}
-              currentSession={currentTimetableSession}
-              onUpdateSession={onUpdateCurrentSession}
+              currentTimetableSession={currentTimetableSession}
+              onUpdateTimetableSession={onUpdateCurrentSession}
           />
       )}
 

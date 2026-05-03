@@ -134,6 +134,27 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
 
   const selectedClass = useMemo(() => classes.find(c => c.id === selectedClassId), [classes, selectedClassId]);
 
+  // Pre-calculate occupancy for all teachers in one pass
+  const allTeachersOccupancy = useMemo(() => {
+    const occupancy = new Map<string, Map<string, { classId: string, subjectId: string, jointPeriodId?: string }>>();
+    classes.forEach(c => {
+        activeDays.forEach(day => {
+            const slots = c.timetable[day];
+            if (!Array.isArray(slots)) return;
+            slots.forEach((slot, pIdx) => {
+                if (!Array.isArray(slot)) return;
+                slot.forEach(p => {
+                    const tid = p.teacherId;
+                    if (!tid) return;
+                    if (!occupancy.has(tid)) occupancy.set(tid, new Map());
+                    occupancy.get(tid)!.set(`${day}-${pIdx}`, { classId: c.id, subjectId: p.subjectId, jointPeriodId: p.jointPeriodId });
+                });
+            });
+        });
+    });
+    return occupancy;
+  }, [classes, activeDays]);
+
   const sortedClasses = useMemo(() => {
       let sorted = [...visibleClasses];
       if (classSearchQuery) {
@@ -186,38 +207,25 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
     if (!highlightedTeacherId) return null;
     const map = new Map<string, { status: 'here' | 'elsewhere', conflictClass?: string, conflictSubject?: string, conflictTeacher?: string }>();
     
-    activeDays.forEach(day => {
-        for (let pIdx = 0; pIdx < maxPeriods; pIdx++) {
-            let status: 'here' | 'elsewhere' | null = null;
-            let conflictClass = '';
-            let conflictSubject = '';
-            let conflictTeacher = '';
-            
-            for (const cls of classes) {
-                const periods = cls.timetable[day]?.[pIdx];
-                if (periods) {
-                    const matchingPeriod = periods.find(p => p.teacherId === highlightedTeacherId);
-                    if (matchingPeriod) {
-                        if (cls.id === selectedClassId) {
-                            status = 'here';
-                        } else {
-                            status = 'elsewhere'; 
-                            conflictClass = language === 'ur' ? cls.nameUr : cls.nameEn;
-                            const sub = subjects.find(s => s.id === matchingPeriod.subjectId);
-                            const jp = matchingPeriod.jointPeriodId ? jointPeriods.find(j => j.id === matchingPeriod.jointPeriodId) : undefined;
-                            conflictSubject = sub ? (language === 'ur' ? sub.nameUr : sub.nameEn) : (jp?.name || 'Unknown');
-                            const tea = teachers.find(t => t.id === matchingPeriod.teacherId);
-                            conflictTeacher = tea ? (language === 'ur' ? tea.nameUr : tea.nameEn) : 'No Teacher';
-                        }
-                        if (status === 'here') break; 
-                    }
-                }
-            }
-            if (status) map.set(`${day}-${pIdx}`, { status, conflictClass, conflictSubject, conflictTeacher });
-        }
+    const teacherOccupancy = allTeachersOccupancy.get(highlightedTeacherId);
+    if (!teacherOccupancy) return map;
+
+    teacherOccupancy.forEach((info, key) => {
+        const isHere = info.classId === selectedClassId;
+        const cls = classes.find(c => c.id === info.classId);
+        const sub = subjects.find(s => s.id === info.subjectId);
+        const jp = info.jointPeriodId ? jointPeriods.find(j => j.id === info.jointPeriodId) : undefined;
+        
+        map.set(key, {
+            status: isHere ? 'here' : 'elsewhere',
+            conflictClass: cls ? (language === 'ur' ? cls.nameUr : cls.nameEn) : 'Unknown',
+            conflictSubject: sub ? (language === 'ur' ? sub.nameUr : sub.nameEn) : (jp?.name || 'Unknown'),
+            conflictTeacher: highlightedTeacherId // The teacher we are highlighting
+        });
     });
+    
     return map;
-  }, [highlightedTeacherId, classes, activeDays, maxPeriods, selectedClassId, language, subjects, jointPeriods, teachers]);
+  }, [highlightedTeacherId, allTeachersOccupancy, selectedClassId, language, classes, subjects, jointPeriods]);
 
   const subjectColorMap = useMemo(() => {
       const map = new Map<string, string>();
@@ -648,27 +656,27 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
 
       {pendingMove && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={(e) => { e.stopPropagation(); setPendingMove(null); setDraggedData(null); setMoveSource(null); }}>
-              <div className="bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  w-full max-w-md overflow-hidden animate-scale-in" onClick={e => e.stopPropagation()}>
-                  <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+              <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[2rem]  w-full max-w-md overflow-hidden animate-scale-in" onClick={e => e.stopPropagation()}>
+                  <div className="p-6 border-b border-[var(--border-secondary)]">
                       <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                       </div>
-                      <h3 className="text-xl font-black text-center text-gray-900 dark:text-white uppercase tracking-tight">Schedule Conflict</h3>
+                      <h3 className="text-xl font-black text-center text-[var(--text-primary)] uppercase tracking-tight">Schedule Conflict</h3>
                   </div>
-                  <div className="p-6 bg-gray-50 dark:bg-[var(--bg-tertiary)]">
+                  <div className="p-6 bg-[var(--bg-tertiary)]">
                       <div className="flex flex-col gap-3 mb-6">
                           {pendingMove.conflicts.map((conflict, i) => (
-                              <div key={i} className="flex items-start gap-3 p-3 bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem] border border-red-200 dark:border-red-800/30 ">
+                              <div key={i} className="flex items-start gap-3 p-3 bg-[var(--bg-secondary)] border border-red-200 dark:border-red-900/30 rounded-[2rem]">
                                   <div className="mt-0.5 text-red-500"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg></div>
-                                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{conflict.message}</p>
+                                  <p className="text-sm font-semibold text-[var(--text-primary)]">{conflict.message}</p>
                               </div>
                           ))}
                       </div>
-                      <p className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 mb-6">
+                      <p className="text-center text-sm font-medium text-[var(--text-secondary)] mb-6">
                           Would you like to replace the existing card(s)? The currently scheduled card(s) will be unscheduled dynamically and placed back into the queue.
                       </p>
                       <div className="flex items-center gap-3">
-                          <button onClick={() => { setPendingMove(null); setDraggedData(null); setMoveSource(null); }} className="flex-1 py-3 px-4 bg-white dark:bg-[var(--bg-primary)] border border-gray-200 dark:border-gray-700 rounded-[2rem] text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ">Cancel</button>
+                          <button onClick={() => { setPendingMove(null); setDraggedData(null); setMoveSource(null); }} className="flex-1 py-3 px-4 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[2rem] text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors ">Cancel</button>
                           <button onClick={() => executePendingMove(true, pendingMove.conflicts)} className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-[2rem] text-sm font-bold transition-transform active:scale-95  shadow-red-600/20">Yes, Replace</button>
                       </div>
                   </div>
@@ -731,7 +739,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
              )}
 
              {isClassDropdownOpen && (
-                 <div className="absolute top-[100%] mt-4 w-full min-w-[17.5rem] md:min-w-[20rem] max-w-md bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[2rem]  p-4 animate-scale-in z-50">
+                 <div className="absolute top-[100%] mt-4 w-full min-w-[17.5rem] md:min-w-[20rem] max-w-md bg-[var(--bg-secondary)] border border-[var(--border-secondary)] shadow-2xl rounded-[2rem] p-4 animate-scale-in z-50">
                      {/* Search */}
                      <div className="relative mb-3 w-full">
                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5">
@@ -807,15 +815,15 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                 </button>
                 
                 {isHeaderMoreOpen && (
-                    <div className="absolute right-0 top-[100%] mt-2 flex justify-center items-center gap-1 bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
-                        <button onClick={() => { setIsCopyModalOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.copyTimetable || 'Copy'}>
+                    <div className="absolute right-0 top-[100%] mt-2 flex justify-center items-center gap-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] shadow-2xl rounded-[2rem] p-2 z-50 animate-scale-in">
+                        <button onClick={() => { setIsCopyModalOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.copyTimetable || 'Copy'}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                         </button>
-                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
+                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
                             <Printer className="w-5 h-5" />
                         </button>
                         {onUndo && (
-                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
+                            <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2 hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
                                 <Undo2 className="w-5 h-5" />
                             </button>
                         )}

@@ -138,6 +138,18 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
   const [previewScale, setPreviewScale] = useState(1);
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
+  // Prevent background scroll when open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const themeColors = useMemo(() => {
     if (typeof window === 'undefined') return { accent: '#6366f1', bg: '#ffffff', text: '#0f172a' };
     const style = getComputedStyle(document.documentElement);
@@ -276,7 +288,7 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
             pointer-events: none;
           }
 
-          .font-urdu { font-family: ${appFont ? `'${appFont}', ` : schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}'Gulzar', 'Noto Nastaliq Urdu', sans-serif !important; }
+          .font-urdu { font-family: ${appFont ? `'${appFont}', ` : schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}sans-serif !important; }
           
           .img-header {
             flex-shrink: 0;
@@ -893,27 +905,28 @@ export const ClassCommunicationModal: React.FC<ClassCommunicationModalProps> = (
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 w-screen h-[100dvh] bg-black/40 flex items-center justify-center z-[200] p-4 backdrop-blur-md" onClick={onClose}>
-      <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-oneui shadow-oneui w-full max-w-[95vw] md:max-w-2xl lg:max-w-4xl flex flex-col max-h-[95vh] overflow-hidden transition-all" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 w-screen h-[100dvh] bg-black/60 flex items-center justify-center z-[200] p-2 sm:p-4 backdrop-blur-md" onClick={onClose}>
+      <div className="bg-white/90 dark:bg-black/80 backdrop-blur-[40px] border border-white/20 dark:border-white/10 rounded-[2rem] shadow-2xl w-full max-w-5xl flex flex-col max-h-[96vh] overflow-hidden transition-all relative" onClick={e => e.stopPropagation()}>
         
         {/* Header */}
-        <div className="p-5 border-b border-[var(--border-primary)]/20 bg-transparent flex-shrink-0 flex justify-between items-center">
-            <div className="flex items-baseline gap-2">
-                <h3 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
-                    SEND TO IN-CHARGE
+        <div className="p-4 sm:p-5 border-b border-white/10 bg-transparent flex-shrink-0 flex justify-between items-center sticky top-0 z-10 backdrop-blur-md">
+            <div className="flex flex-col">
+                <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)] uppercase tracking-tighter">
+                   Class <span className="text-[var(--accent-primary)]">Timetable</span>
                 </h3>
-                <span className="text-sm text-[var(--text-secondary)] font-medium">{selectedClass.nameEn}</span>
+                <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">{selectedClass.nameEn}</span>
             </div>
             
-            <div className="flex items-center gap-3">
-                <button onClick={onClose} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-full hover:bg-[var(--bg-tertiary)]/50">
-                    <XIcon />
-                </button>
-            </div>
+            <button 
+                onClick={onClose} 
+                className="w-10 h-10 flex items-center justify-center bg-black/5 dark:bg-white/5 hover:bg-rose-500 hover:text-white transition-all rounded-full text-[var(--text-secondary)]"
+            >
+                <XIcon />
+            </button>
         </div>
         
         {/* Scrollable Content */}
-        <div className="flex-grow overflow-y-auto p-4 custom-scrollbar bg-transparent">
+        <div className="flex-grow overflow-y-auto p-3 sm:p-6 scrollbar-hide bg-transparent">
 
             {/* Preview Section - Moved to Top */}
             <div className="flex flex-col items-center w-full mb-4" ref={previewContainerRef}>

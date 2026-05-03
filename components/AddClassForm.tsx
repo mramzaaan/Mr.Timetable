@@ -27,6 +27,7 @@ const createEmptyTimetable = (): TimetableGridData => ({
 const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, classes, onSetClasses, onDeleteClass, triggerOpenForm }) => {
   const [nameEn, setNameEn] = useState('');
   const [nameUr, setNameUr] = useState('');
+  const [section, setSection] = useState('');
   const [academicLevel, setAcademicLevel] = useState<'Primary' | 'Elementary' | 'Secondary' | 'Higher Secondary' | ''>('');
   const [inCharge, setInCharge] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
@@ -43,9 +44,9 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
 
   useEffect(() => {
      if (triggerOpenForm && triggerOpenForm > 0) {
-         setEditingClass(null);
-         resetForm();
-         setIsFormOpen(true);
+          setEditingClass(null);
+          resetForm();
+          setIsFormOpen(true);
      }
   }, [triggerOpenForm]);
 
@@ -55,6 +56,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
   const resetForm = () => {
     setNameEn('');
     setNameUr('');
+    setSection('');
     setAcademicLevel('');
     setInCharge('');
     setRoomNumber('');
@@ -69,6 +71,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
         setIsFormOpen(true);
         setNameEn(editingClass.nameEn);
         setNameUr(editingClass.nameUr);
+        setSection(editingClass.section || '');
         setAcademicLevel(editingClass.academicLevel || '');
         setInCharge(editingClass.inCharge);
         setRoomNumber(editingClass.roomNumber);
@@ -91,16 +94,26 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
     resetForm();
   };
 
+  const handleNumericChange = (setter: (val: string) => void, val: string, maxDigits: number) => {
+      if (/^\d*$/.test(val) && val.length <= maxDigits) {
+          setter(val);
+      }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const trimmedNameEn = nameEn.trim();
+    const trimmedNameUr = nameUr.trim();
+
     if (isExtraRoom) {
-        if (!nameEn || !nameUr || !roomNumber) {
-            alert('Please fill out all required extra room details.');
+        if (!trimmedNameEn || !trimmedNameUr || !roomNumber) {
+            alert('Please fill out Room Name (En), Room Name (Ur), and Room Number.');
             return;
         }
     } else {
-        if (!nameEn || !nameUr || !academicLevel || !inCharge || !roomNumber || !studentCount) {
-            alert('Please fill out all required class details.');
+        if (!trimmedNameEn || !trimmedNameUr || !academicLevel || !inCharge || !roomNumber || !studentCount) {
+            alert('Please fill out all required class fields.');
             return;
         }
     }
@@ -108,16 +121,18 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
     const classData: SchoolClass = {
         id: editingClass ? editingClass.id : generateUniqueId(),
         serialNumber: serialNumber ? parseInt(serialNumber, 10) : undefined,
-        nameEn, nameUr, 
-        academicLevel: academicLevel as 'Primary' | 'Elementary' | 'Secondary' | 'Higher Secondary',
-        inCharge, roomNumber,
-        studentCount: parseInt(studentCount, 10) || 0,
-        // Preserve existing subjects and groups if editing
+        nameEn: trimmedNameEn, 
+        nameUr: trimmedNameUr, 
+        section: isExtraRoom ? undefined : section.trim(),
+        academicLevel: isExtraRoom ? undefined : academicLevel as any,
+        inCharge: isExtraRoom ? '' : inCharge, 
+        roomNumber,
+        studentCount: isExtraRoom ? 0 : (parseInt(studentCount, 10) || 0),
         subjects: editingClass ? editingClass.subjects : [],
         timetable: editingClass ? editingClass.timetable : createEmptyTimetable(),
         groupSets: editingClass ? editingClass.groupSets : [],
         isExtraRoom,
-        comments,
+        comments: comments.trim(),
     };
     
     let updatedClasses = [...classes];
@@ -128,13 +143,14 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
       updatedClasses.push(classData);
     }
     onSetClasses(updatedClasses);
-    alert(editingClass ? 'Class updated successfully!' : 'Class added successfully!');
     setEditingClass(null);
     resetForm();
     setIsFormOpen(false);
   };
   
-  const inputStyleClasses = "mt-1 block w-full px-3 py-2 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10  rounded-[1rem]  text-[var(--text-primary)] placeholder-[var(--text-placeholder)] focus:outline-none focus:ring-[var(--accent-primary)] focus:border-[var(--accent-primary)] sm:text-sm";
+  const labelStyle = "block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1";
+  const urduLabelStyle = "block text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1 text-right";
+  const inputStyleClasses = "block w-full px-4 py-3 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] border border-white/50 dark:border-white/10 rounded-2xl text-[var(--text-primary)] text-sm focus:ring-2 focus:ring-[var(--accent-primary)]/20 focus:outline-none transition-all";
 
   const sortedClasses = useMemo(() => {
     return [...visibleClasses].sort((a, b) => {
@@ -151,87 +167,134 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
 
       {isFormOpen && createPortal(
         <div className="fixed inset-0 w-screen h-[100dvh] bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[200] transition-opacity" onClick={handleCancel}>
-            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem] max-w-3xl w-full mx-4 max-h-[90dvh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
-                <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="text-xl font-bold text-[var(--text-primary)]">{editingClass ? t.edit : t.addClass}</h3>
-                            <p className="text-sm text-[var(--text-secondary)] mt-1">{t.classDetails}</p>
-                        </div>
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                id="isExtraRoom"
-                                checked={isExtraRoom}
-                                onChange={(e) => setIsExtraRoom(e.target.checked)}
-                                className="h-4 w-4 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)] border-gray-300 rounded"
-                            />
-                            <label htmlFor="isExtraRoom" className="ml-2 block text-sm text-[var(--text-primary)] font-medium">
-                                Extra Room
-                            </label>
-                        </div>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-elevation-5 border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2.5rem] max-w-2xl w-full mx-4 max-h-[90dvh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
+                <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col">
+                    <div className="mb-8 text-center relative">
+                        <h3 className="text-2xl font-black text-[var(--text-primary)] uppercase tracking-tighter">{editingClass ? t.edit : t.addClass}</h3>
+                        <p className="text-[0.65rem] text-[var(--text-secondary)] font-bold uppercase tracking-[0.2em] opacity-60 mt-1">Class Configuration</p>
                     </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label htmlFor="classNameEn" className="block text-sm font-medium text-[var(--text-secondary)]">{isExtraRoom ? 'Room Name (En)' : t.classNameEn}</label>
-                            <input type="text" id="classNameEn" value={nameEn} onChange={(e) => setNameEn(e.target.value)} className={inputStyleClasses} required />
-                        </div>
-                        <div>
-                            <label htmlFor="classNameUr" className="block text-sm font-medium text-[var(--text-secondary)]">{isExtraRoom ? 'Room Name (Ur)' : t.classNameUr}</label>
-                            <input type="text" id="classNameUr" value={nameUr} onChange={(e) => setNameUr(e.target.value)} className={`${inputStyleClasses} font-urdu`} dir="rtl" required />
-                        </div>
-                        
-                        {!isExtraRoom && (
-                            <>
-                                <div>
-                                    <label htmlFor="academicLevel" className="block text-sm font-medium text-[var(--text-secondary)]">{t.academicLevel}</label>
-                                    <select id="academicLevel" value={academicLevel} onChange={(e) => setAcademicLevel(e.target.value as any)} className={inputStyleClasses} required={!isExtraRoom}>
-                                        <option value="">{t.select}</option>
-                                        <option value="Primary">{t.primary}</option>
-                                        <option value="Elementary">{t.elementary}</option>
-                                        <option value="Secondary">{t.secondary}</option>
-                                        <option value="Higher Secondary">{t.higherSecondary}</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label htmlFor="classInCharge" className="block text-sm font-medium text-[var(--text-secondary)]">{t.classInCharge}</label>
-                                    <select id="classInCharge" value={inCharge} onChange={(e) => setInCharge(e.target.value)} className={inputStyleClasses} required={!isExtraRoom}>
-                                        <option value="">{t.selectTeacher}</option>
-                                        {teachers.map(teacher => <option key={teacher.id} value={teacher.id}>{teacher.nameEn}</option>)}
-                                    </select>
-                                </div>
-                            </>
-                        )}
-                        
-                        <div>
-                            <label htmlFor="roomNumber" className="block text-sm font-medium text-[var(--text-secondary)]">{t.roomNumber}</label>
-                            <input type="text" id="roomNumber" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} className={inputStyleClasses} required />
+
+                    <div className="space-y-6">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 bg-black/5 dark:bg-white/5 p-4 rounded-3xl">
+                            <div className="flex flex-col items-center">
+                                <label className={labelStyle}>Serial</label>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    value={serialNumber}
+                                    onChange={(e) => handleNumericChange(setSerialNumber, e.target.value, 2)}
+                                    className="w-20 text-center px-4 py-2 bg-white/80 dark:bg-black/40 border border-white/20 rounded-2xl text-lg font-mono font-bold focus:outline-none"
+                                    placeholder="00"
+                                />
+                            </div>
+
+                            <div className="flex flex-col items-center">
+                                <label className={labelStyle}>Is Extra Room?</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsExtraRoom(!isExtraRoom)}
+                                    className={`relative w-14 h-8 rounded-full p-1 transition-colors duration-300 ${isExtraRoom ? 'bg-[var(--accent-primary)]' : 'bg-gray-300'}`}
+                                >
+                                    <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 transform ${isExtraRoom ? 'translate-x-6' : 'translate-x-0'}`} />
+                                </button>
+                            </div>
                         </div>
                         
-                        {!isExtraRoom && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label htmlFor="studentCount" className="block text-sm font-medium text-[var(--text-secondary)]">{t.studentCount}</label>
-                                <input type="number" id="studentCount" value={studentCount} onChange={(e) => setStudentCount(e.target.value)} className={inputStyleClasses} required={!isExtraRoom} />
+                                <label className={labelStyle}>{isExtraRoom ? 'Room Name (English)' : 'Class Name (English)'}</label>
+                                <input type="text" value={nameEn} onChange={(e) => setNameEn(e.target.value)} className={inputStyleClasses} placeholder={isExtraRoom ? "e.g. Lab 1" : "e.g. Grade 10"} required />
                             </div>
-                        )}
+                            <div>
+                                <label className={urduLabelStyle}>{isExtraRoom ? 'کمرے کا نام' : 'کلاس کا نام'}</label>
+                                <input 
+                                    type="text" 
+                                    value={nameUr} 
+                                    onChange={(e) => setNameUr(e.target.value)} 
+                                    className={inputStyleClasses + " text-right text-lg"} 
+                                    dir="rtl" 
+                                    style={{ fontFamily: 'system-ui, sans-serif' }}
+                                    placeholder={isExtraRoom ? "مثلاً کمپیوٹر لیب" : "مثلاً دہم"}
+                                    required 
+                                />
+                            </div>
+                            
+                            {!isExtraRoom ? (
+                                <>
+                                    <div>
+                                        <label className={labelStyle}>Section</label>
+                                        <input type="text" value={section} onChange={(e) => setSection(e.target.value)} className={inputStyleClasses} placeholder="e.g. A" />
+                                    </div>
+                                    <div>
+                                        <label className={labelStyle}>Academic Level</label>
+                                        <select value={academicLevel} onChange={(e) => setAcademicLevel(e.target.value as any)} className={inputStyleClasses} required>
+                                            <option value="">Select Level</option>
+                                            <option value="Primary">Primary</option>
+                                            <option value="Elementary">Elementary</option>
+                                            <option value="Secondary">Secondary</option>
+                                            <option value="Higher Secondary">Higher Secondary</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className={labelStyle}>Student Count (Max 3)</label>
+                                        <input 
+                                            type="text" 
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            value={studentCount} 
+                                            onChange={(e) => handleNumericChange(setStudentCount, e.target.value, 3)} 
+                                            className={inputStyleClasses + " font-mono"} 
+                                            placeholder="000"
+                                            required 
+                                        />
+                                    </div>
+                                </>
+                            ) : null}
 
-                        <div className={isExtraRoom ? '' : 'sm:col-span-2'}>
-                            <label htmlFor="serialNumber" className="block text-sm font-medium text-[var(--text-secondary)]">{t.serialNumber}</label>
-                            <input type="number" id="serialNumber" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} className={inputStyleClasses} />
-                        </div>
+                            <div>
+                                <label className={labelStyle}>Room Number (Max 2)</label>
+                                <input 
+                                    type="text" 
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    value={roomNumber} 
+                                    onChange={(e) => handleNumericChange(setRoomNumber, e.target.value, 2)} 
+                                    className={inputStyleClasses + " font-mono"} 
+                                    placeholder="00"
+                                    required 
+                                />
+                            </div>
 
-                        {isExtraRoom && (
+                            {!isExtraRoom && (
+                                <div className="sm:col-span-2">
+                                    <label className={labelStyle}>Incharge Teacher</label>
+                                    <select value={inCharge} onChange={(e) => setInCharge(e.target.value)} className={inputStyleClasses} required>
+                                        <option value="">Assign Teacher</option>
+                                        {teachers.map(teacher => <option key={teacher.id} value={teacher.id}>{teacher.nameEn} ({teacher.nameUr})</option>)}
+                                    </select>
+                                </div>
+                            )}
+
                             <div className="sm:col-span-2">
-                                <label htmlFor="comments" className="block text-sm font-medium text-[var(--text-secondary)]">Comments</label>
-                                <input type="text" id="comments" value={comments} onChange={(e) => setComments(e.target.value)} className={inputStyleClasses} />
+                                <label className={labelStyle}>Comments</label>
+                                <textarea 
+                                    value={comments} 
+                                    onChange={(e) => setComments(e.target.value)} 
+                                    className={inputStyleClasses + " h-20 resize-none"} 
+                                    placeholder="Optional notes about this class/room..."
+                                />
                             </div>
-                        )}
+                        </div>
                     </div>
                     
-                    <div className="flex justify-end space-x-4 pt-4 border-t border-[var(--border-primary)]">
-                        <button type="button" onClick={handleCancel} className="px-6 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)]">{t.cancel}</button>
-                        <button type="submit" className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-[1.25rem]  hover:bg-[var(--accent-primary-hover)]">{editingClass ? t.update : t.save}</button>
+                    <div className="mt-10 space-y-3">
+                        <button type="submit" className="w-full py-4 bg-[var(--accent-primary)] text-[var(--accent-text)] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary-hover)] hover:-translate-y-0.5 active:translate-y-0 transition-all">
+                            {editingClass ? t.update : 'Create Class'}
+                        </button>
+                        <button type="button" onClick={handleCancel} className="w-full py-2 text-[var(--text-secondary)] font-bold text-[0.65rem] uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">
+                            {t.cancel}
+                        </button>
                     </div>
                 </form>
             </div>

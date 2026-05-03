@@ -1,5 +1,9 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { colord, extend } from 'colord';
+import a11yPlugin from 'colord/plugins/a11y';
+extend([a11yPlugin]);
+
 import type { Language, Page, SchoolClass, Subject, Teacher, TimetableGridData, Adjustment, TimetableSession, UserData, SchoolConfig, DataEntryTab, Period, DownloadDesignConfig, DownloadDesigns, GroupSet, JointPeriod, LeaveDetails, PeriodTime, Break, AttendanceData, NavPosition, NavDesign, NavShape } from './types';
 import { translations } from './i18n';
 import HomePage from './components/HomePage';
@@ -15,10 +19,10 @@ import SideNavBar from './components/SideNavBar';
 import GlobalSearch from './components/GlobalSearch';
 import SchoolInfoModal from './components/SchoolInfoModal';
 
-export type Theme = 'light' | 'dark' | 'mint' | 'amoled';
+export type Theme = 'light' | 'dark' | 'mint' | 'amoled' | 'system';
 
 // Great Theme Presets
-const THEME_PRESETS: Record<Theme, { bgPrimary: string, bgSecondary: string, textPrimary: string, accentPrimary: string }> = {
+const THEME_PRESETS: Record<Exclude<Theme, 'system'>, { bgPrimary: string, bgSecondary: string, textPrimary: string, accentPrimary: string }> = {
     light: { bgPrimary: '#f8fafc', bgSecondary: '#ffffff', textPrimary: '#0f172a', accentPrimary: '#6366f1' }, // Indigo
     dark: { bgPrimary: '#0f172a', bgSecondary: '#1e293b', textPrimary: '#f8fafc', accentPrimary: '#8b5cf6' }, // Violet
     mint: { bgPrimary: '#f0fdfa', bgSecondary: '#ffffff', textPrimary: '#042f2e', accentPrimary: '#0d9488' }, // Teal
@@ -39,29 +43,39 @@ const adjustColor = (col: string, amt: number) => {
         col = col.slice(1);
         usePound = true;
     }
-    const num = parseInt(col, 16);
+    // Only take RGB parts if it's an 8-char hex
+    const hex = col.length === 8 ? col.slice(0, 6) : (col.length === 4 ? col[0]+col[0]+col[1]+col[1]+col[2]+col[2] : col);
+    const alpha = col.length === 8 ? col.slice(6, 8) : "";
+    
+    const num = parseInt(hex, 16);
     let r = (num >> 16) + amt;
-    if (r > 255) r = 255;
-    else if (r < 0) r = 0;
-    let b = ((num >> 8) & 0x00FF) + amt;
-    if (b > 255) b = 255;
-    else if (b < 0) b = 0;
-    let g = (num & 0x0000FF) + amt;
-    if (g > 255) g = 255;
-    else if (g < 0) g = 0;
-    return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
+    r = Math.max(0, Math.min(255, r));
+    let g = ((num >> 8) & 0x00FF) + amt;
+    g = Math.max(0, Math.min(255, g));
+    let b = (num & 0x0000FF) + amt;
+    b = Math.max(0, Math.min(255, b));
+    
+    return (usePound ? "#" : "") + 
+           r.toString(16).padStart(2, '0') + 
+           g.toString(16).padStart(2, '0') + 
+           b.toString(16).padStart(2, '0') + 
+           alpha;
 };
 
-const hexToRgba = (hex: string, alpha: number) => {
-    // Basic hex parsing
+const hexToRgba = (hex: string, alphaMultiplier: number) => {
+    if (!hex) return `rgba(0,0,0,${alphaMultiplier})`;
     let c = hex.substring(1).split('');
-    if(c.length === 3){
-        c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+    if (c.length === 3) {
+        c = [c[0], c[0], c[1], c[1], c[2], c[2]];
     }
     const r = parseInt(c.slice(0, 2).join(''), 16);
     const g = parseInt(c.slice(2, 4).join(''), 16);
     const b = parseInt(c.slice(4, 6).join(''), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    let a = 1.0;
+    if (c.length === 8) {
+        a = parseInt(c.slice(6, 8).join(''), 16) / 255;
+    }
+    return `rgba(${r}, ${g}, ${b}, ${a * alphaMultiplier})`;
 };
 
 const defaultDesignV3: DownloadDesignConfig = {
@@ -109,6 +123,12 @@ const defaultUserData: UserData = { timetableSessions: [], schoolConfig: { schoo
 
 interface ConfirmationModalProps { t: any; isOpen: boolean; onClose: () => void; onConfirm: () => void; title: string; message: React.ReactNode; }
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ t, isOpen, onClose, onConfirm, title, message }) => {
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+  
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[101] transition-opacity" onClick={onClose}>
@@ -122,37 +142,87 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ t, isOpen, onClos
 };
 
 const App: React.FC = () => {
+    const [history, setHistory] = useState<UserData[]>([defaultUserData]);
+    const [historyIndex, setHistoryIndex] = useState(0);
+    const [isUserDataLoaded, setIsUserDataLoaded] = useState(false);
+    const userData = history[historyIndex] || defaultUserData;
+
     const [theme, setTheme] = useState<Theme>(() => {
         let savedTheme = localStorage.getItem('mrtimetable_theme') as any;
         if (savedTheme === 'high-contrast') savedTheme = 'light'; // Fallback
         if (savedTheme === 'custom') savedTheme = 'light'; 
-        if (!['light', 'dark', 'mint', 'amoled'].includes(savedTheme)) savedTheme = 'light';
+        if (!['light', 'dark', 'mint', 'amoled', 'system'].includes(savedTheme)) savedTheme = 'light';
         return (savedTheme as Theme) || 'light';
     });
-    
+
+    // Consolidate Theme Resolution
+    const resolveTheme = useCallback((t: Theme): 'light' | 'dark' | 'mint' | 'amoled' => {
+        if (t === 'system') {
+            try {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            } catch (e) {
+                return 'light'; // Fallback
+            }
+        }
+        return t as any;
+    }, []);
+
+    // Track the actual effective theme
+    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark' | 'mint' | 'amoled'>(() => resolveTheme(theme));
+
     const [themeColors, setThemeColors] = useState<ThemeColors>(() => {
-        const saved = localStorage.getItem(`mrtimetable_themeColors_${theme}`);
-        return saved ? JSON.parse(saved) : THEME_PRESETS[theme];
+        const activeTheme = resolveTheme(theme);
+        const saved = localStorage.getItem(`mrtimetable_themeColors_${activeTheme}`);
+        return saved ? JSON.parse(saved) : THEME_PRESETS[activeTheme as keyof typeof THEME_PRESETS];
     });
+
+    // Listen for system theme changes & update resolution
+    useEffect(() => {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const updateTheme = () => {
+            if (theme === 'system') {
+                const newResolved = mq.matches ? 'dark' : 'light';
+                setResolvedTheme(newResolved);
+                
+                const saved = localStorage.getItem(`mrtimetable_themeColors_${newResolved}`);
+                setThemeColors(saved ? JSON.parse(saved) : THEME_PRESETS[newResolved]);
+            } else {
+                setResolvedTheme(theme as any);
+            }
+        };
+
+        mq.addEventListener('change', updateTheme);
+        // Only run if system is active to avoid resetting user choice on mount
+        if (theme === 'system') updateTheme(); 
+        return () => mq.removeEventListener('change', updateTheme);
+    }, [theme]);
 
     const handleThemeChange = (newTheme: Theme) => {
         setTheme(newTheme);
-        const saved = localStorage.getItem(`mrtimetable_themeColors_${newTheme}`);
-        setThemeColors(saved ? JSON.parse(saved) : THEME_PRESETS[newTheme]);
+        localStorage.setItem('mrtimetable_theme', newTheme);
+        
+        let targetTheme = newTheme;
+        if (newTheme === 'system') {
+            targetTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        
+        const saved = localStorage.getItem(`mrtimetable_themeColors_${targetTheme}`);
+        setThemeColors(saved ? JSON.parse(saved) : THEME_PRESETS[targetTheme as keyof typeof THEME_PRESETS]);
     };
 
     const handleColorChange = (key: keyof ThemeColors, value: string) => {
         setThemeColors(prev => {
             const newColors = { ...prev, [key]: value };
-            localStorage.setItem(`mrtimetable_themeColors_${theme}`, JSON.stringify(newColors));
+            // Save to the currently ACTIVE theme slot (the resolved one)
+            localStorage.setItem(`mrtimetable_themeColors_${resolvedTheme}`, JSON.stringify(newColors));
             return newColors;
         });
     };
 
     const resetThemeColors = () => {
-        const defaults = THEME_PRESETS[theme];
+        const defaults = THEME_PRESETS[resolvedTheme];
         setThemeColors(defaults);
-        localStorage.removeItem(`mrtimetable_themeColors_${theme}`);
+        localStorage.removeItem(`mrtimetable_themeColors_${resolvedTheme}`);
     };
 
     const [language, setLanguage] = useState<Language>(() => (localStorage.getItem('mrtimetable_language') as Language) || 'en');
@@ -166,71 +236,149 @@ const App: React.FC = () => {
     const [navBarColor, setNavBarColor] = useState<string>(() => (localStorage.getItem('mrtimetable_navBarColor') || ''));
 
     const [fontSize, setFontSize] = useState<number>(() => { const saved = localStorage.getItem('mrtimetable_fontSize'); return saved ? parseInt(saved, 10) : 13; });
-    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || 'Gulzar'));
+    const [appFont, setAppFont] = useState<string>(() => (localStorage.getItem('mrtimetable_appFont') || ''));
     const [isSchoolInfoModalOpen, setIsSchoolInfoModalOpen] = useState(false);
 
-    const [history, setHistory] = useState<UserData[]>(() => {
-        const saved = localStorage.getItem('mrtimetable_userData');
-        let dataToLoad: UserData;
-        try { dataToLoad = saved ? JSON.parse(saved) : defaultUserData; } catch (e) { dataToLoad = defaultUserData; }
-        if (!dataToLoad.schoolConfig.daysConfig) dataToLoad.schoolConfig.daysConfig = defaultUserData.schoolConfig.daysConfig;
-        if (!dataToLoad.schoolConfig.periodTimings) dataToLoad.schoolConfig.periodTimings = defaultUserData.schoolConfig.periodTimings;
-        if (!dataToLoad.schoolConfig.breaks) dataToLoad.schoolConfig.breaks = defaultUserData.schoolConfig.breaks;
-        if (!dataToLoad.schoolConfig.assembly) dataToLoad.schoolConfig.assembly = defaultUserData.schoolConfig.assembly;
-        if (!dataToLoad.schoolConfig.downloadDesigns.workload) dataToLoad.schoolConfig.downloadDesigns.workload = defaultUserData.schoolConfig.downloadDesigns.workload;
-        if (!dataToLoad.schoolConfig.downloadDesigns.adjustments) dataToLoad.schoolConfig.downloadDesigns.adjustments = defaultDownloadDesigns.adjustments;
-        if (!dataToLoad.schoolConfig.downloadDesigns.attendance) dataToLoad.schoolConfig.downloadDesigns.attendance = defaultDownloadDesigns.attendance;
-        if (dataToLoad.schoolConfig.downloadDesigns.alternative.table.verticalAlign === undefined) dataToLoad.schoolConfig.downloadDesigns.alternative.table.verticalAlign = 'middle';
-        
-        if (dataToLoad.schoolConfig.downloadDesigns.schoolTimings) {
-             const st = dataToLoad.schoolConfig.downloadDesigns.schoolTimings;
-             if (st.table.periodColumnBgColor === '#f1f5f9') {
-                st.table.periodColumnBgColor = '#86efac';
-             }
-             if (st.header.schoolName.fontFamily === ('Roboto' as any) && st.header.schoolName.fontSize === 24) {
-                 st.header.schoolName.fontFamily = 'sans-serif';
-                 st.header.schoolName.fontSize = 51;
-             }
-             if (!st.table.borderWidth || st.table.borderWidth === 1) {
-                 st.table.borderWidth = 3;
-             }
-             // Migration: Increase header font size if it's below the new default
-             if (!st.table.headerFontSize || st.table.headerFontSize < 44) {
-                 st.table.headerFontSize = 44;
-             }
-             // Migration: Update default font size from 34 to 32
-             if (st.table.fontSize === 34) {
-                 st.table.fontSize = 32;
-             }
-             // Ensure minimum font size is reasonable
-             if (!st.table.fontSize || st.table.fontSize < 32) {
-                 st.table.fontSize = 32;
-             }
-        }
+    const [customFontsData, setCustomFontsData] = useState<Record<string, string>>({}); // Map of id -> base64 data
 
-        if (dataToLoad.schoolConfig.schoolLogoBase64 === transparentPixel) {
-            dataToLoad.schoolConfig.schoolLogoBase64 = null;
-        }
+    useEffect(() => {
+        import('idb-keyval').then(({ get, set }) => {
+            get<UserData>('mrtimetable_userData').then(async (saved) => {
+                let dataToLoad: UserData;
+                if (!saved) {
+                    const localSaved = localStorage.getItem('mrtimetable_userData');
+                    try { 
+                        dataToLoad = localSaved ? JSON.parse(localSaved) : defaultUserData; 
+                    } catch (e) { 
+                        dataToLoad = defaultUserData; 
+                    }
+                    if (localSaved) {
+                        try { localStorage.removeItem('mrtimetable_userData'); } catch (e) {}
+                    }
+                } else {
+                    dataToLoad = saved;
+                }
+                
+                // Data Fixes (Unchanged)
+                if (!dataToLoad.schoolConfig.daysConfig) dataToLoad.schoolConfig.daysConfig = defaultUserData.schoolConfig.daysConfig;
+                if (!dataToLoad.schoolConfig.periodTimings) dataToLoad.schoolConfig.periodTimings = defaultUserData.schoolConfig.periodTimings;
+                if (!dataToLoad.schoolConfig.breaks) dataToLoad.schoolConfig.breaks = defaultUserData.schoolConfig.breaks;
+                if (!dataToLoad.schoolConfig.assembly) dataToLoad.schoolConfig.assembly = defaultUserData.schoolConfig.assembly;
+                if (!dataToLoad.schoolConfig.downloadDesigns.workload) dataToLoad.schoolConfig.downloadDesigns.workload = defaultUserData.schoolConfig.downloadDesigns.workload;
+                if (!dataToLoad.schoolConfig.downloadDesigns.adjustments) dataToLoad.schoolConfig.downloadDesigns.adjustments = defaultDownloadDesigns.adjustments;
+                if (!dataToLoad.schoolConfig.downloadDesigns.attendance) dataToLoad.schoolConfig.downloadDesigns.attendance = defaultDownloadDesigns.attendance;
+                
+                // ... (existing fixes)
+                if (dataToLoad.schoolConfig.downloadDesigns.alternative.table.verticalAlign === undefined) dataToLoad.schoolConfig.downloadDesigns.alternative.table.verticalAlign = 'middle';
+                
+                // Font Migration: Extract data from schoolConfig.customFonts to separate store
+                const fontsWithData = dataToLoad.schoolConfig.customFonts?.filter(f => f.data);
+                if (fontsWithData && fontsWithData.length > 0) {
+                    const newFontsData: Record<string, string> = {};
+                    const currentFontsStore = await get<Record<string, string>>('mrtimetable_customFontsData') || {};
+                    
+                    fontsWithData.forEach(f => {
+                        newFontsData[f.id] = f.data;
+                        // Remote data from metadata to keep UserData slim
+                        delete (f as any).data;
+                    });
+                    
+                    const mergedFontsData = { ...currentFontsStore, ...newFontsData };
+                    await set('mrtimetable_customFontsData', mergedFontsData);
+                    setCustomFontsData(mergedFontsData);
+                    
+                    // Save the slimmed down UserData back to IDB immediately
+                    await set('mrtimetable_userData', dataToLoad);
+                } else {
+                    // background load fonts if they were already split
+                    get<Record<string, string>>('mrtimetable_customFontsData').then(fonts => {
+                        if (fonts) setCustomFontsData(fonts);
+                    });
+                }
 
-        dataToLoad.timetableSessions.forEach(session => {
-            if (!session.subjects) session.subjects = []; if (!session.teachers) session.teachers = []; if (!session.classes) session.classes = []; if (!session.jointPeriods) session.jointPeriods = []; if (!session.leaveDetails) session.leaveDetails = {}; if (!session.adjustments) session.adjustments = {};
-            if (!session.daysConfig) session.daysConfig = dataToLoad.schoolConfig.daysConfig; if (!session.periodTimings) session.periodTimings = dataToLoad.schoolConfig.periodTimings; if (!session.breaks) session.breaks = dataToLoad.schoolConfig.breaks; if (!session.assembly) session.assembly = dataToLoad.schoolConfig.assembly;
-            if (!session.vacations) session.vacations = []; // Init Vacations
-            if (!session.changeLogs) session.changeLogs = []; // Init Change Logs
-            session.teachers.forEach(teacher => { if (!(teacher as any).gender) (teacher as any).gender = 'Male'; delete (teacher as any).designation; delete (teacher as any).qualification; });
-            session.classes.forEach(c => { if (!c.timetable) { c.timetable = { Monday: Array.from({ length: 8 }, () => []), Tuesday: Array.from({ length: 8 }, () => []), Wednesday: Array.from({ length: 8 }, () => []), Thursday: Array.from({ length: 8 }, () => []), Friday: Array.from({ length: 8 }, () => []), Saturday: Array.from({ length: 8 }, () => []) }; } else { if (!c.timetable.Saturday) c.timetable.Saturday = Array.from({ length: 8 }, () => []); } if (!c.subjects || !Array.isArray(c.subjects)) c.subjects = []; c.subjects.forEach(s => { if ((s as any).combinedGroupId) delete (s as any).combinedGroupId; }); });
+                if (dataToLoad.schoolConfig.downloadDesigns.schoolTimings) {
+                     const st = dataToLoad.schoolConfig.downloadDesigns.schoolTimings;
+                     if (st.table.periodColumnBgColor === '#f1f5f9') {
+                        st.table.periodColumnBgColor = '#86efac';
+                     }
+                     if (st.header.schoolName.fontFamily === ('Roboto' as any) && st.header.schoolName.fontSize === 24) {
+                         st.header.schoolName.fontFamily = 'sans-serif';
+                         st.header.schoolName.fontSize = 51;
+                     }
+                     if (!st.table.borderWidth || st.table.borderWidth === 1) {
+                         st.table.borderWidth = 3;
+                     }
+                     if (!st.table.headerFontSize || st.table.headerFontSize < 44) {
+                         st.table.headerFontSize = 44;
+                     }
+                     if (st.table.fontSize === 34) {
+                         st.table.fontSize = 32;
+                     }
+                     if (!st.table.fontSize || st.table.fontSize < 32) {
+                         st.table.fontSize = 32;
+                     }
+                }
+
+                if (dataToLoad.schoolConfig.schoolLogoBase64 === transparentPixel) {
+                    dataToLoad.schoolConfig.schoolLogoBase64 = null;
+                }
+
+                dataToLoad.timetableSessions.forEach(session => {
+                    const sc = dataToLoad.schoolConfig;
+                    session.subjects = session.subjects || [];
+                    session.teachers = session.teachers || [];
+                    session.classes = session.classes || [];
+                    session.jointPeriods = session.jointPeriods || [];
+                    session.leaveDetails = session.leaveDetails || {};
+                    session.adjustments = session.adjustments || {};
+                    session.daysConfig = session.daysConfig || sc.daysConfig;
+                    session.periodTimings = session.periodTimings || sc.periodTimings;
+                    session.breaks = session.breaks || sc.breaks;
+                    session.assembly = session.assembly || sc.assembly;
+                    session.vacations = session.vacations || [];
+                    session.changeLogs = session.changeLogs || [];
+                    
+                    session.classes.forEach(c => {
+                        if (!c.timetable) {
+                            c.timetable = { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [] };
+                            allDays.forEach(day => { c.timetable[day] = Array.from({ length: 8 }, () => []); });
+                        } else if (!c.timetable.Saturday) {
+                            c.timetable.Saturday = Array.from({ length: 8 }, () => []);
+                        }
+                        if (!c.subjects || !Array.isArray(c.subjects)) c.subjects = [];
+                    });
+                });
+                
+                setHistory([dataToLoad]);
+                setHistoryIndex(0);
+                setIsUserDataLoaded(true);
+            }).catch((err) => {
+                console.error("Failed to load user data from IDB", err);
+                setHistory([defaultUserData]);
+                setHistoryIndex(0);
+                setIsUserDataLoaded(true);
+            });
         });
-        return [dataToLoad];
-    });
+    }, []);
     
-    const [historyIndex, setHistoryIndex] = useState(0);
-    const userData = history[historyIndex];
+    useEffect(() => {
+        const handleSaveOnUnload = () => {
+            // Use synchronous local storage as backup if IDB fails or is async
+            localStorage.setItem('mrtimetable_save_pending', 'true');
+        };
+        window.addEventListener('beforeunload', handleSaveOnUnload);
+        return () => window.removeEventListener('beforeunload', handleSaveOnUnload);
+    }, [userData]);
 
     const setUserData = useCallback((action: UserData | ((prev: UserData) => UserData)) => {
         const newData = typeof action === 'function' ? action(userData) : action;
         const newHistory = history.slice(0, historyIndex + 1);
         newHistory.push(newData);
-        if (newHistory.length > 50) newHistory.shift();
+        
+        // Optimize history for large data (fonts)
+        const maxHistory = (newData.schoolConfig.customFonts?.length || 0) > 0 ? 5 : 20;
+        if (newHistory.length > maxHistory) newHistory.shift();
+        
         setHistory(newHistory);
         setHistoryIndex(newHistory.length - 1);
     }, [userData, history, historyIndex]);
@@ -277,11 +425,16 @@ const App: React.FC = () => {
     const t = translations[language];
 
     useEffect(() => {
-        document.documentElement.className = theme;
-        localStorage.setItem('mrtimetable_theme', theme);
+        // Use resolvedTheme (light/dark/etc) for classes
+        document.documentElement.className = resolvedTheme;
+        
         const { bgPrimary, bgSecondary, textPrimary, accentPrimary } = themeColors;
-        const isLight = parseInt(bgPrimary.slice(1), 16) > 0xffffff / 2;
+        
+        // Use colord for accurate luminosity-based shifts
+        const bg = colord(bgPrimary);
+        const isLight = bg.isLight();
         const contrastShift = isLight ? 60 : -60;
+        
         const textSecondary = adjustColor(textPrimary, contrastShift); 
         const textPlaceholder = adjustColor(textPrimary, isLight ? 100 : -100);
         const bgTertiary = adjustColor(bgSecondary, isLight ? -5 : 10);
@@ -290,7 +443,7 @@ const App: React.FC = () => {
         const accentPrimaryHover = adjustColor(accentPrimary, -20);
         const accentSecondary = hexToRgba(accentPrimary, 0.1);
         const accentSecondaryHover = hexToRgba(accentPrimary, 0.15);
-        const accentText = isLight ? '#ffffff' : (theme === 'amoled' || theme === 'dark' ? '#ffffff' : '#ffffff');
+        const accentText = colord(accentPrimary).isDark() ? '#ffffff' : '#000000'; 
         const slotAvailableBg = hexToRgba(accentPrimary, 0.1);
         const slotConflictBg = 'rgba(239, 68, 68, 0.15)'; 
         const slotDisabledBg = bgTertiary;
@@ -301,6 +454,7 @@ const App: React.FC = () => {
 
         style.innerHTML = `
             :root {
+                --theme-mode: "${resolvedTheme}";
                 --bg-primary: ${bgPrimary} !important;
                 --bg-secondary: ${bgSecondary} !important;
                 --bg-tertiary: ${bgTertiary} !important;
@@ -322,7 +476,7 @@ const App: React.FC = () => {
                 --subject-default-border: ${borderSecondary} !important;
             }
         `;
-    }, [theme, themeColors]);
+    }, [resolvedTheme, themeColors]);
 
     useEffect(() => { document.documentElement.lang = language; document.documentElement.dir = language === 'ur' ? 'rtl' : 'ltr'; localStorage.setItem('mrtimetable_language', language); }, [language]);
     useEffect(() => { const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement; if (link) { link.href = userData.schoolConfig.schoolLogoBase64 || '/vite.svg'; } }, [userData.schoolConfig.schoolLogoBase64]);
@@ -343,13 +497,81 @@ const App: React.FC = () => {
         
         style.innerHTML = `:root { --font-app-primary: ${appFont ? `'${appFont}', sans-serif` : 'sans-serif'}; } body { font-family: var(--font-app-primary); } button, input, select, textarea { font-family: var(--font-app-primary); }`;
     }, [appFont]);
+
+    useEffect(() => {
+        const customFonts = userData.schoolConfig.customFonts;
+        if (!customFonts || customFonts.length === 0) return;
+
+        const styleId = 'custom-fonts-style';
+        let styleNode = document.getElementById(styleId);
+        if (!styleNode) {
+            styleNode = document.createElement('style');
+            styleNode.id = styleId;
+            document.head.appendChild(styleNode);
+        }
+
+        // Only update if the number of fonts or their IDs change OR data becomes available
+        const currentFontIds = customFonts.map(f => f.id).join(',');
+        const availableDataIds = Object.keys(customFontsData).join(',');
+        const cacheKey = `${currentFontIds}|${availableDataIds}`;
+        
+        if (styleNode.getAttribute('data-cache-key') === cacheKey) return;
+        
+        styleNode.setAttribute('data-cache-key', cacheKey);
+
+        const cssRules = customFonts.map(font => {
+            const fontData = customFontsData[font.id];
+            if (!fontData) return ''; // Skip if data not loaded yet
+            
+            const format = font.type === 'ttf' ? 'truetype' : 
+                          font.type === 'otf' ? 'opentype' : 
+                          font.type === 'woff' ? 'woff' : 
+                          font.type === 'woff2' ? 'woff2' : font.type;
+            return `
+                @font-face {
+                    font-family: '${font.name}';
+                    src: url('${fontData}') format('${format}');
+                    font-weight: normal;
+                    font-style: normal;
+                    font-display: swap;
+                }
+            `;
+        }).filter(Boolean).join('\n');
+
+        styleNode.innerHTML = cssRules;
+    }, [userData.schoolConfig.customFonts, customFontsData]);
     
     useEffect(() => {
-        const timer = setTimeout(() => {
-            localStorage.setItem('mrtimetable_userData', JSON.stringify(userData));
-        }, 1000);
+        if (!isUserDataLoaded) return;
+        const syncFonts = async () => {
+            const { get } = await import('idb-keyval');
+            const fontsData = await get<Record<string, string>>('mrtimetable_customFontsData');
+            if (fontsData) {
+                setCustomFontsData(fontsData);
+            }
+        };
+        syncFonts();
+    }, [userData.schoolConfig.customFonts, isUserDataLoaded]);
+    
+    useEffect(() => {
+        if (!isUserDataLoaded) return;
+        
+        const saveToStorage = async () => {
+            try {
+                const { set } = await import('idb-keyval');
+                await set('mrtimetable_userData', userData);
+            } catch (e) {
+                console.error('Storage quota exceeded or error:', e);
+                // Only alert on quota, ignore other transient errors to not interrupt user
+                if (e instanceof Error && e.message.includes('Quota')) {
+                    alert("Storage limit exceeded. Try deleting custom fonts or using smaller font files.");
+                }
+            }
+        };
+
+        const timer = setTimeout(saveToStorage, 3000);
         return () => clearTimeout(timer);
-    }, [userData]);
+    }, [userData, isUserDataLoaded]);
     useEffect(() => { if (currentTimetableSessionId) localStorage.setItem('mrtimetable_currentTimetableSessionId', currentTimetableSessionId); else localStorage.removeItem('mrtimetable_currentTimetableSessionId'); }, [currentTimetableSessionId]);
     useEffect(() => { if (userData.timetableSessions.length > 0) { const sessionExists = userData.timetableSessions.some(s => s.id === currentTimetableSessionId); if (!sessionExists) setCurrentTimetableSessionId(userData.timetableSessions[0].id); } else { if (currentTimetableSessionId !== null) setCurrentTimetableSessionId(null); } }, [userData, currentTimetableSessionId]);
 
@@ -413,6 +635,14 @@ const App: React.FC = () => {
             case 'home': default: return <HomePage t={t} language={language} setCurrentPage={setCurrentPage} currentTimetableSessionId={currentTimetableSessionId} timetableSessions={userData.timetableSessions} setCurrentTimetableSessionId={setCurrentTimetableSessionId} onCreateTimetableSession={handleCreateTimetableSession} onUpdateTimetableSession={handleUpdateTimetableSession} onDeleteTimetableSession={handleDeleteTimetableSession} onUploadTimetableSession={handleUploadTimetableSession} schoolConfig={effectiveSchoolConfig} onUpdateCurrentSession={updateCurrentSession} onSearchResultClick={handleSearchResultClick} onUpdateSchoolConfig={handleUpdateSchoolConfig} onOpenSchoolInfo={() => setIsSchoolInfoModalOpen(true)} />;
         }
     };
+
+    if (!isUserDataLoaded) {
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg-primary)] z-50">
+                <div className="text-[var(--text-primary)] font-bold animate-pulse text-lg tracking-widest uppercase">Loading Timetable...</div>
+            </div>
+        );
+    }
 
     return (
         <>

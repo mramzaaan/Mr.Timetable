@@ -51,6 +51,18 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Prevent background scroll when open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const isMultiItemMode = !!items;
 
   useEffect(() => {

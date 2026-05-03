@@ -15,6 +15,7 @@ interface AddSubjectFormProps {
 }
 
 const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubject, onUpdateSubject, onDeleteSubject, triggerOpenForm }) => {
+  const [serial, setSerial] = useState('');
   const [nameEn, setNameEn] = useState('');
   const [nameUr, setNameUr] = useState('');
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
@@ -32,6 +33,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
   }, [triggerOpenForm]);
 
   const resetForm = () => {
+    setSerial('');
     setNameEn('');
     setNameUr('');
   }
@@ -39,6 +41,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
   useEffect(() => {
     if (editingSubject) {
       setIsFormOpen(true);
+      setSerial(editingSubject.serialNumber?.toString() || '');
       setNameEn(editingSubject.nameEn);
       setNameUr(editingSubject.nameUr);
     } else {
@@ -56,6 +59,14 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
     resetForm();
   };
 
+  const handleSerialChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow digits, max 2 chars
+    if (/^\d{0,2}$/.test(value)) {
+      setSerial(value);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nameEn || !nameUr) {
@@ -65,13 +76,14 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
 
     const trimmedNameEn = nameEn.trim();
     const trimmedNameUr = nameUr.trim();
+    const serialValue = serial ? parseInt(serial, 10) : undefined;
 
     const duplicateEn = subjects.find(
       s => s.nameEn.toLowerCase() === trimmedNameEn.toLowerCase() && s.id !== editingSubject?.id
     );
 
     if (duplicateEn) {
-      alert(t.subjectNameEnExists);
+      alert(t.subjectNameEnExists || 'Subject name (English) already exists.');
       return;
     }
 
@@ -80,25 +92,24 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
     );
 
     if (duplicateUr) {
-      alert(t.subjectNameUrExists);
+      alert(t.subjectNameUrExists || 'Subject name (Urdu) already exists.');
       return;
     }
     
     const subjectData: Partial<Subject> = {
+        serialNumber: serialValue,
         nameEn: trimmedNameEn,
         nameUr: trimmedNameUr,
     };
 
     if (editingSubject) {
-        onUpdateSubject({ ...editingSubject, ...subjectData });
-        alert('Subject updated successfully!');
+        onUpdateSubject({ ...editingSubject, ...subjectData } as Subject);
         setEditingSubject(null);
     } else {
         onAddSubject({
             id: generateUniqueId(),
             ...subjectData,
         } as Subject);
-        alert('Subject added successfully!');
         resetForm();
     }
     setIsFormOpen(false);
@@ -110,7 +121,11 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
 
   const sortedSubjects = React.useMemo(() => {
     return [...subjects].sort((a, b) => {
-        if (sortBy === 'serial') return 0; // Subjects might not have serial number in type, defaulting to insertion order or add if needed. Assuming no serial for now or just index.
+        if (sortBy === 'serial') {
+            const serialA = a.serialNumber ?? 999;
+            const serialB = b.serialNumber ?? 999;
+            return serialA - serialB;
+        }
         if (sortBy === 'nameEn') return a.nameEn.localeCompare(b.nameEn);
         if (sortBy === 'nameUr') return a.nameUr.localeCompare(b.nameUr);
         return 0;
@@ -123,42 +138,66 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
     <div>
       {isFormOpen && createPortal(
         <div className="fixed inset-0 w-screen h-[100dvh] bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[200] transition-opacity" onClick={handleCancel}>
-            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem] max-w-lg w-full mx-4 max-h-[90dvh] overflow-y-auto custom-scrollbar" onClick={e => e.stopPropagation()}>
-                <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-                    <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">{editingSubject ? t.edit : t.addSubject}</h3>
-                    <div className="grid grid-cols-1 gap-6">
-                        <div>
-                            <label htmlFor="subjectNameEn" className="block text-sm font-medium text-[var(--text-secondary)]">{t.subjectNameEn}</label>
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 p-6 sm:p-8 rounded-[2rem] max-w-lg w-full mx-4 max-h-[90dvh] overflow-y-auto custom-scrollbar shadow-elevation-5" onClick={e => e.stopPropagation()}>
+                <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col">
+                    <div className="mb-6 text-center">
+                        <h3 className="text-xl font-bold text-[var(--text-primary)]">{editingSubject ? t.edit : t.addSubject}</h3>
+                        <p className="text-xs text-[var(--text-secondary)] mt-1 opacity-70">Minimalist Subject Entry</p>
+                    </div>
+
+                    <div className="space-y-5 flex-grow">
+                        {/* Serial Number - Small Field */}
+                        <div className="flex flex-col items-center">
+                            <label htmlFor="serialNumber" className="block text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1">Serial</label>
                             <input
-                            type="text"
-                            id="subjectNameEn"
-                            value={nameEn}
-                            onChange={(e) => setNameEn(e.target.value)}
-                            className={inputStyleClasses}
-                            required
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              id="serialNumber"
+                              value={serial}
+                              onChange={handleSerialChange}
+                              className={`${inputStyleClasses} w-20 text-center font-mono text-lg`}
+                              placeholder="00"
+                              autoFocus
                             />
                         </div>
-                        <div>
-                            <label htmlFor="subjectNameUr" className="block text-sm font-medium text-[var(--text-secondary)]">{t.subjectNameUr}</label>
-                            <input
-                            type="text"
-                            id="subjectNameUr"
-                            value={nameUr}
-                            onChange={(e) => setNameUr(e.target.value)}
-                            className={`${inputStyleClasses} font-urdu`}
-                            dir="rtl"
-                            placeholder="مثلاً ریاضی"
-                            required
-                            />
+
+                        <div className="grid grid-cols-1 gap-5">
+                            <div>
+                                <label htmlFor="subjectNameEn" className="block text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1">Subject Name (English)</label>
+                                <input
+                                  type="text"
+                                  id="subjectNameEn"
+                                  value={nameEn}
+                                  onChange={(e) => setNameEn(e.target.value)}
+                                  className={inputStyleClasses}
+                                  placeholder="e.g. Mathematics"
+                                  required
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="subjectNameUr" className="block text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1">Subject Name (Urdu)</label>
+                                <input
+                                  type="text"
+                                  id="subjectNameUr"
+                                  value={nameUr}
+                                  onChange={(e) => setNameUr(e.target.value)}
+                                  className={`${inputStyleClasses} text-right text-lg`}
+                                  style={{ fontFamily: 'system-ui, sans-serif' }}
+                                  dir="rtl"
+                                  placeholder="مثلاً ریاضی"
+                                  required
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex justify-end space-x-4 pt-4">
-                        <button type="button" onClick={handleCancel} className="px-6 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-[1.25rem] hover:bg-[var(--accent-secondary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors">
-                            {t.cancel}
-                        </button>
-                        <button type="submit" className="px-6 py-2 bg-[var(--accent-primary)] text-[var(--accent-text)] font-semibold rounded-[1.25rem]  hover:bg-[var(--accent-primary-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)] transition-colors">
+                    <div className="mt-8">
+                        <button type="submit" className="w-full py-3.5 bg-[var(--accent-primary)] text-[var(--accent-text)] font-black uppercase tracking-widest text-xs rounded-[1.25rem] shadow-xl shadow-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary-hover)] hover:-translate-y-0.5 active:translate-y-0 transition-all">
                             {editingSubject ? t.update : t.save}
+                        </button>
+                        <button type="button" onClick={handleCancel} className="w-full mt-3 py-2 text-[var(--text-secondary)] font-bold text-[0.65rem] uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">
+                            {t.cancel}
                         </button>
                     </div>
                 </form>
@@ -195,7 +234,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
                             return (
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-lg font-bold">
-                                        {index + 1}
+                                        {s.serialNumber || index + 1}
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-gray-900 text-base">{s.nameEn}</h4>

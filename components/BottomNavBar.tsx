@@ -95,7 +95,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
 
   return (
     <div className={`block md:landscape:hidden lg:hidden fixed bottom-6 left-4 right-4 z-50 transition-transform duration-300 ${isCollapsed ? 'translate-y-[200%]' : 'translate-y-0'}`}>
-      <div className="w-full bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 h-16 rounded-full flex items-center justify-between px-2 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="w-full bg-[var(--bg-secondary)] backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[var(--border-primary)] h-16 rounded-full flex items-center justify-between px-2 relative overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         
         {navItems.map((item) => {
             const isActive = item.page === currentPage;

@@ -26,6 +26,18 @@ const XIcon = () => (
 export const PositionSettingsModal: React.FC<PositionSettingsModalProps> = ({
     isOpen, onClose, title, item1Label, item2Label, item1Pos, setItem1Pos, item2Pos, setItem2Pos
 }) => {
+    // Prevent background scroll when open
+    React.useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const renderGrid = (currentPos: Position, setPos: (pos: Position) => void, activeColor: string) => {

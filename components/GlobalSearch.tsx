@@ -44,6 +44,26 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ t, language, classes, teach
     const inputRef = useRef<HTMLInputElement>(null);
 
     const allData = useMemo<SearchResult[]>(() => {
+        // 1. Build period maps in a single pass over classes
+        const teacherPeriodsMap = new Map<string, number>();
+        const subjectPeriodsMap = new Map<string, number>();
+        const classPeriodsMap = new Map<string, number>();
+
+        classes.forEach(c => {
+            let classTotal = 0;
+            c.subjects.forEach(s => {
+                const periods = s.periodsPerWeek || 0;
+                classTotal += periods;
+                if (s.teacherId) {
+                    teacherPeriodsMap.set(s.teacherId, (teacherPeriodsMap.get(s.teacherId) || 0) + periods);
+                }
+                if (s.subjectId) {
+                    subjectPeriodsMap.set(s.subjectId, (subjectPeriodsMap.get(s.subjectId) || 0) + periods);
+                }
+            });
+            classPeriodsMap.set(c.id, classTotal);
+        });
+
         const classResults = classes.map(c => ({
             id: c.id,
             nameEn: c.nameEn,
@@ -51,41 +71,25 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ t, language, classes, teach
             type: 'class' as const,
             serialNumber: c.serialNumber,
             roomNumber: c.roomNumber,
-            totalPeriods: c.subjects.reduce((sum, s) => sum + s.periodsPerWeek, 0)
+            totalPeriods: classPeriodsMap.get(c.id) || 0
         }));
 
-        const teacherResults = teachers.map(t => {
-            const totalPeriods = classes.reduce((acc, c) => {
-                const classTeacherPeriods = c.subjects
-                    .filter(s => s.teacherId === t.id)
-                    .reduce((sum, s) => sum + s.periodsPerWeek, 0);
-                return acc + classTeacherPeriods;
-            }, 0);
-            return {
-                id: t.id,
-                nameEn: t.nameEn,
-                nameUr: t.nameUr,
-                type: 'teacher' as const,
-                serialNumber: t.serialNumber,
-                totalPeriods
-            };
-        });
+        const teacherResults = teachers.map(t => ({
+            id: t.id,
+            nameEn: t.nameEn,
+            nameUr: t.nameUr,
+            type: 'teacher' as const,
+            serialNumber: t.serialNumber,
+            totalPeriods: teacherPeriodsMap.get(t.id) || 0
+        }));
 
-        const subjectResults = subjects.map(s => {
-             const totalPeriods = classes.reduce((acc, c) => {
-                const classSubjectPeriods = c.subjects
-                    .filter(sub => sub.subjectId === s.id)
-                    .reduce((sum, sub) => sum + sub.periodsPerWeek, 0);
-                return acc + classSubjectPeriods;
-            }, 0);
-            return {
-                id: s.id,
-                nameEn: s.nameEn,
-                nameUr: s.nameUr,
-                type: 'subject' as const,
-                totalPeriods
-            };
-        });
+        const subjectResults = subjects.map(s => ({
+            id: s.id,
+            nameEn: s.nameEn,
+            nameUr: s.nameUr,
+            type: 'subject' as const,
+            totalPeriods: subjectPeriodsMap.get(s.id) || 0
+        }));
 
         return [...classResults, ...teacherResults, ...subjectResults];
     }, [classes, teachers, subjects]);

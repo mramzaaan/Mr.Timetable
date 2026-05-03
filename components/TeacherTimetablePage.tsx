@@ -7,7 +7,7 @@ import TeacherAvailabilitySummary from './TeacherAvailabilitySummary';
 import PrintPreview from './PrintPreview';
 import { TeacherCommunicationModal } from './TeacherCommunicationModal';
 import DownloadModal from './DownloadModal';
-import { generateTeacherTimetableHtml, calculateWorkloadStats } from './reportUtils';
+import { generateTeacherTimetableHtml, calculateWorkloadStats, calculateAllTeachersWorkloadStats } from './reportUtils';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import AddLessonForm from './AddLessonForm';
 import { 
@@ -146,77 +146,62 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
   const maxPeriods = useMemo(() => Math.max(...activeDays.map(day => schoolConfig.daysConfig?.[day]?.periodCount ?? 8)), [activeDays, schoolConfig.daysConfig]);
   const periodLabels = useMemo(() => Array.from({length: maxPeriods}, (_, i) => (i + 1).toString()), [maxPeriods]);
 
-  // Memoize Teacher Period Counts for Sorting
+  // Memoize all teacher workload stats in a single pass
+  const allTeacherStats = useMemo(() => {
+    return calculateAllTeachersWorkloadStats(classes, teachers, jointPeriods, schoolConfig);
+  }, [classes, teachers, jointPeriods, schoolConfig]);
+
+  // Memoize Teacher Period Counts for Sorting using the pre-calculated stats
   const teacherPeriodCounts = useMemo(() => {
     const counts = new Map<string, number>();
     teachers.forEach(t => {
-        const stats = calculateWorkloadStats(t.id, classes, adjustments, leaveDetails, undefined, undefined, schoolConfig);
-        counts.set(t.id, stats.weeklyPeriods);
+        const stats = allTeacherStats.get(t.id);
+        counts.set(t.id, stats?.weeklyPeriods || 0);
     });
     return counts;
-  }, [teachers, classes, adjustments, leaveDetails, schoolConfig]);
+  }, [teachers, allTeacherStats]);
 
   const teacherUnscheduledCounts = useMemo(() => {
-      const counts = new Map<string, number>();
-      teachers.forEach(t => counts.set(t.id, 0));
-      
-      teachers.forEach(t => {
-          let totalAssigned = 0;
-          let scheduled = 0;
-          const jointPeriodScheduledSlots = new Map<string, Set<string>>();
-          
-          classes.forEach(c => {
-              if (c.id === NON_TEACHING_CLASS_ID) return;
-              c.subjects.forEach(sub => {
-                  if (sub.teacherId === t.id) {
-                      const isJoint = jointPeriods.some(jp => 
-                          jp.teacherId === t.id && 
-                          jp.assignments.some(a => a.classId === c.id && a.subjectId === sub.subjectId)
-                      );
-                      if (!isJoint) {
-                          totalAssigned += (sub.periodsPerWeek || 0);
-                      }
-                  }
-              });
-              
-              allDays.forEach(day => {
-                  const slots = c.timetable[day];
-                  if (Array.isArray(slots)) {
-                      slots.forEach((slot, periodIndex) => {
-                          if (Array.isArray(slot)) {
-                              slot.forEach(p => {
-                                  if (p.teacherId === t.id) {
-                                      if (p.jointPeriodId) {
-                                          if (!jointPeriodScheduledSlots.has(p.jointPeriodId)) {
-                                              jointPeriodScheduledSlots.set(p.jointPeriodId, new Set());
-                                          }
-                                          jointPeriodScheduledSlots.get(p.jointPeriodId)!.add(`${day}-${periodIndex}`);
-                                      } else {
-                                          scheduled++;
-                                      }
-                                  }
-                              });
-                          }
-                      });
-                  }
-              });
-          });
-          
-          jointPeriods.forEach(jp => {
-              if (jp.teacherId === t.id) {
-                  totalAssigned += (jp.periodsPerWeek || 0);
-              }
-          });
-          
-          let jointScheduled = 0;
-          jointPeriodScheduledSlots.forEach(slots => {
-              jointScheduled += slots.size;
-          });
-          
-          counts.set(t.id, Math.max(0, totalAssigned - (scheduled + jointScheduled)));
+    const counts = new Map<string, number>();
+    const totalAssignedMap = new Map<string, number>();
+    
+    // 1. Pre-calculate assigned periods from joint periods
+    jointPeriods.forEach(jp => {
+      const tid = jp.teacherId;
+      if (!tid) return;
+      totalAssignedMap.set(tid, (totalAssignedMap.get(tid) || 0) + (jp.periodsPerWeek || 0));
+    });
+
+    // 2. Pre-calculate which subject/class combinations are covered by joint periods
+    const jointCoverage = new Set<string>(); // "classId-subjectId"
+    jointPeriods.forEach(jp => {
+      jp.assignments.forEach(a => {
+        jointCoverage.add(`${a.classId}-${a.subjectId}`);
       });
-      return counts;
-  }, [classes, teachers, jointPeriods]);
+    });
+
+    // 3. Pre-calculate assigned periods from regular subjects
+    classes.forEach(c => {
+      if (c.id === NON_TEACHING_CLASS_ID) return;
+      c.subjects.forEach(sub => {
+        const tid = sub.teacherId;
+        if (!tid) return;
+        if (!jointCoverage.has(`${c.id}-${sub.id}`)) {
+          totalAssignedMap.set(tid, (totalAssignedMap.get(tid) || 0) + (sub.periodsPerWeek || 0));
+        }
+      });
+    });
+
+    // 4. Subtract scheduled periods (already calculated in allTeacherStats)
+    teachers.forEach(t => {
+      const stats = allTeacherStats.get(t.id);
+      const scheduled = stats?.weeklyPeriods || 0;
+      const assigned = totalAssignedMap.get(t.id) || 0;
+      counts.set(t.id, Math.max(0, assigned - scheduled));
+    });
+
+    return counts;
+  }, [teachers, classes, jointPeriods, allTeacherStats]);
 
   const sortedTeachers = useMemo(() => {
       let sorted = [...teachers];

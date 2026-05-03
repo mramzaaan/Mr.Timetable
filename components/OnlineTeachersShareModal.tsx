@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Teacher, SchoolClass, Subject, SchoolConfig, TimetableGridData, allDays } from '../types';
 import { toBlob } from 'html-to-image';
 
@@ -19,6 +19,18 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
     const [selectedTeacherIds, setSelectedTeacherIds] = useState<Set<string>>(new Set());
     const [isGenerating, setIsGenerating] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
+
+    // Prevent background scroll when open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -121,16 +133,16 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
     });
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Share Online Teachers Schedule</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4" onClick={onClose}>
+            <div className="bg-white dark:bg-gray-800 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl w-full max-w-4xl max-h-[96vh] flex flex-col transition-all relative" onClick={e => e.stopPropagation()}>
+                <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-white/10 flex justify-between items-center sticky top-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md z-10">
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Share <span className="text-indigo-600">Daily Slip</span></h2>
+                    <button onClick={onClose} className="w-10 h-10 flex items-center justify-center bg-black/5 dark:bg-white/5 hover:bg-rose-500 hover:text-white transition-all rounded-full text-gray-500">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+                <div className="flex-1 overflow-y-auto flex flex-col md:flex-row scrollbar-hide">
                     {/* Sidebar: Teacher Selection */}
                     <div className="w-full md:w-1/3 border-r border-gray-200 dark:border-gray-700 flex flex-col bg-gray-50 dark:bg-gray-900/50">
                         <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
@@ -211,12 +223,12 @@ export const OnlineTeachersShareModal: React.FC<OnlineTeachersShareModalProps> =
                     </div>
                 </div>
 
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-gray-900/50 rounded-b-2xl">
-                    <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-[1.25rem] transition-colors">Cancel</button>
+                <div className="p-4 sm:p-5 border-t border-gray-100 dark:border-white/10 flex flex-col sm:flex-row justify-end gap-3 bg-gray-50 dark:bg-white/5 backdrop-blur-md rounded-b-2xl sticky bottom-0 z-10">
+                    <button onClick={onClose} className="w-full sm:w-auto px-6 py-3 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 rounded-[1.25rem] transition-all border border-gray-200 dark:border-white/10">Cancel</button>
                     <button 
                         onClick={handleShare} 
                         disabled={selectedTeacherIds.size === 0 || isGenerating}
-                        className="px-6 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-[1.25rem] shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="w-full sm:w-auto px-8 py-3 text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 rounded-[1.25rem] shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all active:scale-95"
                     >
                         {isGenerating ? (
                             <>

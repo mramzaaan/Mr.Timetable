@@ -20,7 +20,7 @@ export interface WorkloadStats {
 }
 
 // Updated Robust Urdu Font Stack using System Fonts
-const URDU_FONT_STACK = "'Gulzar', 'Noto Nastaliq Urdu', sans-serif";
+const URDU_FONT_STACK = "var(--font-app-primary), inherit";
 
 const teacherColorNames = [
   'subject-sky', 'subject-green', 'subject-yellow', 'subject-red',
@@ -415,6 +415,66 @@ export const calculateWorkloadStats = (
         leavesTaken,
         totalWorkload
     };
+};
+
+export const calculateAllTeachersWorkloadStats = (
+    classes: SchoolClass[],
+    teachers: Teacher[],
+    jointPeriods: JointPeriod[],
+    schoolConfig: SchoolConfig
+) => {
+    const statsMap = new Map<string, { weeklyPeriods: number, jointPeriodsCount: number, dailyCounts: Record<string, number> }>();
+    
+    // Initialize
+    teachers.forEach(t => {
+        const dailyCounts: Record<string, number> = {};
+        allDays.forEach(d => dailyCounts[d.toLowerCase()] = 0);
+        statsMap.set(t.id, { weeklyPeriods: 0, jointPeriodsCount: 0, dailyCounts });
+    });
+
+    const activeDays = allDays.filter(day => schoolConfig.daysConfig?.[day]?.active ?? true);
+
+    classes.forEach(c => {
+        activeDays.forEach(day => {
+            const slots = c.timetable[day];
+            if (!Array.isArray(slots)) return;
+            
+            slots.forEach((slot, pIdx) => {
+                if (!Array.isArray(slot)) return;
+                
+                // Track joint periods processed in this SPECIFIC slot across all classes
+                // to avoid double counting them for the teacher.
+                const processedJointIds = new Set<string>();
+                
+                slot.forEach(p => {
+                    const teacherId = p.teacherId;
+                    if (!teacherId) return;
+                    
+                    let stat = statsMap.get(teacherId);
+                    if (!stat) {
+                        const dailyCounts: Record<string, number> = {};
+                        allDays.forEach(d => dailyCounts[d.toLowerCase()] = 0);
+                        stat = { weeklyPeriods: 0, jointPeriodsCount: 0, dailyCounts };
+                        statsMap.set(teacherId, stat);
+                    }
+
+                    if (p.jointPeriodId) {
+                        if (!processedJointIds.has(p.jointPeriodId)) {
+                            stat.weeklyPeriods++;
+                            stat.jointPeriodsCount++;
+                            stat.dailyCounts[day.toLowerCase()]++;
+                            processedJointIds.add(p.jointPeriodId);
+                        }
+                    } else {
+                        stat.weeklyPeriods++;
+                        stat.dailyCounts[day.toLowerCase()]++;
+                    }
+                });
+            });
+        });
+    });
+
+    return statsMap;
 };
 
 export const getPrintStyles = (design: DownloadDesignConfig) => {

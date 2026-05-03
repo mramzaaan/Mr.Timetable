@@ -97,6 +97,20 @@ const XIcon = () => (
   </svg>
 );
 
+const ShareIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+    <polyline points="16 6 12 2 8 6" />
+    <line x1="12" y1="2" x2="12" y2="15" />
+  </svg>
+);
+
+const WhatsAppIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12.031 2c-5.506 0-9.987 4.479-9.987 9.986 0 1.763.459 3.474 1.33 4.988L2 22l5.176-1.359c1.465.799 3.111 1.22 4.805 1.22 5.506 0 9.986-4.479 9.986-9.986 0-5.507-4.48-9.986-9.986-9.986zm0 18.291c-1.52 0-3.003-.399-4.307-1.155l-.31-.182-3.2.839.855-3.12-.2-.319a8.21 8.21 0 01-1.258-4.358c0-4.542 3.696-8.238 8.22-8.238 4.524 0 8.221 3.696 8.221 8.238s-3.697 8.238-8.221 8.238zM15.93 13.061c-.34-.17-2.012-.993-2.324-1.107-.311-.113-.538-.17-.766.17s-.878 1.107-1.076 1.333c-.199.227-.397.255-.737.085s-1.436-.529-2.735-1.687c-1.01-.9-1.691-2.013-1.89-2.353-.198-.34-.022-.523.149-.691s.34-.397.51-.595c.171-.198.227-.34.34-.567s.057-.425-.028-.595c-.085-.171-.766-1.841-1.049-2.523-.277-.666-.559-.574-.766-.585-.199-.01-.425-.011-.652-.011s-.595.085-.907.425c-.312.339-1.191 1.164-1.191 2.836 0 1.673 1.219 3.284 1.389 3.511.171.227 2.399 3.663 5.811 5.137.812.35 1.445.559 1.94.716.815.259 1.558.222 2.145.135.654-.097 2.012-.823 2.296-1.616s.284-1.472.199-1.616c-.085-.144-.312-.227-.652-.397z"/>
+  </svg>
+);
+
 export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps> = ({
   t,
   isOpen,
@@ -117,7 +131,10 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
   const [badgeTarget, setBadgeTarget] = useState<'subject' | 'class'>('subject');
   const [headerTextScale, setHeaderTextScale] = useState(1);
   const [footerTextScale, setFooterTextScale] = useState(1);
+  const [classTextScale, setClassTextScale] = useState(1);
   const [subjectTextScale, setSubjectTextScale] = useState(1);
+  const [isClassBold, setIsClassBold] = useState(true);
+  const [isSubjectBold, setIsSubjectBold] = useState(true);
   const [periodTextScale, setPeriodTextScale] = useState(1);
   const [slotPadding, setSlotPadding] = useState(0);
   const [outlineInset, setOutlineInset] = useState(0);
@@ -128,9 +145,25 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
   const [classPos, setClassPos] = useState({x: 0, y: 0});
   const [subjectPos, setSubjectPos] = useState({x: 4, y: 4});
 
+  const [isTextSettingsOpen, setIsTextSettingsOpen] = useState(false);
+  const [isStyleSettingsOpen, setIsStyleSettingsOpen] = useState(false);
+  const [isPosSettingsOpen, setIsPosSettingsOpen] = useState(false);
+
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [previewScale, setPreviewScale] = useState(1);
   const previewContainerRef = useRef<HTMLDivElement>(null);
+
+  // Prevent background scroll when open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   const themeColors = useMemo(() => {
     if (typeof window === 'undefined') return { accent: '#6366f1', bg: '#ffffff', text: '#0f172a' };
@@ -273,7 +306,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             pointer-events: none;
           }
 
-          .font-urdu { font-family: ${appFont ? `'${appFont}', ` : schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}'Gulzar', 'Noto Nastaliq Urdu', sans-serif !important; }
+          .font-urdu { font-family: ${appFont ? `'${appFont}', ` : schoolConfig.appFontFamily ? `'${schoolConfig.appFontFamily}', ` : ''}sans-serif !important; }
           
           .img-header {
             flex-shrink: 0;
@@ -425,8 +458,8 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           .period-subject { 
             /* Holds Class Name now based on data mapping below */
             display: block;
-            font-weight: 900; 
-            font-size: ${isUrdu ? 20 * 1.1 * subjectTextScale : 20 * 1.3 * subjectTextScale}px;
+            font-weight: ${isClassBold ? '900' : '500'}; 
+            font-size: ${isUrdu ? 20 * 1.1 * classTextScale : 20 * 1.3 * classTextScale}px;
             text-transform: none; 
             line-height: normal;
             text-align: center;
@@ -441,7 +474,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
           .period-class { 
             /* Holds Subject Name now based on data mapping below */
             display: block;
-            font-weight: 800; 
+            font-weight: ${isSubjectBold ? '800' : '500'}; 
             opacity: 0.95; 
             font-size: ${isUrdu ? 20 * 1.0 * subjectTextScale : 20 * subjectTextScale}px;
             line-height: normal;
@@ -589,7 +622,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
                       </div>`;
                   }
 
-                  let classBadgeStyle = isGroupPeriod ? `font-size: ${isUrdu ? 20 * 1.3 * 1.2 * 0.8 * subjectTextScale : 20 * 1.3 * 0.8 * subjectTextScale}px;` : '';
+                  let classBadgeStyle = isGroupPeriod ? `font-size: ${isUrdu ? 20 * 1.3 * 1.2 * 0.8 * classTextScale : 20 * 1.3 * 0.8 * classTextScale}px;` : '';
                   let subjectBadgeStyle = isGroupPeriod ? `font-size: ${isUrdu ? 20 * 1.2 * 0.8 * subjectTextScale : 20 * 0.8 * subjectTextScale}px;` : '';
                   if (cardStyle === 'badge') {
                       // Badge style: Capsule
@@ -752,7 +785,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
         const html = generateTimetableImageHtml();
         setPreviewHtml(html);
     }
-  }, [isOpen, selectedCardStyle, selectedTriangleCorner, badgeTarget, mergePatterns, showStartTimes, selectedTeacher, themeColors, isUrdu, headerTextScale, footerTextScale, subjectTextScale, periodTextScale, showCardBorder, smoothDirection, slotPadding, classPos, subjectPos, subjectColorMap, teacherTimetableData]);
+  }, [isOpen, selectedCardStyle, selectedTriangleCorner, badgeTarget, mergePatterns, showStartTimes, selectedTeacher, themeColors, isUrdu, headerTextScale, footerTextScale, classTextScale, subjectTextScale, isClassBold, isSubjectBold, periodTextScale, showCardBorder, smoothDirection, slotPadding, classPos, subjectPos, subjectColorMap, teacherTimetableData]);
 
   useEffect(() => {
     if (previewContainerRef.current) {
@@ -792,16 +825,23 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
 
         const targetElement = tempContainer.children[0] as HTMLElement;
         const blob = await toBlob(targetElement, { 
-            pixelRatio: 2, 
+            pixelRatio: 3, 
             backgroundColor: '#ffffff',
             width: width,
             height: height,
+            type: 'image/jpeg',
+            quality: 0.85, 
             style: {
                 margin: '0',
                 padding: '30px'
             }
         });
         
+        if (!blob) return null;
+        
+        // Final compression: if size is too large, we could convert to JPEG here, 
+        // but toBlob generally produces a decent PNG.
+        // Let's ensure it's as high quality as possible.
         return blob;
     } catch (error) {
         console.error("Canvas generation failed", error);
@@ -822,7 +862,22 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
         return;
     }
 
-    const fileName = `timetable_${selectedTeacher.nameEn.replace(/\s/g, '_')}.png`;
+    // Try native sharing first if available in browser
+    const fileName = `timetable_${selectedTeacher.nameEn.replace(/\s/g, '_')}.jpg`;
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], fileName, { type: blob.type })] })) {
+        try {
+            await navigator.share({
+                files: [new File([blob], fileName, { type: blob.type })],
+                title: 'Timetable',
+                text: `Timetable for ${selectedTeacher.nameEn}`
+            });
+            setIsGenerating(false);
+            return;
+        } catch (shareError) {
+            console.error("Web Share API failed", shareError);
+        }
+    }
+
     const shared = await saveAndShareFile(blob, fileName, 'Timetable');
     
     if (!shared) {
@@ -852,7 +907,7 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
         let phoneNumber = selectedTeacher.contactNumber.replace(/\D/g, '');
         if (phoneNumber.startsWith('0')) phoneNumber = '92' + phoneNumber.substring(1);
         
-        const fileName = `timetable_${selectedTeacher.nameEn.replace(/\s/g, '_')}.png`;
+        const fileName = `timetable_${selectedTeacher.nameEn.replace(/\s/g, '_')}.jpg`;
         let copied = false;
         try {
             if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
@@ -867,6 +922,23 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             const url = `https://wa.me/${phoneNumber}`;
             setTimeout(() => { openUrlBrowser(url); }, 500);
         } else {
+            // Try native sharing fallback
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], fileName, { type: blob.type })] })) {
+                try {
+                    await navigator.share({
+                        files: [new File([blob], fileName, { type: blob.type })],
+                        title: 'Timetable',
+                        text: `Timetable for ${selectedTeacher.nameEn}`
+                    });
+                    const url = `https://wa.me/${phoneNumber}`;
+                    setTimeout(() => { openUrlBrowser(url); }, 500);
+                    setIsGenerating(false);
+                    return;
+                } catch (shareError) {
+                    console.error("WhatsApp share fallback failed", shareError);
+                }
+            }
+
             const shared = await saveAndShareFile(blob, fileName, 'Timetable', 'Please share this with ' + selectedTeacher.nameEn);
             
             if (!shared) {
@@ -893,27 +965,28 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 w-screen h-[100dvh] bg-black/40 flex items-center justify-center z-[200] p-4 backdrop-blur-md" onClick={onClose}>
-      <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-oneui shadow-oneui w-full max-w-[95vw] md:max-w-[90vw] lg:max-w-4xl xl:max-w-5xl flex flex-col max-h-[95vh] overflow-hidden transition-all" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 w-screen h-[100dvh] bg-black/60 flex items-center justify-center z-[200] p-2 sm:p-4 backdrop-blur-md" onClick={onClose}>
+      <div className="bg-white/90 dark:bg-black/80 backdrop-blur-[40px] border border-white/20 dark:border-white/10 rounded-[2rem] shadow-2xl w-full max-w-5xl flex flex-col max-h-[96vh] overflow-hidden transition-all relative" onClick={e => e.stopPropagation()}>
         
-        <div className="p-5 border-b border-[var(--border-primary)]/20 bg-transparent flex-shrink-0 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-                <h3 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
-                    SEND TO TEACHER:
+        <div className="p-4 sm:p-5 border-b border-white/10 bg-transparent flex-shrink-0 flex justify-between items-center sticky top-0 z-10 backdrop-blur-md">
+            <div className="flex flex-col">
+                <h3 className="text-lg sm:text-xl font-black text-[var(--text-primary)] uppercase tracking-tighter">
+                   Teacher <span className="text-[var(--accent-primary)]">Timetable</span>
                 </h3>
-                <span className="text-sm text-[var(--text-secondary)] font-medium">{selectedTeacher.nameEn}</span>
+                <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">{selectedTeacher.nameEn}</span>
             </div>
             
-            <div className="flex items-center gap-3">
-                <button onClick={onClose} className="p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-full hover:bg-[var(--bg-tertiary)]/50">
-                    <XIcon />
-                </button>
-            </div>
+            <button 
+                onClick={onClose} 
+                className="w-10 h-10 flex items-center justify-center bg-black/5 dark:bg-white/5 hover:bg-rose-500 hover:text-white transition-all rounded-full text-[var(--text-secondary)]"
+            >
+                <XIcon />
+            </button>
         </div>
         
-        <div className="flex-grow overflow-y-auto p-4 custom-scrollbar bg-transparent">
+        <div className="flex-grow overflow-y-auto p-3 sm:p-6 scrollbar-hide bg-transparent">
 
-            <div className="flex flex-col items-center w-full mb-4" ref={previewContainerRef}>
+            <div className="flex flex-col items-center w-full mb-6" ref={previewContainerRef}>
                 <div className="mb-3 px-3 py-1 bg-[#0f172a] rounded-full hidden">
                      <span className="text-[0.625rem] font-black text-gray-400 uppercase tracking-widest">Preview Mode</span>
                 </div>
@@ -938,213 +1011,312 @@ export const TeacherCommunicationModal: React.FC<TeacherCommunicationModalProps>
             </div>
 
             {/* Controls Section - Moved below Preview */}
-            <div className="max-w-2xl mx-auto space-y-3 pb-2">
+            <div className="max-w-2xl mx-auto space-y-3 pb-2 w-full">
                 
-                {/* Text Size Section */}
-                <div className="grid grid-cols-5 gap-2">
-                    <div className="space-y-1">
-                                <label className="text-[0.45rem] sm:text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Header</label>
-                                <div className="flex items-center gap-1 bg-[#0f172a] rounded-[1.25rem] border border-white/10 p-1">
-                                    <button onClick={() => setHeaderTextScale(s => Math.max(0.5, s - 0.1))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                                    <div className="flex-1 text-center text-white text-[0.55rem] font-bold">{Math.round(headerTextScale * 100)}%</div>
-                                    <button onClick={() => setHeaderTextScale(s => Math.min(2.0, s + 0.1))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
-                                </div>
+                <div className="grid grid-cols-[0.7fr_0.7fr_1.6fr] gap-2">
+                    {/* Folder 1: Design Settings */}
+                    <div className="overflow-hidden transition-all duration-300 border border-white/10 rounded-[1.2rem] bg-[#0f172a]/40 backdrop-blur-md h-fit">
+                        <button 
+                            onClick={() => setIsTextSettingsOpen(!isTextSettingsOpen)}
+                            className="w-full px-2 py-3 flex items-center justify-between text-white hover:bg-white/5 transition-colors"
+                        >
+                            <div className="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-[0.55rem] font-black uppercase tracking-wider">Design</span>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-[0.45rem] sm:text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Footer</label>
-                                <div className="flex items-center gap-1 bg-[#0f172a] rounded-[1.25rem] border border-white/10 p-1">
-                                    <button onClick={() => setFooterTextScale(s => Math.max(0.5, s - 0.1))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                                    <div className="flex-1 text-center text-white text-[0.55rem] font-bold">{Math.round(footerTextScale * 100)}%</div>
-                                    <button onClick={() => setFooterTextScale(s => Math.min(2.0, s + 0.1))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
-                                </div>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-[0.45rem] sm:text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Sub/Class</label>
-                                <div className="flex items-center gap-1 bg-[#0f172a] rounded-[1.25rem] border border-white/10 p-1">
-                                    <button onClick={() => setSubjectTextScale(s => Math.max(0.5, s - 0.1))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                                    <div className="flex-1 text-center text-white text-[0.55rem] font-bold">{Math.round(subjectTextScale * 100)}%</div>
-                                    <button onClick={() => setSubjectTextScale(s => Math.min(2.0, s + 0.1))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
-                                </div>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-[0.45rem] sm:text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Time</label>
-                                <div className="flex items-center gap-1 bg-[#0f172a] rounded-[1.25rem] border border-white/10 p-1">
-                                    <button onClick={() => setPeriodTextScale(s => Math.max(0.5, s - 0.1))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                                    <div className="flex-1 text-center text-white text-[0.55rem] font-bold">{Math.round(periodTextScale * 100)}%</div>
-                                    <button onClick={() => setPeriodTextScale(s => Math.min(2.0, s + 0.1))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
-                                </div>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-[0.45rem] sm:text-[0.5rem] font-black uppercase tracking-widest text-gray-400">Padding</label>
-                                <div className="flex items-center gap-1 bg-[#0f172a] rounded-[1.25rem] border border-white/10 p-1">
-                                    <button onClick={() => setSlotPadding(s => Math.max(0, s - 2))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">-</button>
-                                    <div className="flex-1 text-center text-white text-[0.55rem] font-bold">{slotPadding}px</div>
-                                    <button onClick={() => setSlotPadding(s => Math.min(24, s + 2))} className="w-5 h-5 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded text-white font-bold text-xs">+</button>
-                                </div>
-                            </div>
-                        </div>
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className={`h-3 w-3 transition-transform duration-300 ${isTextSettingsOpen ? 'rotate-180' : ''}`} 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                            >
+                                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+                        
+                        {isTextSettingsOpen && (
+                            <div className="p-2 border-t border-white/5 animate-scale-in space-y-2">
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between gap-1">
+                                        <label className="text-[0.5rem] font-bold uppercase tracking-tight text-blue-300">Header</label>
+                                        <div className="flex items-center gap-0.5 bg-black/40 rounded-full border border-white/10 p-0.5">
+                                            <button onClick={() => setHeaderTextScale(s => Math.max(0.5, s - 0.1))} className="w-4 h-4 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full text-white font-bold text-[9px]">-</button>
+                                            <div className="w-8 text-center text-white text-[0.55rem] font-bold">{Math.round(headerTextScale * 100)}%</div>
+                                            <button onClick={() => setHeaderTextScale(s => Math.min(2.0, s + 0.1))} className="w-4 h-4 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full text-white font-bold text-[9px]">+</button>
+                                        </div>
+                                    </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1">
-                                <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Card Design</label>
+                                    <div className="flex items-center justify-between gap-1">
+                                        <label className="text-[0.5rem] font-bold uppercase tracking-tight text-blue-300">Footer</label>
+                                        <div className="flex items-center gap-0.5 bg-black/40 rounded-full border border-white/10 p-0.5">
+                                            <button onClick={() => setFooterTextScale(s => Math.max(0.5, s - 0.1))} className="w-4 h-4 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full text-white font-bold text-[9px]">-</button>
+                                            <div className="w-8 text-center text-white text-[0.55rem] font-bold">{Math.round(footerTextScale * 100)}%</div>
+                                            <button onClick={() => setFooterTextScale(s => Math.min(2.0, s + 0.1))} className="w-4 h-4 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full text-white font-bold text-[9px]">+</button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-1">
+                                        <label className="text-[0.5rem] font-bold uppercase tracking-tight text-blue-300">Time</label>
+                                        <div className="flex items-center gap-0.5 bg-black/40 rounded-full border border-white/10 p-0.5">
+                                            <button onClick={() => setPeriodTextScale(s => Math.max(0.5, s - 0.1))} className="w-4 h-4 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full text-white font-bold text-[9px]">-</button>
+                                            <div className="w-8 text-center text-white text-[0.55rem] font-bold">{Math.round(periodTextScale * 100)}%</div>
+                                            <button onClick={() => setPeriodTextScale(s => Math.min(2.0, s + 0.1))} className="w-4 h-4 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full text-white font-bold text-[9px]">+</button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-1">
+                                        <label className="text-[0.5rem] font-bold uppercase tracking-tight text-blue-300">Pad</label>
+                                        <div className="flex items-center gap-0.5 bg-black/40 rounded-full border border-white/10 p-0.5">
+                                            <button onClick={() => setSlotPadding(s => Math.max(0, s - 2))} className="w-4 h-4 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full text-white font-bold text-[9px]">-</button>
+                                            <div className="w-8 text-center text-white text-[0.55rem] font-bold">{slotPadding}px</div>
+                                            <button onClick={() => setSlotPadding(s => Math.min(24, s + 2))} className="w-4 h-4 flex items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-full text-white font-bold text-[9px]">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Folder 2: Card Style Settings */}
+                    <div className="overflow-hidden transition-all duration-300 border border-white/10 rounded-[1.2rem] bg-[#0f172a]/40 backdrop-blur-md h-fit">
+                        <button 
+                            onClick={() => setIsStyleSettingsOpen(!isStyleSettingsOpen)}
+                            className="w-full px-2 py-3 flex items-center justify-between text-white hover:bg-white/5 transition-colors"
+                        >
+                            <div className="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                                    <line x1="8" y1="21" x2="16" y2="21"/>
+                                    <line x1="12" y1="17" x2="12" y2="21"/>
+                                </svg>
+                                <span className="text-[0.55rem] font-black uppercase tracking-wider">Style</span>
+                            </div>
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className={`h-3 w-3 transition-transform duration-300 ${isStyleSettingsOpen ? 'rotate-180' : ''}`} 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                            >
+                                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+                        
+                        {isStyleSettingsOpen && (
+                            <div className="p-2 border-t border-white/5 animate-scale-in space-y-2">
                                 <select 
                                     value={selectedCardStyle} 
                                     onChange={(e) => setSelectedCardStyle(e.target.value as CardStyle)}
-                                    className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-[1.25rem] border border-white/10 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
+                                    className="w-full bg-black/40 text-white text-[0.5rem] font-black rounded-lg border border-white/10 px-1 py-1.5 focus:outline-none appearance-none"
                                 >
-                                    {cardStyles.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                                    {cardStyles.map(s => <option key={s.value} value={s.value} className="bg-[#0f172a]">{s.label}</option>)}
                                 </select>
+
+                                {/* Conditional Settings inside the dedicated Styles folder */}
+                                {(selectedCardStyle === 'minimal-left' || selectedCardStyle === 'badge') && (
+                                    <div className="space-y-1">
+                                        <div className="flex bg-black/40 rounded-full border border-white/10 p-0.5">
+                                            <button 
+                                                onClick={() => setBadgeTarget('subject')}
+                                                className={`flex-1 py-1 rounded-full text-[0.45rem] font-black transition-all ${badgeTarget === 'subject' ? 'bg-purple-500 text-white shadow-sm' : 'text-gray-500'}`}
+                                            >
+                                                SUB
+                                            </button>
+                                            <button 
+                                                onClick={() => setBadgeTarget('class')}
+                                                className={`flex-1 py-1 rounded-full text-[0.45rem] font-black transition-all ${badgeTarget === 'class' ? 'bg-purple-500 text-white shadow-sm' : 'text-gray-500'}`}
+                                            >
+                                                CLS
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedCardStyle === 'triangle' && (
+                                    <select 
+                                        value={selectedTriangleCorner} 
+                                        onChange={(e) => setSelectedTriangleCorner(e.target.value as TriangleCorner)}
+                                        className="w-full bg-black/40 text-white text-[0.5rem] font-black rounded-lg border border-white/10 px-1 py-1.5 focus:outline-none appearance-none"
+                                    >
+                                        {triangleCorners.map(c => <option key={c.value} value={c.value} className="bg-[#0f172a]">{c.label}</option>)}
+                                    </select>
+                                )}
+
+                                {selectedCardStyle === 'smooth' && (
+                                    <div className="grid grid-cols-2 gap-1">
+                                        {smoothDirections.map(d => (
+                                            <button
+                                                key={d.value}
+                                                onClick={() => setSmoothDirection(d.value)}
+                                                className={`py-1 rounded-lg text-[0.4rem] font-black border transition-all ${smoothDirection === d.value ? 'bg-purple-500 border-purple-400 text-white shadow-sm' : 'bg-black/20 border-white/5 text-gray-500'}`}
+                                            >
+                                                {d.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
+                        )}
+                    </div>
 
-                    
-                    {selectedCardStyle === 'smooth' && (
-                    <div className="space-y-1 animate-scale-in">
-                        <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Smooth Direction</label>
-                        <select 
-                            value={smoothDirection} 
-                            onChange={(e) => setSmoothDirection(e.target.value as any)}
-                            className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-[1.25rem] border border-white/10 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
+                    {/* Folder 3: Position Settings */}
+                    <div className="overflow-hidden transition-all duration-300 border border-white/10 rounded-[1.2rem] bg-[#0f172a]/40 backdrop-blur-md h-fit">
+                        <button 
+                            onClick={() => setIsPosSettingsOpen(!isPosSettingsOpen)}
+                            className="w-full px-3 py-3 flex items-center justify-between text-white hover:bg-white/5 transition-colors"
                         >
-                            {smoothDirections.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                        </select>
-                    </div>
-                    )}
-                    
-                    {selectedCardStyle === 'triangle' && (
-                    <div className="space-y-1 animate-scale-in">
-                        <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Triangle Corner</label>
-                        <select 
-                            value={selectedTriangleCorner} 
-                            onChange={(e) => setSelectedTriangleCorner(e.target.value as TriangleCorner)}
-                            className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-[1.25rem] border border-white/10 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
-                        >
-                            {triangleCorners.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                        </select>
-                    </div>
-                    )}
-                    
-                    {selectedCardStyle === 'badge' && (
-                    <div className="space-y-1 animate-scale-in">
-                        <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Badge Target</label>
-                        <select 
-                            value={badgeTarget} 
-                            onChange={(e) => setBadgeTarget(e.target.value as any)}
-                            className="w-full bg-[#0f172a] text-white text-sm font-bold rounded-[1.25rem] border border-white/10 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none shadow-inner transition-colors hover:border-white/20"
-                        >
-                            <option value="subject">Subject</option>
-                            <option value="class">Class</option>
-                        </select>
-                    </div>
-                    )}
+                            <div className="flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-7.53 4.47a1 1 0 10-1.41 1.41 6.705 6.705 0 014.27 1.94c.19.19.51.19.7 0a6.705 6.705 0 014.27-1.94 1 1 0 00-1.41-1.41 4.705 4.705 0 00-3.21 1.45 4.705 4.705 0 00-3.21-1.45z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-[0.55rem] font-black uppercase tracking-wider">POS Layout</span>
+                            </div>
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className={`h-3 w-3 transition-transform duration-300 ${isPosSettingsOpen ? 'rotate-180' : ''}`} 
+                                viewBox="0 0 20 20" 
+                                fill="currentColor"
+                            >
+                                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </button>
 
-                    {selectedCardStyle === 'outline' && (
-                    <div className="space-y-1 animate-scale-in">
-                        <label className="text-[0.625rem] font-black uppercase tracking-widest text-gray-400">Outline Inset</label>
-                        <input 
-                            type="range" 
-                            min="0" max="10" step="1"
-                            value={outlineInset} 
-                            onChange={(e) => setOutlineInset(parseFloat(e.target.value))}
-                            className="w-full accent-blue-500"
-                        />
+                        {isPosSettingsOpen && (
+                            <div className="p-2 border-t border-white/5 animate-scale-in">
+                                <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
+                                    {/* Class Section */}
+                                    <div className="flex flex-col items-center gap-1.5">
+                                        <div className="flex items-center gap-1.5 w-full justify-between">
+                                            <span className="text-[0.45rem] font-black tracking-widest text-emerald-400 uppercase">Class</span>
+                                            <button 
+                                                onClick={() => setIsClassBold(!isClassBold)} 
+                                                className={`w-5 h-5 flex-shrink-0 flex items-center justify-center transition-all active:scale-90 rounded-full font-black text-[10px] border ${isClassBold ? 'bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-gray-800/50 text-gray-400 border-white/5 hover:bg-gray-700'}`}
+                                            >
+                                                B
+                                            </button>
+                                        </div>
+                                        <div className="grid grid-cols-5 gap-0.5 w-[4rem]">
+                                            {Array.from({ length: 5 }).map((_, y) => (
+                                                Array.from({ length: 5 }).map((_, x) => {
+                                                    const isSelected = classPos.x === x && classPos.y === y;
+                                                    return (
+                                                        <button
+                                                            key={`c-${x}-${y}`}
+                                                            onClick={(e) => { e.stopPropagation(); setClassPos({x, y}); }}
+                                                            className={`w-2.5 h-2.5 rounded-full mx-auto transition-all ${isSelected ? 'bg-emerald-500 scale-125 shadow-md shadow-emerald-500/40' : 'bg-gray-700 hover:bg-gray-600'}`}
+                                                        />
+                                                    );
+                                                })
+                                            ))}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-full border border-white/10">
+                                            <button onClick={() => setClassTextScale(s => Math.max(0.5, s - 0.1))} className="text-white hover:text-emerald-400 transition-colors px-1 font-bold text-[12px]">-</button>
+                                            <div className="w-px h-3 bg-white/10"></div>
+                                            <button onClick={() => setClassTextScale(s => Math.min(2.0, s + 0.1))} className="text-white hover:text-emerald-400 transition-colors px-1 font-bold text-[12px]">+</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="w-px h-24 bg-white/10"></div>
+
+                                    {/* Subject Section */}
+                                    <div className="flex flex-col items-center gap-1.5">
+                                        <div className="flex items-center gap-1.5 w-full justify-between">
+                                            <button 
+                                                onClick={() => setIsSubjectBold(!isSubjectBold)} 
+                                                className={`w-5 h-5 flex-shrink-0 flex items-center justify-center transition-all active:scale-90 rounded-full font-black text-[10px] border ${isSubjectBold ? 'bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20' : 'bg-gray-800/50 text-gray-400 border-white/5 hover:bg-gray-700'}`}
+                                            >
+                                                B
+                                            </button>
+                                            <span className="text-[0.45rem] font-black tracking-widest text-sky-400 uppercase">Subj</span>
+                                        </div>
+                                        <div className="grid grid-cols-5 gap-0.5 w-[4rem]">
+                                            {Array.from({ length: 5 }).map((_, y) => (
+                                                Array.from({ length: 5 }).map((_, x) => {
+                                                    const isSelected = subjectPos.x === x && subjectPos.y === y;
+                                                    return (
+                                                        <button
+                                                            key={`s-${x}-${y}`}
+                                                            onClick={(e) => { e.stopPropagation(); setSubjectPos({x, y}); }}
+                                                            className={`w-2.5 h-2.5 rounded-full mx-auto transition-all ${isSelected ? 'bg-sky-500 scale-125 shadow-md shadow-sky-500/40' : 'bg-gray-700 hover:bg-gray-600'}`}
+                                                        />
+                                                    );
+                                                })
+                                            ))}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-full border border-white/10">
+                                            <button onClick={() => setSubjectTextScale(s => Math.max(0.5, s - 0.1))} className="text-white hover:text-sky-400 transition-colors px-1 font-bold text-[12px]">-</button>
+                                            <div className="w-px h-3 bg-white/10"></div>
+                                            <button onClick={() => setSubjectTextScale(s => Math.min(2.0, s + 0.1))} className="text-white hover:text-sky-400 transition-colors px-1 font-bold text-[12px]">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                    )}
                 </div>
 
-                {/* Inline Position Settings */}
-                <div className="mt-4 flex flex-col items-center justify-center p-3 bg-[#0f172a] rounded-[2rem] border border-white/10 mx-auto w-full max-w-sm">
-                    <div className="flex gap-6 w-full justify-center">
-                        <div className="flex flex-col items-center gap-2">
-                            <h4 className="text-[0.55rem] sm:text-[0.625rem] font-black uppercase tracking-widest text-emerald-400">Class Pos</h4>
-                            <div className="grid grid-cols-5 gap-1.5 w-[5.5rem] sm:w-[6rem]">
-                                {Array.from({ length: 5 }).map((_, y) => (
-                                    Array.from({ length: 5 }).map((_, x) => {
-                                        const isSelected = classPos.x === x && classPos.y === y;
-                                        return (
-                                            <button
-                                                key={`c-${x}-${y}`}
-                                                onClick={(e) => { e.stopPropagation(); setClassPos({x, y}); }}
-                                                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full mx-auto flex items-center justify-center transition-all ${isSelected ? 'bg-emerald-500 scale-125 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-gray-600 hover:bg-gray-500 hover:scale-110'}`}
-                                            />
-                                        );
-                                    })
-                                ))}
-                            </div>
-                        </div>
-                        <div className="w-px bg-white/10"></div>
-                        <div className="flex flex-col items-center gap-2">
-                            <h4 className="text-[0.55rem] sm:text-[0.625rem] font-black uppercase tracking-widest text-emerald-400">Subject Pos</h4>
-                            <div className="grid grid-cols-5 gap-1.5 w-[5.5rem] sm:w-[6rem]">
-                                {Array.from({ length: 5 }).map((_, y) => (
-                                    Array.from({ length: 5 }).map((_, x) => {
-                                        const isSelected = subjectPos.x === x && subjectPos.y === y;
-                                        return (
-                                            <button
-                                                key={`s-${x}-${y}`}
-                                                onClick={(e) => { e.stopPropagation(); setSubjectPos({x, y}); }}
-                                                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full mx-auto flex items-center justify-center transition-all ${isSelected ? 'bg-emerald-500 scale-125 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-gray-600 hover:bg-gray-500 hover:scale-110'}`}
-                                            />
-                                        );
-                                    })
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {/* Final Action Bar with Combined Buttons */}
+                <div className="flex items-center gap-2 pt-2 transition-all">
+                    {/* Share Button as Icon */}
+                    <button 
+                        onClick={handleSendImageAsPicture} 
+                        disabled={isGenerating} 
+                        className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-[var(--accent-primary)] text-white rounded-2xl hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 transition-all transform active:scale-95 shadow-lg group relative"
+                        title="Share Image"
+                    >
+                        {isGenerating ? (
+                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        ) : (
+                            <ShareIcon />
+                        )}
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/80 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Share Image</span>
+                    </button>
 
-                <div className="flex gap-2 w-full mt-4 items-center flex-wrap md:flex-nowrap">
-                    <div className="flex items-center gap-1.5 bg-[var(--bg-tertiary)]/50 px-3 py-2 rounded-[2rem] /30 backdrop-blur-md">
-                        <span className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Urdu</span>
+                    {/* WhatsApp Button as Icon */}
+                    <button 
+                        onClick={handleSendWhatsApp} 
+                        disabled={isGenerating} 
+                        className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-[#128C7E] text-white rounded-2xl hover:bg-[#075e54] disabled:opacity-50 transition-all transform active:scale-95 shadow-lg group relative"
+                        title="Direct WhatsApp"
+                    >
+                        <WhatsAppIcon />
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/80 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">WhatsApp</span>
+                    </button>
+
+                    {/* Compact Grid for Mode Toggles */}
+                    <div className="flex-grow grid grid-cols-4 gap-1.5 h-12 bg-[#0f172a]/20 backdrop-blur-sm rounded-2xl p-1 border border-white/5">
                         <button 
                             onClick={() => setIsUrdu(!isUrdu)}
-                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isUrdu ? 'bg-[var(--accent-primary)]' : 'bg-gray-400 dark:bg-gray-600'}`}
+                            className={`flex flex-col items-center justify-center rounded-xl transition-all border ${isUrdu ? 'bg-[var(--accent-primary)] border-white/20 text-white shadow-md' : 'bg-transparent border-transparent text-gray-500 hover:text-gray-300'}`}
                         >
-                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isUrdu ? 'translate-x-4' : 'translate-x-0'}`} />
+                            <span className="text-[0.65rem] font-bold uppercase tracking-tight">Urdu</span>
+                            <div className={`w-3 h-0.5 rounded-full mt-0.5 ${isUrdu ? 'bg-white' : 'bg-gray-700'}`} />
                         </button>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-[var(--bg-tertiary)]/50 px-3 py-2 rounded-[2rem] /30 backdrop-blur-md">
-                        <span className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Time</span>
-                        <button 
-                            onClick={() => setShowStartTimes(!showStartTimes)}
-                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showStartTimes ? 'bg-[var(--accent-primary)]' : 'bg-gray-400 dark:bg-gray-600'}`}
-                        >
-                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showStartTimes ? 'translate-x-4' : 'translate-x-0'}`} />
-                        </button>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-[var(--bg-tertiary)]/50 px-3 py-2 rounded-[2rem] /30 backdrop-blur-md">
-                        <span className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Border</span>
-                        <button 
-                            onClick={() => setShowCardBorder(!showCardBorder)}
-                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showCardBorder ? 'bg-[var(--accent-primary)]' : 'bg-gray-400 dark:bg-gray-600'}`}
-                        >
-                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${showCardBorder ? 'translate-x-4' : 'translate-x-0'}`} />
-                        </button>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-[var(--bg-tertiary)]/50 px-3 py-2 rounded-[2rem] /30 backdrop-blur-md">
-                        <span className="text-[0.625rem] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Merge</span>
                         <button 
                             onClick={() => setMergePatterns(!mergePatterns)}
-                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${mergePatterns ? 'bg-[var(--accent-primary)]' : 'bg-gray-400 dark:bg-gray-600'}`}
+                            className={`flex flex-col items-center justify-center rounded-xl transition-all border ${mergePatterns ? 'bg-[var(--accent-primary)] border-white/20 text-white shadow-md' : 'bg-transparent border-transparent text-gray-500 hover:text-gray-300'}`}
                         >
-                            <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${mergePatterns ? 'translate-x-4' : 'translate-x-0'}`} />
+                            <span className="text-[0.65rem] font-bold uppercase tracking-tight">Merge</span>
+                            <div className={`w-3 h-0.5 rounded-full mt-0.5 ${mergePatterns ? 'bg-white' : 'bg-gray-700'}`} />
                         </button>
-                    </div>
-
-                    <div className="flex flex-1 gap-2">
-                        <button onClick={handleSendImageAsPicture} disabled={isGenerating} className="flex-1 h-10 flex items-center justify-center gap-2 px-3 text-[0.6875rem] font-bold uppercase tracking-wider bg-[var(--accent-primary)] text-white rounded-[2rem] hover:bg-[var(--accent-primary-hover)] disabled:opacity-50  transition-all transform active:scale-95">
-                            {isGenerating ? (
-                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
-                            )}
+                        <button 
+                            onClick={() => setShowCardBorder(!showCardBorder)}
+                            className={`flex flex-col items-center justify-center rounded-xl transition-all border ${showCardBorder ? 'bg-[var(--accent-primary)] border-white/20 text-white shadow-md' : 'bg-transparent border-transparent text-gray-500 hover:text-gray-300'}`}
+                        >
+                            <span className="text-[0.65rem] font-bold uppercase tracking-tight">Border</span>
+                            <div className={`w-3 h-0.5 rounded-full mt-0.5 ${showCardBorder ? 'bg-white' : 'bg-gray-700'}`} />
                         </button>
-                        <button onClick={handleSendWhatsApp} disabled={isGenerating} className="flex-1 h-10 flex items-center justify-center gap-2 px-3 text-[0.6875rem] font-bold uppercase tracking-wider bg-[#128C7E] text-white rounded-[2rem] hover:bg-[#075e54] disabled:opacity-50  transition-all transform active:scale-95">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.316 1.905 6.03l-.419 1.533 1.519-.4zM15.53 17.53c-.07-.121-.267-.202-.56-.347-.297-.146-1.758-.868-2.031-.967-.272-.099-.47-.146-.669.146-.199.293-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.15-1.255-.463-2.39-1.475-1.134-1.012-1.31-1.36-1.899-2.258-.151-.231-.04-.355.043-.463.083-.107.185-.293.28-.439.095-.146.12-.245.18-.41.06-.164.03-.311-.015-.438-.046-.127-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.177-.008-.375-.01-1.04-.01h-.11c-.307.003-1.348-.043-1.348 1.438 0 1.482.791 2.906 1.439 3.82.648.913 2.51 3.96 6.12 5.368 3.61 1.408 3.61 1.054 4.258 1.034.648-.02 1.758-.715 2.006-1.413.248-.698.248-1.289.173-1.413z" /></svg>
+                        <button 
+                            onClick={() => setShowStartTimes(!showStartTimes)}
+                            className={`flex flex-col items-center justify-center rounded-xl transition-all border ${showStartTimes ? 'bg-[var(--accent-primary)] border-white/20 text-white shadow-md' : 'bg-transparent border-transparent text-gray-500 hover:text-gray-300'}`}
+                        >
+                            <span className="text-[0.65rem] font-bold uppercase tracking-tight">Time</span>
+                            <div className={`w-3 h-0.5 rounded-full mt-0.5 ${showStartTimes ? 'bg-white' : 'bg-gray-700'}`} />
                         </button>
                     </div>
                 </div>
             </div>
-
         </div>
       </div>
     </div>
