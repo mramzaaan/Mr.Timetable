@@ -650,15 +650,13 @@ const App: React.FC = () => {
             <SchoolInfoModal t={t} isOpen={isSchoolInfoModalOpen} onClose={() => setIsSchoolInfoModalOpen(false)} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} />
 
             <div className={`min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 flex`}>
-                {currentPage !== 'home' && <SideNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />}
-                <div className={`flex-1 flex flex-col min-w-0 pb-24 md:landscape:pb-0 lg:pb-0 ${currentPage !== 'home' ? 'md:landscape:pl-32 lg:pl-32' : ''}`}>
-                    <main className={`flex-1 ${currentPage === 'home' ? '!pt-0' : 'pt-6 lg:pt-8 px-4 lg:px-8'}`}>
+                <SideNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} schoolConfig={effectiveSchoolConfig} />
+                <div className={`flex-1 flex flex-col min-w-0 ${currentPage === 'home' ? 'pb-0' : 'pb-24'} md:landscape:pb-6 lg:pb-6 md:landscape:pl-32 lg:pl-32`}>
+                    <main className={`flex-1 ${currentPage === 'home' ? 'pt-0 px-0' : 'pt-6 lg:pt-8 px-4 lg:px-8'}`}>
                         {renderPage()}
                     </main>
                     
-                    {currentPage !== 'home' && (
-                        <BottomNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} position="bottom" design={navDesign} shape={navShape} alphaSelected={navBtnAlphaSelected} alphaUnselected={navBtnAlphaUnselected} barAlpha={navBarAlpha} barColor={navBarColor} navAnimation={navAnimation} />
-                    )}
+                    <BottomNavBar t={t} currentPage={currentPage} setCurrentPage={setCurrentPage} position="bottom" design={navDesign} shape={navShape} alphaSelected={navBtnAlphaSelected} alphaUnselected={navBtnAlphaUnselected} barAlpha={navBarAlpha} barColor={navBarColor} navAnimation={navAnimation} />
                 </div>
             </div>
         </>

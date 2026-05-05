@@ -204,99 +204,6 @@ const DocumentCard: React.FC<{
     );
 };
 
-const Fireflies = ({ colorClass, isMixed }: { colorClass: string, isMixed?: boolean }) => {
-    const mixedColors = ['text-teal-300', 'text-orange-300', 'text-emerald-300', 'text-cyan-300', 'text-amber-300', 'text-rose-300'];
-    
-    const fireflies = useMemo(() => Array.from({ length: 8 }).map((_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 50 + 50}%`,
-        animationDelay: `${Math.random() * 5}s`,
-        animationDuration: `${3 + Math.random() * 4}s`,
-        tx1: `${Math.random() * 30 - 15}px`,
-        ty1: `-${Math.random() * 30 + 10}px`,
-        tx2: `${Math.random() * 40 - 20}px`,
-        ty2: `-${Math.random() * 40 + 40}px`,
-        color: isMixed ? mixedColors[Math.floor(Math.random() * mixedColors.length)] : colorClass,
-    })), [isMixed, colorClass]);
-
-    return (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-[inherit]">
-            {fireflies.map((ff) => (
-                <div
-                    key={ff.id}
-                    className={`absolute w-1 h-1 rounded-full bg-white ${ff.color} opacity-0`}
-                    style={{
-                        left: ff.left,
-                        top: ff.top,
-                        animation: `firefly-float ${ff.animationDuration} ease-in-out ${ff.animationDelay} infinite alternate`,
-                        boxShadow: `0 0 8px 3px currentColor`,
-                        '--tx1': ff.tx1,
-                        '--ty1': ff.ty1,
-                        '--tx2': ff.tx2,
-                        '--ty2': ff.ty2,
-                    } as React.CSSProperties}
-                />
-            ))}
-        </div>
-    );
-};
-
-const FeatureCard: React.FC<{
-    label: string;
-    description: string;
-    icon: React.ComponentType<{ className?: string }>;
-    onClick: () => void;
-    theme: string;
-    index: number;
-    isActive: boolean;
-    style?: React.CSSProperties;
-    className?: string;
-}> = ({ label, description, icon: IconComponent, onClick, theme, index, isActive, style, className }) => {
-    const colors: Record<string, { text: string, bg: string, border: string, shadow: string, glow: string, firefly: string, isMixed?: boolean }> = {
-        teal: { text: 'text-teal-600 dark:text-teal-400', bg: 'bg-teal-500', border: 'border-teal-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(20,184,166,0.4)]', firefly: 'text-teal-300' },
-        orange: { text: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-500', border: 'border-orange-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(249,115,22,0.4)]', firefly: 'text-orange-300' },
-        emerald: { text: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500', border: 'border-emerald-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(16,185,129,0.4)]', firefly: 'text-emerald-300' },
-        blue: { text: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500', border: 'border-blue-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(59,130,246,0.4)]', firefly: 'text-blue-300' },
-        violet: { text: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-500', border: 'border-violet-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(139,92,246,0.4)]', firefly: '', isMixed: true },
-        indigo: { text: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-500', border: 'border-indigo-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(99,102,241,0.4)]', firefly: '', isMixed: true },
-        slate: { text: 'text-slate-600 dark:text-slate-400', bg: 'bg-slate-500', border: 'border-slate-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(100,116,139,0.4)]', firefly: '', isMixed: true },
-        cyan: { text: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-500', border: 'border-cyan-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(6,182,212,0.4)]', firefly: 'text-cyan-300' },
-        amber: { text: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500', border: 'border-amber-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(245,158,11,0.4)]', firefly: 'text-amber-300' },
-        rose: { text: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500', border: 'border-rose-500/70', shadow: 'shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)]', glow: 'shadow-[inset_0_0_20px_rgba(244,63,94,0.4)]', firefly: 'text-rose-300' },
-    };
-    
-    const color = colors[theme] || colors.blue;
-
-    return (
-        <button
-            onClick={onClick}
-            style={style}
-            className={`${className || 'absolute w-[8.75rem] sm:w-[11.25rem] aspect-[4/5]'} flex-shrink-0 bg-white/40 dark:bg-white/10 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2rem] ${color.shadow} ${color.glow} hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_15px_40px_rgba(0,0,0,0.7)] transition-all duration-300 group overflow-hidden border ${color.border} hover:bg-white/50 dark:hover:bg-white/15
-            ${isActive ? 'cursor-pointer scale-100 opacity-100' : 'cursor-default scale-95 opacity-70'}
-            `}
-        >
-            <Fireflies colorClass={color.firefly} isMixed={color.isMixed} />
-            <div className="h-full flex flex-col items-center justify-center p-2 sm:p-4 relative z-10">
-                {/* Icon */}
-                <div className={`mb-2 sm:mb-4 ${color.text} transform group-hover:scale-110 transition-transform duration-300 drop- dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]`}>
-                    <IconComponent className="h-12 w-12 sm:h-16 sm:w-16" />
-                </div>
-
-                {/* Text */}
-                <div className="text-center">
-                    <h3 className={`text-sm sm:text-lg font-medium text-[var(--text-primary)] tracking-wide mb-0.5 sm:mb-1`}>
-                        {label}
-                    </h3>
-                    <p className="hidden sm:block text-[0.625rem] sm:text-xs text-[var(--text-secondary)] font-light leading-relaxed line-clamp-1">
-                        {description}
-                    </p>
-                </div>
-            </div>
-        </button>
-    );
-};
-
 interface CurrentEvent {
     name: string;
     startTime: Date;
@@ -550,7 +457,7 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
 
     return (
         <div className="w-full max-w-[90rem] mx-auto mb-4 px-3 sm:px-4">
-            <div className="relative overflow-hidden w-full bg-white/60 dark:bg-black/20 backdrop-blur-xl border border-white/50  rounded-[2rem] sm:rounded-[3rem] transition-all duration-300 hover:shadow-cyan-500/10">
+            <div className="relative overflow-hidden w-full bg-white/40 dark:bg-black/10 backdrop-blur-md rounded-[2rem] sm:rounded-[3rem] transition-all duration-300 hover:shadow-cyan-500/10">
                 <div className="absolute -top-20 -right-20 w-72 h-72 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full blur-[5rem] opacity-10 animate-pulse pointer-events-none"></div>
                 <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur-[5rem] opacity-10 animate-pulse pointer-events-none" style={{ animationDelay: '2s' }}></div>
                 <div className="relative z-10 p-5 sm:p-8 lg:p-12 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 lg:gap-12 text-center md:text-left">
@@ -714,17 +621,6 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
     setIsTeacherSelectionForPrintOpen(false);
     setIsTeacherTimetablePreviewOpen(true);
   };
-
-  const navigationModules = [
-      { id: 'dataEntry', label: t.dataEntry, description: 'Classes & Staff', icon: DataEntryIcon, theme: 'amber', dotColor: 'bg-amber-500', action: () => setCurrentPage('dataEntry') },
-      { id: 'classTimetable', label: t.class, description: 'Class Schedules', icon: ClassTimetableIcon, theme: 'cyan', dotColor: 'bg-cyan-500', action: () => setCurrentPage('classTimetable') },
-      { id: 'teacherTimetable', label: t.teacher, description: 'Teacher Schedules', icon: TeacherTimetableIcon, theme: 'indigo', dotColor: 'bg-indigo-500', action: () => setCurrentPage('teacherTimetable') },
-      { id: 'adjustments', label: t.adjustments, description: 'Substitutions', icon: AdjustmentsIcon, theme: 'orange', dotColor: 'bg-orange-500', action: () => setCurrentPage('alternativeTimetable') },
-      { id: 'reports', label: t.printAndReports, description: 'Reports', icon: DesignIcon, theme: 'blue', dotColor: 'bg-blue-500', action: () => setIsReportsModalOpen(true) },
-      { id: 'attendance', label: t.attendance, description: 'Daily Presence', icon: AttendanceIcon, theme: 'teal', dotColor: 'bg-teal-500', action: () => setCurrentPage('attendance') },
-      { id: 'csv', label: t.manageDataCsv, description: 'Import/Export', icon: CsvIcon, theme: 'rose', dotColor: 'bg-rose-500', action: () => setIsCsvModalOpen(true) },
-      { id: 'settings', label: t.settings, description: 'System Config', icon: SettingsIcon, theme: 'slate', dotColor: 'bg-slate-500', action: () => setCurrentPage('settings') },
-  ];
 
   const scrollToFeatures = () => featuresSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -997,13 +893,13 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
 
       <div className="min-h-screen flex flex-col overflow-x-hidden">
         {/* Header - Static */}
-        <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 py-3">
+        <header className="fixed top-0 left-0 right-0 z-40 py-6">
           <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center relative z-10">
             <div className="flex items-center gap-4 w-full">
                 {/* Logo or School Icon */}
                 <div className="flex-shrink-0 h-10 w-10">
                     {schoolConfig.schoolLogoBase64 ? (
-                        <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full border-2 border-[var(--border-primary)]" />
+                        <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full" />
                     ) : (
                         <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl">M</div>
                     )}
@@ -1022,7 +918,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 {/* Actions */}
                 <div className="flex items-center gap-3">
                     {currentTimetableSession && (
-                        <button onClick={() => setIsSearchOpen(true)} className="p-2.5 text-gray-500 bg-white/40 dark:bg-white/10 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full hover:bg-white backdrop-blur-md border border-white/50 transition-all duration-300 hover:scale-105 active:scale-95" title="Search">
+                        <button onClick={() => setIsSearchOpen(true)} className="p-2.5 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 hover:scale-105 active:scale-95" title="Search">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -1039,7 +935,7 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
             </div>
         )}
 
-        <main className="flex-grow container mx-auto px-4 flex flex-col items-center justify-center min-h-[90vh] pt-24 pb-4">
+        <main className="flex-grow container mx-auto px-4 flex flex-col items-center pt-28 pb-10">
             <div className="w-full animate-scale-in max-w-7xl relative flex flex-col items-center mt-4">
                 <DigitalClock language={language} schoolConfig={schoolConfig} t={t} vacations={currentTimetableSession?.vacations} />
                 
@@ -1088,42 +984,9 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
 
                 <LivePeriodTracker session={currentTimetableSession} schoolConfig={schoolConfig} language={language} />
 
-                <div 
-                    ref={featuresSectionRef} 
-                    className="w-full relative mt-4 flex flex-col items-center min-h-[25rem]"
-                >
-                    <button 
-                        onClick={scrollToFeatures}
-                        className="group relative p-2.5 rounded-[2rem] bg-white/40 dark:bg-white/5 backdrop-blur-md border border-white/40  transition-all duration-300 hover:scale-110 active:scale-95 animate-bounce hidden md:block lg:hidden mb-8"
-                        aria-label="Scroll to features"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600 dark:text-indigo-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 13l-7 7-7-7m14-8l-7 7-7-7" />
-                        </svg>
-                    </button>
-
-                    {/* Grid View */}
-                    <div className="grid grid-cols-4 gap-2 sm:gap-4 w-full max-w-4xl mx-auto mb-12 px-2 sm:px-4">
-                        {navigationModules.map((module, idx) => (
-                            <FeatureCard 
-                                key={module.id}
-                                label={module.label}
-                                description={module.description}
-                                icon={module.icon}
-                                onClick={module.action}
-                                theme={module.theme}
-                                index={idx}
-                                isActive={true}
-                                className="relative w-full aspect-[4/4.8] hover:scale-105 hover:-translate-y-1 cursor-pointer transition-all duration-300"
-                            />
-                        ))}
-                    </div>
-                </div>
             </div>
         </main>
 
-        <footer className="w-full py-4 mt-auto border-t border-white/10 text-center">
-        </footer>
       </div>
 
       {isCsvModalOpen && currentTimetableSession && (

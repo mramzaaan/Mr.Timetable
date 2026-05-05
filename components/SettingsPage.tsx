@@ -71,12 +71,11 @@ const themeOptions: { id: Theme; name: string; colors: [string, string, string] 
 
 const appFontOptions = [
     { label: 'System Default', value: '' },
+    { label: 'Roboto', value: 'Roboto' },
+    { label: 'Google Gulzar', value: 'Gulzar' },
     { label: 'Sans-Serif', value: 'sans-serif' },
     { label: 'Inter', value: 'Inter' },
-    { label: 'Roboto', value: 'Roboto' },
     { label: 'Serif', value: 'serif' },
-    { label: 'Jameel Noori Kasheeda (Kishida)', value: 'Jameel Noori Kasheeda' },
-    { label: 'Jameel Noori Nastaleeq', value: 'Jameel Noori Nastaleeq' },
     { label: 'Monospace', value: 'monospace' },
     { label: 'Bebas Neue', value: 'Bebas Neue' },
     { label: 'Fjalla One', value: 'Fjalla One' },
@@ -87,7 +86,6 @@ const appFontOptions = [
     { label: 'Amatic SC', value: 'Amatic SC' },
     { label: 'Yellowtail', value: 'Yellowtail' },
     { label: 'Instrument Serif', value: 'Instrument Serif' },
-    { label: 'Gulzar', value: 'Gulzar' },
     { label: 'Noto Nastaliq Urdu', value: 'Noto Nastaliq Urdu' },
     { label: 'Lateef', value: 'Lateef' },
     { label: 'Rakkas', value: 'Rakkas' },
@@ -99,7 +97,7 @@ const appFontOptions = [
     { label: 'Alex Brush', value: 'Alex Brush' },
 ];
 
-const protectedFonts = ['', 'Roboto', 'Inter', 'Fjalla One', 'serif', 'sans-serif', 'Jameel Noori Kasheeda', 'Jameel Noori Nastaleeq'];
+const protectedFonts = ['', 'Roboto', 'Inter', 'Fjalla One', 'serif', 'sans-serif'];
 
 const AboutIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -786,8 +784,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                                         </div>
                                         <div>
                                             <label className="cursor-pointer bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white text-sm font-bold py-2 px-4 rounded-[1rem] shadow-sm transition-all focus:outline-none">
-                                                Upload TTF/OTF
-                                                <input type="file" accept=".ttf,.otf" className="hidden" onChange={handleCustomFontUpload} />
+                                                Upload Font
+                                                <input type="file" accept=".ttf,.otf,.woff2" className="hidden" onChange={handleCustomFontUpload} />
                                             </label>
                                         </div>
                                     </div>
