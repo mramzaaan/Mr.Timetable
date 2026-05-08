@@ -36,6 +36,7 @@ const enTranslations = {
     endDate: 'End Date',
     change: 'Change',
     home: 'Home',
+    reports: 'Reports',
     
     // Attendance
     studentAttendance: 'Student Attendance',
@@ -361,6 +362,7 @@ const enTranslations = {
     // New Translations for Placeholder
     noActiveSessionTitle: 'No Active Session',
     createOrUploadMessage: 'Create a new timetable or upload an existing timetable.',
+    signOut: 'Sign Out',
 };
 
 const urTranslations = {
@@ -398,6 +400,7 @@ const urTranslations = {
     endDate: 'ختم ہونے کی تاریخ',
     change: 'تبدیل کریں',
     home: 'ہوم',
+    reports: 'رپورٹس',
     
     studentAttendance: 'طلباء کی حاضری',
     totalStudents: 'کل طلباء',
@@ -710,6 +713,7 @@ const urTranslations = {
     // New Translations for Placeholder
     noActiveSessionTitle: 'کوئی فعال سیشن نہیں',
     createOrUploadMessage: 'نیا ٹائم ٹیبل بنائیں یا موجودہ ٹائم ٹیبل اپ لوڈ کریں۔',
+    signOut: 'لاگ آؤٹ',
 };
 
 export type Translations = typeof enTranslations;

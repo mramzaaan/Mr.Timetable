@@ -13,9 +13,10 @@ interface AddTeacherFormProps {
   onUpdateTeacher: (teacher: Teacher) => void;
   onDeleteTeacher: (teacherId: string) => void;
   triggerOpenForm?: number;
+  isAdmin?: boolean;
 }
 
-const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeacher, onUpdateTeacher, onDeleteTeacher, triggerOpenForm }) => {
+const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeacher, onUpdateTeacher, onDeleteTeacher, triggerOpenForm, isAdmin = true }) => {
   const [nameEn, setNameEn] = useState('');
   const [nameUr, setNameUr] = useState('');
   const [contactNumber, setContactNumber] = useState('');
@@ -47,10 +48,10 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
   useEffect(() => {
     if (editingTeacher) {
         setIsFormOpen(true);
-        setNameEn(editingTeacher.nameEn);
-        setNameUr(editingTeacher.nameUr);
+        setNameEn(editingTeacher.nameEn || '');
+        setNameUr(editingTeacher.nameUr || '');
         setContactNumber(editingTeacher.contactNumber || '');
-        setGender(editingTeacher.gender);
+        setGender(editingTeacher.gender || '');
         setSerialNumber(String(editingTeacher.serialNumber || ''));
         setEmail(editingTeacher.email || '');
         const country = countries.find(c => c.dial_code === editingTeacher.countryCode) || countries.find(c => c.code === 'PK') || countries[0];
@@ -342,6 +343,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
                   item={teacher}
                   onEdit={handleEditClick}
                   onDelete={handleDelete}
+                  isAdmin={isAdmin}
                   renderContent={(item) => (
                     <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${

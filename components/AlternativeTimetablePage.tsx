@@ -195,6 +195,7 @@ interface AlternativeTimetablePageProps {
   hasActiveSession: boolean;
   // jointPeriods added to props
   jointPeriods?: JointPeriod[];
+  userRole?: string;
 }
 
 type SubstituteStatus =
@@ -231,6 +232,7 @@ interface SubstitutionCardProps {
     onSubstituteChange: (group: SubstitutionGroup, substituteTeacherId: string) => void;
     onWhatsAppNotify: (adjustment: Adjustment) => Promise<void>;
     onToggleDropdown: (isOpen: boolean) => void;
+    isAdmin: boolean;
 }
 
 const LEAVE_REASONS = ['Illness', 'Urgent Work', 'On Duty', 'Rest', 'Other'];
@@ -365,7 +367,7 @@ const SubstitutePicker: React.FC<SubstitutePickerProps> = ({ teachersWithStatus,
 };
 
 const SubstitutionCard: React.FC<SubstitutionCardProps> = ({ 
-    group, assignedAdj, availableTeachersList, historyStats, language, t, onSubstituteChange, onWhatsAppNotify, onToggleDropdown 
+    group, assignedAdj, availableTeachersList, historyStats, language, t, onSubstituteChange, onWhatsAppNotify, onToggleDropdown, isAdmin
 }) => {
     const [isSent, setIsSent] = useState(false);
     const [isSending, setIsSending] = useState(false);
@@ -433,7 +435,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
                </div>
 
                <div className="w-8 flex-shrink-0 flex justify-end">
-                   {currentSubstituteId && !group.isClassAbsent && (
+                   {currentSubstituteId && !group.isClassAbsent && isAdmin && (
                        <button 
                            onClick={() => onSubstituteChange(group, '')}
                            className="w-8 h-8 flex items-center justify-center text-[var(--text-placeholder)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-[1.25rem] transition-colors"
@@ -452,7 +454,7 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
                     </div>
                 ) : (
                     <div className="flex items-center gap-2 h-10">
-                        <div className="flex-grow h-full text-xs">
+                        <div className={`flex-grow h-full text-xs ${!isAdmin ? 'opacity-50 pointer-events-none' : ''}`}>
                             <SubstitutePicker 
                                 teachersWithStatus={availableTeachersList}
                                 selectedId={currentSubstituteId}
@@ -500,8 +502,9 @@ const SubstitutionCard: React.FC<SubstitutionCardProps> = ({
 export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & { jointPeriods?: JointPeriod[] }> = ({ 
     t, language, classes, subjects, teachers, adjustments, leaveDetails, onSetAdjustments, 
     onSetLeaveDetails, onUpdateSession, schoolConfig, onUpdateSchoolConfig, selection, 
-    onSelectionChange, openConfirmation, hasActiveSession, jointPeriods = [] 
+    onSelectionChange, openConfirmation, hasActiveSession, jointPeriods = [], userRole = 'admin'
 }) => {
+  const isAdmin = userRole === 'admin';
   const { date: selectedDate, teacherIds: absentTeacherIds } = selection;
   const [dailyAdjustments, setDailyAdjustments] = useState<Adjustment[]>([]);
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
@@ -1887,36 +1890,50 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
         </div>
         
         <div className="flex items-center gap-3 flex-wrap">
-            <button 
-                onClick={autoAssignSubstitutes} 
-                className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2rem] font-bold  transition-all transform hover:-translate-y-0.5 active:scale-95" 
-                title={t.autoAssign}
-            >
-                <AutoIcon />
-                <span className="hidden sm:inline">{t.autoAssign}</span>
-            </button>
-            <button 
-                onClick={clearAllAdjustments} 
-                className="flex items-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-[2rem] font-bold border border-red-200 transition-all active:scale-95" 
-                title={t.clearAll}
-            >
-                <ResetIcon />
-                <span className="hidden sm:inline">{t.clearAll}</span>
-            </button>
-            <div className="w-px h-8 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>
-            <button onClick={() => { setSelectedTeachersForSlip(absentTeachers.map(t => t.id)); setIsShareModalOpen(true); }} className="p-3 text-[var(--text-secondary)] hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem] transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Share Slips"><ShareIcon /></button>
-            <button onClick={() => setIsImportExportOpen(true)} className="p-3 text-[var(--text-secondary)] hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem] transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Import/Export Adjustments"><ImportExportIcon /></button>
+            {isAdmin && (
+                <button 
+                    onClick={autoAssignSubstitutes} 
+                    className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[2rem] font-bold  transition-all transform hover:-translate-y-0.5 active:scale-95" 
+                    title={t.autoAssign}
+                >
+                    <AutoIcon />
+                    <span className="hidden sm:inline">{t.autoAssign}</span>
+                </button>
+            )}
+            {isAdmin && (
+                <button 
+                    onClick={clearAllAdjustments} 
+                    className="flex items-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-[2rem] font-bold border border-red-200 transition-all active:scale-95" 
+                    title={t.clearAll}
+                >
+                    <ResetIcon />
+                    <span className="hidden sm:inline">{t.clearAll}</span>
+                </button>
+            )}
+            {isAdmin && <div className="w-px h-8 bg-[var(--border-secondary)] mx-1 hidden sm:block"></div>}
+            {isAdmin && (
+                <button onClick={() => { setSelectedTeachersForSlip(absentTeachers.map(t => t.id)); setIsShareModalOpen(true); }} className="p-3 text-[var(--text-secondary)] hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem] transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Share Slips">
+                    <ShareIcon />
+                </button>
+            )}
+            {isAdmin && (
+                <button onClick={() => setIsImportExportOpen(true)} className="p-3 text-[var(--text-secondary)] hover:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem] transition-colors border border-transparent hover:border-[var(--border-secondary)]" title="Import/Export Adjustments">
+                    <ImportExportIcon />
+                </button>
+            )}
             <button onClick={() => setIsPrintPreviewOpen(true)} className="p-3 text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-[2rem] transition-colors  " title={t.printViewAction}><PrintIcon /></button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-         <div className="mb-2">
-             <button onClick={() => openModal('teacher')} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[2rem] font-bold text-lg  transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
-                 <PlusIcon /> 
-                 <span>{t.add || 'Add'} Absence</span>
-             </button>
-         </div>
+          {isAdmin && (
+              <div className="mb-2">
+                  <button onClick={() => openModal('teacher')} className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[2rem] font-bold text-lg  transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
+                      <PlusIcon /> 
+                      <span>{t.add || 'Add'} Absence</span>
+                  </button>
+              </div>
+          )}
 
          {dayOfWeek ? (
             allAbsentEntities.length > 0 ? (
@@ -1940,22 +1957,24 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <div className="flex items-center gap-1 opacity-100 transition-opacity">
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); openModal(entity.type, entity.id); }} 
-                                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-[1.25rem] transition-colors"
-                                            title="Edit Leave"
-                                        >
-                                            <EditIcon />
-                                        </button>
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); handleDeleteItem(entity.id, entity.type); }} 
-                                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[1.25rem] transition-colors"
-                                            title="Remove Leave / Clear Substitutions"
-                                        >
-                                            <TrashIcon />
-                                        </button>
-                                    </div>
+                                    {isAdmin && (
+                                        <div className="flex items-center gap-1 opacity-100 transition-opacity">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); openModal(entity.type, entity.id); }} 
+                                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-[1.25rem] transition-colors"
+                                                title="Edit Leave"
+                                            >
+                                                <EditIcon />
+                                            </button>
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteItem(entity.id, entity.type); }} 
+                                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[1.25rem] transition-colors"
+                                                title="Remove Leave / Clear Substitutions"
+                                            >
+                                                <TrashIcon />
+                                            </button>
+                                        </div>
+                                    )}
                                     <div className={`text-gray-400 transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
                                         <ChevronDown />
                                     </div>
@@ -2000,6 +2019,7 @@ export const AlternativeTimetablePage: React.FC<AlternativeTimetablePageProps & 
                                                             onSubstituteChange={handleSubstituteChange}
                                                             onWhatsAppNotify={handleWhatsAppNotify}
                                                             onToggleDropdown={(isOpen) => setActiveDropdownCardId(isOpen ? cardId : null)}
+                                                            isAdmin={isAdmin}
                                                         />
                                                     )}
                                                 </div>

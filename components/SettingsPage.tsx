@@ -22,6 +22,11 @@ import {
   generateAttendanceReportHtml,
   generateAttendanceReportExcel
 } from './reportUtils';
+import { Shield, Trash2, Mail, Plus, UserPlus, Info } from 'lucide-react';
+
+import AdminPanel from './AdminPanel';
+
+import { TimetableSession, UserRole } from '../types';
 
 interface SettingsPageProps {
   t: any; 
@@ -58,6 +63,13 @@ interface SettingsPageProps {
   adjustments: Record<string, Adjustment[]>;
   leaveDetails?: Record<string, Record<string, LeaveDetails>>; 
   attendance: Record<string, Record<string, AttendanceData>>;
+  currentTimetableSession?: TimetableSession | null;
+  userRole?: UserRole;
+  userEmail?: string | null;
+  onUpdateSession?: (updater: (session: TimetableSession) => TimetableSession) => void;
+  onDeleteSessionFromBackend?: (session: TimetableSession) => Promise<void>;
+  userId?: string | null;
+  canEditGlobal?: boolean;
 }
 
 const themeOptions: { id: Theme; name: string; colors: [string, string, string] }[] = [
@@ -321,13 +333,17 @@ const ReportCard: React.FC<{
 };
 
 const SettingsPage: React.FC<SettingsPageProps> = ({
-  t, language, setLanguage, theme, setTheme, themeColors, onColorChange, onResetTheme, navDesign, setNavDesign, navShape, setNavShape, navBtnAlphaSelected, setNavBtnAlphaSelected, navBtnAlphaUnselected, setNavBtnAlphaUnselected, navBarAlpha, setNavBarAlpha, navBarColor, setNavBarColor, navAnimation, setNavAnimation, fontSize, setFontSize, appFont, setAppFont, schoolConfig, onUpdateSchoolConfig, classes, teachers, subjects, adjustments, leaveDetails, attendance
+  t, language, setLanguage, theme, setTheme, themeColors, onColorChange, onResetTheme, navDesign, setNavDesign, navShape, setNavShape, navBtnAlphaSelected, setNavBtnAlphaSelected, navBtnAlphaUnselected, setNavBtnAlphaUnselected, navBarAlpha, setNavBarAlpha, navBarColor, setNavBarColor, navAnimation, setNavAnimation, fontSize, setFontSize, appFont, setAppFont, schoolConfig, onUpdateSchoolConfig, classes, teachers, subjects, adjustments, leaveDetails, attendance, userRole, onUpdateSession, currentTimetableSession, userEmail, onDeleteSessionFromBackend, userId
 }) => {
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isThemeOptionsOpen, setIsThemeOptionsOpen] = useState(false); 
   const [isTypographyOpen, setIsTypographyOpen] = useState(false);
   const [isInterfaceOptionsOpen, setIsInterfaceOptionsOpen] = useState(false);
   const [isPrintSectionOpen, setIsPrintSectionOpen] = useState(false);
   const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  
+  const isAdmin = userRole === 'admin';
   
   // Advanced Color Picker State
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -848,6 +864,96 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             </div>
         </div>
 
+        {isAdmin && (
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem] mb-8 overflow-hidden group hover:border-indigo-500/50 transition-all">
+                <div className="p-6">
+                    <div className="flex items-center gap-6 mb-8">
+                        <div className="w-14 h-14 rounded-2xl bg-fuchsia-500 flex items-center justify-center text-white shadow-lg">
+                            <Shield className="h-7 w-7" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-[var(--text-primary)]">Session Administration</h3>
+                            <p className="text-sm text-[var(--text-secondary)]">Manage specific administrators for this timetable session</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex gap-3">
+                            <input 
+                                type="email"
+                                value={newAdminEmail}
+                                onChange={(e) => setNewAdminEmail(e.target.value)}
+                                placeholder="Enter teacher email address"
+                                className="flex-1 bg-[var(--bg-tertiary)] text-[var(--text-primary)] px-4 py-3 rounded-2xl border border-transparent focus:border-indigo-500 transition-all text-sm font-bold"
+                            />
+                            <button 
+                                onClick={() => {
+                                    if (!newAdminEmail || !newAdminEmail.includes('@')) return;
+                                    onUpdateSession?.(s => ({
+                                        ...s,
+                                        admins: Array.from(new Set([...(s.admins || []), newAdminEmail.toLowerCase().trim()]))
+                                    }));
+                                    setNewAdminEmail('');
+                                }}
+                                className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg"
+                            >
+                                Add Admin
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            {(currentTimetableSession?.admins || []).map(email => (
+                                <div key={email} className="bg-[var(--bg-tertiary)] p-4 rounded-2xl flex items-center justify-between group/item">
+                                    <div className="flex items-center gap-3 truncate">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 font-bold text-xs">
+                                            {(email || '?').charAt(0).toUpperCase()}
+                                        </div>
+                                        <span className="text-sm font-bold text-[var(--text-primary)] truncate">{email}</span>
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            onUpdateSession?.(s => ({
+                                                ...s,
+                                                admins: (s.admins || []).filter(e => e !== email)
+                                            }));
+                                        }}
+                                        className="p-1 text-red-500 opacity-0 group-hover/item:opacity-100 hover:bg-red-50 rounded-lg transition-all"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            ))}
+                            {(!currentTimetableSession?.admins || currentTimetableSession.admins.length === 0) && (
+                                <div className="col-span-full py-8 text-center bg-[var(--bg-tertiary)] rounded-2xl border border-dashed border-[var(--border-secondary)]">
+                                    <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">No additional admins listed</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {userRole === 'admin' && (
+            <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem] mb-8 overflow-hidden group hover:border-indigo-500/50 transition-all">
+                <button 
+                    onClick={() => setIsAdminPanelOpen(true)}
+                    className="w-full flex items-center p-6 gap-6 text-left"
+                >
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold text-[var(--text-primary)]">Admin Control Center</h3>
+                        <p className="text-sm text-[var(--text-secondary)]">Manage user accounts and system-wide permissions</p>
+                    </div>
+                    <div className="ml-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                </button>
+            </div>
+        )}
+
 
 
         <div className="bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[1.25rem]   mb-8 overflow-hidden">
@@ -888,6 +994,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
 
         <button onClick={() => setIsAboutOpen(true)} className="fixed bottom-24 right-6 xl:bottom-8 xl:right-8 z-40 bg-[var(--accent-primary)] text-white w-12 h-12 rounded-full  hover: hover:bg-[var(--accent-primary-hover)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center" title="About Mr. TMS"><AboutIcon /></button>
+        
+        {isAdminPanelOpen && (
+            <AdminPanel t={t} onClose={() => setIsAdminPanelOpen(false)} currentSession={currentTimetableSession} onUpdateSession={onUpdateSession} userEmail={userEmail} onDeleteSession={onDeleteSessionFromBackend} userId={userId} userRole={userRole} />
+        )}
       </div>
     </div>
   );

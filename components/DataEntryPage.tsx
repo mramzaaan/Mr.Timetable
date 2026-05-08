@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
-import type { DataEntryTab, Subject, Teacher, SchoolClass, JointPeriod, SchoolConfig, TimetableSession } from '../types';
+import type { DataEntryTab, Subject, Teacher, SchoolClass, JointPeriod, SchoolConfig, TimetableSession, UserData } from '../types';
 import AddSubjectForm from './AddSubjectForm';
 import AddTeacherForm from './AddTeacherForm';
 import AddClassForm from './AddClassForm';
 import TimetableStructureForm from './TimetableStructureForm';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
 import CsvManagementModal from './CsvManagementModal';
+import ImportExportChoiceModal from './ImportExportChoiceModal';
+import BackupRestoreModal from './BackupRestoreModal';
 
 interface DataEntryPageProps {
   t: any;
@@ -33,6 +35,9 @@ interface DataEntryPageProps {
   onUpdateTimetableSession: (updater: (session: TimetableSession) => TimetableSession) => void;
   openConfirmation: (title: string, message: React.ReactNode, onConfirm: () => void) => void;
   onOpenSchoolInfo: () => void;
+  userData: UserData;
+  onRestore: (data: UserData, fontData?: Record<string, string>) => void;
+  userRole?: UserRole;
 }
 
 // Icon Components for Tabs
@@ -63,9 +68,17 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
   schoolConfig, onUpdateSchoolConfig,
   currentTimetableSession, onUpdateTimetableSession,
   openConfirmation,
-  onOpenSchoolInfo
+  onOpenSchoolInfo,
+  userData,
+  onRestore,
+  userRole
 }) => {
+  const canEdit = currentTimetableSession?.canEdit ?? (userRole === 'admin');
+  const isAdmin = canEdit;
+
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
+  const [isChoiceModalOpen, setIsChoiceModalOpen] = useState(false);
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [isFabOpen, setIsFabOpen] = useState(false);
 
   const [triggerTeacher, setTriggerTeacher] = useState(0);
@@ -89,11 +102,11 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
   const renderTabContent = () => {
     switch (activeTab) {
       case 'class':
-        return <AddClassForm t={t} subjects={subjects} teachers={teachers} classes={classes} onSetClasses={onSetClasses} onDeleteClass={onDeleteClass} triggerOpenForm={triggerClass} />;
+        return <AddClassForm t={t} subjects={subjects} teachers={teachers} classes={classes} onSetClasses={onSetClasses} onDeleteClass={onDeleteClass} triggerOpenForm={triggerClass} isAdmin={isAdmin} />;
       case 'teacher':
-        return <AddTeacherForm t={t} teachers={teachers} onAddTeacher={onAddTeacher} onUpdateTeacher={onUpdateTeacher} onDeleteTeacher={onDeleteTeacher} triggerOpenForm={triggerTeacher} />;
+        return <AddTeacherForm t={t} teachers={teachers} onAddTeacher={onAddTeacher} onUpdateTeacher={onUpdateTeacher} onDeleteTeacher={onDeleteTeacher} triggerOpenForm={triggerTeacher} isAdmin={isAdmin} />;
       case 'subject':
-        return <AddSubjectForm t={t} subjects={subjects} onAddSubject={onAddSubject} onUpdateSubject={onUpdateSubject} onDeleteSubject={onDeleteSubject} triggerOpenForm={triggerSubject} />;
+        return <AddSubjectForm t={t} subjects={subjects} onAddSubject={onAddSubject} onUpdateSubject={onUpdateSubject} onDeleteSubject={onDeleteSubject} triggerOpenForm={triggerSubject} isAdmin={isAdmin} />;
       case 'structure':
         const structureKey = currentTimetableSession 
             ? `${currentTimetableSession.id}-${JSON.stringify(currentTimetableSession.periodTimings || {})}-${JSON.stringify(currentTimetableSession.breaks || {})}`
@@ -106,8 +119,9 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
             onUpdateSchoolConfig={onUpdateSchoolConfig}
             currentTimetableSession={currentTimetableSession}
             onUpdateTimetableSession={onUpdateTimetableSession}
+            isAdmin={isAdmin}
         />;
-      case 'importExport':
+       case 'importExport':
         return (
             <div className="flex flex-col items-center justify-center p-12 bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]   text-center">
                 <div className="bg-[var(--bg-tertiary)] p-8 rounded-full mb-6 text-[var(--accent-primary)] shadow-inner">
@@ -116,13 +130,13 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                     </svg>
                 </div>
                 <h3 className="text-2xl font-black text-[var(--text-primary)] mb-2 uppercase tracking-tighter">{t.dataImportExportCsv}</h3>
-                <p className="text-[var(--text-secondary)] max-w-md mb-8 font-medium">{t.csvUploadDescription}</p>
+                <p className="text-[var(--text-secondary)] max-w-md mb-8 font-medium">Manage your school data through CSV imports or a full system backup.</p>
                 
                 <button 
-                    onClick={() => setIsCsvModalOpen(true)}
+                    onClick={() => setIsChoiceModalOpen(true)}
                     className="px-10 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black uppercase tracking-[0.2em] rounded-[2rem]  hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-1 active:scale-[0.98]"
                 >
-                    {t.openCsvManager}
+                    {t.importExport}
                 </button>
             </div>
         );
@@ -157,26 +171,28 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
                 <p className="text-[var(--text-secondary)] font-bold text-xs sm:text-sm uppercase tracking-widest mt-1 opacity-70">Manage school infrastructure</p>
             </div>
 
-            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-4">
-                 <button 
-                    onClick={() => setIsCsvModalOpen(true)} 
-                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#10b981] text-white rounded-[2rem]  hover: hover:-translate-y-0.5 transition-all group"
-                 >
-                    <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
-                        <TransferIcon />
-                    </div>
-                    <span className="font-bold text-xs sm:text-sm uppercase tracking-wide">{t.importExport}</span>
-                 </button>
-                 <button 
-                    onClick={onOpenSchoolInfo} 
-                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#f59e0b] text-white rounded-[2rem]  hover: hover:-translate-y-0.5 transition-all group"
-                 >
-                    <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
-                        <SchoolIcon />
-                    </div>
-                    <span className="font-bold text-xs sm:text-sm uppercase tracking-wide">School Info</span>
-                 </button>
-            </div>
+            {isAdmin && (
+                <div className="grid grid-cols-2 sm:flex sm:flex-row gap-4">
+                     <button 
+                        onClick={() => setIsChoiceModalOpen(true)} 
+                        className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#10b981] text-white rounded-[2rem]  hover: hover:-translate-y-0.5 transition-all group"
+                     >
+                        <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
+                            <TransferIcon />
+                        </div>
+                        <span className="font-bold text-xs sm:text-sm uppercase tracking-wide">{t.importExport}</span>
+                     </button>
+                     <button 
+                        onClick={onOpenSchoolInfo} 
+                        className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-[#f59e0b] text-white rounded-[2rem]  hover: hover:-translate-y-0.5 transition-all group"
+                     >
+                        <div className="p-1.5 bg-white/20 rounded-full group-hover:scale-110 transition-transform">
+                            <SchoolIcon />
+                        </div>
+                        <span className="font-bold text-xs sm:text-sm uppercase tracking-wide">School Info</span>
+                     </button>
+                </div>
+            )}
         </div>
 
         <div className="flex justify-center mb-8 overflow-x-auto no-scrollbar pb-2">
@@ -191,10 +207,13 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
         <div className="animate-fade-in bg-[var(--bg-secondary)] backdrop-blur-[30px] border border-[var(--border-primary)] rounded-[2.5rem] p-4 sm:p-6 lg:p-8">{renderTabContent()}</div>
       </div>
       <CsvManagementModal t={t} isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} currentTimetableSession={currentTimetableSession} onUpdateTimetableSession={onUpdateTimetableSession} />
+      <ImportExportChoiceModal t={t} isOpen={isChoiceModalOpen} onClose={() => setIsChoiceModalOpen(false)} onOpenCsv={() => setIsCsvModalOpen(true)} onOpenBackup={() => setIsBackupModalOpen(true)} />
+      <BackupRestoreModal t={t} isOpen={isBackupModalOpen} onClose={() => setIsBackupModalOpen(false)} userData={userData} onRestore={onRestore} />
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-[80] flex flex-col items-end">
-          {/* Menu Options */}
+      {isAdmin && (
+          <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-[80] flex flex-col items-end">
+              {/* Menu Options */}
           <div className={`flex flex-col gap-3 mb-4 transition-all duration-300 origin-bottom ${isFabOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-10 pointer-events-none'}`}>
               <button 
                   onClick={() => handleFabClick('class')}
@@ -235,6 +254,7 @@ const DataEntryPage: React.FC<DataEntryPageProps> = ({
               </svg>
           </button>
       </div>
+      )}
       {/* Overlay to close FAB when clicking outside */}
       {isFabOpen && (
           <div 

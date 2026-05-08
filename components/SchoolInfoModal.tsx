@@ -11,16 +11,16 @@ interface SchoolInfoModalProps {
 }
 
 const SchoolInfoModal: React.FC<SchoolInfoModalProps> = ({ t, isOpen, onClose, schoolConfig, onUpdateSchoolConfig }) => {
-  const [localSchoolNameEn, setLocalSchoolNameEn] = useState(schoolConfig.schoolNameEn);
-  const [localSchoolNameUr, setLocalSchoolNameUr] = useState(schoolConfig.schoolNameUr);
-  const [localSchoolLogo, setLocalSchoolLogo] = useState<string | null>(schoolConfig.schoolLogoBase64);
+  const [localSchoolNameEn, setLocalSchoolNameEn] = useState(schoolConfig.schoolNameEn || '');
+  const [localSchoolNameUr, setLocalSchoolNameUr] = useState(schoolConfig.schoolNameUr || '');
+  const [localSchoolLogo, setLocalSchoolLogo] = useState<string | null>(schoolConfig.schoolLogoBase64 || null);
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' | null }>({ message: '', type: null });
 
   useEffect(() => {
     if (isOpen) {
-        setLocalSchoolNameEn(schoolConfig.schoolNameEn);
-        setLocalSchoolNameUr(schoolConfig.schoolNameUr);
-        setLocalSchoolLogo(schoolConfig.schoolLogoBase64);
+        setLocalSchoolNameEn(schoolConfig.schoolNameEn || '');
+        setLocalSchoolNameUr(schoolConfig.schoolNameUr || '');
+        setLocalSchoolLogo(schoolConfig.schoolLogoBase64 || null);
     }
   }, [isOpen, schoolConfig]);
 

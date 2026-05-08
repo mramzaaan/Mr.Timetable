@@ -13,6 +13,7 @@ interface TimetableStructureFormProps {
   currentTimetableSession?: TimetableSession | null;
   onUpdateTimetableSession?: (updater: (session: TimetableSession) => TimetableSession) => void;
   onUpdateSchoolConfig: (newSchoolConfig: Partial<SchoolConfig>) => void; // Keep for print design saves
+  isAdmin?: boolean;
 }
 
 // Helper type for rendering interleaved schedule
@@ -21,7 +22,7 @@ type ScheduleItem =
     | { type: 'break'; index: number; data: Break }
     | { type: 'assembly'; data: PeriodTime };
 
-const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, schoolConfig, onUpdateSchoolConfig, currentTimetableSession, onUpdateTimetableSession }) => {
+const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, schoolConfig, onUpdateSchoolConfig, currentTimetableSession, onUpdateTimetableSession, isAdmin = true }) => {
   // Use session data if available, otherwise fallback to schoolConfig
   const effectiveConfig = currentTimetableSession || schoolConfig;
 
@@ -337,7 +338,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
         </div>
 
         {/* Vacation Management */}
-        <div className="mb-8">
+        <div className={`mb-8 ${!isAdmin ? 'pointer-events-none opacity-80' : ''}`}>
             <div className="flex justify-between items-center mb-4">
                 <h4 className="text-sm font-bold text-gray-500 tracking-wider uppercase">Scheduled Vacations</h4>
                 <button onClick={handleAddVacation} className="text-sm font-bold text-[#005f5f] hover:text-[#004c4c] flex items-center gap-1">
@@ -388,7 +389,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
             )}
         </div>
 
-        <div className="mb-8 bg-white rounded-[2rem] border border-gray-200  overflow-hidden">
+        <div className={`mb-8 bg-white rounded-[2rem] border border-gray-200  overflow-hidden ${!isAdmin ? 'pointer-events-none opacity-80' : ''}`}>
             <button 
                 onClick={() => setIsDaysConfigOpen(!isDaysConfigOpen)}
                 className="w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
@@ -439,7 +440,7 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
             )}
         </div>
 
-        <div className="pt-6">
+        <div className={`pt-6 ${!isAdmin ? 'pointer-events-none opacity-80' : ''}`}>
             <div className="flex bg-gray-50 p-1 rounded-[2rem] mb-8">
                 <button 
                     className={`flex-1 py-3 text-sm font-bold rounded-[1.25rem] transition-colors ${activeTimingTab === 'default' ? 'bg-white text-[#005f5f] ' : 'text-gray-400 hover:text-gray-600'}`}
@@ -542,14 +543,14 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                                         {duration && <span className="text-sm font-medium text-gray-600 mr-2 pr-2 border-r border-gray-300 shrink-0">{duration}</span>}
                                         <input 
                                             type="time" 
-                                            value={item.data.start} 
+                                            value={item.data.start || ''} 
                                             onChange={(e) => updateScheduleData(flatIndex, 'start', e.target.value)}
                                             className="bg-transparent text-sm font-bold text-gray-700 focus:outline-none shrink-0"
                                         />
                                         <span className="text-gray-400 mx-1 shrink-0">-</span>
                                         <input 
                                             type="time" 
-                                            value={item.data.end} 
+                                            value={item.data.end || ''} 
                                             onChange={(e) => updateScheduleData(flatIndex, 'end', e.target.value)}
                                             className="bg-transparent text-sm font-bold text-gray-700 focus:outline-none shrink-0"
                                         />
@@ -566,14 +567,14 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                                     <div className="flex items-center bg-white rounded-[1.25rem] px-3 py-1.5  w-full sm:w-auto overflow-x-auto">
                                         <input 
                                             type="time" 
-                                            value={item.data.start} 
+                                            value={item.data.start || ''} 
                                             onChange={(e) => updateScheduleData(flatIndex, 'start', e.target.value)}
                                             className="bg-transparent text-sm font-bold text-[#2563eb] focus:outline-none shrink-0"
                                         />
                                         <span className="text-[#2563eb] mx-1 shrink-0">-</span>
                                         <input 
                                             type="time" 
-                                            value={item.data.end} 
+                                            value={item.data.end || ''} 
                                             onChange={(e) => updateScheduleData(flatIndex, 'end', e.target.value)}
                                             className="bg-transparent text-sm font-bold text-[#2563eb] focus:outline-none shrink-0"
                                         />
@@ -602,14 +603,14 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                                     <div className="flex flex-wrap items-center bg-white rounded-[1.25rem] px-3 py-1.5  w-full sm:w-auto">
                                         <input 
                                             type="time" 
-                                            value={item.data.startTime} 
+                                            value={item.data.startTime || ''} 
                                             onChange={(e) => updateScheduleData(flatIndex, 'start', e.target.value)}
                                             className={`bg-transparent text-sm font-bold ${textColor} focus:outline-none shrink-0`}
                                         />
                                         <span className={`${textColor} mx-1 shrink-0`}>-</span>
                                         <input 
                                             type="time" 
-                                            value={item.data.endTime} 
+                                            value={item.data.endTime || ''} 
                                             onChange={(e) => updateScheduleData(flatIndex, 'end', e.target.value)}
                                             className={`bg-transparent text-sm font-bold ${textColor} focus:outline-none shrink-0`}
                                         />
@@ -632,10 +633,12 @@ const TimetableStructureForm: React.FC<TimetableStructureFormProps> = ({ t, scho
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     Print View
                 </button>
-                <button onClick={handleSave} className="px-6 py-2 bg-[#005f5f] text-white font-semibold rounded-[1.25rem]  hover:bg-[#004c4c] transition-colors flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                    Save
-                </button>
+                {isAdmin && (
+                    <button onClick={handleSave} className="px-6 py-2 bg-[#005f5f] text-white font-semibold rounded-[1.25rem]  hover:bg-[#004c4c] transition-colors flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        Save
+                    </button>
+                )}
             </div>
         </div>
     </div>

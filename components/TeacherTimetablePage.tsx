@@ -88,13 +88,15 @@ interface TeacherTimetablePageProps {
   changeLogs?: TimetableChangeLog[];
   appFont?: string;
   theme?: string;
+  userRole?: string;
 }
 
 type SortField = 'date' | 'period' | 'type' | 'class' | 'subject' | 'teacher';
 
 export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.memo(({
-  t, language, classes, subjects, teachers, jointPeriods, adjustments, leaveDetails, onSetClasses, schoolConfig, onUpdateSchoolConfig, selectedTeacherId, onSelectedTeacherChange, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, openConfirmation, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs, appFont, theme
+  t, language, classes, subjects, teachers, jointPeriods, adjustments, leaveDetails, onSetClasses, schoolConfig, onUpdateSchoolConfig, selectedTeacherId, onSelectedTeacherChange, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, openConfirmation, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs, appFont, theme, userRole
 }) => {
+  const isAdmin = userRole === 'admin';
   const [draggedData, setDraggedData] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const draggedDataRef = useRef<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const [moveSource, setMoveSource] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
@@ -1291,21 +1293,28 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                 
                 {isHeaderMoreOpen && (
                     <div className="absolute right-0 top-[100%] mt-2 flex flex-col justify-center items-center gap-1 bg-white dark:bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 rounded-[2rem]  p-2 border border-gray-100 dark:border-[var(--border-primary)] z-50 animate-scale-in">
-                        <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedTeacher} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
-                            <Printer className="w-5 h-5 flex-shrink-0" />
-                            <span className="text-sm font-semibold whitespace-nowrap hidden lg:block">Print</span>
-                        </button>
-                        {onUndo && (
+                        {isAdmin && (
+                            <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedTeacher} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
+                                <Printer className="w-5 h-5 flex-shrink-0" />
+                                <span className="text-sm font-semibold whitespace-nowrap hidden lg:block">Print</span>
+                            </button>
+                        )}
+                        {isAdmin && onUndo && (
                             <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
                                 <Undo2 className="w-5 h-5 flex-shrink-0" />
                                 <span className="text-sm font-semibold whitespace-nowrap hidden lg:block">Undo</span>
                             </button>
                         )}
-                        {onRedo && (
+                        {isAdmin && onRedo && (
                             <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2.5 w-full hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center gap-3 rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
                                 <Redo2 className="w-5 h-5 flex-shrink-0" />
                                 <span className="text-sm font-semibold whitespace-nowrap hidden lg:block">Redo</span>
                             </button>
+                        )}
+                        {!isAdmin && (
+                            <div className="p-3 text-xs font-bold text-gray-400 uppercase tracking-widest text-center min-w-[8rem]">
+                                Read Only
+                            </div>
                         )}
                     </div>
                 )}
@@ -1403,9 +1412,9 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                         content = (
                                             <div 
                                                 className={outerClasses}
-                                                onDragOver={(e) => !isDisabled && handleDragOver(e)}
-                                                onDrop={(e) => !isDisabled && handleDrop(e, day, periodIndex)}
-                                                onClick={() => !isDisabled && moveSource && handleExecuteMove(day, periodIndex)}
+                                                onDragOver={(e) => isAdmin && !isDisabled && handleDragOver(e)}
+                                                onDrop={(e) => isAdmin && !isDisabled && handleDrop(e, day, periodIndex)}
+                                                onClick={() => !isDisabled && moveSource && isAdmin && handleExecuteMove(day, periodIndex)}
                                                 style={{ transform: `scale(${contentScale})`, transformOrigin: 'top left' }}
                                             >
                                                 {/* Card Content or Stack */}
@@ -1427,11 +1436,11 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                                         return (
                                                             <div 
                                                                 key={`${group[0].id}-${groupIndex}`}
-                                                                draggable
-                                                                onDragStart={(e) => { e.stopPropagation(); handleDragStart(group, day, periodIndex); }}
+                                                                draggable={isAdmin}
+                                                                onDragStart={(e) => { e.stopPropagation(); isAdmin && handleDragStart(group, day, periodIndex); }}
                                                                 onDragEnd={handleDragEnd}
-                                                                onClick={(e) => { e.stopPropagation(); handleStackClick(group, day, periodIndex); }}
-                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-[2rem] transition-all duration-300 hover:scale-105 hover: cursor-grab active:cursor-grabbing overflow-hidden  ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
+                                                                onClick={(e) => { e.stopPropagation(); isAdmin && handleStackClick(group, day, periodIndex); }}
+                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-[2rem] transition-all duration-300 ${isAdmin ? 'hover:scale-105 hover: cursor-grab active:cursor-grabbing' : 'cursor-default'} overflow-hidden  ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
                                                                 style={{ 
                                                                     borderLeftColor: colorData.hex, 
                                                                     backgroundColor: isSelected ? `${colorData.hex}40` : `${colorData.hex}15`,
@@ -1497,9 +1506,9 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                   <div className="w-full">
                       <div 
                           className={`bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md shadow-oneui rounded-oneui-lg p-3 flex flex-col gap-2 min-h-[25rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 border-red-400 bg-red-50/50 dark:bg-red-900/20' : ''}`}
-                          onDragOver={handleDragOver}
-                          onDrop={handleSidebarDrop}
-                          onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
+                          onDragOver={(e) => isAdmin && handleDragOver(e)}
+                          onDrop={(e) => isAdmin && handleSidebarDrop(e)}
+                          onClick={isAdmin && moveSource?.sourceDay ? handleUnschedule : undefined}
                       >
                           {moveSource && moveSource.sourceDay && (
                               <div className="px-3 py-2 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-[2rem] text-center animate-pulse cursor-pointer ">
@@ -1526,11 +1535,11 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                                       return (
                                           <div 
                                               key={`unscheduled-pc-${groupKey}-${index}`} 
-                                              draggable
-                                              onDragStart={() => handleDragStart(group)}
+                                              draggable={isAdmin}
+                                              onDragStart={() => isAdmin && handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
-                                              onClick={() => handleStackClick(group)}
-                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[2rem] px-2.5 py-1.5 flex items-center justify-between gap-1  cursor-grab active:cursor-grabbing border-l-4 transition-all hover: hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                              onClick={() => isAdmin && handleStackClick(group)}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[2rem] px-2.5 py-1.5 flex items-center justify-between gap-1 ${isAdmin ? 'cursor-grab active:cursor-grabbing hover: hover:-translate-y-0.5 transition-all' : 'cursor-default'} border-l-4 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
                                               <div className="flex flex-col flex-1 min-w-0">
@@ -1561,9 +1570,9 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
             <div className="w-full flex-col mt-2 lg:hidden flex">
               <div 
                   className={`bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 backdrop-blur-md shadow-oneui rounded-oneui-lg p-3 md:p-4  flex flex-col gap-3 min-h-[9.375rem] relative transition-colors ${draggedData?.sourceDay || (moveSource?.sourceDay) ? 'ring-2 ring-red-400 bg-red-50/50 cursor-pointer' : ''}`}
-                  onDragOver={handleDragOver}
-                  onDrop={handleSidebarDrop}
-                  onClick={moveSource?.sourceDay ? handleUnschedule : undefined}
+                  onDragOver={(e) => isAdmin && handleDragOver(e)}
+                  onDrop={(e) => isAdmin && handleSidebarDrop(e)}
+                  onClick={isAdmin && moveSource?.sourceDay ? handleUnschedule : undefined}
               >
                 <h3 className="text-xl sm:text-2xl font-black text-[#1f4061] dark:text-gray-300 uppercase tracking-widest flex items-center gap-2 mb-2">
                     UNSCHEDULED
@@ -1595,11 +1604,11 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
                         return (
                             <div 
                                 key={`unscheduled-mobile-${groupKey}-${index}`} 
-                                draggable
-                                onDragStart={() => handleDragStart(group)}
+                                draggable={isAdmin}
+                                onDragStart={() => isAdmin && handleDragStart(group)}
                                 onDragEnd={handleDragEnd}
-                                onClick={() => handleStackClick(group)}
-                                className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] md:rounded-[2rem] px-2.5 py-1.5 md:px-3 md:py-2 flex flex-col items-center justify-between gap-1  cursor-grab active:cursor-grabbing border-l-4 transition-all hover: hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                onClick={() => isAdmin && handleStackClick(group)}
+                                className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[1rem] md:rounded-[2rem] px-2.5 py-1.5 md:px-3 md:py-2 flex flex-col items-center justify-between gap-1 ${isAdmin ? 'cursor-grab active:cursor-grabbing hover: hover:-translate-y-0.5 transition-all' : 'cursor-default transition-all'} border-l-4 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                 style={{ borderLeftColor: colorData.hex }}
                             >
                                 <div className="flex w-full items-center justify-between">
@@ -1634,7 +1643,7 @@ export const TeacherTimetablePage: React.FC<TeacherTimetablePageProps> = React.m
       )}
       
       {/* Lesson Manager Section */}
-      {selectedTeacher && hasActiveSession && (
+      {isAdmin && selectedTeacher && hasActiveSession && (
         <div className="mt-8">
             <AddLessonForm 
                 t={t}

@@ -8,7 +8,8 @@ import {
   Users,
   Shuffle,
   UserCheck,
-  Settings
+  Settings,
+  FileText
 } from 'lucide-react';
 
 interface SideNavBarProps {
@@ -25,6 +26,7 @@ const ClassTimetableIcon = ({ className = "h-7 w-7" }) => <Calendar className={c
 const TeacherTimetableIcon = ({ className = "h-7 w-7" }) => <Users className={className} strokeWidth={1.5} />;
 const AdjustmentsIcon = ({ className = "h-7 w-7" }) => <Shuffle className={className} strokeWidth={1.5} />;
 const AttendanceIcon = ({ className = "h-7 w-7" }) => <UserCheck className={className} strokeWidth={1.5} />;
+const ReportsIcon = ({ className = "h-7 w-7" }) => <FileText className={className} strokeWidth={1.5} />;
 const SettingsIcon = ({ className = "h-7 w-7" }) => <Settings className={className} strokeWidth={1.5} />;
 
 const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage, schoolConfig }) => {
@@ -36,6 +38,7 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
     { page: 'classTimetable', labelKey: 'class', icon: <ClassTimetableIcon />, theme: 'indigo' },
     { page: 'teacherTimetable', labelKey: 'teacher', icon: <TeacherTimetableIcon />, theme: 'violet' },
     { page: 'attendance', labelKey: 'attendance', icon: <AttendanceIcon />, theme: 'teal' },
+    { page: 'reports', labelKey: 'reports', icon: <ReportsIcon />, theme: 'rose' },
     { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon />, theme: 'orange' },
     { page: 'settings', labelKey: 'settings', icon: <SettingsIcon />, theme: 'slate' },
   ];
@@ -47,6 +50,7 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
       violet: 'bg-violet-500',
       orange: 'bg-orange-500',
       teal: 'bg-teal-500',
+      rose: 'bg-rose-500',
       slate: 'bg-slate-500',
   };
   
@@ -57,6 +61,7 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
       violet: 'text-violet-500',
       orange: 'text-orange-500',
       teal: 'text-teal-500',
+      rose: 'text-rose-500',
       slate: 'text-slate-500',
   };
 

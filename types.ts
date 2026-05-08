@@ -1,6 +1,7 @@
 
 export type Language = 'en' | 'ur';
-export type Page = 'home' | 'classTimetable' | 'teacherTimetable' | 'alternativeTimetable' | 'attendance' | 'teacherAttendance' | 'dataEntry' | 'settings';
+export type UserRole = 'admin' | 'teacher';
+export type Page = 'home' | 'classTimetable' | 'teacherTimetable' | 'alternativeTimetable' | 'attendance' | 'teacherAttendance' | 'dataEntry' | 'settings' | 'reports';
 export type DataEntryTab = 'class' | 'teacher' | 'subject' | 'jointPeriods' | 'structure' | 'school' | 'importExport';
 
 export type NavPosition = 'top' | 'bottom';
@@ -151,6 +152,14 @@ export interface TimetableChangeLog {
     entityId: string;
 }
 
+export interface SessionPermissions {
+    canEditTimetable: boolean;
+    canManageData: boolean;   // Teachers, Classes, Subjects
+    canTakeAttendance: boolean;
+    canViewReports: boolean;
+    canManageStructure: boolean;
+}
+
 export interface TimetableSession {
   id: string;
   name: string;
@@ -163,6 +172,14 @@ export interface TimetableSession {
   adjustments: Record<string, Adjustment[]>; 
   leaveDetails?: Record<string, Record<string, LeaveDetails>>;
   attendance?: Record<string, Record<string, AttendanceData>>; // date -> classId -> data
+  // Optional metadata for sharing
+  ownerId?: string;
+  admins?: string[]; // emails of other admins
+  editors?: string[]; // emails of users with edit access
+  userPermissions?: Record<string, SessionPermissions>; // email -> permissions mapping
+  isShared?: boolean;
+  canEdit?: boolean; // dynamic field for UI restrictions
+  schoolName?: string;
   // Optional structure configuration for portable sessions
   daysConfig?: Record<keyof TimetableGridData, DayConfig>;
   periodTimings?: {

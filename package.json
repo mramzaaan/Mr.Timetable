@@ -15,6 +15,7 @@
     "@capacitor/filesystem": "^8.1.2",
     "@capacitor/share": "^8.0.1",
     "@google/genai": "^1.33.0",
+    "@supabase/supabase-js": "^2.105.3",
     "colord": "^2.9.3",
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",

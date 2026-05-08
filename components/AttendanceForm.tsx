@@ -9,6 +9,7 @@ interface AttendanceFormProps {
     attendanceRecord?: AttendanceData;
     onSaveAttendance: (data: AttendanceData) => void;
     submitterName: string; // Name of the person who will submit the form
+    isAdmin?: boolean;
 }
 
 const SignatureModal: React.FC<{
@@ -162,7 +163,7 @@ const SignatureModal: React.FC<{
     );
 };
 
-const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDate, attendanceRecord, onSaveAttendance, submitterName }) => {
+const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDate, attendanceRecord, onSaveAttendance, submitterName, isAdmin = true }) => {
     const [absent, setAbsent] = useState(attendanceRecord?.absent || 0);
     const [sick, setSick] = useState(attendanceRecord?.sick || 0);
     const [leave, setLeave] = useState(attendanceRecord?.leave || 0);
@@ -262,9 +263,10 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                         <label className={`${labelClass} text-red-600`}>{t.absent.toUpperCase()}</label>
                         <input 
                             type="number" 
-                            value={absent === 0 ? '' : absent} 
+                            disabled={!isAdmin}
+                            value={absent || ''} 
                             onChange={(e) => setAbsent(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
-                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-red-100 dark:border-red-900 rounded-[2rem] sm:rounded-[2rem] text-red-700 dark:text-red-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-red-400 transition-all shadow-inner"
+                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-red-100 dark:border-red-900 rounded-[2rem] sm:rounded-[2rem] text-red-700 dark:text-red-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-red-400 transition-all shadow-inner disabled:opacity-50"
                         />
                     </div>
 
@@ -272,9 +274,10 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                         <label className={`${labelClass} text-amber-600`}>{t.sick.toUpperCase()}</label>
                         <input 
                             type="number" 
-                            value={sick === 0 ? '' : sick} 
+                            disabled={!isAdmin}
+                            value={sick || ''} 
                             onChange={(e) => setSick(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
-                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-amber-100 dark:border-amber-900 rounded-[2rem] sm:rounded-[2rem] text-amber-700 dark:text-amber-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-amber-400 transition-all shadow-inner"
+                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-amber-100 dark:border-amber-900 rounded-[2rem] sm:rounded-[2rem] text-amber-700 dark:text-amber-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-amber-400 transition-all shadow-inner disabled:opacity-50"
                         />
                     </div>
 
@@ -282,17 +285,19 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({ t, classItem, currentDa
                         <label className={`${labelClass} text-blue-600`}>{t.leave.toUpperCase()}</label>
                         <input 
                             type="number" 
-                            value={leave === 0 ? '' : leave} 
+                            disabled={!isAdmin}
+                            value={leave || ''} 
                             onChange={(e) => setLeave(Math.min(classItem.studentCount, Math.max(0, parseInt(e.target.value) || 0)))} 
-                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-blue-100 dark:border-blue-900 rounded-[2rem] sm:rounded-[2rem] text-blue-700 dark:text-blue-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-blue-400 transition-all shadow-inner"
+                            className="w-full py-3 sm:py-4 bg-[var(--bg-tertiary)] border border-blue-100 dark:border-blue-900 rounded-[2rem] sm:rounded-[2rem] text-blue-700 dark:text-blue-400 font-black text-center text-xl sm:text-2xl outline-none focus:border-blue-400 transition-all shadow-inner disabled:opacity-50"
                         />
                     </div>
                 </div>
 
                 <div className="mt-4">
                     <button 
-                        onClick={() => setIsSignModalOpen(true)}
-                        className={`w-full h-24 rounded-[2rem] border-4 transition-all duration-500 flex items-center justify-center ${signature ? 'border-emerald-500 bg-emerald-50/50' : 'border-dashed border-emerald-400 bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500'}`}
+                        onClick={() => isAdmin && setIsSignModalOpen(true)}
+                        disabled={!isAdmin}
+                        className={`w-full h-24 rounded-[2rem] border-4 transition-all duration-500 flex items-center justify-center ${signature ? 'border-emerald-500 bg-emerald-50/50' : 'border-dashed border-emerald-400 bg-emerald-50/20 hover:bg-emerald-50/40 hover:border-emerald-500'} disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {signature ? (
                             <div className="flex flex-col items-center gap-2">

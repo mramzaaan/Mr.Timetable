@@ -695,7 +695,7 @@ export const getPrintStyles = (design: DownloadDesignConfig) => {
     `;
 };
 
-const generateReportHTML = (
+export const generateReportHTML = (
     schoolConfig: SchoolConfig,
     design: DownloadDesignConfig,
     title: string,

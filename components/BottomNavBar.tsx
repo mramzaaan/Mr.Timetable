@@ -25,7 +25,8 @@ import {
   Users,
   Shuffle,
   UserCheck,
-  Settings
+  Settings,
+  FileText
 } from 'lucide-react';
 
 // Icon components
@@ -35,6 +36,7 @@ const ClassTimetableIcon = () => <Calendar className="h-6 w-6" />;
 const TeacherTimetableIcon = () => <Users className="h-6 w-6" />;
 const AdjustmentsIcon = () => <Shuffle className="h-6 w-6" />;
 const AttendanceIcon = () => <UserCheck className="h-6 w-6" />;
+const ReportsIcon = () => <FileText className="h-6 w-6" />;
 const SettingsIcon = () => <Settings className="h-6 w-6" />;
 
 const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentPage, navAnimation }) => {
@@ -70,6 +72,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
     { page: 'teacherTimetable', labelKey: 'teacherTimetable', icon: <TeacherTimetableIcon />, theme: 'violet' },
     { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon />, theme: 'orange' },
     { page: 'attendance', labelKey: 'attendance', icon: <AttendanceIcon />, theme: 'teal' },
+    { page: 'reports', labelKey: 'reports', icon: <ReportsIcon />, theme: 'rose' },
     { page: 'settings', labelKey: 'settings', icon: <SettingsIcon />, theme: 'slate' },
   ];
 
@@ -80,6 +83,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
       violet: 'bg-violet-500',
       orange: 'bg-orange-500',
       teal: 'bg-teal-500',
+      rose: 'bg-rose-500',
       slate: 'bg-slate-500',
   };
   
@@ -90,6 +94,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
       violet: 'text-violet-500',
       orange: 'text-orange-500',
       teal: 'text-teal-500',
+      rose: 'text-rose-500',
       slate: 'text-slate-500',
   };
 

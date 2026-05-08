@@ -6,6 +6,10 @@ import GlobalSearch from './GlobalSearch';
 import PrintPreview from './PrintPreview';
 import LivePeriodTracker from './LivePeriodTracker';
 import CsvManagementModal from './CsvManagementModal';
+import UserProfileModal from './UserProfileModal';
+import AdminPanel from './AdminPanel';
+import ImportExportChoiceModal from './ImportExportChoiceModal';
+import BackupRestoreModal from './BackupRestoreModal';
 import { 
   generateBasicInformationHtml, 
   generateBasicInformationExcel, 
@@ -98,12 +102,24 @@ interface HomePageProps {
   onCreateTimetableSession: (name: string, startDate: string, endDate: string) => void;
   onUpdateTimetableSession: (id: string, name: string, startDate: string, endDate: string) => void;
   onDeleteTimetableSession: (id: string) => void;
+  onDeleteSessionFromBackend: (session: TimetableSession) => Promise<void>;
   onUploadTimetableSession: (session: TimetableSession, newSchoolConfig?: Partial<SchoolConfig>) => void;
   schoolConfig: SchoolConfig;
   onUpdateCurrentSession: (updater: (session: TimetableSession) => TimetableSession) => void;
   onSearchResultClick: (type: 'class' | 'teacher' | 'subject', id: string) => void;
   onUpdateSchoolConfig: (newConfig: Partial<SchoolConfig>) => void;
   onOpenSchoolInfo: () => void;
+  userRole?: UserRole;
+  userEmail: string | null;
+  onSignOut: () => void;
+  onSaveToCloud: (session: TimetableSession) => void;
+  onSetDefaultSession: (id: string) => void;
+  userData: UserData;
+  onRestoreData: (data: UserData, fontData?: Record<string, string>) => void;
+  isSaving?: boolean;
+  saveStatus?: 'idle' | 'saving' | 'success' | 'error';
+  userId?: string | null;
+  canEditGlobal?: boolean;
 }
 
 // Icons
@@ -117,7 +133,8 @@ import {
   FileText,
   FileSpreadsheet,
   X,
-  School
+  School,
+  Shield
 } from 'lucide-react';
 
 // ... (other imports)
@@ -493,8 +510,39 @@ const DigitalClock: React.FC<{ language: Language, schoolConfig?: SchoolConfig, 
     );
 };
 
-const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, currentTimetableSessionId, timetableSessions, setCurrentTimetableSessionId, onCreateTimetableSession, onUpdateTimetableSession, onDeleteTimetableSession, onUploadTimetableSession, schoolConfig, onUpdateCurrentSession, onSearchResultClick, onUpdateSchoolConfig, onOpenSchoolInfo }) => {
+const HomePage: React.FC<HomePageProps> = ({ 
+    t, language, setCurrentPage, 
+    currentTimetableSessionId, 
+    timetableSessions, 
+    setCurrentTimetableSessionId, 
+    onCreateTimetableSession, 
+    onUpdateTimetableSession, 
+    onDeleteTimetableSession, 
+    onDeleteSessionFromBackend, 
+    onUploadTimetableSession, 
+    schoolConfig, 
+    onUpdateCurrentSession, 
+    onSearchResultClick, 
+    onUpdateSchoolConfig, 
+    onOpenSchoolInfo, 
+    userRole, 
+    userEmail, 
+    onSignOut, 
+    onSaveToCloud, 
+    onSetDefaultSession, 
+    userData, 
+    onRestoreData,
+    isSaving,
+    saveStatus,
+    userId,
+    canEditGlobal
+}) => {
+  const isAdmin = userRole === 'admin';
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [isImportExportChoiceOpen, setIsImportExportChoiceOpen] = useState(false);
+  const [isBackupRestoreOpen, setIsBackupRestoreOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<TimetableSession | null>(null);
   const [isSelectSessionModalOpen, setIsSelectSessionModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -790,35 +838,31 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 <div className="p-8 border-b border-[var(--border-primary)]">
                     <div className="flex flex-wrap justify-between items-center gap-6">
                         <div>
-                            <h2 className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tighter">{t.manageTimetables}</h2>
+                            <h2 className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tighter flex items-center gap-4">
+                                {t.manageTimetables}
+                                {saveStatus && saveStatus !== 'idle' && (
+                                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        saveStatus === 'saving' ? 'bg-amber-100/80 text-amber-700 animate-pulse' :
+                                        saveStatus === 'success' ? 'bg-green-100/80 text-green-700' :
+                                        'bg-red-100/80 text-red-700'
+                                    }`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${
+                                            saveStatus === 'saving' ? 'bg-amber-500' :
+                                            saveStatus === 'success' ? 'bg-green-500' :
+                                            'bg-red-500'
+                                        }`}></div>
+                                        {saveStatus === 'saving' ? 'Saving to Cloud...' : 
+                                         saveStatus === 'success' ? 'Saved Successfully' : 
+                                         'Sync Error'}
+                                    </div>
+                                )}
+                            </h2>
                             <p className="text-[var(--text-secondary)] mt-1 font-bold text-xs uppercase tracking-widest">{t.selectOrCreateDescription}</p>
                         </div>
                         <div className="flex items-center gap-3 flex-wrap">
-                            <button onClick={handleCreateNew} className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--accent-primary)] text-white rounded-[2rem]  hover:bg-[var(--accent-primary-hover)] transition-all transform hover:-translate-y-1">{t.newTimetableSession}</button>
-                            <button onClick={() => uploadRef.current?.click()} className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-[2rem] hover:bg-[var(--accent-secondary-hover)] transition-all transform hover:-translate-y-1 ">{t.uploadSession}</button>
-                            <button 
-                                onClick={handleDownloadSession} 
-                                disabled={!currentTimetableSession}
-                                className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-[2rem] hover:bg-[var(--accent-secondary-hover)] transition-all transform hover:-translate-y-1  disabled:opacity-50 disabled:transform-none"
-                            >
-                                {t.downloadSession}
-                            </button>
-                            <input type="file" ref={uploadRef} className="hidden" accept=".json" onChange={(e) => e.target.files && (async (file: File) => { 
-                                try { 
-                                    const rawData = JSON.parse(await file.text()); 
-                                    
-                                    // Extract logo and other session data
-                                    const { schoolLogoBase64, ...session } = rawData;
-                                    
-                                    onUploadTimetableSession(session, schoolLogoBase64 ? { schoolLogoBase64 } : undefined); 
-                                    
-                                    setFeedback({ message: t.sessionUploadedSuccessfully.replace('{name}', session.name), type: 'success' }); 
-                                    setIsSelectSessionModalOpen(false); 
-                                } catch (error: any) { 
-                                    setFeedback({ message: t.failedToUploadSession.replace('{reason}', error.message), type: 'error' }); 
-                                } 
-                                if (e.target) e.target.value = ''; // Clear for next upload
-                            })(e.target.files[0])} />
+                            {isAdmin && (
+                                <button onClick={handleCreateNew} className="px-6 py-3 text-sm font-black uppercase tracking-widest bg-[var(--accent-primary)] text-white rounded-[2rem]  hover:bg-[var(--accent-primary-hover)] transition-all transform hover:-translate-y-1">{t.newTimetableSession}</button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -841,10 +885,21 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
-                                    <button onClick={() => handleEditSession(session)} className="p-3 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-full hover:bg-white transition-all "><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
-                                    <button onClick={() => onDeleteTimetableSession(session.id)} className="p-3 text-[var(--text-secondary)] hover:text-red-600 rounded-full hover:bg-red-50 transition-all "><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" /></svg></button>
-                                </div>
+                                {isAdmin && (
+                                    <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
+                                        {!session.isShared && (
+                                            <button 
+                                                onClick={() => onSaveToCloud(session)} 
+                                                className="p-3 text-[var(--text-secondary)] hover:text-indigo-600 rounded-full hover:bg-indigo-50 transition-all"
+                                                title="Publish/Share with Teachers"
+                                            >
+                                                <Shuffle className="h-5 w-5" />
+                                            </button>
+                                        )}
+                                        <button onClick={() => handleEditSession(session)} className="p-3 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-full hover:bg-white transition-all "><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
+                                        <button onClick={() => onDeleteTimetableSession(session.id)} className="p-3 text-[var(--text-secondary)] hover:text-red-600 rounded-full hover:bg-red-50 transition-all "><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" /></svg></button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                         </div>
@@ -863,9 +918,12 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
           <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center relative z-10">
             <div className="flex items-center gap-4 w-full">
                 {/* Logo or School Icon */}
-                <div className="flex-shrink-0 h-10 w-10">
+                <div 
+                    className="flex-shrink-0 h-10 w-10 cursor-pointer hover:scale-110 transition-transform duration-300"
+                    onClick={() => setIsProfileModalOpen(true)}
+                >
                     {schoolConfig.schoolLogoBase64 ? (
-                        <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full" />
+                        <img src={schoolConfig.schoolLogoBase64} alt="School Logo" className="h-10 w-10 object-contain rounded-full shadow-sm" />
                     ) : (
                         <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl">M</div>
                     )}
@@ -883,6 +941,15 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
                 
                 {/* Actions */}
                 <div className="flex items-center gap-3">
+                    {isAdmin && (
+                        <button 
+                            onClick={() => setIsAdminPanelOpen(true)}
+                            className="p-2.5 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 hover:scale-105 active:scale-95 bg-white/50 dark:bg-black/20 rounded-[1.25rem] border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50"
+                            title="Admin Control Center"
+                        >
+                            <Shield className="w-5 h-5" />
+                        </button>
+                    )}
                     {currentTimetableSession && (
                         <button onClick={() => setIsSearchOpen(true)} className="p-2.5 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 hover:scale-105 active:scale-95" title="Search">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -905,49 +972,6 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
             <div className="w-full animate-scale-in max-w-7xl relative flex flex-col items-center mt-4">
                 <DigitalClock language={language} schoolConfig={schoolConfig} t={t} vacations={currentTimetableSession?.vacations} />
                 
-                {/* Active Session Card */}
-                {currentTimetableSession ? (
-                    <div className="mb-8 relative group max-w-lg mx-auto w-full px-4">
-                        <div 
-                          onClick={() => setIsSelectSessionModalOpen(true)}
-                          className="relative cursor-pointer group/card rounded-[2rem] py-2 px-4  border-2 border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
-                        >
-                            <div className="w-12 h-12 rounded-[2rem] bg-[var(--accent-primary)] flex items-center justify-center text-white font-black text-xl  shrink-0">
-                                {currentTimetableSession.name ? currentTimetableSession.name.charAt(0).toUpperCase() : '?'}
-                            </div>
-                            <div className="flex flex-col items-start justify-center flex-grow">
-                                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1">
-                                  {currentTimetableSession.name || 'Untitled Session'}
-                                </h2>
-                                <div className="text-xs font-medium text-gray-800 dark:text-gray-200">
-                                    {new Date(currentTimetableSession.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                    {' to '}
-                                    {new Date(currentTimetableSession.endDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="mb-8 relative group max-w-lg mx-auto w-full px-4">
-                        <div 
-                          onClick={() => setIsSelectSessionModalOpen(true)}
-                          className="relative cursor-pointer group/card rounded-[2rem] py-2 px-4  border-2 border-dashed border-[var(--accent-primary)] bg-white/40 dark:bg-white/5 backdrop-blur-md overflow-hidden transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] flex flex-row items-center justify-start gap-4"
-                        >
-                            <div className="w-12 h-12 rounded-[2rem] bg-[var(--accent-primary)]/20 flex items-center justify-center text-[var(--accent-primary)] font-black text-2xl  shrink-0">
-                                +
-                            </div>
-                            <div className="flex flex-col items-start justify-center flex-grow">
-                                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1">
-                                  Create/Upload Session
-                                </h2>
-                                <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                                    Click here to get started
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
                 <LivePeriodTracker session={currentTimetableSession} schoolConfig={schoolConfig} language={language} />
 
                 {currentTimetableSession && (
@@ -1016,6 +1040,81 @@ const HomePage: React.FC<HomePageProps> = ({ t, language, setCurrentPage, curren
               onUpdateSchoolConfig({ downloadDesigns: { ...schoolConfig.downloadDesigns, teachersTimetableSummary: newDesign } });
           }}
         />
+      )}
+
+      <UserProfileModal 
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        userEmail={userEmail}
+        userRole={userRole || 'teacher'}
+        canEditGlobal={canEditGlobal}
+        sessions={timetableSessions}
+        currentSessionId={currentTimetableSessionId}
+        onSelectSession={setCurrentTimetableSessionId}
+        onUploadSession={(file) => {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const rawData = JSON.parse(e.target?.result as string);
+                    const { schoolLogoBase64, ...session } = rawData;
+                    onUploadTimetableSession(session, schoolLogoBase64 ? { schoolLogoBase64 } : undefined);
+                    setFeedback({ message: t.sessionUploadedSuccessfully.replace('{name}', session.name), type: 'success' });
+                } catch (error: any) {
+                    setFeedback({ message: t.failedToUploadSession.replace('{reason}', error.message), type: 'error' });
+                }
+            };
+            reader.readAsText(file);
+        }}
+        onOpenImportExport={() => {
+            setIsProfileModalOpen(false);
+            setIsImportExportChoiceOpen(true);
+        }}
+        onSetDefaultSession={onSetDefaultSession}
+        onDeleteSessionFromBackend={onDeleteSessionFromBackend}
+        onSignOut={() => {
+            setIsProfileModalOpen(false);
+            onSignOut();
+        }}
+        onCreateSession={onCreateTimetableSession}
+        onSaveToCloud={onSaveToCloud}
+        t={t}
+      />
+
+      <ImportExportChoiceModal 
+        t={t}
+        isOpen={isImportExportChoiceOpen}
+        onClose={() => setIsImportExportChoiceOpen(false)}
+        onOpenCsv={() => {
+            setIsImportExportChoiceOpen(false);
+            setIsCsvModalOpen(true);
+        }}
+        onOpenBackup={() => {
+            setIsImportExportChoiceOpen(false);
+            setIsBackupRestoreOpen(true);
+        }}
+      />
+
+      {isBackupRestoreOpen && (
+        <BackupRestoreModal 
+            t={t}
+            isOpen={isBackupRestoreOpen}
+            onClose={() => setIsBackupRestoreOpen(false)}
+            userData={userData}
+            onRestore={onRestoreData}
+        />
+      )}
+
+      {isAdminPanelOpen && (
+          <AdminPanel 
+            t={t}
+            onClose={() => setIsAdminPanelOpen(false)}
+            currentSession={currentTimetableSession}
+            onUpdateSession={onUpdateTimetableSession}
+            userEmail={userEmail}
+            userId={userId}
+            userRole={userRole}
+            onDeleteSession={onDeleteSessionFromBackend}
+          />
       )}
     </>
   );

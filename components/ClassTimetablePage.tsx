@@ -41,6 +41,7 @@ interface ClassTimetablePageProps {
   changeLogs?: TimetableChangeLog[];
   appFont?: string;
   theme?: string;
+  userRole?: string;
 }
 
 // Helper to create log
@@ -65,7 +66,8 @@ const ChevronRightIcon = ({ className = "h-5 w-5" }: { className?: string }) => 
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
 const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 
-const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, language, classes, subjects, teachers, jointPeriods, adjustments, onSetClasses, schoolConfig, onUpdateSchoolConfig, selection, onSelectionChange, openConfirmation, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs, appFont, theme }) => {
+const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, language, classes, subjects, teachers, jointPeriods, adjustments, onSetClasses, schoolConfig, onUpdateSchoolConfig, selection, onSelectionChange, openConfirmation, hasActiveSession, onUndo, onRedo, onSave, canUndo, canRedo, onAddJointPeriod, onUpdateJointPeriod, onDeleteJointPeriod, onUpdateTimetableSession, changeLogs, appFont, theme, userRole = 'admin' }) => {
+  const isAdmin = userRole === 'admin';
   const { classId: selectedClassId, highlightedTeacherId } = selection;
   const [draggedData, setDraggedData] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
   const [moveSource, setMoveSource] = useState<{ periods: Period[], sourceDay?: keyof TimetableGridData, sourcePeriodIndex?: number } | null>(null);
@@ -816,41 +818,45 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                 
                 {isHeaderMoreOpen && (
                     <div className="absolute right-0 top-[100%] mt-2 flex justify-center items-center gap-1 bg-[var(--bg-secondary)] border border-[var(--border-primary)] shadow-2xl rounded-[2rem] p-2 z-50 animate-scale-in">
-                        <button onClick={() => { setIsCopyModalOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.copyTimetable || 'Copy'}>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                        </button>
+                        {isAdmin && (
+                            <button onClick={() => { setIsCopyModalOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.copyTimetable || 'Copy'}>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                        )}
                         <button onClick={() => { setIsPrintPreviewOpen(true); setIsHeaderMoreOpen(false); }} disabled={!selectedClass} className="p-2 hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.printViewAction || 'Print'}>
                             <Printer className="w-5 h-5" />
                         </button>
-                        {onUndo && (
+                        {isAdmin && onUndo && (
                             <button onClick={() => { onUndo(); setIsHeaderMoreOpen(false); }} disabled={!canUndo} className="p-2 hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.undo || 'Undo'}>
                                 <Undo2 className="w-5 h-5" />
                             </button>
                         )}
-                        {onRedo && (
+                        {isAdmin && onRedo && (
                             <button onClick={() => { onRedo(); setIsHeaderMoreOpen(false); }} disabled={!canRedo} className="p-2 hover:bg-gray-100 dark:hover:bg-[var(--bg-tertiary)] flex items-center justify-center rounded-[2rem] disabled:opacity-50 text-[var(--text-primary)] transition-colors" title={t.redo || 'Redo'}>
                                 <Redo2 className="w-5 h-5" />
                             </button>
                         )}
-                        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1"></div>
-                        <button onClick={() => { 
-                            openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { 
-                                if (!selectedClassId) return;
-                                onUpdateTimetableSession((session) => {
-                                    let newClasses = session.classes.map(c => ({...c, timetable: {...c.timetable}}));
-                                    let currentLogs = session.changeLogs || [];
-                                    const classIndex = newClasses.findIndex(c => c.id === selectedClassId);
-                                    if (classIndex !== -1) {
-                                        newClasses[classIndex].timetable = {};
-                                        currentLogs.push(createLog('delete', `Cleared timetable for class`, 'class', selectedClassId));
-                                    }
-                                    return { ...session, classes: newClasses, changeLogs: currentLogs };
-                                });
-                            }); 
-                            setIsHeaderMoreOpen(false); 
-                        }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/50 flex items-center justify-center rounded-[2rem] text-red-600 transition-colors" title="Clear">
-                            <Trash2 className="w-5 h-5" />
-                        </button>
+                        {isAdmin && <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1"></div>}
+                        {isAdmin && (
+                            <button onClick={() => { 
+                                openConfirmation('Clear Class Timetable', 'Are you sure you want to unschedule all periods for this class?', () => { 
+                                    if (!selectedClassId) return;
+                                    onUpdateTimetableSession((session) => {
+                                        let newClasses = session.classes.map(c => ({...c, timetable: {...c.timetable}}));
+                                        let currentLogs = session.changeLogs || [];
+                                        const classIndex = newClasses.findIndex(c => c.id === selectedClassId);
+                                        if (classIndex !== -1) {
+                                            newClasses[classIndex].timetable = {};
+                                            currentLogs.push(createLog('delete', `Cleared timetable for class`, 'class', selectedClassId));
+                                        }
+                                        return { ...session, classes: newClasses, changeLogs: currentLogs };
+                                    });
+                                }); 
+                                setIsHeaderMoreOpen(false); 
+                            }} className="p-2 hover:bg-red-50 dark:hover:bg-red-900/50 flex items-center justify-center rounded-[2rem] text-red-600 transition-colors" title="Clear">
+                                <Trash2 className="w-5 h-5" />
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
@@ -1009,11 +1015,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                                         return (
                                                             <div 
                                                                 key={`${group[0].id}-${groupIndex}`}
-                                                                draggable
-                                                                onDragStart={(e) => { e.stopPropagation(); handleDragStart(group, day, periodIndex); }}
+                                                                draggable={isAdmin}
+                                                                onDragStart={(e) => { e.stopPropagation(); isAdmin && handleDragStart(group, day, periodIndex); }}
                                                                 onDragEnd={handleDragEnd}
-                                                                onClick={(e) => { e.stopPropagation(); handleStackClick(group, day, periodIndex); }}
-                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-[2rem] transition-all duration-300 hover:scale-105 hover: cursor-grab active:cursor-grabbing overflow-hidden  ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
+                                                                onClick={(e) => { e.stopPropagation(); isAdmin && handleStackClick(group, day, periodIndex); }}
+                                                                className={`absolute flex flex-col justify-center px-1 sm:px-1.5 py-0 border-l-[0.1875rem] sm:border-l-[0.25rem] rounded-[2rem] transition-all duration-300 ${isAdmin ? 'hover:scale-105 hover: cursor-grab active:cursor-grabbing' : 'cursor-default'} overflow-hidden  ${isSelected ? 'scale-95 shadow-inner' : ''} ${isDimmed ? 'opacity-20 grayscale' : ''}`}
                                                                 style={{ 
                                                                     borderLeftColor: colorData.hex, 
                                                                     backgroundColor: isSelected ? `${colorData.hex}40` : `${colorData.hex}15`,
@@ -1117,11 +1123,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                       return (
                                           <div 
                                               key={`unscheduled-pc-${groupKey}-${index}`} 
-                                              draggable
-                                              onDragStart={() => handleDragStart(group)}
+                                              draggable={isAdmin}
+                                              onDragStart={() => isAdmin && handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
-                                              onClick={() => handleStackClick(group)}
-                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[2rem] px-2.5 py-1.5 flex flex-col items-center justify-between gap-1  cursor-grab active:cursor-grabbing border-l-4 transition-all hover: hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
+                                              onClick={() => isAdmin && handleStackClick(group)}
+                                              className={`w-[130px] sm:w-[140px] flex-shrink-0 bg-white dark:bg-[#1e293b] rounded-[2rem] px-2.5 py-1.5 flex flex-col items-center justify-between gap-1 ${isAdmin ? 'cursor-grab active:cursor-grabbing hover: hover:-translate-y-0.5 transition-all' : 'cursor-default'} border-l-4 ${isSelected ? 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/10' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
                                               <div className="flex w-full items-center justify-between">
@@ -1207,11 +1213,11 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
                                       return (
                                           <div 
                                               key={`unscheduled-${groupKey}-${index}`} 
-                                              draggable
-                                              onDragStart={() => handleDragStart(group)}
+                                              draggable={isAdmin}
+                                              onDragStart={() => isAdmin && handleDragStart(group)}
                                               onDragEnd={handleDragEnd}
-                                              onClick={() => handleStackClick(group)}
-                                              className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-[var(--bg-primary)] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex flex-col items-center justify-between gap-1  cursor-grab active:cursor-grabbing border-l-4 transition-all hover: hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
+                                              onClick={() => isAdmin && handleStackClick(group)}
+                                              className={`min-w-[120px] max-w-[150px] flex-shrink-0 bg-[var(--bg-primary)] rounded-[1rem] px-3 sm:px-4 py-2 sm:py-3 flex flex-col items-center justify-between gap-1 ${isAdmin ? 'cursor-grab active:cursor-grabbing hover: hover:-translate-y-0.5 transition-all' : 'cursor-default'} border-l-4 ${isSelected ? 'ring-2 ring-red-400 bg-red-50' : ''}`}
                                               style={{ borderLeftColor: colorData.hex }}
                                           >
                                               <div className="flex w-full items-center justify-between">
@@ -1254,7 +1260,7 @@ const ClassTimetablePage: React.FC<ClassTimetablePageProps> = React.memo(({ t, l
       )}
       
       {/* Lesson Manager Section */}
-      {selectedClass && hasActiveSession && (
+      {isAdmin && selectedClass && hasActiveSession && (
         <div className="mt-8">
             <AddLessonForm 
                 t={t}

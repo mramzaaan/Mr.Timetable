@@ -15,20 +15,57 @@ interface AttendancePageProps {
   onUpdateSession: (updater: (session: TimetableSession) => TimetableSession) => void;
   onUpdateSchoolConfig: (newConfig: Partial<SchoolConfig>) => void;
   schoolConfig: SchoolConfig;
+  userRole?: string;
+  userEmail: string | null;
 }
 
 const PrintIcon = () => <Printer className="h-5 w-5" />;
 const UploadIcon = () => <FileUp className="h-5 w-5" />;
 const DownloadIcon = () => <FileDown className="h-5 w-5" />;
 
-export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, classes, currentTimetableSession, onUpdateSession, onUpdateSchoolConfig, schoolConfig }) => {
+export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, classes, currentTimetableSession, onUpdateSession, onUpdateSchoolConfig, schoolConfig, userRole = 'admin', userEmail }) => {
+  const isAdmin = userRole === 'admin';
+  const currentTeacher = useMemo(() => {
+    if (!currentTimetableSession || !userEmail) return null;
+    return currentTimetableSession.teachers.find(t => t.email?.toLowerCase() === userEmail.toLowerCase());
+  }, [currentTimetableSession, userEmail]);
+
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Filter out the pseudo-class 'non-teaching-duties'
-  const visibleClasses = useMemo(() => classes.filter(c => c.id !== 'non-teaching-duties'), [classes]);
+  // Filter classes based on role and responsibility
+  const visibleClasses = useMemo(() => {
+    const allFiltered = classes.filter(c => c.id !== 'non-teaching-duties');
+    if (isAdmin) return allFiltered;
+    if (!currentTeacher || !currentTimetableSession) return [];
+
+    const dayNames: any = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const selectedDayName = dayNames[new Date(selectedDate).getDay()];
+
+    return allFiltered.filter(c => {
+        // Condition 1: Is In-Charge
+        if (c.inCharge === currentTeacher.id) return true;
+
+        // Condition 2: Has first period today in this class
+        const todayTimetable = c.timetable?.[selectedDayName as keyof typeof c.timetable];
+        if (todayTimetable && todayTimetable[0]) {
+            if (todayTimetable[0].some(s => s.teacherId === currentTeacher.id)) return true;
+        }
+
+        // Condition 3: Has substitution in first period today in this class
+        const adjustmentsForDay = currentTimetableSession.adjustments?.[selectedDate] || [];
+        const isSubbingFirstPeriod = adjustmentsForDay.some(adj => 
+            adj.classId === c.id && 
+            adj.substituteTeacherId === currentTeacher.id && 
+            adj.periodIndex === 0
+        );
+        if (isSubbingFirstPeriod) return true;
+
+        return false;
+    });
+  }, [classes, isAdmin, currentTeacher, currentTimetableSession, selectedDate]);
 
   useEffect(() => {
     if (!selectedClassId && visibleClasses.length > 0) {
@@ -37,6 +74,54 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
   }, [visibleClasses, selectedClassId]);
 
   const selectedClass = visibleClasses.find(c => c.id === selectedClassId);
+  const isClassInCharge = useMemo(() => {
+    if (isAdmin) return true;
+    
+    // Support granular permission
+    const userEmailLower = userEmail?.toLowerCase() || '';
+    if (currentTimetableSession?.userPermissions?.[userEmailLower]?.canTakeAttendance) return true;
+
+    if (!selectedClass || !currentTeacher || !currentTimetableSession) return false;
+    
+    // Original Logic: Fixed In-Charge
+    const isFixedInCharge = selectedClass.inCharge === currentTeacher.id;
+    
+    // New Logic: Check if first period is in this class
+    const dayNames: any = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const selectedDayName = dayNames[new Date(selectedDate).getDay()];
+    
+    // Find teacher's first period for today
+    let firstPeriodClassId = null;
+    
+    // Check all classes to see where this teacher is in period 1
+    for (const c of currentTimetableSession.classes) {
+        const todayTimetable = c.timetable?.[selectedDayName as keyof typeof c.timetable];
+        if (todayTimetable && todayTimetable[0]) {
+            // Period indices are 0-based
+            const firstPeriodSubjects = todayTimetable[0];
+            if (firstPeriodSubjects.some(s => s.teacherId === currentTeacher.id)) {
+                firstPeriodClassId = c.id;
+                break;
+            }
+        }
+    }
+
+    // Check for adjustments (subs) for period 1
+    const adjustmentsForDay = currentTimetableSession.adjustments[selectedDate] || [];
+    const firstPeriodAdj = adjustmentsForDay.find(adj => 
+        adj.substituteTeacherId === currentTeacher.id && 
+        adj.periodIndex === 0
+    );
+    if (firstPeriodAdj) {
+        firstPeriodClassId = firstPeriodAdj.classId;
+    }
+
+    // A teacher can take attendance ONLY if their first period is here today (either by timetable or adjustment)
+    const isAllowed = (firstPeriodClassId === selectedClass.id);
+    
+    return isAllowed;
+  }, [isAdmin, selectedClass, currentTeacher, currentTimetableSession, selectedDate]);
+
   const attendanceRecord = currentTimetableSession?.attendance?.[selectedDate]?.[selectedClassId || ''];
 
   const vacationToday = useMemo(() => {
@@ -255,7 +340,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
             </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className={`flex items-center gap-4 ${!isAdmin ? 'opacity-50 pointer-events-none' : ''}`}>
             <button 
                 onClick={handleDownloadJson}
                 title={t.downloadAttendanceJson}
@@ -297,6 +382,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
                 attendanceRecord={attendanceRecord}
                 onSaveAttendance={handleSaveAttendance}
                 submitterName={submitterInfo.name}
+                isAdmin={isClassInCharge}
             />
         </div>
       ) : !vacationToday ? (

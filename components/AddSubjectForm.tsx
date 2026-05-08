@@ -12,9 +12,10 @@ interface AddSubjectFormProps {
   onUpdateSubject: (subject: Subject) => void;
   onDeleteSubject: (subjectId: string) => void;
   triggerOpenForm?: number;
+  isAdmin?: boolean;
 }
 
-const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubject, onUpdateSubject, onDeleteSubject, triggerOpenForm }) => {
+const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubject, onUpdateSubject, onDeleteSubject, triggerOpenForm, isAdmin = true }) => {
   const [serial, setSerial] = useState('');
   const [nameEn, setNameEn] = useState('');
   const [nameUr, setNameUr] = useState('');
@@ -42,8 +43,8 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
     if (editingSubject) {
       setIsFormOpen(true);
       setSerial(editingSubject.serialNumber?.toString() || '');
-      setNameEn(editingSubject.nameEn);
-      setNameUr(editingSubject.nameUr);
+      setNameEn(editingSubject.nameEn || '');
+      setNameUr(editingSubject.nameUr || '');
     } else {
       resetForm();
     }
@@ -230,6 +231,7 @@ const AddSubjectForm: React.FC<AddSubjectFormProps> = ({ t, subjects, onAddSubje
                         item={subject}
                         onEdit={handleEditClick}
                         onDelete={handleDelete}
+                        isAdmin={isAdmin}
                         renderContent={(s) => {
                             return (
                                 <div className="flex items-center gap-4">

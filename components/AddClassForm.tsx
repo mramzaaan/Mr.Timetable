@@ -13,6 +13,7 @@ interface AddClassFormProps {
   onSetClasses: (classes: SchoolClass[]) => void;
   onDeleteClass: (classId: string) => void;
   triggerOpenForm?: number;
+  isAdmin?: boolean;
 }
 
 const createEmptyTimetable = (): TimetableGridData => ({
@@ -24,7 +25,7 @@ const createEmptyTimetable = (): TimetableGridData => ({
   Saturday: Array.from({ length: 8 }, () => []),
 });
 
-const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, classes, onSetClasses, onDeleteClass, triggerOpenForm }) => {
+const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, classes, onSetClasses, onDeleteClass, triggerOpenForm, isAdmin = true }) => {
   const [nameEn, setNameEn] = useState('');
   const [nameUr, setNameUr] = useState('');
   const [section, setSection] = useState('');
@@ -69,13 +70,13 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
   useEffect(() => {
     if (editingClass) {
         setIsFormOpen(true);
-        setNameEn(editingClass.nameEn);
-        setNameUr(editingClass.nameUr);
+        setNameEn(editingClass.nameEn || '');
+        setNameUr(editingClass.nameUr || '');
         setSection(editingClass.section || '');
         setAcademicLevel(editingClass.academicLevel || '');
-        setInCharge(editingClass.inCharge);
-        setRoomNumber(editingClass.roomNumber);
-        setStudentCount(String(editingClass.studentCount));
+        setInCharge(editingClass.inCharge || '');
+        setRoomNumber(editingClass.roomNumber || '');
+        setStudentCount(String(editingClass.studentCount || ''));
         setSerialNumber(String(editingClass.serialNumber || ''));
         setIsExtraRoom(editingClass.isExtraRoom || false);
         setComments(editingClass.comments || '');
@@ -327,6 +328,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
                   item={schoolClass}
                   onEdit={handleEditClick}
                   onDelete={(item) => onDeleteClass(item.id)}
+                  isAdmin={isAdmin}
                   renderContent={(c) => {
                     const inChargeTeacher = teachers.find(t => t.id === c.inCharge);
                     return (
@@ -339,7 +341,7 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
                                 {c.academicLevel && (
                                     <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                                        {t[c.academicLevel.includes(' ') ? c.academicLevel.split(' ').map((s, i) => i === 0 ? s.toLowerCase() : s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()).join('') : c.academicLevel.toLowerCase()]}
+                                        {t[c.academicLevel.includes(' ') ? c.academicLevel.split(' ').map((s, i) => i === 0 ? s.toLowerCase() : (s || '').charAt(0).toUpperCase() + (s || '').slice(1).toLowerCase()).join('') : c.academicLevel.toLowerCase()]}
                                     </span>
                                 )}
                                 <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
