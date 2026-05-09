@@ -13,7 +13,6 @@ import { TeacherTimetablePage } from './components/TeacherTimetablePage';
 import { AlternativeTimetablePage } from './components/AlternativeTimetablePage';
 import { AttendancePage } from './components/AttendancePage';
 import SettingsPage from './components/SettingsPage';
-import ReportsPage from './components/ReportsPage';
 import { generateUniqueId, allDays } from './types';
 import BottomNavBar from './components/BottomNavBar';
 import SideNavBar from './components/SideNavBar';
@@ -134,7 +133,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ t, isOpen, onClos
   
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[101] transition-opacity" onClick={onClose}>
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999] transition-opacity" onClick={onClose}>
       <div className="bg-[var(--bg-secondary)] p-6 sm:p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all animate-scale-in" onClick={e => e.stopPropagation()}>
         <h3 className="text-xl sm:text-2xl font-bold mb-4 text-center text-[var(--text-primary)]">{title}</h3>
         <div className="text-center text-[var(--text-secondary)] mb-8 max-h-60 overflow-y-auto">{message}</div>
@@ -400,19 +399,19 @@ const App: React.FC = () => {
                 .from('sessions')
                 .select('*')
                 .neq('owner_id', userId)
-                .contains('data->teachers', JSON.stringify([{ email: emailLower }]));
+                .contains('data', { teachers: [{ email: emailLower }] });
 
             const { data: sharedByAdmin, error: err2 } = await supabase
                 .from('sessions')
                 .select('*')
                 .neq('owner_id', userId)
-                .contains('data->admins', JSON.stringify([emailLower]));
+                .contains('data', { admins: [emailLower] });
 
             const { data: sharedByEditor, error: err3 } = await supabase
                 .from('sessions')
                 .select('*')
                 .neq('owner_id', userId)
-                .contains('data->editors', JSON.stringify([emailLower]));
+                .contains('data', { editors: [emailLower] });
 
             if (err1 || err2 || err3) {
                 console.warn('Shared sessions fetch error:', err1?.message || err2?.message || err3?.message);
@@ -484,7 +483,7 @@ const App: React.FC = () => {
         checkAuth();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+            if (event === 'SIGNED_OUT' || (event as string) === 'USER_DELETED') {
                 setUserRole('teacher');
                 setUserEmail(null);
                 setUserId(null);
@@ -818,10 +817,8 @@ const App: React.FC = () => {
 
     const validateSessionData = (session: TimetableSession): boolean => {
         // Basic structure check
-        if (!session.id || !session.name) return false;
-        if (!Array.isArray(session.teachers)) return false;
-        if (!Array.isArray(session.classes)) return false;
-        if (!Array.isArray(session.subjects)) return false;
+        if (!session || !session.id || !session.name) return false;
+        // Be lenient so that even if arrays are missing it will sync
         return true;
     };
 
@@ -857,7 +854,7 @@ const App: React.FC = () => {
              return;
         }
 
-        const updatedSession: TimetableSession = { 
+        const updatedSession: any = { 
             ...session, 
             ownerId: session.ownerId || userId,
             updatedBy: userEmail,
@@ -917,7 +914,7 @@ const App: React.FC = () => {
             }
         };
 
-        const timer = setTimeout(syncToCloud, 5000); // 5s debounce for cloud sync
+        const timer = setTimeout(syncToCloud, 1000); // 1s sync for live updates
         return () => clearTimeout(timer);
     }, [userData, currentTimetableSessionId, userId, userEmail, isUserDataLoaded, handleSaveToCloud]);
 
@@ -997,7 +994,7 @@ const App: React.FC = () => {
     const openConfirmation = (title: string, message: React.ReactNode, onConfirm: () => void) => { setConfirmationState({ isOpen: true, title, message, onConfirm }); };
     const updateCurrentSession = useCallback((updater: (session: TimetableSession) => TimetableSession) => { if (!currentTimetableSessionId) return; setUserData(prev => { const newSessions = prev.timetableSessions.map(session => session.id === currentTimetableSessionId ? updater(session) : session); return { ...prev, timetableSessions: newSessions }; }); }, [currentTimetableSessionId, setUserData]);
 
-    const handleCreateTimetableSession = (name: string, startDate: string, endDate: string) => { 
+    const handleCreateTimetableSession = (name: string, startDate: string, endDate: string, schoolNameEn?: string, schoolNameUr?: string, schoolLogo?: string | null) => { 
         const newSession: TimetableSession = { 
             id: generateUniqueId(), 
             name, 
@@ -1016,10 +1013,30 @@ const App: React.FC = () => {
             vacations: [], 
             changeLogs: [],
             admins: [], // Initial empty admins list
-            ownerId: userId || undefined
+            ownerId: userId || undefined,
+            schoolName: schoolNameEn || userData.schoolConfig.schoolNameEn
         }; 
-        setUserData(prev => ({ ...prev, timetableSessions: [...prev.timetableSessions, newSession] })); 
-        setCurrentTimetableSessionId(newSession.id); 
+
+        setUserData(prev => {
+            const nextState = { 
+                ...prev, 
+                timetableSessions: [...prev.timetableSessions, newSession] 
+            };
+            if (schoolNameEn) {
+                nextState.schoolConfig = {
+                    ...nextState.schoolConfig,
+                    schoolNameEn,
+                    schoolNameUr: schoolNameUr || nextState.schoolConfig.schoolNameUr,
+                    schoolLogoBase64: schoolLogo !== undefined ? schoolLogo : nextState.schoolConfig.schoolLogoBase64
+                };
+            }
+            return nextState;
+        });
+
+        setCurrentTimetableSessionId(newSession.id);
+        
+        // Save new session to cloud immediately to trigger sync
+        handleSaveToCloud(newSession);
     };
     const handleUpdateTimetableSession = (id: string, name: string, startDate: string, endDate: string) => { 
         setUserData(prev => {
@@ -1051,20 +1068,8 @@ const App: React.FC = () => {
     const handleDeleteSessionFromBackend = async (session: TimetableSession) => {
         const confirmDelete = async () => {
             try {
-                const { error, count } = await supabase
-                    .from('sessions')
-                    .delete({ count: 'exact' })
-                    .eq('id', session.id);
-                
-                if (error) throw error;
-                
-                const existsInRemote = remoteSessions.some(s => s.id === session.id);
-                if (count === 0 && session.ownerId && existsInRemote) {
-                    throw new Error('Deletion failed. You may not be the owner of this session.');
-                }
-                
+                // Remove from local and remote state first for snappiness
                 setRemoteSessions(prev => prev.filter(s => s.id !== session.id));
-                // Also remove from local if present
                 setUserData(prev => ({
                     ...prev,
                     timetableSessions: prev.timetableSessions.filter(s => s.id !== session.id)
@@ -1079,11 +1084,23 @@ const App: React.FC = () => {
                         .eq('id', userId)
                         .eq('default_session_id', session.id);
                 }
+
+                const { error, count } = await supabase
+                    .from('sessions')
+                    .delete({ count: 'exact' })
+                    .eq('id', session.id);
                 
-                handleSave(); // Show success toast
+                if (error) {
+                    throw new Error(error.message || 'Unknown Supabase error');
+                }
+                
+                if (count === 0 && session.ownerId !== userId) {
+                    throw new Error('Deletion failed. You may not be the owner of this session or it does not exist online.');
+                }
+                
             } catch (err: any) {
                 console.error('Failed to delete session from backend:', err);
-                alert(`Failed to delete session: ${err.message || 'Unknown error'}`);
+                alert(`Session removed locally, but we encountered a cloud synchronization error: ${err.message || 'Unknown error'}`);
             }
         };
 
@@ -1257,7 +1274,6 @@ const App: React.FC = () => {
             case 'teacherTimetable': return <TeacherTimetablePage t={t} language={language} classes={currentTimetableSession?.classes || []} subjects={currentTimetableSession?.subjects || []} teachers={currentTimetableSession?.teachers || []} jointPeriods={currentTimetableSession?.jointPeriods || []} adjustments={currentTimetableSession?.adjustments || {}} leaveDetails={currentTimetableSession?.leaveDetails} onSetClasses={handleSetClasses} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} selectedTeacherId={teacherTimetableSelection.teacherId} onSelectedTeacherChange={(id) => setTeacherTimetableSelection({ teacherId: id })} hasActiveSession={!!currentTimetableSession} {...historyProps} openConfirmation={openConfirmation} onAddJointPeriod={handleAddJointPeriod} onUpdateJointPeriod={handleUpdateJointPeriod} onDeleteJointPeriod={handleDeleteJointPeriod} onUpdateTimetableSession={updateCurrentSession} appFont={appFont} theme={theme} userRole={effectiveUserRole} />;
             case 'alternativeTimetable': return <AlternativeTimetablePage t={t} language={language} classes={currentTimetableSession?.classes || []} subjects={currentTimetableSession?.subjects || []} teachers={currentTimetableSession?.teachers || []} adjustments={currentTimetableSession?.adjustments || {}} leaveDetails={currentTimetableSession?.leaveDetails} onSetAdjustments={handleSetAdjustments} onSetLeaveDetails={handleSetLeaveDetails} onUpdateSession={updateCurrentSession} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} selection={adjustmentsSelection} onSelectionChange={setAdjustmentsSelection} openConfirmation={openConfirmation} hasActiveSession={!!currentTimetableSession} jointPeriods={currentTimetableSession?.jointPeriods} userRole={effectiveUserRole} />;
             case 'attendance': return <AttendancePage t={t} language={language} classes={currentTimetableSession?.classes || []} currentTimetableSession={currentTimetableSession} onUpdateSession={updateCurrentSession} onUpdateSchoolConfig={handleUpdateSchoolConfig} schoolConfig={effectiveSchoolConfig} userRole={effectiveUserRole} userEmail={userEmail} />;
-            case 'reports': return <ReportsPage t={t} currentTimetableSession={currentTimetableSession} schoolConfig={effectiveSchoolConfig} language={language} />;
             case 'settings': {
                 return <SettingsPage t={t} language={language} setLanguage={setLanguage} theme={theme} setTheme={handleThemeChange} themeColors={themeColors} onColorChange={handleColorChange} onResetTheme={resetThemeColors} navDesign={navDesign} setNavDesign={setNavDesign} navShape={navShape} setNavShape={setNavShape} navBtnAlphaSelected={navBtnAlphaSelected} setNavBtnAlphaSelected={setNavBtnAlphaSelected} navBtnAlphaUnselected={navBtnAlphaUnselected} setNavBtnAlphaUnselected={setNavBtnAlphaUnselected} navBarAlpha={navBarAlpha} setNavBarAlpha={setNavBarAlpha} navBarColor={navBarColor} setNavBarColor={setNavBarColor} navAnimation={navAnimation} setNavAnimation={setNavAnimation} fontSize={fontSize} setFontSize={setFontSize} appFont={appFont} setAppFont={setAppFont} schoolConfig={effectiveSchoolConfig} onUpdateSchoolConfig={handleUpdateSchoolConfig} classes={currentTimetableSession?.classes || []} teachers={currentTimetableSession?.teachers || []} subjects={currentTimetableSession?.subjects || []} adjustments={currentTimetableSession?.adjustments || {}} leaveDetails={currentTimetableSession?.leaveDetails} attendance={currentTimetableSession?.attendance || {}} userRole={effectiveUserRole} userEmail={userEmail} onUpdateSession={updateCurrentSession} currentTimetableSession={currentTimetableSession} onDeleteSessionFromBackend={handleDeleteSessionFromBackend} userId={userId} canEditGlobal={canEditGlobal} />;
             }

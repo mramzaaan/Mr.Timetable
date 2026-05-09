@@ -72,7 +72,6 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ t, currentPage, setCurrentP
     { page: 'teacherTimetable', labelKey: 'teacherTimetable', icon: <TeacherTimetableIcon />, theme: 'violet' },
     { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon />, theme: 'orange' },
     { page: 'attendance', labelKey: 'attendance', icon: <AttendanceIcon />, theme: 'teal' },
-    { page: 'reports', labelKey: 'reports', icon: <ReportsIcon />, theme: 'rose' },
     { page: 'settings', labelKey: 'settings', icon: <SettingsIcon />, theme: 'slate' },
   ];
 

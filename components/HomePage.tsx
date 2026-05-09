@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import type { Language, Page, TimetableSession, SchoolConfig, TimetableGridData, DownloadDesignConfig, DownloadDesigns, Vacation } from '../types';
+import type { Language, Page, TimetableSession, SchoolConfig, TimetableGridData, DownloadDesignConfig, DownloadDesigns, Vacation, UserData, UserRole } from '../types';
 import TimetableSessionModal from './TimetableSessionModal';
 import GlobalSearch from './GlobalSearch';
 import PrintPreview from './PrintPreview';
@@ -688,7 +688,7 @@ const HomePage: React.FC<HomePageProps> = ({
         .crystal-reflection { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.4) 30%, transparent 35%, transparent 50%, rgba(255, 255, 255, 0.1) 55%, transparent 60%); background-size: 200% 100%; animation: shimmer 4s infinite linear; pointer-events: none; z-index: 1; }
       `}</style>
 
-      <TimetableSessionModal t={t} isOpen={isSessionModalOpen} onClose={() => setIsSessionModalOpen(false)} session={editingSession} onCreate={onCreateTimetableSession} onUpdate={onUpdateTimetableSession} setFeedback={setFeedback} />
+      <TimetableSessionModal t={t} isOpen={isSessionModalOpen} onClose={() => setIsSessionModalOpen(false)} session={editingSession} onCreate={onCreateTimetableSession} onUpdate={onUpdateTimetableSession} setFeedback={setFeedback} schoolConfig={schoolConfig} />
 
       {isBasicInfoSelectionOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4" onClick={() => setIsBasicInfoSelectionOpen(false)}>
@@ -1047,6 +1047,7 @@ const HomePage: React.FC<HomePageProps> = ({
         onClose={() => setIsProfileModalOpen(false)}
         userEmail={userEmail}
         userRole={userRole || 'teacher'}
+        userId={userId}
         canEditGlobal={canEditGlobal}
         sessions={timetableSessions}
         currentSessionId={currentTimetableSessionId}
@@ -1067,7 +1068,18 @@ const HomePage: React.FC<HomePageProps> = ({
         }}
         onOpenImportExport={() => {
             setIsProfileModalOpen(false);
-            setIsImportExportChoiceOpen(true);
+            if (!currentTimetableSessionId) {
+                setFeedback({ message: t.createSessionFirst || 'Please create a timetable session first before importing data.', type: 'error' });
+                setIsSessionModalOpen(true);
+                setEditingSession(null);
+            } else {
+                setIsImportExportChoiceOpen(true);
+            }
+        }}
+        onOpenCreateModal={() => {
+            setIsProfileModalOpen(false);
+            setIsSessionModalOpen(true);
+            setEditingSession(null);
         }}
         onSetDefaultSession={onSetDefaultSession}
         onDeleteSessionFromBackend={onDeleteSessionFromBackend}

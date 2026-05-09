@@ -21,12 +21,17 @@ const LoginModal: React.FC<LoginModalProps> = ({ t, onLogin }) => {
 
     try {
       if (isSignUp) {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
         });
         if (signUpError) throw signUpError;
-        setError("Please check your email for a confirmation link.");
+        
+        if (data.session) {
+          onLogin();
+        } else {
+          setError("Please check your email for a confirmation link.");
+        }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,

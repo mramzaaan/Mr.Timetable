@@ -38,7 +38,6 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ t, currentPage, setCurrentPage,
     { page: 'classTimetable', labelKey: 'class', icon: <ClassTimetableIcon />, theme: 'indigo' },
     { page: 'teacherTimetable', labelKey: 'teacher', icon: <TeacherTimetableIcon />, theme: 'violet' },
     { page: 'attendance', labelKey: 'attendance', icon: <AttendanceIcon />, theme: 'teal' },
-    { page: 'reports', labelKey: 'reports', icon: <ReportsIcon />, theme: 'rose' },
     { page: 'alternativeTimetable', labelKey: 'adjustments', icon: <AdjustmentsIcon />, theme: 'orange' },
     { page: 'settings', labelKey: 'settings', icon: <SettingsIcon />, theme: 'slate' },
   ];

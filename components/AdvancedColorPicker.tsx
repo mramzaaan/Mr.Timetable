@@ -487,7 +487,7 @@ const AdvancedColorPicker: React.FC<AdvancedColorPickerProps> = ({
                 <button 
                   key={i} 
                   onClick={() => {
-                    const hsl = colord(h).toHsl();
+                    const hsl = colord(h as string).toHsl();
                     setHue(hsl.h);
                     setSaturation(hsl.s);
                     setLightness(hsl.l);

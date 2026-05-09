@@ -337,7 +337,9 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ t, subjects, teachers, clas
                             {c.serialNumber || c.nameEn.substring(0, 2).toUpperCase()}
                         </div>
                         <div className="flex-1">
-                            <h4 className="font-bold text-gray-900 text-base">{c.nameEn} <span className="font-urdu text-sm font-normal text-gray-500">/ {c.nameUr}</span></h4>
+                            <h4 className="font-bold text-gray-900 text-base">
+                                {c.nameEn}{c.section ? ` ${c.section}` : ''} <span className="font-urdu text-sm font-normal text-gray-500">/ {c.nameUr}</span>
+                            </h4>
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
                                 {c.academicLevel && (
                                     <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">

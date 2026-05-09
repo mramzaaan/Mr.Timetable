@@ -3,7 +3,6 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { Language, SchoolClass, TimetableSession, AttendanceData, SchoolConfig, DownloadDesignConfig } from '../types';
 import AttendanceForm from './AttendanceForm';
 import NoSessionPlaceholder from './NoSessionPlaceholder';
-import PrintPreview from './PrintPreview';
 import { generateAttendanceReportHtml, generateAttendanceReportExcel } from './reportUtils';
 import { Share2, ArrowUpDown, Printer, Calendar, FileDown, FileUp } from 'lucide-react';
 
@@ -32,7 +31,6 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
 
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
-  const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter classes based on role and responsibility
@@ -246,12 +244,6 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
     e.target.value = '';
   };
 
-  const handleSavePrintDesign = (newDesign: DownloadDesignConfig) => {
-      onUpdateSchoolConfig({
-          downloadDesigns: { ...schoolConfig.downloadDesigns, attendance: newDesign }
-      });
-  };
-
   const formattedDateForTitle = new Date(selectedDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
   if (!currentTimetableSession) {
@@ -260,33 +252,6 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
-      <PrintPreview 
-        t={t} 
-        isOpen={isPrintPreviewOpen} 
-        onClose={() => setIsPrintPreviewOpen(false)} 
-        title={`${t.attendanceReport}: ${formattedDateForTitle}`} 
-        fileNameBase={`Attendance_Report_${selectedDate}`} 
-        generateHtml={(lang, design) => {
-            return generateAttendanceReportHtml(
-                t, lang, design, 
-                classes, currentTimetableSession.teachers, schoolConfig, 
-                selectedDate, 
-                currentTimetableSession.adjustments, 
-                currentTimetableSession.leaveDetails || {}, 
-                currentTimetableSession.attendance || {}
-            );
-        }} 
-        onGenerateExcel={(lang, design) => {
-            generateAttendanceReportExcel(
-                t, lang, design, schoolConfig, classes, currentTimetableSession.teachers, selectedDate,
-                currentTimetableSession.adjustments, 
-                currentTimetableSession.leaveDetails || {}, 
-                currentTimetableSession.attendance || {}
-            );
-        }}
-        designConfig={schoolConfig.downloadDesigns.attendance} 
-        onSaveDesign={handleSavePrintDesign} 
-      />
 
       <div className="mb-10 text-center relative">
         <h2 className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tight mb-2">
@@ -355,13 +320,6 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
             >
                 <UploadIcon />
                 <input type="file" ref={fileInputRef} onChange={handleUploadJson} accept=".json" className="hidden" />
-            </button>
-            <button 
-                onClick={() => setIsPrintPreviewOpen(true)}
-                title={t.printViewAction}
-                className="p-4 bg-indigo-600 text-white border border-indigo-700 rounded-[2rem]  hover:bg-indigo-700 transition-all hover:scale-105 active:scale-95"
-            >
-                <PrintIcon />
             </button>
         </div>
       </div>

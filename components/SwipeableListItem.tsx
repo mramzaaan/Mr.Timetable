@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface SwipeableListItemProps<T> {
   t: any; // Translation object
@@ -30,13 +31,26 @@ const SwipeableListItem = <T extends { id: string }>({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Don't close if clicking inside the menu dropdown (by checking if the target is in the portal)
+      const target = event.target as Element;
+      if (target.closest('.action-menu-dropdown')) return;
+      
       if (menuContainerRef.current && !menuContainerRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
     };
+    const handleScroll = (event: Event) => {
+      // Allow scrolling inside the menu itself
+      const target = event.target as Element;
+      if (target?.closest?.('.action-menu-dropdown')) return;
+      setIsMenuOpen(false);
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, { capture: true });
     };
   }, []);
 
@@ -86,12 +100,15 @@ const SwipeableListItem = <T extends { id: string }>({
             <KebabIcon />
           </button>
 
-          {isMenuOpen && (
-            <div className={`absolute right-0 w-48 rounded-[1rem]  bg-white/60 dark:bg-black/20 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 dark:border-white/10 ring-1 ring-black ring-opacity-5 focus:outline-none z-[60] animate-scale-in ${
-              opensUpward
-                ? 'bottom-full origin-bottom-right mb-2'
-                : 'top-full origin-top-right mt-2'
-            }`}>
+          {isMenuOpen && menuContainerRef.current && createPortal(
+            <div 
+              className={`action-menu-dropdown fixed w-48 rounded-[1rem] bg-white/80 dark:bg-black/80 backdrop-blur-[30px] shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-white/10 ring-1 ring-black ring-opacity-5 focus:outline-none z-[9999] animate-scale-in origin-top-right`}
+              style={{
+                top: opensUpward ? undefined : menuContainerRef.current.getBoundingClientRect().bottom + 8,
+                bottom: opensUpward ? window.innerHeight - menuContainerRef.current.getBoundingClientRect().top + 8 : undefined,
+                right: window.innerWidth - menuContainerRef.current.getBoundingClientRect().right,
+              }}
+            >
               <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                 <button
                   onClick={handleEditClick}
@@ -114,7 +131,7 @@ const SwipeableListItem = <T extends { id: string }>({
                   <span>{t.delete}</span>
                 </button>
               </div>
-            </div>
+            </div>, document.body
           )}
         </div>
       )}

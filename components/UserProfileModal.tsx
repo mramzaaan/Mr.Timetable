@@ -8,6 +8,7 @@ interface UserProfileModalProps {
     onClose: () => void;
     userEmail: string | null;
     userRole: UserRole;
+    userId: string | null;
     canEditGlobal: boolean;
     sessions: TimetableSession[];
     currentSessionId: string | null;
@@ -16,6 +17,7 @@ interface UserProfileModalProps {
     onDeleteSessionFromBackend: (session: TimetableSession) => Promise<void>;
     onUploadSession: (file: File) => void;
     onOpenImportExport: () => void;
+    onOpenCreateModal: () => void;
     onSignOut: () => void;
     onCreateSession: (name: string, startDate: string, endDate: string) => void;
     onSaveToCloud: (session: TimetableSession) => Promise<void>;
@@ -27,6 +29,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onClose, 
     userEmail, 
     userRole, 
+    userId,
     canEditGlobal,
     sessions, 
     currentSessionId, 
@@ -35,6 +38,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onDeleteSessionFromBackend,
     onUploadSession,
     onOpenImportExport,
+    onOpenCreateModal,
     onSignOut,
     onCreateSession,
     onSaveToCloud,
@@ -42,35 +46,30 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
-    const [isManualModalOpen, setIsManualModalOpen] = useState(false);
-    const [manualName, setManualName] = useState('');
-    const [manualStart, setManualStart] = useState('');
-    const [manualEnd, setManualEnd] = useState('');
     
     const isAdmin = userRole === 'admin';
     const canManageTimetables = isAdmin || canEditGlobal;
 
     if (!isOpen) return null;
 
-    const handleCreateManual = () => {
-        if (!manualName || !manualStart || !manualEnd) return;
-        onCreateSession(manualName, manualStart, manualEnd);
-        setIsManualModalOpen(false);
-        setManualName('');
-        setManualStart('');
-        setManualEnd('');
-        setIsCreateMenuOpen(false);
-    };
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             onUploadSession(file);
+            setIsCreateMenuOpen(false);
+            onClose();
         }
     };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+            <input 
+                type="file" 
+                accept=".json"
+                className="hidden" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+            />
             <div className="bg-white dark:bg-[#1e293b] w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
                 {/* Header */}
                 <div className="relative h-32 bg-[var(--accent-primary)] p-6 flex flex-col justify-end">
@@ -146,7 +145,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                         </div>
                                         <div className="grid grid-cols-1 gap-2">
                                             <button 
-                                                onClick={() => setIsManualModalOpen(true)}
+                                                onClick={() => { setIsCreateMenuOpen(false); onOpenCreateModal(); }}
                                                 className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl text-sm font-bold shadow-sm hover:shadow-md transition-all text-gray-700 dark:text-gray-200"
                                             >
                                                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg"><Plus className="w-4 h-4" /></div>
@@ -163,16 +162,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                                 <div className="text-left">
                                                     <p className="leading-tight">Upload JSON</p>
                                                     <p className="text-[10px] font-medium text-gray-400">Import backup file</p>
-                                                </div>
-                                            </button>
-                                            <button 
-                                                onClick={() => { setIsCreateMenuOpen(false); onOpenImportExport(); }}
-                                                className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl text-sm font-bold shadow-sm hover:shadow-md transition-all text-gray-700 dark:text-gray-200"
-                                            >
-                                                <div className="p-2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-lg"><FileSpreadsheet className="w-4 h-4" /></div>
-                                                <div className="text-left">
-                                                    <p className="leading-tight">Import CSV Data</p>
-                                                    <p className="text-[10px] font-medium text-gray-400">Upload existing data</p>
                                                 </div>
                                             </button>
                                         </div>
@@ -269,6 +258,13 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                                 >
                                                     <Cloud className="w-4 h-4 sm:w-5 sm:h-5" />
                                                 </button>
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); onDeleteSessionFromBackend(session); }}
+                                                    className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white`}
+                                                    title="Delete from Online"
+                                                >
+                                                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
@@ -276,61 +272,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                             )}
                         </div>
                     </div>
-
-                    {/* Manual Create Modal */}
-                    {isManualModalOpen && (
-                        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                            <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-                                <h4 className="text-lg font-black tracking-tight mb-4">New Timetable</h4>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2 mb-1 block">Session Name</label>
-                                        <input 
-                                            type="text" 
-                                            value={manualName}
-                                            onChange={(e) => setManualName(e.target.value)}
-                                            placeholder="e.g. Summer 2026"
-                                            className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none font-bold text-sm"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2 mb-1 block">Start Date</label>
-                                            <input 
-                                                type="date" 
-                                                value={manualStart}
-                                                onChange={(e) => setManualStart(e.target.value)}
-                                                className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none font-bold text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2 mb-1 block">End Date</label>
-                                            <input 
-                                                type="date" 
-                                                value={manualEnd}
-                                                onChange={(e) => setManualEnd(e.target.value)}
-                                                className="w-full p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-none font-bold text-sm"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-3 pt-2">
-                                        <button 
-                                            onClick={() => setIsManualModalOpen(false)}
-                                            className="flex-1 py-4 text-sm font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-2xl transition-all"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button 
-                                            onClick={handleCreateManual}
-                                            className="flex-1 py-4 text-sm font-bold text-white bg-[var(--accent-primary)] rounded-2xl transition-all shadow-md active:scale-95"
-                                        >
-                                            Create
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
 
                     {/* Admin Actions */}
                     {/* Removed duplicated upload button here as it's now in the Create menu */}

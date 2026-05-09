@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import type { DataEntryTab, Subject, Teacher, SchoolClass, JointPeriod, SchoolConfig, TimetableSession, UserData } from '../types';
+import type { DataEntryTab, Subject, Teacher, SchoolClass, JointPeriod, SchoolConfig, TimetableSession, UserData, UserRole } from '../types';
 import AddSubjectForm from './AddSubjectForm';
 import AddTeacherForm from './AddTeacherForm';
 import AddClassForm from './AddClassForm';

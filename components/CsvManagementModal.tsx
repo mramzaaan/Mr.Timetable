@@ -350,9 +350,9 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                     break;
                 case 'timetable':
                     s.classes.forEach(c => {
-                        Object.entries(c.timetable).forEach(([day, periods]) => {
-                            periods.forEach((slot, pIdx) => {
-                                slot.forEach(p => {
+                        (Object.entries(c.timetable || {}) as [string, any][]).forEach(([day, periods]) => {
+                            periods.forEach((slot: any, pIdx: number) => {
+                                slot.forEach((p: any) => {
                                     const teacher = s.teachers.find(t => t.id === p.teacherId);
                                     const subject = s.subjects.find(sub => sub.id === p.subjectId);
                                     data.push({
@@ -369,7 +369,7 @@ const CsvManagementModal: React.FC<CsvManagementModalProps> = ({ t, isOpen, onCl
                     break;
                 case 'daysConfig':
                     if (s.daysConfig) {
-                        data = Object.entries(s.daysConfig).map(([day, cfg]) => ({
+                        data = (Object.entries(s.daysConfig) as [string, any][]).map(([day, cfg]) => ({
                             day,
                             active: cfg.active ? 'Y' : 'N',
                             periodCount: cfg.periodCount
