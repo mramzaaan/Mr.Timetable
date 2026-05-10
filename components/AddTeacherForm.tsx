@@ -110,7 +110,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
         nameUr, 
         contactNumber, 
         countryCode: selectedCountry.dial_code,
-        email,
+        email: email.toLowerCase().trim(),
         gender, 
         serialNumber: serialNumber ? parseInt(serialNumber, 10) : undefined 
     };
@@ -361,7 +361,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ t, teachers, onAddTeach
                                     {item.countryCode} {item.contactNumber}
                                 </div>
                                 {item.email && (
-                                    <div className="flex items-center gap-1 text-xs text-gray-500 font-medium italic opacity-70">
+                                    <div className="flex items-center gap-1 text-[9px] text-emerald-600 font-black uppercase tracking-widest bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
                                         {item.email}
                                     </div>
                                 )}

@@ -381,6 +381,70 @@ const App: React.FC = () => {
         });
     }, []);
 
+    useEffect(() => {
+        if (!userId || !userEmail) return;
+
+        const channel = supabase
+            .channel('timetable_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'timetables'
+                },
+                (payload) => {
+                    const newRow = payload.new as any;
+                    if (!newRow || !newRow.data) return;
+
+                    const emailLower = userEmail.toLowerCase();
+                    const createdBy = newRow.created_by?.toLowerCase();
+                    const isTeacher = newRow.teacher_email?.some((e: string) => e.toLowerCase() === emailLower);
+                    
+                    if (createdBy === emailLower || isTeacher) {
+                        const sessionData = newRow.data as TimetableSession;
+                        const isOwner = createdBy === emailLower;
+                        
+                        const mergedSession: TimetableSession = {
+                            ...sessionData,
+                            id: newRow.id,
+                            ownerId: newRow.created_by,
+                            isShared: !isOwner,
+                            allowEdit: newRow.allow_edit,
+                            allow_edit_emails: newRow.allow_edit_emails || []
+                        };
+
+                        setRemoteSessions(prev => {
+                            const exists = prev.some(s => s.id === mergedSession.id);
+                            if (exists) {
+                                return prev.map(s => s.id === mergedSession.id ? mergedSession : s);
+                            }
+                            return [...prev, mergedSession];
+                        });
+
+                        setUserData(prev => {
+                            const exists = prev.timetableSessions.some(s => s.id === mergedSession.id);
+                            if (exists) {
+                                return {
+                                    ...prev,
+                                    timetableSessions: prev.timetableSessions.map(s => s.id === mergedSession.id ? mergedSession : s)
+                                };
+                            }
+                            return {
+                                ...prev,
+                                timetableSessions: [...prev.timetableSessions, mergedSession]
+                            };
+                        });
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [userId, userEmail]);
+
     const fetchSessions = useCallback(async (userId: string, email: string) => {
         setIsLoadingRemote(true);
         try {
@@ -868,9 +932,13 @@ const App: React.FC = () => {
             setSaveStatus('success');
             // Notification is handled by the state which is passed to HomePage
             setTimeout(() => setSaveStatus('idle'), 3000);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Failed to sync session to cloud:', err);
             setSaveStatus('error');
+            // Show alert for major errors
+            if (err.message) {
+                alert(`Cloud Sync Error: ${err.message}`);
+            }
             setTimeout(() => setSaveStatus('idle'), 5000);
         } finally {
             setIsSaving(false);
@@ -969,7 +1037,18 @@ const App: React.FC = () => {
     const effectiveSchoolConfig = useMemo(() => { if (!currentTimetableSession) return userData.schoolConfig; return { ...userData.schoolConfig, daysConfig: currentTimetableSession.daysConfig || userData.schoolConfig.daysConfig, periodTimings: currentTimetableSession.periodTimings || userData.schoolConfig.periodTimings, breaks: currentTimetableSession.breaks || userData.schoolConfig.breaks, assembly: currentTimetableSession.assembly || userData.schoolConfig.assembly }; }, [userData.schoolConfig, currentTimetableSession]);
 
     const openConfirmation = (title: string, message: React.ReactNode, onConfirm: () => void) => { setConfirmationState({ isOpen: true, title, message, onConfirm }); };
-    const updateCurrentSession = useCallback((updater: (session: TimetableSession) => TimetableSession) => { if (!currentTimetableSessionId) return; setUserData(prev => { const newSessions = prev.timetableSessions.map(session => session.id === currentTimetableSessionId ? updater(session) : session); return { ...prev, timetableSessions: newSessions }; }); }, [currentTimetableSessionId, setUserData]);
+    const updateCurrentSession = useCallback((updater: (session: TimetableSession) => TimetableSession) => { 
+        if (!currentTimetableSessionId) return; 
+        setUserData(prev => { 
+            const newSessions = prev.timetableSessions.map(session => session.id === currentTimetableSessionId ? updater(session) : session); 
+            const updatedSession = newSessions.find(s => s.id === currentTimetableSessionId);
+            if (updatedSession) {
+                // Background sync
+                handleSaveToCloud(updatedSession);
+            }
+            return { ...prev, timetableSessions: newSessions }; 
+        }); 
+    }, [currentTimetableSessionId, setUserData, handleSaveToCloud]);
 
     const handleCreateTimetableSession = (name: string, startDate: string, endDate: string, schoolNameEn?: string, schoolNameUr?: string, schoolLogo?: string | null) => { 
         const newSession: TimetableSession = { 
