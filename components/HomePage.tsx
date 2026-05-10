@@ -134,8 +134,10 @@ import {
   FileSpreadsheet,
   X,
   School,
-  Shield
+  Shield,
+  Lock
 } from 'lucide-react';
+import { PermissionsModal } from './PermissionsModal';
 
 // ... (other imports)
 
@@ -543,6 +545,8 @@ const HomePage: React.FC<HomePageProps> = ({
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isImportExportChoiceOpen, setIsImportExportChoiceOpen] = useState(false);
   const [isBackupRestoreOpen, setIsBackupRestoreOpen] = useState(false);
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+  const [permissionSession, setPermissionSession] = useState<TimetableSession | null>(null);
   const [editingSession, setEditingSession] = useState<TimetableSession | null>(null);
   const [isSelectSessionModalOpen, setIsSelectSessionModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -608,6 +612,16 @@ const HomePage: React.FC<HomePageProps> = ({
           setWorkloadEndDate(end.toISOString().split('T')[0]);
       }
   }, [selectedWeekDate, workloadReportMode]);
+
+  const handleToggleTeacherPermission = (session: TimetableSession, teacherEmail: string) => {
+    const currentEmails = session.allow_edit_emails || [];
+    const lowerEmail = teacherEmail.toLowerCase();
+    const newEmails = currentEmails.includes(lowerEmail)
+      ? currentEmails.filter(e => e !== lowerEmail)
+      : [...currentEmails, lowerEmail];
+    
+    onSaveToCloud({ ...session, allow_edit_emails: newEmails });
+  };
 
   const handleCreateNew = () => { setEditingSession(null); setIsSelectSessionModalOpen(false); setIsSessionModalOpen(true); };
   const handleEditSession = (session: TimetableSession) => { setEditingSession(session); setIsSelectSessionModalOpen(false); setIsSessionModalOpen(true); };
@@ -892,6 +906,13 @@ const HomePage: React.FC<HomePageProps> = ({
                                             </div>
                                             <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
                                                 <button 
+                                                    onClick={() => { setPermissionSession(session); setIsPermissionsModalOpen(true); }} 
+                                                    className="p-3 text-[var(--text-secondary)] hover:text-emerald-600 rounded-full hover:bg-white transition-all shadow-sm"
+                                                    title="Manage Teacher Permissions"
+                                                >
+                                                    <Lock className="h-5 w-5" />
+                                                </button>
+                                                <button 
                                                     onClick={() => onSaveToCloud(session)} 
                                                     className="p-3 text-[var(--text-secondary)] hover:text-indigo-600 rounded-full hover:bg-white transition-all shadow-sm"
                                                     title="Publish/Share with Teachers"
@@ -945,7 +966,7 @@ const HomePage: React.FC<HomePageProps> = ({
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
-                                                {session.allowEdit ? (
+                                                {session.canEdit ? (
                                                     <button onClick={() => handleEditSession(session)} className="p-3 text-indigo-600 hover:bg-white rounded-full transition-all shadow-sm" title="Edit Session details"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
                                                 ) : (
                                                     <span className="text-[10px] font-black uppercase tracking-widest opacity-40 px-3 py-1 bg-black/5 dark:bg-black/20 rounded-full">View Only</span>
@@ -1180,6 +1201,16 @@ const HomePage: React.FC<HomePageProps> = ({
             userRole={userRole}
             onDeleteSession={onDeleteSessionFromBackend}
           />
+      )}
+
+      {isPermissionsModalOpen && permissionSession && (
+        <PermissionsModal 
+          isOpen={isPermissionsModalOpen}
+          onClose={() => setIsPermissionsModalOpen(false)}
+          session={permissionSession}
+          onTogglePermission={(email) => handleToggleTeacherPermission(permissionSession, email)}
+          t={t}
+        />
       )}
     </>
   );

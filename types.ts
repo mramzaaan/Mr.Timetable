@@ -179,6 +179,8 @@ export interface TimetableSession {
   userPermissions?: Record<string, SessionPermissions>; // email -> permissions mapping
   isShared?: boolean;
   canEdit?: boolean; // dynamic field for UI restrictions
+  allowEdit?: boolean; // toggle for broad sharing edit permissions
+  allow_edit_emails?: string[]; // Granular teacher permissions
   schoolName?: string;
   // Optional structure configuration for portable sessions
   daysConfig?: Record<keyof TimetableGridData, DayConfig>;

@@ -402,7 +402,8 @@ const App: React.FC = () => {
                     id: row.id,
                     ownerId: row.created_by,
                     isShared: !isOwner,
-                    allowEdit: row.allow_edit
+                    allowEdit: row.allow_edit,
+                    allow_edit_emails: row.allow_edit_emails || []
                 };
             });
             setRemoteSessions(allRemote);
@@ -535,7 +536,8 @@ const App: React.FC = () => {
                             id: newSessionDoc.id,
                             ownerId: newSessionDoc.created_by,
                             isShared: !isOwner,
-                            allowEdit: newSessionDoc.allow_edit
+                            allowEdit: newSessionDoc.allow_edit,
+                            allow_edit_emails: newSessionDoc.allow_edit_emails || []
                         };
                         
                         setRemoteSessions(prev => {
@@ -847,6 +849,7 @@ const App: React.FC = () => {
                 created_by: updatedSession.ownerId.toLowerCase(),
                 teacher_email: teacherEmails,
                 allow_edit: updatedSession.allowEdit || false,
+                allow_edit_emails: updatedSession.allow_edit_emails || [],
                 data: updatedSession
             };
 
@@ -935,7 +938,8 @@ const App: React.FC = () => {
 
             // Access Level Determination
             const hasFullControl = isOwner;
-            const hasEditAccess = hasFullControl || (isShared && allowEdit);
+            const isEmailAllowed = session.allow_edit_emails?.some(email => email.toLowerCase() === userEmailLower);
+            const hasEditAccess = hasFullControl || (isShared && (session.allowEdit === true || isEmailAllowed));
 
             // If user has no relation to this session, return restricted
             if (!isOwner && !isTeacher) {
@@ -1243,7 +1247,10 @@ const App: React.FC = () => {
         // Dynamic permission from backend table 'allow_edit'
         if ((currentTimetableSession as any).allowEdit === true) return true;
         
-        // Granular permissions for administrative actions
+        // Granular permissions 
+        if (currentTimetableSession.allow_edit_emails?.some(email => email.toLowerCase() === userEmailLower)) return true;
+        
+        // Custom permissions mapping
         if (currentTimetableSession.userPermissions?.[userEmailLower]?.canManageData) return true;
 
         // If it's a local session with no ownerId yet, user is admin
