@@ -172,66 +172,62 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         
                         <div className="space-y-6">
                             {/* Own Timetables */}
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">My Creations</p>
+                            <div className="space-y-3">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-[#888] ml-2">My Creations</p>
+                                {sessions.filter(s => !s.isShared).length === 0 && <p className="text-[10px] font-bold text-gray-400 ml-4 italic">No creations yet.</p>}
                                 {sessions.filter(s => !s.isShared).map((session) => (
-                                    <div key={session.id} className="space-y-1">
+                                    <div key={session.id} className="space-y-4 p-4 rounded-[2rem] bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-800/50">
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => onSelectSession(session.id)}
-                                                className={`flex-grow flex items-center justify-between p-4 rounded-3xl transition-all ${
+                                                className={`flex-grow flex items-center justify-between p-4 rounded-[1.5rem] transition-all ${
                                                     currentSessionId === session.id 
                                                         ? 'bg-[var(--accent-primary)] text-white shadow-lg' 
-                                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-800'
                                                 }`}
                                             >
-                                                <div className="text-left">
-                                                    <div className="font-bold text-sm tracking-tight">{session.name}</div>
-                                                    <div className={`text-[10px] font-black uppercase tracking-widest opacity-60 ${currentSessionId === session.id ? 'text-white' : ''}`}>
+                                                <div className="text-left overflow-hidden">
+                                                    <div className="font-black text-sm tracking-tight truncate">{session.name}</div>
+                                                    <div className={`text-[9px] font-black uppercase tracking-widest opacity-60 ${currentSessionId === session.id ? 'text-white' : ''}`}>
                                                         {session.startDate} - {session.endDate}
                                                     </div>
                                                 </div>
-                                                {currentSessionId === session.id && <Check className="w-5 h-5" />}
+                                                {currentSessionId === session.id && <Check className="w-4 h-4 shrink-0" />}
                                             </button>
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex gap-1.5">
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); onSetDefaultSession(session.id); }}
-                                                    className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 ${currentSessionId === session.id ? 'bg-white/20 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-[var(--accent-primary)]'}`}
+                                                    className={`p-3 rounded-2xl transition-all shadow-sm ${currentSessionId === session.id ? 'bg-[var(--accent-primary)] text-white ring-2 ring-[var(--accent-secondary)]' : 'bg-white dark:bg-gray-800 text-gray-400 hover:text-[var(--accent-primary)]'}`}
                                                     title="Set as Default"
                                                 >
-                                                    <Star className={`w-4 h-4 sm:w-5 sm:h-5 ${currentSessionId === session.id ? 'fill-current' : ''}`} />
-                                                </button>
-                                                <button 
-                                                    onClick={(e) => { e.stopPropagation(); onSaveToCloud(session); }}
-                                                    className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white`}
-                                                    title="Sync to Cloud / Publish"
-                                                >
-                                                    <Cloud className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                    <Star className={`w-4 h-4 ${currentSessionId === session.id ? 'fill-current' : ''}`} />
                                                 </button>
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); onDeleteSessionFromBackend(session); }}
-                                                    className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white`}
+                                                    className={`p-3 rounded-2xl transition-all shadow-sm bg-red-50 dark:bg-red-900/10 text-red-500 hover:bg-red-500 hover:text-white`}
                                                     title="Delete from Online"
                                                 >
-                                                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                    <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </div>
-                                        <div className="flex items-center justify-between ml-4 px-2">
-                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Allow Teachers to Edit</span>
-                                            <label className="relative inline-flex items-center cursor-pointer ml-auto mb-2" onClick={e => e.stopPropagation()}>
+                                        <div className="flex items-center justify-between px-2">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Sharing Status</span>
+                                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{session.allowEdit ? 'Teachers Can Edit' : 'View Only Mode'}</span>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer" onClick={e => e.stopPropagation()}>
                                                 <input
                                                     type="checkbox"
                                                     className="sr-only peer"
                                                     checked={session.allowEdit === true}
                                                     onChange={async (e) => {
                                                         const newVal = e.target.checked;
-                                                        // Toggle allowEdit directly in cloud
                                                         const updatedSession = { ...session, allowEdit: newVal };
                                                         await onSaveToCloud(updatedSession);
                                                     }}
                                                 />
-                                                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[var(--accent-primary)]"></div>
+                                                <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2.5px] after:left-[2.5px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[var(--accent-primary)] shadow-inner"></div>
                                             </label>
                                         </div>
                                     </div>
@@ -240,47 +236,33 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
                             {/* Shared Timetables */}
                             {sessions.some(s => s.isShared) && (
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400 ml-4">Shared with Me</p>
+                                <div className="space-y-3">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400 ml-2">Shared with Me</p>
                                     {sessions.filter(s => s.isShared).map((session) => (
-                                        <div key={session.id} className="flex gap-2">
+                                        <div key={session.id} className="flex gap-2 p-2 rounded-[2rem] bg-indigo-50/30 dark:bg-indigo-900/5 border border-indigo-100/50 dark:border-indigo-900/20">
                                             <button
                                                 onClick={() => onSelectSession(session.id)}
-                                                className={`flex-grow flex items-center justify-between p-4 rounded-3xl transition-all border-2 ${
+                                                className={`flex-grow flex items-center justify-between p-4 rounded-[1.5rem] transition-all border-2 ${
                                                     currentSessionId === session.id 
                                                         ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg' 
-                                                        : 'bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/20 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100'
+                                                        : 'bg-white dark:bg-gray-800/50 text-indigo-700 dark:text-indigo-400 border-indigo-50 dark:border-indigo-900/20 hover:bg-indigo-50'
                                                 }`}
                                             >
-                                                <div className="text-left">
-                                                    <div className="font-bold text-sm tracking-tight">{session.name}</div>
-                                                    <div className={`text-[10px] font-black uppercase tracking-widest opacity-60 ${currentSessionId === session.id ? 'text-white' : ''}`}>
+                                                <div className="text-left overflow-hidden">
+                                                    <div className="font-black text-sm tracking-tight truncate">{session.name}</div>
+                                                    <div className={`text-[9px] font-black uppercase tracking-widest opacity-60 ${currentSessionId === session.id ? 'text-white' : ''}`}>
                                                         {session.schoolName}
                                                     </div>
                                                 </div>
-                                                {currentSessionId === session.id && <Check className="w-5 h-5" />}
+                                                {currentSessionId === session.id && <Check className="w-4 h-4 shrink-0" />}
                                             </button>
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex gap-1.5">
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); onSetDefaultSession(session.id); }}
-                                                    className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 ${currentSessionId === session.id ? 'bg-white/20 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-[var(--accent-primary)]'}`}
+                                                    className={`p-3 rounded-2xl transition-all shadow-sm ${currentSessionId === session.id ? 'bg-white/20 text-white' : 'bg-white dark:bg-gray-800 text-gray-400 hover:text-indigo-600'}`}
                                                     title="Set as Default"
                                                 >
-                                                    <Star className={`w-4 h-4 sm:w-5 sm:h-5 ${currentSessionId === session.id ? 'fill-current' : ''}`} />
-                                                </button>
-                                                <button 
-                                                    onClick={(e) => { e.stopPropagation(); onSaveToCloud(session); }}
-                                                    className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white`}
-                                                    title="Sync to Cloud"
-                                                >
-                                                    <Cloud className="w-4 h-4 sm:w-5 sm:h-5" />
-                                                </button>
-                                                <button 
-                                                    onClick={(e) => { e.stopPropagation(); onDeleteSessionFromBackend(session); }}
-                                                    className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white`}
-                                                    title="Delete from Online"
-                                                >
-                                                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                    <Star className={`w-4 h-4 ${currentSessionId === session.id ? 'fill-current' : ''}`} />
                                                 </button>
                                             </div>
                                         </div>

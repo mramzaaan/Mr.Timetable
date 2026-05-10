@@ -881,8 +881,8 @@ const HomePage: React.FC<HomePageProps> = ({
                                                 <div className={`w-12 h-12 rounded-[2rem] flex items-center justify-center font-black text-xl  transition-transform group-hover:rotate-12 ${session.id === currentTimetableSessionId ? 'bg-[var(--accent-primary)] text-white' : 'bg-white dark:bg-black/20 text-[var(--text-secondary)]'}`}>
                                                     {(session.name || '?').charAt(0).toUpperCase()}
                                                 </div>
-                                                <div>
-                                                    <h4 className="font-black text-xl text-[var(--text-primary)] uppercase tracking-tight leading-none mb-2">{session.name}</h4>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-black text-xl text-[var(--text-primary)] uppercase tracking-tight leading-none mb-2 truncate">{session.name}</h4>
                                                     <div className="flex items-center gap-3 text-[0.625rem] font-black text-[var(--text-secondary)] uppercase tracking-widest opacity-70">
                                                         <span className="px-2 py-0.5 bg-white/40 dark:bg-black/20 rounded-[1.25rem]">{new Date(session.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                                         <span className="text-[var(--accent-primary)]">➔</span>
@@ -893,18 +893,18 @@ const HomePage: React.FC<HomePageProps> = ({
                                             <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
                                                 <button 
                                                     onClick={() => onSaveToCloud(session)} 
-                                                    className="p-3 text-[var(--text-secondary)] hover:text-indigo-600 rounded-full hover:bg-indigo-50 transition-all"
+                                                    className="p-3 text-[var(--text-secondary)] hover:text-indigo-600 rounded-full hover:bg-white transition-all shadow-sm"
                                                     title="Publish/Share with Teachers"
                                                 >
                                                     <Shuffle className="h-5 w-5" />
                                                 </button>
-                                                <button onClick={() => handleEditSession(session)} className="p-3 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-full hover:bg-white transition-all " title="Edit Session details"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
-                                                <button onClick={() => onDeleteTimetableSession(session.id)} className="p-3 text-[var(--text-secondary)] hover:text-red-600 rounded-full hover:bg-red-50 transition-all " title="Delete Session"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" /></svg></button>
+                                                <button onClick={() => handleEditSession(session)} className="p-3 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] rounded-full hover:bg-white transition-all shadow-sm" title="Edit Session details"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
+                                                <button onClick={() => onDeleteTimetableSession(session.id)} className="p-3 text-[var(--text-secondary)] hover:text-red-600 rounded-full hover:bg-red-50 transition-all shadow-sm" title="Delete Session"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" /></svg></button>
                                             </div>
                                         </div>
-                                        <div className="flex justify-start px-4 items-center">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 mr-4">Allow Teachers to Edit</span>
-                                            <label className="relative inline-flex items-center cursor-pointer mb-2" onClick={e => e.stopPropagation()}>
+                                        <div className="flex justify-start px-4 items-center mb-4">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 mr-4">Sharing Enabled</span>
+                                            <label className="relative inline-flex items-center cursor-pointer" onClick={e => e.stopPropagation()}>
                                                 <input
                                                     type="checkbox"
                                                     className="sr-only peer"
@@ -917,6 +917,9 @@ const HomePage: React.FC<HomePageProps> = ({
                                                 />
                                                 <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[var(--accent-primary)]"></div>
                                             </label>
+                                            <span className="ml-3 text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest shadow-sm">
+                                                {session.allowEdit ? 'Teachers Can Edit' : 'View Only for Teachers'}
+                                            </span>
                                         </div>
                                     </div>
                                 ))}
@@ -927,13 +930,13 @@ const HomePage: React.FC<HomePageProps> = ({
                                 <div className="space-y-4">
                                     <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-400 ml-2">Shared with Me</h3>
                                     {timetableSessions.filter(s => s.isShared).map(session => (
-                                        <div key={session.id} className={`group p-6 rounded-[2rem] flex items-center justify-between transition-all duration-300 cursor-pointer border-2 ${session.id === currentTimetableSessionId ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/20 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100'}`} onClick={() => { setCurrentTimetableSessionId(session.id); setIsSelectSessionModalOpen(false); }}>
+                                        <div key={session.id} className={`group p-6 rounded-[2rem] flex items-center justify-between transition-all duration-300 cursor-pointer border-2 ${session.id === currentTimetableSessionId ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg' : 'bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/20 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100'}`} onClick={() => { setCurrentTimetableSessionId(session.id); setIsSelectSessionModalOpen(false); }}>
                                             <div className="flex items-center gap-6">
-                                                <div className={`w-12 h-12 rounded-[2rem] flex items-center justify-center font-black text-xl  transition-transform group-hover:rotate-12 ${session.id === currentTimetableSessionId ? 'bg-white text-indigo-600' : 'bg-indigo-100 dark:bg-black/20 text-indigo-600'}`}>
+                                                <div className={`w-12 h-12 rounded-[2rem] flex items-center justify-center font-black text-xl  transition-transform group-hover:rotate-12 ${session.id === currentTimetableSessionId ? 'bg-white text-indigo-600 shadow-inner' : 'bg-indigo-100 dark:bg-black/20 text-indigo-600 shadow-inner'}`}>
                                                     {(session.name || '?').charAt(0).toUpperCase()}
                                                 </div>
-                                                <div>
-                                                    <h4 className="font-black text-xl uppercase tracking-tight leading-none mb-2">{session.name}</h4>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-black text-xl uppercase tracking-tight leading-none mb-2 truncate">{session.name}</h4>
                                                     <div className="flex items-center gap-3 text-[0.625rem] font-black uppercase tracking-widest opacity-70">
                                                         <span className="px-2 py-0.5 bg-black/5 dark:bg-black/20 rounded-[1.25rem]">{new Date(session.startDate).toLocaleDateString(language === 'ur' ? 'ur-PK-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                                         <span>➔</span>
@@ -942,7 +945,11 @@ const HomePage: React.FC<HomePageProps> = ({
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
-                                                <button onClick={() => handleEditSession(session)} disabled={!session.allowEdit} className={`p-3 rounded-full transition-all ${session.allowEdit ? 'text-indigo-600 hover:bg-white' : 'text-gray-400 opacity-50 cursor-not-allowed'}`} title={session.allowEdit ? 'Edit Session details' : 'Editing disabled by admin'}><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
+                                                {session.allowEdit ? (
+                                                    <button onClick={() => handleEditSession(session)} className="p-3 text-indigo-600 hover:bg-white rounded-full transition-all shadow-sm" title="Edit Session details"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg></button>
+                                                ) : (
+                                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40 px-3 py-1 bg-black/5 dark:bg-black/20 rounded-full">View Only</span>
+                                                )}
                                             </div>
                                         </div>
                                     ))}

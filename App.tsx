@@ -386,29 +386,25 @@ const App: React.FC = () => {
         try {
             const emailLower = email.toLowerCase();
             
-            // First, get sessions owned by user (My Creations)
-            const { data: owned, error: ownedError } = await supabase
+            // Fetch all sessions where the user is either the creator or a teacher
+            const { data, error } = await supabase
                 .from('timetables')
                 .select('*')
-                .eq('created_by', emailLower);
+                .or(`created_by.eq.${emailLower},teacher_email.cs.{${emailLower}}`);
             
-            if (ownedError) throw ownedError;
+            if (error) throw error;
 
-            // Second, get sessions shared with the user (Shared with Me)
-            const { data: shared, error: sharedError } = await supabase
-                .from('timetables')
-                .select('*')
-                .neq('created_by', emailLower)
-                .contains('teacher_email', [emailLower]);
-
-            if (sharedError) {
-                console.warn('Shared sessions fetch error:', sharedError.message);
-            }
-
-            const allRemote = [
-                ...(owned || []).map(s => ({ ...s.data, id: s.id, ownerId: s.created_by, isShared: false, allowEdit: s.allow_edit })),
-                ...(shared || []).map(s => ({ ...s.data, id: s.id, ownerId: s.created_by, isShared: true, allowEdit: s.allow_edit }))
-            ];
+            const allRemote = (data || []).map(row => {
+                const sessionData = row.data as TimetableSession;
+                const isOwner = row.created_by === emailLower;
+                return {
+                    ...sessionData,
+                    id: row.id,
+                    ownerId: row.created_by,
+                    isShared: !isOwner,
+                    allowEdit: row.allow_edit
+                };
+            });
             setRemoteSessions(allRemote);
         } catch (err) {
             console.error('Failed to fetch remote sessions:', err);
@@ -837,7 +833,6 @@ const App: React.FC = () => {
         const updatedSession: any = { 
             ...session, 
             ownerId: session.ownerId || userEmail,
-            updatedBy: userEmail,
             lastSyncAt: new Date().toISOString()
         };
 
@@ -845,21 +840,15 @@ const App: React.FC = () => {
         setSaveStatus('saving');
 
         try {
-            const teacherEmails = updatedSession.teachers?.map((t: any) => t.email).filter(Boolean) || [];
+            const teacherEmails = updatedSession.teachers?.map((t: any) => t.email?.toLowerCase()).filter(Boolean) || [];
 
-            // Simple push of JSON data. 
-            // Ownership is handled by created_by default value in DB (auth.jwt() ->> 'email')
             const upsertData: any = {
                 id: updatedSession.id,
+                created_by: updatedSession.ownerId.toLowerCase(),
                 teacher_email: teacherEmails,
                 allow_edit: updatedSession.allowEdit || false,
                 data: updatedSession
             };
-
-            // Only send created_by if we already have a confirmed email owner (to respect existing ownership during updates)
-            if (updatedSession.ownerId && updatedSession.ownerId.includes('@')) {
-                upsertData.created_by = updatedSession.ownerId;
-            }
 
             const { error } = await supabase
                 .from('timetables')
@@ -935,26 +924,23 @@ const App: React.FC = () => {
         }
 
         const filteredSessions = allSessions.map(session => {
-            const isLocalUnowned = !session.ownerId && !session.isShared;
-            const isOwner = (userId && session.ownerId === userId) || isLocalUnowned;
-            const isSessionAdmin = session.admins?.some(email => email.toLowerCase() === userEmailLower);
-            const isSessionEditor = session.editors?.some(email => email.toLowerCase() === userEmailLower);
+            const userEmailLower = userEmail?.toLowerCase() || '';
+            const sessionOwnerEmail = session.ownerId?.toLowerCase() || '';
+            const isOwner = sessionOwnerEmail === userEmailLower || (!session.ownerId && !session.isShared);
+            
+            const isShared = sessionOwnerEmail !== userEmailLower && sessionOwnerEmail !== '';
+            
             const isTeacher = session.teachers?.some(t => t.email?.toLowerCase() === userEmailLower);
-            const userPerms = session.userPermissions?.[userEmailLower];
+            const allowEdit = session.allowEdit === true;
 
             // Access Level Determination
-            const hasFullControl = isOwner || isSessionAdmin;
-            const hasEditAccess = hasFullControl || isSessionEditor || !!userPerms?.canEditTimetable;
+            const hasFullControl = isOwner;
+            const hasEditAccess = hasFullControl || (isShared && allowEdit);
 
-            // If user has no relation to this session, check if it's public/discoverable (assume shared for now)
-            if (!isOwner && !isSessionAdmin && !isSessionEditor && !isTeacher) {
+            // If user has no relation to this session, return restricted
+            if (!isOwner && !isTeacher) {
                 return { 
                     ...session, 
-                    subjects: [], 
-                    teachers: [], 
-                    classes: [], 
-                    jointPeriods: [],
-                    adjustments: {},
                     isRestricted: true,
                     canEdit: false,
                     isAdmin: false 
@@ -965,7 +951,7 @@ const App: React.FC = () => {
                 ...session, 
                 isAdmin: hasFullControl,
                 canEdit: hasEditAccess,
-                isShared: !isOwner
+                isShared: isShared
             };
         });
 
