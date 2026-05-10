@@ -381,70 +381,6 @@ const App: React.FC = () => {
         });
     }, []);
 
-    useEffect(() => {
-        if (!userId || !userEmail) return;
-
-        const channel = supabase
-            .channel('timetable_changes')
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'timetables'
-                },
-                (payload) => {
-                    const newRow = payload.new as any;
-                    if (!newRow || !newRow.data) return;
-
-                    const emailLower = userEmail.toLowerCase();
-                    const createdBy = newRow.created_by?.toLowerCase();
-                    const isTeacher = newRow.teacher_email?.some((e: string) => e.toLowerCase() === emailLower);
-                    
-                    if (createdBy === emailLower || isTeacher) {
-                        const sessionData = newRow.data as TimetableSession;
-                        const isOwner = createdBy === emailLower;
-                        
-                        const mergedSession: TimetableSession = {
-                            ...sessionData,
-                            id: newRow.id,
-                            ownerId: newRow.created_by,
-                            isShared: !isOwner,
-                            allowEdit: newRow.allow_edit,
-                            allow_edit_emails: newRow.allow_edit_emails || []
-                        };
-
-                        setRemoteSessions(prev => {
-                            const exists = prev.some(s => s.id === mergedSession.id);
-                            if (exists) {
-                                return prev.map(s => s.id === mergedSession.id ? mergedSession : s);
-                            }
-                            return [...prev, mergedSession];
-                        });
-
-                        setUserData(prev => {
-                            const exists = prev.timetableSessions.some(s => s.id === mergedSession.id);
-                            if (exists) {
-                                return {
-                                    ...prev,
-                                    timetableSessions: prev.timetableSessions.map(s => s.id === mergedSession.id ? mergedSession : s)
-                                };
-                            }
-                            return {
-                                ...prev,
-                                timetableSessions: [...prev.timetableSessions, mergedSession]
-                            };
-                        });
-                    }
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [userId, userEmail]);
-
     const fetchSessions = useCallback(async (userId: string, email: string) => {
         setIsLoadingRemote(true);
         try {
@@ -494,6 +430,7 @@ const App: React.FC = () => {
 
                 if (session?.user) {
                     const email = session.user.email || null;
+                    console.log('Auth check: User is signed in:', email);
                     setUserEmail(email);
                     setUserId(session.user.id);
                     setIsAuthModalOpen(false);
@@ -518,46 +455,60 @@ const App: React.FC = () => {
                 } else {
                     setUserRole('teacher'); 
                     setUserEmail(null);
+                    setUserId(null);
                     setIsAuthModalOpen(true);
                 }
             } catch (err) {
                 console.error('Auth verification failed:', err);
                 setUserRole('teacher');
                 setUserEmail(null);
+                setUserId(null);
             }
         };
 
         checkAuth();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth Event:', event);
             if (event === 'SIGNED_OUT' || (event as string) === 'USER_DELETED') {
-                setUserRole('teacher');
-                setUserEmail(null);
-                setUserId(null);
-                setIsAuthModalOpen(true);
-            } else if (session?.user) {
-                setUserEmail(session.user.email || null);
-                setUserId(session.user.id);
-                setIsAuthModalOpen(false);
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role, can_edit')
-                    .eq('id', session.user.id)
-                    .single();
-                
-                if (profile) {
-                    setUserRole(profile.role as UserRole);
-                    setCanEditGlobal(!!profile.can_edit);
+                console.log('Auth event: User signed out');
+                if (userEmail !== null) {
+                    setUserRole('teacher');
+                    setUserEmail(null);
+                    setUserId(null);
+                    setRemoteSessions([]);
+                    setIsAuthModalOpen(true);
                 }
-            } else {
-                setUserRole('teacher');
-                setCanEditGlobal(false);
-                setUserEmail(null);
+            } else if (session?.user) {
+                const email = session.user.email || null;
+                console.log('Auth event: User signed in:', email);
+                if (userEmail !== email || userId !== session.user.id) {
+                    setUserEmail(email);
+                    setUserId(session.user.id);
+                    setIsAuthModalOpen(false);
+                    
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('role, can_edit')
+                        .eq('id', session.user.id)
+                        .single();
+                    
+                    if (profile) {
+                        setUserRole(profile.role as UserRole);
+                        setCanEditGlobal(!!profile.can_edit);
+                    }
+
+                    if (email) {
+                        fetchSessions(session.user.id, email);
+                    }
+                }
+            } else if (event === 'INITIAL_SESSION' && !session) {
+                setIsAuthModalOpen(true);
             }
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [fetchSessions]);
     
     useEffect(() => {
         const handleSaveOnUnload = () => {
@@ -1054,6 +1005,7 @@ const App: React.FC = () => {
     }, [currentTimetableSessionId, setUserData, handleSaveToCloud]);
 
     const handleCreateTimetableSession = (name: string, startDate: string, endDate: string, schoolNameEn?: string, schoolNameUr?: string, schoolLogo?: string | null) => { 
+        const emailLower = userEmail?.toLowerCase() || '';
         const newSession: TimetableSession = { 
             id: generateUniqueId(), 
             name, 
@@ -1071,9 +1023,9 @@ const App: React.FC = () => {
             assembly: userData.schoolConfig.assembly, 
             vacations: [], 
             changeLogs: [],
-            admins: userEmail ? [userEmail.toLowerCase()] : [], // User is the first admin
-            allow_edit_emails: userEmail ? [userEmail.toLowerCase()] : [], // Explicit edit rights
-            ownerId: userEmail || userId || undefined,
+            admins: emailLower ? [emailLower] : [], // User is the first admin
+            allow_edit_emails: emailLower ? [emailLower] : [], // Explicit edit rights
+            ownerId: emailLower || userId || undefined,
             schoolName: schoolNameEn || userData.schoolConfig.schoolNameEn
         }; 
 
@@ -1319,24 +1271,22 @@ const App: React.FC = () => {
     };
 
     const isSessionAdmin = useMemo(() => {
-        if (userRole === 'admin' || canEditGlobal) return true; // Global Database Admin or Global Editor
-        if (!currentTimetableSession) return true; // Local session with no data yet
-        if (userId && currentTimetableSession.ownerId === userId) return true; // Owner of the session
+        if (userRole === 'admin' || canEditGlobal) return true; 
+        if (!currentTimetableSession) return true; 
         
         const userEmailLower = userEmail?.toLowerCase() || '';
-        if (currentTimetableSession.ownerId === userEmailLower) return true; // Owner by email
+        const ownerLower = currentTimetableSession.ownerId?.toLowerCase() || '';
+        
+        if (userId && currentTimetableSession.ownerId === userId) return true; 
+        if (ownerLower === userEmailLower) return true; 
+        
         if (currentTimetableSession.admins?.some(email => email.toLowerCase() === userEmailLower)) return true;
-        
-        // Dynamic permission from backend table 'allow_edit'
-        if ((currentTimetableSession as any).allowEdit === true) return true;
-        
-        // Granular permissions 
         if (currentTimetableSession.allow_edit_emails?.some(email => email.toLowerCase() === userEmailLower)) return true;
         
-        // Custom permissions mapping
+        // Granular permissions mapping from backend
+        if ((currentTimetableSession as any).allow_edit === true) return true;
         if (currentTimetableSession.userPermissions?.[userEmailLower]?.canManageData) return true;
 
-        // If it's a local session with no ownerId yet, user is admin
         if (!currentTimetableSession.ownerId && !currentTimetableSession.isShared) return true;
         return false;
     }, [userRole, canEditGlobal, currentTimetableSession, userId, userEmail]);

@@ -98,9 +98,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto no-scrollbar">
                     {/* User Info */}
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center justify-between text-sm py-1">
                             <span className="text-gray-500 font-bold uppercase tracking-wider">{t.email || 'Email'}</span>
-                            <span className="font-bold text-gray-900 dark:text-white truncate max-w-[200px]">{userEmail}</span>
+                            <span className="font-black text-gray-900 dark:text-white truncate max-w-[240px] select-all">{userEmail || 'Not signed in'}</span>
                         </div>
                     </div>
 
@@ -150,8 +150,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                             >
                                                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg"><Plus className="w-4 h-4" /></div>
                                                 <div className="text-left">
-                                                    <p className="leading-tight">Create Manual</p>
-                                                    <p className="text-[10px] font-medium text-gray-400">Start from scratch</p>
+                                                    <p className="leading-tight">Create New</p>
+                                                    <p className="text-[10px] font-medium text-gray-400">Save to Cloud Dashboard</p>
                                                 </div>
                                             </button>
                                             <button 

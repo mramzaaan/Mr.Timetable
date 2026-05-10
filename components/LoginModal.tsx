@@ -83,7 +83,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ t, onLogin }) => {
                 <input
                     type="email"
                     value={email}
+                    autoComplete="email"
                     onChange={(e) => setEmail(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-gray-800 rounded-[1.25rem] text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--accent-primary)] outline-none transition-all"
                     placeholder="name@school.com"
                     required
@@ -100,7 +102,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ t, onLogin }) => {
                 <input
                     type="password"
                     value={password}
+                    autoComplete={isSignUp ? "new-password" : "current-password"}
                     onChange={(e) => setPassword(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-gray-800 rounded-[1.25rem] text-gray-900 dark:text-white focus:ring-2 focus:ring-[var(--accent-primary)] outline-none transition-all"
                     placeholder="••••••••"
                     required
@@ -174,7 +178,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ t, onLogin }) => {
 
         <div className="mt-8 text-center">
             <button 
-                onClick={() => setIsSignUp(!isSignUp)}
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsSignUp(!isSignUp); }}
                 className="text-xs font-bold text-gray-500 hover:text-[var(--accent-primary)] transition-colors uppercase tracking-widest"
             >
                 {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
