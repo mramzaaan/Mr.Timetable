@@ -417,20 +417,14 @@ const App: React.FC = () => {
         }
     }, []);
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                if (error) {
-                    console.error('Session retrieval error:', error.message);
-                    if (error.message.includes('Refresh Token') || error.message.includes('not found')) {
-                        await supabase.auth.signOut();
-                    }
-                }
+    const [isAuthChecked, setIsAuthChecked] = useState(false);
 
+    useEffect(() => {
+        const checkInitialAuth = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
                 if (session?.user) {
                     const email = session.user.email || null;
-                    console.log('Auth check: User is signed in:', email);
                     setUserEmail(email);
                     setUserId(session.user.id);
                     setIsAuthModalOpen(false);
@@ -448,61 +442,33 @@ const App: React.FC = () => {
                             setCurrentTimetableSessionId(profile.default_session_id);
                         }
                     }
-
-                    if (email) {
-                        fetchSessions(session.user.id, email);
-                    }
+                    if (email) fetchSessions(session.user.id, email);
                 } else {
-                    setUserRole('teacher'); 
-                    setUserEmail(null);
-                    setUserId(null);
                     setIsAuthModalOpen(true);
                 }
             } catch (err) {
-                console.error('Auth verification failed:', err);
-                setUserRole('teacher');
-                setUserEmail(null);
-                setUserId(null);
+                console.error('Initial auth check failed:', err);
+                setIsAuthModalOpen(true);
+            } finally {
+                setIsAuthChecked(true);
             }
         };
 
-        checkAuth();
+        checkInitialAuth();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log('Auth Event:', event);
-            if (event === 'SIGNED_OUT' || (event as string) === 'USER_DELETED') {
-                console.log('Auth event: User signed out');
-                if (userEmail !== null) {
-                    setUserRole('teacher');
-                    setUserEmail(null);
-                    setUserId(null);
-                    setRemoteSessions([]);
-                    setIsAuthModalOpen(true);
-                }
-            } else if (session?.user) {
+            if (event === 'SIGNED_IN' && session?.user) {
                 const email = session.user.email || null;
-                console.log('Auth event: User signed in:', email);
-                if (userEmail !== email || userId !== session.user.id) {
-                    setUserEmail(email);
-                    setUserId(session.user.id);
-                    setIsAuthModalOpen(false);
-                    
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('role, can_edit')
-                        .eq('id', session.user.id)
-                        .single();
-                    
-                    if (profile) {
-                        setUserRole(profile.role as UserRole);
-                        setCanEditGlobal(!!profile.can_edit);
-                    }
-
-                    if (email) {
-                        fetchSessions(session.user.id, email);
-                    }
-                }
-            } else if (event === 'INITIAL_SESSION' && !session) {
+                setUserEmail(email);
+                setUserId(session.user.id);
+                setIsAuthModalOpen(false);
+                if (email) fetchSessions(session.user.id, email);
+            } else if (event === 'SIGNED_OUT') {
+                setUserRole('teacher');
+                setUserEmail(null);
+                setUserId(null);
+                setRemoteSessions([]);
                 setIsAuthModalOpen(true);
             }
         });
@@ -825,34 +791,13 @@ const App: React.FC = () => {
     const handleSaveToCloud = useCallback(async (session: TimetableSession) => {
         if (!userId || !userEmail) return;
 
-        // Validation: Basic sanity check
-        if (!session.name || session.name.trim() === '') {
-            console.warn('Cannot save session without a name');
-            return;
-        }
-
-        if (!validateSessionData(session)) {
-            console.error('Invalid session data. Sync aborted.');
-            setSaveStatus('error');
-            setTimeout(() => setSaveStatus('idle'), 5000);
-            return;
-        }
-
-        // Ensure current user has permission
+        const schoolName = session.schoolName || userData.schoolConfig.schoolNameEn || 'Unknown School';
+        const schoolSlug = schoolName.toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 50);
         const emailLower = userEmail.toLowerCase();
-        const isOwner = session.ownerId === userId || session.ownerId === userEmail;
-        const allowEdit = (session as any).allowEdit === true;
-        
-        // If it's a known cloud session and the user has no rights, block it
-        if (session.ownerId && !isOwner && !(session.isShared && allowEdit)) {
-             console.error('Permission denied: You do not have permission to sync this session to the cloud.');
-             setSaveStatus('error');
-             return;
-        }
 
         const updatedSession: any = { 
             ...session, 
-            ownerId: session.ownerId || userEmail,
+            ownerId: session.ownerId || emailLower,
             lastSyncAt: new Date().toISOString()
         };
 
@@ -862,37 +807,72 @@ const App: React.FC = () => {
         try {
             const teacherEmails = updatedSession.teachers?.map((t: any) => t.email?.toLowerCase()).filter(Boolean) || [];
 
+            // 1. Sync to Database Table
             const upsertData: any = {
                 id: updatedSession.id,
                 created_by: updatedSession.ownerId.toLowerCase(),
                 teacher_email: teacherEmails,
                 allow_edit: updatedSession.allowEdit || false,
                 allow_edit_emails: updatedSession.allow_edit_emails || [],
+                school_id: schoolSlug,
                 data: updatedSession
             };
 
-            const { error } = await supabase
+            const { error: dbError } = await supabase
                 .from('timetables')
                 .upsert(upsertData);
             
-            if (error) throw error;
+            if (dbError) throw dbError;
+
+            // 2. Sync to Storage Bucket (JSON Backup)
+            const storagePayload = {
+               schoolName,
+               updatedAt: new Date().toISOString(),
+               teachers: updatedSession.teachers || [],
+               timetableData: updatedSession
+            };
+
+            const fileName = `${schoolSlug}/${updatedSession.id}.json`;
+            const { error: storageError } = await supabase.storage
+               .from('school-data')
+               .upload(fileName, JSON.stringify(storagePayload, null, 2), {
+                   contentType: 'application/json',
+                   upsert: true
+               });
+
+            if (storageError) {
+                console.warn('Bucket sync error (Create "school-data" bucket in Supabase!):', storageError.message);
+            }
+
+            // 3. Update Teacher Access Table
+            if (teacherEmails.length > 0) {
+                const teacherAccessRecords = updatedSession.teachers
+                    .filter((t: any) => t.email)
+                    .map((t: any) => ({
+                        school_id: schoolSlug,
+                        school_name: schoolName,
+                        teacher_email: t.email.toLowerCase(),
+                        teacher_name: t.name,
+                        role: 'teacher'
+                    }));
+
+                if (teacherAccessRecords.length > 0) {
+                    await supabase
+                        .from('teacher_access')
+                        .upsert(teacherAccessRecords, { onConflict: 'school_id,teacher_email' });
+                }
+            }
             
-            // Sync augmented state back to local so UI sees auto-added admins
             setUserData(prev => ({
                 ...prev,
                 timetableSessions: prev.timetableSessions.map(s => s.id === updatedSession.id ? updatedSession : s)
             }));
 
             setSaveStatus('success');
-            // Notification is handled by the state which is passed to HomePage
             setTimeout(() => setSaveStatus('idle'), 3000);
         } catch (err: any) {
-            console.error('Failed to sync session to cloud:', err);
+            console.error('Failed to sync to cloud:', err);
             setSaveStatus('error');
-            // Show alert for major errors
-            if (err.message) {
-                alert(`Cloud Sync Error: ${err.message}`);
-            }
             setTimeout(() => setSaveStatus('idle'), 5000);
         } finally {
             setIsSaving(false);
@@ -1230,6 +1210,7 @@ const App: React.FC = () => {
     const handleSignOut = async () => {
         try {
             // First clear all local state to make the UI update immediately
+            setIsAuthModalOpen(true);
             setUserId(null);
             setUserEmail(null);
             setUserRole('teacher');
@@ -1246,27 +1227,18 @@ const App: React.FC = () => {
                 }
             });
 
-            setIsAuthModalOpen(true);
-
-            // Attempt to sign out from supabase but don't let it block the redirect if it's slow
-            // We use a Promise.race or just fire and forget if it's not critical, 
-            // but usually we want to try for at least a short bit.
+            // Attempt to sign out from supabase
             try {
-                await Promise.race([
-                    supabase.auth.signOut(),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('Sign out timeout')), 2000))
-                ]);
+                await supabase.auth.signOut();
             } catch (authErr) {
-                console.warn('Supabase sign out error or timeout:', authErr);
+                console.warn('Supabase sign out error:', authErr);
             }
             
-            // Full reload to clear any remaining in-memory caches or leakages
-            window.location.replace(window.location.origin);
+            // Instead of full reload which can loop, we manually reset any persistent state if needed
+            // The components will re-render based on null userId
         } catch (err) {
             console.error('Sign out failed:', err);
-            // Even on error, try to clear locally and reload
             localStorage.clear();
-            window.location.replace(window.location.origin);
         }
     };
 
