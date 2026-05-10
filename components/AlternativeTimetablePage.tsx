@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import type { Language, SchoolClass, Subject, Teacher, TimetableGridData, Adjustment, SchoolConfig, Period, LeaveDetails, DownloadDesignConfig, TimetableSession, JointPeriod } from '../types';
 import PrintPreview from './PrintPreview';
-import { translations } from '../i18n';
+import { translations } from './i18n';
 import { generateAdjustmentsExcel, generateAdjustmentsReportHtml } from './reportUtils';
 import { generateUniqueId, allDays } from '../types';
 import NoSessionPlaceholder from './NoSessionPlaceholder';

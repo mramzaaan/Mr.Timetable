@@ -126,7 +126,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                             </div>
                         </div>
 
-                        {/* Create Timetable Action */}
+                        {/* Create New Actions */}
                         {canManageTimetables && (
                             <div className="mb-6 space-y-3">
                                 {!isCreateMenuOpen ? (
@@ -135,7 +135,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                         className="w-full flex items-center justify-center gap-3 p-4 bg-[var(--accent-primary)] text-white rounded-3xl font-black text-sm uppercase tracking-widest hover:opacity-90 transition-all shadow-lg active:scale-95"
                                     >
                                         <Plus className="w-5 h-5" />
-                                        <span>Create Timetable</span>
+                                        <span>Create New</span>
                                     </button>
                                 ) : (
                                     <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-[2rem] border border-gray-100 dark:border-gray-800 animate-in slide-in-from-top-2 duration-300">
@@ -146,17 +146,17 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                         <div className="grid grid-cols-1 gap-2">
                                             <button 
                                                 onClick={() => { setIsCreateMenuOpen(false); onOpenCreateModal(); }}
-                                                className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl text-sm font-bold shadow-sm hover:shadow-md transition-all text-gray-700 dark:text-gray-200"
+                                                className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl text-sm font-bold shadow-sm hover:shadow-md transition-all text-gray-700 dark:text-gray-200 w-full"
                                             >
                                                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg"><Plus className="w-4 h-4" /></div>
                                                 <div className="text-left">
-                                                    <p className="leading-tight">Create Manually</p>
+                                                    <p className="leading-tight">Create Manual</p>
                                                     <p className="text-[10px] font-medium text-gray-400">Start from scratch</p>
                                                 </div>
                                             </button>
                                             <button 
                                                 onClick={() => fileInputRef.current?.click()}
-                                                className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl text-sm font-bold shadow-sm hover:shadow-md transition-all text-gray-700 dark:text-gray-200"
+                                                className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-2xl text-sm font-bold shadow-sm hover:shadow-md transition-all text-gray-700 dark:text-gray-200 w-full"
                                             >
                                                 <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-lg"><Upload className="w-4 h-4" /></div>
                                                 <div className="text-left">

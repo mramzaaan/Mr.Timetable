@@ -6,7 +6,7 @@ import PeriodStack from './PeriodStack';
 import CopyTimetableModal from './CopyTimetableModal';
 import PrintPreview from './PrintPreview';
 import { generateUniqueId, getColorForId } from '../types';
-import { translations } from '../i18n';
+import { translations } from './i18n';
 import { ClassCommunicationModal } from './ClassCommunicationModal';
 import DownloadModal from './DownloadModal';
 import { generateClassTimetableHtml } from './reportUtils';

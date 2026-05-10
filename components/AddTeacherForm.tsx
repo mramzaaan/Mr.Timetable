@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { Teacher } from '../types';
 import SwipeableListItem from './SwipeableListItem';
-import { countries, Country } from '../lib/countries';
+import { countries, Country } from '../countries';
 import { Search, ChevronDown } from 'lucide-react';
 
 interface AddTeacherFormProps {

@@ -4,7 +4,7 @@ import { toBlob } from 'html-to-image';
 import { saveAndShareFile, downloadFileNative, openUrlBrowser } from './capacitorHelpers';
 import type { Teacher, Subject, SchoolClass, SchoolConfig, TimetableGridData, Period, CardStyle, TriangleCorner } from '../types';
 import { allDays } from '../types';
-import { translations } from '../i18n';
+import { translations } from './i18n';
 
 
 

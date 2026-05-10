@@ -1,6 +1,6 @@
 
 import type { SchoolClass, Adjustment, TimetableGridData, DownloadLanguage, DownloadDesignConfig, Teacher, SchoolConfig, Subject, PeriodTime, Break, Period, LeaveDetails, AttendanceData, TriangleCorner, TimetableSession, JointPeriod } from '../types';
-import { translations } from '../i18n';
+import { translations } from './i18n';
 import { allDays, getColorForId } from '../types';
 
 export interface WorkloadStats {

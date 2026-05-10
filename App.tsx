@@ -5,7 +5,7 @@ import a11yPlugin from 'colord/plugins/a11y';
 extend([a11yPlugin]);
 
 import type { Language, UserRole, Page, SchoolClass, Subject, Teacher, TimetableGridData, Adjustment, TimetableSession, UserData, SchoolConfig, DataEntryTab, Period, DownloadDesignConfig, DownloadDesigns, GroupSet, JointPeriod, LeaveDetails, PeriodTime, Break, AttendanceData, NavPosition, NavDesign, NavShape } from './types';
-import { translations } from './i18n';
+import { translations } from './components/i18n';
 import HomePage from './components/HomePage';
 import DataEntryPage from './components/DataEntryPage';
 import ClassTimetablePage from './components/ClassTimetablePage';
@@ -450,11 +450,14 @@ const App: React.FC = () => {
         try {
             const emailLower = email.toLowerCase();
             
-            // Fetch all sessions where the user is either the creator or a teacher
+            // Fetch all sessions where the user is:
+            // 1. The creator (created_by)
+            // 2. Mentioned as a teacher in teacher_email array
+            // 3. Explicitly given edit permission in allow_edit_emails array
             const { data, error } = await supabase
                 .from('timetables')
                 .select('*')
-                .or(`created_by.eq.${emailLower},teacher_email.cs.{${emailLower}}`);
+                .or(`created_by.eq.${emailLower},teacher_email.cs.{${emailLower}},allow_edit_emails.cs.{${emailLower}}`);
             
             if (error) throw error;
 
@@ -1068,8 +1071,9 @@ const App: React.FC = () => {
             assembly: userData.schoolConfig.assembly, 
             vacations: [], 
             changeLogs: [],
-            admins: [], // Initial empty admins list
-            ownerId: userId || undefined,
+            admins: userEmail ? [userEmail.toLowerCase()] : [], // User is the first admin
+            allow_edit_emails: userEmail ? [userEmail.toLowerCase()] : [], // Explicit edit rights
+            ownerId: userEmail || userId || undefined,
             schoolName: schoolNameEn || userData.schoolConfig.schoolNameEn
         }; 
 
