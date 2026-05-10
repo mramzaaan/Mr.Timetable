@@ -175,7 +175,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                             <div className="space-y-2">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">My Creations</p>
                                 {sessions.filter(s => !s.isShared).map((session) => (
-                                        <div key={session.id} className="flex gap-2">
+                                    <div key={session.id} className="space-y-1">
+                                        <div className="flex gap-2">
                                             <button
                                                 onClick={() => onSelectSession(session.id)}
                                                 className={`flex-grow flex items-center justify-between p-4 rounded-3xl transition-all ${
@@ -203,21 +204,37 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); onSaveToCloud(session); }}
                                                     className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white`}
-                                                    title="Sync to Cloud"
+                                                    title="Sync to Cloud / Publish"
                                                 >
                                                     <Cloud className="w-4 h-4 sm:w-5 sm:h-5" />
                                                 </button>
-                                                {session.ownerId && (
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); onDeleteSessionFromBackend(session); }}
-                                                        className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white`}
-                                                        title="Delete from Online"
-                                                    >
-                                                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                                                    </button>
-                                                )}
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); onDeleteSessionFromBackend(session); }}
+                                                    className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all flex-1 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white`}
+                                                    title="Delete from Online"
+                                                >
+                                                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                </button>
                                             </div>
                                         </div>
+                                        <div className="flex items-center justify-between ml-4 px-2">
+                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Allow Teachers to Edit</span>
+                                            <label className="relative inline-flex items-center cursor-pointer ml-auto mb-2" onClick={e => e.stopPropagation()}>
+                                                <input
+                                                    type="checkbox"
+                                                    className="sr-only peer"
+                                                    checked={session.allowEdit === true}
+                                                    onChange={async (e) => {
+                                                        const newVal = e.target.checked;
+                                                        // Toggle allowEdit directly in cloud
+                                                        const updatedSession = { ...session, allowEdit: newVal };
+                                                        await onSaveToCloud(updatedSession);
+                                                    }}
+                                                />
+                                                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[var(--accent-primary)]"></div>
+                                            </label>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
 

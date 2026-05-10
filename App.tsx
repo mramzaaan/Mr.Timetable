@@ -384,47 +384,30 @@ const App: React.FC = () => {
     const fetchSessions = useCallback(async (userId: string, email: string) => {
         setIsLoadingRemote(true);
         try {
-            // First, get sessions owned by user
+            const emailLower = email.toLowerCase();
+            
+            // First, get sessions owned by user (My Creations)
             const { data: owned, error: ownedError } = await supabase
-                .from('sessions')
+                .from('timetables')
                 .select('*')
-                .eq('owner_id', userId);
+                .eq('created_by', emailLower);
             
             if (ownedError) throw ownedError;
 
-            // Second, get sessions where user is a teacher or admin (shared)
-            const emailLower = email.toLowerCase();
-            
-            const { data: sharedByTeacher, error: err1 } = await supabase
-                .from('sessions')
+            // Second, get sessions shared with the user (Shared with Me)
+            const { data: shared, error: sharedError } = await supabase
+                .from('timetables')
                 .select('*')
-                .neq('owner_id', userId)
-                .contains('data', { teachers: [{ email: emailLower }] });
+                .neq('created_by', emailLower)
+                .contains('teacher_email', [emailLower]);
 
-            const { data: sharedByAdmin, error: err2 } = await supabase
-                .from('sessions')
-                .select('*')
-                .neq('owner_id', userId)
-                .contains('data', { admins: [emailLower] });
-
-            const { data: sharedByEditor, error: err3 } = await supabase
-                .from('sessions')
-                .select('*')
-                .neq('owner_id', userId)
-                .contains('data', { editors: [emailLower] });
-
-            if (err1 || err2 || err3) {
-                console.warn('Shared sessions fetch error:', err1?.message || err2?.message || err3?.message);
+            if (sharedError) {
+                console.warn('Shared sessions fetch error:', sharedError.message);
             }
 
-            const uniqueShared = [...(sharedByTeacher || []), ...(sharedByAdmin || []), ...(sharedByEditor || [])].reduce((acc: any[], curr) => {
-                if (!acc.find(s => s.id === curr.id)) acc.push(curr);
-                return acc;
-            }, []);
-
             const allRemote = [
-                ...(owned || []).map(s => ({ ...s.data, id: s.id, owner_id: s.owner_id, ownerId: s.owner_id, isShared: false })),
-                ...uniqueShared.map(s => ({ ...s.data, id: s.id, owner_id: s.owner_id, ownerId: s.owner_id, isShared: true }))
+                ...(owned || []).map(s => ({ ...s.data, id: s.id, ownerId: s.created_by, isShared: false, allowEdit: s.allow_edit })),
+                ...(shared || []).map(s => ({ ...s.data, id: s.id, ownerId: s.created_by, isShared: true, allowEdit: s.allow_edit }))
             ];
             setRemoteSessions(allRemote);
         } catch (err) {
@@ -540,25 +523,23 @@ const App: React.FC = () => {
         const emailLower = userEmail.toLowerCase();
 
         const channel = supabase
-            .channel('public:sessions')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, (payload) => {
+            .channel('public:timetables')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'timetables' }, (payload) => {
                 if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
                     const newSessionDoc = payload.new as any;
                     const sessionData = newSessionDoc.data as TimetableSession;
                     if (!sessionData || !sessionData.id) return;
                     
-                    const isOwner = newSessionDoc.owner_id === userId;
-                    const isShared = (sessionData.teachers?.some(t => t.email?.toLowerCase() === emailLower)) ||
-                                     (sessionData.admins?.some(a => a.toLowerCase() === emailLower)) ||
-                                     (sessionData.editors?.some(e => e.toLowerCase() === emailLower));
+                    const isOwner = newSessionDoc.created_by === emailLower;
+                    const isShared = Array.isArray(newSessionDoc.teacher_email) && newSessionDoc.teacher_email.includes(emailLower);
                     
                     if (isOwner || isShared) {
                         const parsedSession = {
                             ...sessionData,
                             id: newSessionDoc.id,
-                            owner_id: newSessionDoc.owner_id,
-                            ownerId: newSessionDoc.owner_id,
-                            isShared: !isOwner
+                            ownerId: newSessionDoc.created_by,
+                            isShared: !isOwner,
+                            allowEdit: newSessionDoc.allow_edit
                         };
                         
                         setRemoteSessions(prev => {
@@ -579,6 +560,9 @@ const App: React.FC = () => {
                                 const newSessions = [...prev.timetableSessions];
                                 newSessions[localIndex] = parsedSession;
                                 return { ...prev, timetableSessions: newSessions };
+                            } else if (isShared) {
+                                // automatically load shared sessions into local data
+                                return { ...prev, timetableSessions: [...prev.timetableSessions, parsedSession] };
                             }
                             return prev;
                         });
@@ -839,16 +823,12 @@ const App: React.FC = () => {
         }
 
         // Ensure current user has permission
-        const currentAdmins = session.admins || [];
-        const currentEditors = session.editors || [];
         const emailLower = userEmail.toLowerCase();
-        const isOwner = session.ownerId === userId;
-        const isAlreadyAdmin = currentAdmins.some(email => email.toLowerCase() === emailLower);
-        const isAlreadyEditor = currentEditors.some(email => email.toLowerCase() === emailLower);
-        const userPerms = session.userPermissions?.[emailLower];
-
+        const isOwner = session.ownerId === userId || session.ownerId === userEmail;
+        const allowEdit = (session as any).allowEdit === true;
+        
         // If it's a known cloud session and the user has no rights, block it
-        if (session.ownerId && !isOwner && !isAlreadyAdmin && !isAlreadyEditor && !userPerms?.canEditTimetable && !userPerms?.canManageData) {
+        if (session.ownerId && !isOwner && !(session.isShared && allowEdit)) {
              console.error('Permission denied: You do not have permission to sync this session to the cloud.');
              setSaveStatus('error');
              return;
@@ -856,7 +836,7 @@ const App: React.FC = () => {
 
         const updatedSession: any = { 
             ...session, 
-            ownerId: session.ownerId || userId,
+            ownerId: session.ownerId || userEmail,
             updatedBy: userEmail,
             lastSyncAt: new Date().toISOString()
         };
@@ -865,17 +845,16 @@ const App: React.FC = () => {
         setSaveStatus('saving');
 
         try {
+            const teacherEmails = updatedSession.teachers?.map((t: any) => t.email).filter(Boolean) || [];
+
             const { error } = await supabase
-                .from('sessions')
+                .from('timetables')
                 .upsert({
                     id: updatedSession.id,
-                    name: updatedSession.name,
-                    owner_id: updatedSession.ownerId,
-                    data: updatedSession,
-                    start_date: updatedSession.startDate,
-                    end_date: updatedSession.endDate,
-                    school_name: updatedSession.schoolName || userData.schoolConfig.schoolNameEn,
-                    updated_at: new Date().toISOString()
+                    created_by: updatedSession.ownerId === userId ? userEmail : updatedSession.ownerId, // Migrate old UUIDs to email
+                    teacher_email: teacherEmails,
+                    allow_edit: updatedSession.allowEdit || false,
+                    data: updatedSession
                 });
             
             if (error) throw error;
@@ -1086,7 +1065,7 @@ const App: React.FC = () => {
                 }
 
                 const { error, count } = await supabase
-                    .from('sessions')
+                    .from('timetables')
                     .delete({ count: 'exact' })
                     .eq('id', session.id);
                 
@@ -1094,7 +1073,8 @@ const App: React.FC = () => {
                     throw new Error(error.message || 'Unknown Supabase error');
                 }
                 
-                if (count === 0 && session.ownerId !== userId) {
+                const isOwner = session.ownerId === userId || session.ownerId === userEmail;
+                if (count === 0 && !isOwner) {
                     throw new Error('Deletion failed. You may not be the owner of this session or it does not exist online.');
                 }
                 
@@ -1148,7 +1128,7 @@ const App: React.FC = () => {
         const sessionWithId = { 
             ...session, 
             id: generateUniqueId(),
-            ownerId: userId || undefined,
+            ownerId: userEmail || undefined,
             isShared: false
         };
 
@@ -1168,6 +1148,11 @@ const App: React.FC = () => {
             if (newSchoolConfig) { nextState.schoolConfig = { ...nextState.schoolConfig, ...newSchoolConfig }; }
             return nextState; 
         }); 
+
+        // Automatically sync uploaded session to the cloud so rules & triggers apply immediately
+        if (userEmail) {
+            handleSaveToCloud(sessionWithId);
+        }
         setCurrentTimetableSessionId(sessionWithId.id);
 
         // Backend Update
@@ -1193,7 +1178,18 @@ const App: React.FC = () => {
             await set('mrtimetable_customFontsData', fontData);
             setCustomFontsData(fontData);
         }
-        setUserData(restoredUserData);
+        
+        // Ensure restored sessions are owned by the current user so they can be deleted/synced properly
+        const sanitizedData = { ...restoredUserData };
+        if (sanitizedData.timetableSessions) {
+            sanitizedData.timetableSessions = sanitizedData.timetableSessions.map(session => ({
+                ...session,
+                ownerId: userEmail || userId || undefined,
+                isShared: false
+            }));
+        }
+        
+        setUserData(sanitizedData);
     };
 
     const handleDeleteSubject = useCallback((subjectId: string) => openConfirmation(t.delete, t.areYouSure, () => updateCurrentSession(s => ({ ...s, subjects: s.subjects.filter(sub => sub.id !== subjectId) }))), [t, updateCurrentSession]);
@@ -1255,7 +1251,11 @@ const App: React.FC = () => {
         if (userId && currentTimetableSession.ownerId === userId) return true; // Owner of the session
         
         const userEmailLower = userEmail?.toLowerCase() || '';
+        if (currentTimetableSession.ownerId === userEmailLower) return true; // Owner by email
         if (currentTimetableSession.admins?.some(email => email.toLowerCase() === userEmailLower)) return true;
+        
+        // Dynamic permission from backend table 'allow_edit'
+        if ((currentTimetableSession as any).allowEdit === true) return true;
         
         // Granular permissions for administrative actions
         if (currentTimetableSession.userPermissions?.[userEmailLower]?.canManageData) return true;
