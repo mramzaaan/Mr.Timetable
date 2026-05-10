@@ -114,11 +114,13 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ t, language, cla
         firstPeriodClassId = firstPeriodAdj.classId;
     }
 
-    // A teacher can take attendance ONLY if their first period is here today (either by timetable or adjustment)
-    const isAllowed = (firstPeriodClassId === selectedClass.id);
+    // A teacher can take attendance IF:
+    // 1. They are class in-charge
+    // 2. They have the first period today (by timetable or sub)
+    const isAllowed = (selectedClass.inCharge === currentTeacher.id) || (firstPeriodClassId === selectedClass.id);
     
     return isAllowed;
-  }, [isAdmin, selectedClass, currentTeacher, currentTimetableSession, selectedDate]);
+  }, [isAdmin, selectedClass, currentTeacher, currentTimetableSession, selectedDate, userEmail]);
 
   const attendanceRecord = currentTimetableSession?.attendance?.[selectedDate]?.[selectedClassId || ''];
 

@@ -847,15 +847,23 @@ const App: React.FC = () => {
         try {
             const teacherEmails = updatedSession.teachers?.map((t: any) => t.email).filter(Boolean) || [];
 
+            // Simple push of JSON data. 
+            // Ownership is handled by created_by default value in DB (auth.jwt() ->> 'email')
+            const upsertData: any = {
+                id: updatedSession.id,
+                teacher_email: teacherEmails,
+                allow_edit: updatedSession.allowEdit || false,
+                data: updatedSession
+            };
+
+            // Only send created_by if we already have a confirmed email owner (to respect existing ownership during updates)
+            if (updatedSession.ownerId && updatedSession.ownerId.includes('@')) {
+                upsertData.created_by = updatedSession.ownerId;
+            }
+
             const { error } = await supabase
                 .from('timetables')
-                .upsert({
-                    id: updatedSession.id,
-                    created_by: updatedSession.ownerId === userId ? userEmail : updatedSession.ownerId, // Migrate old UUIDs to email
-                    teacher_email: teacherEmails,
-                    allow_edit: updatedSession.allowEdit || false,
-                    data: updatedSession
-                });
+                .upsert(upsertData);
             
             if (error) throw error;
             
@@ -1123,22 +1131,13 @@ const App: React.FC = () => {
         if (!session.vacations) session.vacations = [];
         if (!session.changeLogs) session.changeLogs = [];
         
-        // Ensure imported JSON becomes a new independent session owned by the current user
-        // This prevents RLS errors and overwriting someone else's timetable in the cloud
+        // Ensure imported JSON becomes a new independent session
         const sessionWithId = { 
             ...session, 
             id: generateUniqueId(),
             ownerId: userEmail || undefined,
             isShared: false
         };
-
-        // Add user as admin if they are uploading
-        if (userEmail) {
-            const admins = sessionWithId.admins || [];
-            if (!admins.some(email => email.toLowerCase() === userEmail.toLowerCase())) {
-                sessionWithId.admins = [...admins, userEmail.toLowerCase()];
-            }
-        }
 
         // Local Update
         setUserData(prev => { 
@@ -1149,7 +1148,8 @@ const App: React.FC = () => {
             return nextState; 
         }); 
 
-        // Automatically sync uploaded session to the cloud so rules & triggers apply immediately
+        // Automatically sync uploaded session to the cloud.
+        // Backend handles ownership via created_by default.
         if (userEmail) {
             handleSaveToCloud(sessionWithId);
         }
